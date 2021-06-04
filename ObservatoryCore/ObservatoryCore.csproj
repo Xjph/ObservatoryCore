@@ -1,0 +1,59 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Observatory</RootNamespace>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
+    <!--<PublishTrimmed>true</PublishTrimmed>-->
+    <TrimMode>Link</TrimMode>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="0.10.3" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="0.10.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.3" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.3" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="0.10.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="UI\Assets\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ObservatoryFramework">
+      <HintPath>..\..\ObservatoryFramework\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Core.Designer.cs">
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Core.settings</DependentUpon>
+    </Compile>
+    <Compile Update="UI\Views\CoreView.axaml.cs">
+      <DependentUpon>CoreView.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="UI\Views\NotificationView.axaml.cs">
+      <DependentUpon>NotificationView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Properties\Core.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Core.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vw="clr-namespace:Observatory.UI.Views"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Observatory.UI.Views.CoreView">
+  <Grid RowDefinitions="30,*,Auto">
+    <TextBlock Grid.Row="0" VerticalAlignment="Center" Padding="10,0,0,0">
+      Elite Observatory - v1.0core
+    </TextBlock>
+    <TabControl Name="CoreTabs"
+      Grid.Row="1" Grid.Column="1"
+      VerticalAlignment="Stretch"
+      TabStripPlacement="Left"
+      Items="{Binding Tabs}"
+      BorderBrush="Black"
+      BorderThickness="1">
+      <TabControl.ItemTemplate>
+        <DataTemplate>
+          <TabItem>
+            <TabItem.Header>
+              <TextBlock Text="{Binding Name}"/>
+            </TabItem.Header>
+          </TabItem>
+        </DataTemplate>
+      </TabControl.ItemTemplate>
+      <TabControl.ContentTemplate>
+        <DataTemplate>
+          <vw:BasicUIView DataContext="{Binding UI}" UIType="{Binding UIType}"/>
+        </DataTemplate>
+      </TabControl.ContentTemplate>
+    </TabControl>
+    <WrapPanel Height="50" Grid.Row="2" Grid.Column="0" VerticalAlignment="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
+      <Button Name="ToggleMonitor" Margin="10" Command="{Binding ToggleMonitor}" Content="{Binding ToggleButtonText}">
+        Start Monitor
+      </Button>
+      <Button Name="ReadAll" Margin="10" Command="{Binding ReadAll}">
+        Read All
+      </Button>
+    </WrapPanel>
+  </Grid>
+</UserControl>
