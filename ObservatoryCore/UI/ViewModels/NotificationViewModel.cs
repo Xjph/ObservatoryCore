@@ -11,8 +11,9 @@ namespace Observatory.UI.ViewModels
         public NotificationViewModel(string title, string detail)
         {
             Notification = new() { Title = title, Detail = detail };
+            
         }
 
-        public Models.NotificationModel Notification;
+        public Models.NotificationModel Notification { get; set; }
     }
 }
