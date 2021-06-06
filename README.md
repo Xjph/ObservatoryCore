@@ -22,7 +22,7 @@ The "Read All" button will read all journal files in the specified folder, handi
 
 In addition to updating the content of their respective UI tabs, some workers can also send notifications, which will be distributed to all notifier plugins, as well as be passed to Observatory Core's native notification popup.
 
-For specifics on what each plugin does, please refer to their specific github repositories:
+For specifics on what each plugin does, please refer to their respective repositories:
 * [Explorer](https://github.com/Xjph/ObservatoryExplorer)
 * [Botanist](https://github.com/Xjph/ObservatoryBotanist)
 
