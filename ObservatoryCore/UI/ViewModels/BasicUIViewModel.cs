@@ -32,19 +32,6 @@ namespace Observatory.UI.ViewModels
          
             this.BasicUIGrid = new();
             this.BasicUIGrid = BasicUIGrid;
-
-            //// Create a timer and set a two second interval.
-            //var aTimer = new System.Timers.Timer();
-            //aTimer.Interval = 2000;
-
-            //// Hook up the Elapsed event for the timer. 
-            //aTimer.Elapsed += OnTimedEvent;
-
-            //// Have the timer fire repeated events (true is the default)
-            //aTimer.AutoReset = true;
-
-            //// Start the timer
-            //aTimer.Enabled = true;
         }
 
         private PluginUI.UIType uiType;
@@ -57,11 +44,6 @@ namespace Observatory.UI.ViewModels
                 uiType = value;
                 this.RaisePropertyChanged(nameof(UIType));
             }
-        }
-
-        private void OnTimedEvent(object sender, System.Timers.ElapsedEventArgs e)
-        {
-            basicUIGrid.Count();
         }
     }
 }
