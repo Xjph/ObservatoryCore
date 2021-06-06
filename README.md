@@ -4,7 +4,7 @@ Tool for reading/monitoring Elite Dangerous journals for interesting objects. Su
 ## *IMPORTANT*
 Observatory Core and it's associated plugins are currently in an alpha state and are neither feature-complete nor using a finalised UI. Over the coming weeks I will outline in detail what functionality is missing *but still planned*, and begin work on getting it to feature parity with the original Elite Observatory.
 
-Ommissions to current functionality include:
+Omissions to current functionality include:
 * Voice notification
 * Checks based on surface materials (yes, there are checkboxes for them in the Explorer setting, they do not do anything)
 * Having an application icon
