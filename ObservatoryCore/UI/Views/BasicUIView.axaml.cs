@@ -226,7 +226,7 @@ namespace Observatory.UI.Views
             {
                 Expander expander = new()
                 {
-                    Header = $"{plugin.Name} - {plugin.Version}",
+                    Header = plugin.Name,
                     DataContext = plugin.Settings,
                     Margin = new Thickness(0, 20)
                 };
