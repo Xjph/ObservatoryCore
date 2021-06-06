@@ -6,7 +6,7 @@ Observatory Core and it's associated plugins are currently in an alpha state and
 
 Omissions to current functionality include:
 * Voice notification
-* Checks based on surface materials (yes, there are checkboxes for them in the Explorer setting, they do not do anything)
+* Checks based on surface materials (yes, there are checkboxes for them in the Explorer settings, they do not do anything)
 * Having an application icon
 * Integration with Frontier's Companion API
 * Integration with Telegram
