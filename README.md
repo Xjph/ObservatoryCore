@@ -6,7 +6,7 @@ Observatory Core differs from the originsl Elite Observatory in that it is a ful
 
 Observatory will attempt to locate your Elite Dangerous journal location in its default location, though other locations can be specified from the settings in the "Core" application tab. Due to the variety of possible system configurations this automatic detection does not function under Linux, so all Linux users will need to browse for the correct location.
 
-The "Read All" button will read all journal files in the specified folder, handing their contents over to all loaded worker plugins.
+The "Read All" button will read all journal files in the specified folder, handing their contents over to all loaded worker plugins. "Start Monitor" will begin watching files in the journal folder for changes, and pass new journal lines as they are created, as well as all changes to the status.json file, over the worker plugins.
 
 For specifics on what each plugin does, please refer to their specific github repositories:
 * [Explorer](https://github.com/Xjph/ObservatoryExplorer)
