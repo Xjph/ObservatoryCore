@@ -45,6 +45,7 @@ namespace Observatory
             journalWatcher.EnableRaisingEvents = true;
             statusWatcher.EnableRaisingEvents = true;
             monitoring = true;
+            JournalPoke();
         }
 
         public void Stop()
@@ -128,7 +129,7 @@ namespace Observatory
             };
             journalWatcher.Changed += LogChangedEvent;
             journalWatcher.Created += LogCreatedEvent;
-            
+
             statusWatcher = new FileSystemWatcher(logDirectory.FullName, "Status.json")
             {
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.LastAccess
@@ -156,7 +157,7 @@ namespace Observatory
                     throw new DirectoryNotFoundException($"Directory '{path}' does not exist.");
                 }
             }
-            else if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 logDirectory = new DirectoryInfo(GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous");
             }
@@ -182,7 +183,7 @@ namespace Observatory
             {
                 eventType = "JournalBase";
             }
-            
+
             var eventClass = journalTypes[eventType];
             MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
             MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
@@ -191,19 +192,19 @@ namespace Observatory
             var handler = JournalEntry;
 
             handler?.Invoke(this, journalEvent);
-            
+
         }
 
         private void LogChangedEvent(object source, FileSystemEventArgs eventArgs)
         {
             var fileContent = ReadAllLines(eventArgs.FullPath);
 
-            if (currentLine[eventArgs.FullPath] == -1)
+            if (!currentLine.ContainsKey(eventArgs.FullPath))
             {
-                currentLine[eventArgs.FullPath] = fileContent.Count - 1;
+                currentLine.Add(eventArgs.FullPath, fileContent.Count - 1);
             }
 
-            foreach(string line in fileContent.Skip(currentLine[eventArgs.FullPath]))
+            foreach (string line in fileContent.Skip(currentLine[eventArgs.FullPath]))
             {
                 DeserializeAndInvoke(line);
             }
@@ -226,7 +227,7 @@ namespace Observatory
 
         private void LogCreatedEvent(object source, FileSystemEventArgs eventArgs)
         {
-            currentLine[eventArgs.FullPath] = 0;
+            currentLine.Add(eventArgs.FullPath, 0);
             LogChangedEvent(source, eventArgs);
         }
 
@@ -239,6 +240,33 @@ namespace Observatory
                 var status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
                 handler?.Invoke(this, new JournalEventArgs() { journalType = typeof(Status), journalEvent = status });
             }
+        }
+
+        /// <summary>
+        /// Touches most recent journal file once every 250ms while LogMonitor is monitoring.
+        /// Forces pending file writes to flush to disk and fires change events for new journal lines.
+        /// </summary>
+        private async void JournalPoke()
+        {
+            await System.Threading.Tasks.Task.Run(() => 
+            { 
+                while (monitoring)
+                {
+                    FileInfo fileToPoke = null;
+
+                    foreach (var file in new DirectoryInfo(Properties.Core.Default.JournalFolder).GetFiles("Journal.????????????.??.log"))
+                    {
+                        if (fileToPoke == null || string.Compare(file.Name, fileToPoke.Name) > 0)
+                        {
+                            fileToPoke = file;
+                        }
+                    }
+
+                    using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    stream.Close();
+                    System.Threading.Thread.Sleep(250);
+                }
+            });
         }
 
         private static string GetSavedGamesPath()
