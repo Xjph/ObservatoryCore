@@ -3,30 +3,14 @@ using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using System;
 
-
 namespace Observatory.PluginManagement
 {
     public class PluginCore : IObservatoryCore
     {
 
-        public string Version => "1.0a";
+        public string Version => System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
 
         public Status GetStatus()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RequestAllJournals()
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RequestJournalRange(DateTime start, DateTime end)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void RequestJournalRange(int startIndex, int number, bool newestFirst)
         {
             throw new NotImplementedException();
         }
@@ -54,18 +38,23 @@ namespace Observatory.PluginManagement
             });
         }
 
+        /// <summary>
+        /// Adds an item to the datagrid on UI thread to ensure visual update.
+        /// </summary>
+        /// <param name="worker"></param>
+        /// <param name="item"></param>
         public void AddGridItem(IObservatoryWorker worker, object item)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => 
+            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
             {
-                worker.PluginUI.DataGrid.Add(item); 
+                worker.PluginUI.DataGrid.Add(item);
 
                 //Hacky removal of original empty object if one was used to populate columns
                 if (worker.PluginUI.DataGrid.Count == 2)
                 {
                     bool allNull = true;
                     Type itemType = worker.PluginUI.DataGrid[0].GetType();
-                    foreach(var property in itemType.GetProperties())
+                    foreach (var property in itemType.GetProperties())
                     {
                         if (property.GetValue(worker.PluginUI.DataGrid[0], null) != null)
                         {
@@ -77,8 +66,23 @@ namespace Observatory.PluginManagement
                     if (allNull)
                         worker.PluginUI.DataGrid.RemoveAt(0);
                 }
-                
+
             });
+        }
+
+        public void ClearGrid(IObservatoryWorker worker, object templateItem)
+        {
+            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                worker.PluginUI.DataGrid.Add(templateItem);
+                while (worker.PluginUI.DataGrid.Count > 1)
+                    worker.PluginUI.DataGrid.RemoveAt(0);
+            });
+        }
+
+        public void ExecuteOnUIThread(Action action)
+        {
+            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(action);
         }
 
         public event EventHandler<NotificationEventArgs> Notification;
