@@ -9,8 +9,12 @@ namespace Observatory.UI.Views
     {
         public CoreView()
         {
-            InitializeComponent();
             
+            InitializeComponent();
+
+            var titleBlock = this.Find<TextBlock>("Title");
+            titleBlock.Text = "Elite Observatory Core - v" + System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+
         }
 
         private void InitializeComponent()

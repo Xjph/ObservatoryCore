@@ -6,8 +6,8 @@
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Observatory.UI.Views.CoreView">
   <Grid RowDefinitions="30,*,Auto">
-    <TextBlock Grid.Row="0" VerticalAlignment="Center" Padding="10,0,0,0">
-      Elite Observatory - v1.0core
+    <TextBlock Grid.Row="0" VerticalAlignment="Center" Padding="10,0,0,0" Name="Title">
+      Elite Observatory - v0
     </TextBlock>
     <TabControl Name="CoreTabs"
       Grid.Row="1" Grid.Column="1"
