@@ -61,6 +61,10 @@ namespace Observatory.UI.ViewModels
                 worker.ReadAllStarted();
             }
             LogMonitor.GetInstance.ReadAllJournals();
+            foreach (var worker in workers)
+            {
+                worker.ReadAllFinished();
+            }
         }
 
         public void ToggleMonitor()
