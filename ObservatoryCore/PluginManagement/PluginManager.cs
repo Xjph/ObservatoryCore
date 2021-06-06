@@ -37,7 +37,6 @@ namespace Observatory.PluginManagement
         
         private PluginManager()
         {
-            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             errorList = LoadPlugins(out workerPlugins, out notifyPlugins);
 
             foreach (var error in errorList)
@@ -143,26 +142,6 @@ namespace Observatory.PluginManagement
             return configDirectory.FullName + "\\" + plugin.Name + ".json";
         }
 
-        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
-        {
-            AppDomain appDomain = (AppDomain)sender;
-            var assemblies = appDomain.GetAssemblies();
-
-            if (args.Name.ToLower().Contains(".resources"))
-            {
-                return null;
-            }
-
-            if (assemblies.FirstOrDefault(x => x.FullName == args.Name) == null)
-            {
-                AssemblyName assemblyName = new AssemblyName(args.Name);
-                System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyName(assemblyName);
-            }
-
-            var assembly = assemblies.FirstOrDefault(x => x.FullName == args.Name);
-            return assembly;
-        }
-
         private static List<string> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
         {
             observatoryWorkers = new();
@@ -229,6 +208,7 @@ namespace Observatory.PluginManagement
             var pluginAssembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(new FileInfo(dllPath).FullName);
             Type[] types;
             string err = string.Empty;
+            int pluginCount = 0;
             try
             {
                 types = pluginAssembly.GetTypes();
@@ -248,6 +228,7 @@ namespace Observatory.PluginManagement
                 ConstructorInfo constructor = worker.GetConstructor(Array.Empty<Type>());
                 object instance = constructor.Invoke(Array.Empty<object>());
                 workers.Add((instance as IObservatoryWorker, PluginStatus.Signed));
+                pluginCount++;
             }
 
             var notifyTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryNotifier)));
@@ -256,9 +237,10 @@ namespace Observatory.PluginManagement
                 ConstructorInfo constructor = notifier.GetConstructor(Array.Empty<Type>());
                 object instance = constructor.Invoke(Array.Empty<object>());
                 notifiers.Add((instance as IObservatoryNotifier, PluginStatus.Signed));
+                pluginCount++;
             }
 
-            if (workerTypes.Count() + notifyTypes.Count() == 0)
+            if (pluginCount == 0)
             {
                 err += $"ERROR: Library '{dllPath}' contains no suitable interfaces.";
                 LoadPlaceholderPlugin(dllPath, PluginStatus.InvalidPlugin, notifiers);
