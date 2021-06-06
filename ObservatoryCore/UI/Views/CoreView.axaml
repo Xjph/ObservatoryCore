@@ -5,6 +5,15 @@
              xmlns:vw="clr-namespace:Observatory.UI.Views"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Observatory.UI.Views.CoreView">
+  <UserControl.Styles>
+    <Style Selector="Button.Hyperlink">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="BorderBrush" Value="White"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="10"/>
+    </Style>
+  </UserControl.Styles>
   <Grid RowDefinitions="30,*,Auto">
     <TextBlock Grid.Row="0" VerticalAlignment="Center" Padding="10,0,0,0" Name="Title">
       Elite Observatory - v0
@@ -31,13 +40,23 @@
         </DataTemplate>
       </TabControl.ContentTemplate>
     </TabControl>
-    <WrapPanel Height="50" Grid.Row="2" Grid.Column="0" VerticalAlignment="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
-      <Button Name="ToggleMonitor" Margin="10" Command="{Binding ToggleMonitor}" Content="{Binding ToggleButtonText}">
-        Start Monitor
-      </Button>
-      <Button Name="ReadAll" Margin="10" Command="{Binding ReadAll}">
-        Read All
-      </Button>
-    </WrapPanel>
+    <Grid RowDefinitions="Auto,Auto" Grid.Row="2">
+      <StackPanel Grid.Column="1" Height="50" VerticalAlignment="Bottom" Orientation="Vertical" HorizontalAlignment="Left">
+        <Button Classes="Hyperlink" Name="github" Margin="10,0,0,5" Command="{Binding OpenGithub}">
+          github
+        </Button>
+        <Button Classes="Hyperlink" Name="Donate" Margin="10,0,0,0" Command="{Binding OpenDonate}">
+          Donate
+        </Button>
+      </StackPanel>
+      <WrapPanel Grid.Column="2" Height="50" VerticalAlignment="Bottom" Orientation="Horizontal" HorizontalAlignment="Right">
+        <Button Name="ToggleMonitor" Margin="10" Command="{Binding ToggleMonitor}" Content="{Binding ToggleButtonText}">
+          Start Monitor
+        </Button>
+        <Button Name="ReadAll" Margin="10" Command="{Binding ReadAll}">
+          Read All
+        </Button>
+      </WrapPanel>
+    </Grid>
   </Grid>
 </UserControl>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data;
+using System.Diagnostics;
 using System.Linq;
 using Avalonia.Controls;
 using Observatory.Framework.Interfaces;
@@ -81,6 +82,20 @@ namespace Observatory.UI.ViewModels
                 logMonitor.Start();
                 ToggleButtonText = "Stop Monitor";
             }
+        }
+
+        public void OpenGithub()
+        {
+            ProcessStartInfo githubOpen = new("https://github.com/Xjph/ObservatoryCore");
+            githubOpen.UseShellExecute = true;
+            Process.Start(githubOpen);
+        }
+
+        public void OpenDonate()
+        {
+            ProcessStartInfo donateOpen = new("https://paypal.me/eliteobservatory");
+            donateOpen.UseShellExecute = true;
+            Process.Start(donateOpen);
         }
 
         public string ToggleButtonText
