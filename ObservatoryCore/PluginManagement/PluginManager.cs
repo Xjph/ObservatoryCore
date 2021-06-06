@@ -101,17 +101,20 @@ namespace Observatory.PluginManagement
         {
             var settingNames = new Dictionary<PropertyInfo, string>();
 
-            var properties = settings.GetType().GetProperties();
-            foreach (var property in properties)
+            if (settings != null)
             {
-                var attrib = property.GetCustomAttribute<Framework.SettingDisplayName>();
-                if (attrib == null)
+                var properties = settings.GetType().GetProperties();
+                foreach (var property in properties)
                 {
-                    settingNames.Add(property, property.Name);
-                }
-                else
-                {
-                    settingNames.Add(property, attrib.DisplayName);
+                    var attrib = property.GetCustomAttribute<Framework.SettingDisplayName>();
+                    if (attrib == null)
+                    {
+                        settingNames.Add(property, property.Name);
+                    }
+                    else
+                    {
+                        settingNames.Add(property, attrib.DisplayName);
+                    }
                 }
             }
             return settingNames;
