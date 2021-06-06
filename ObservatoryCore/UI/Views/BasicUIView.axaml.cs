@@ -148,13 +148,18 @@ namespace Observatory.UI.Views
                     Directory = journalPath.Text
                 };
                 var browseTask = openFolderDialog.ShowAsync((Window)((Button)source).GetVisualRoot());
-                string path = browseTask.Result;
-                if (path != string.Empty)
+                browseTask.ContinueWith((task) => 
                 {
-                    journalPath.Text = path;
-                    Properties.Core.Default.JournalFolder = path;
-                    Properties.Core.Default.Save();
-                }
+                    string path = task.Result;
+                    if (path != string.Empty)
+                    {
+                        Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { journalPath.Text = path; });
+                        Properties.Core.Default.JournalFolder = path;
+                        Properties.Core.Default.Save();
+                    }
+                });
+                
+                
             };
 
             corePanel.AddControl(journalPathLabel, 1, 0);
@@ -215,8 +220,6 @@ namespace Observatory.UI.Views
 
         private void GeneratePluginSettingUI(Grid gridPanel, IObservatoryPlugin plugin)
         {
-            //var plugin = pluginSettings.Key;
-
             var displayedSettings = PluginManagement.PluginManager.GetSettingDisplayNames(plugin.Settings);
 
             if (displayedSettings.Count > 0)
@@ -268,7 +271,6 @@ namespace Observatory.UI.Views
                                 PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
                             };
 
-                            //settingsGrid.Children.Add(checkBox);
                             settingsGrid.AddControl(checkBox, settingsGrid.RowDefinitions.Count - 1, settingsGrid.Children.Count % 2 == 0 ? 0 : 1);
 
                             break;
@@ -309,16 +311,18 @@ namespace Observatory.UI.Views
                                     AllowMultiple = false
                                 };
                                 var browseTask = openFileDialog.ShowAsync((Window)((Button)source).GetVisualRoot());
-
-                                if (browseTask.Result.Count() > 0)
+                                browseTask.ContinueWith((task) => 
                                 {
-                                    string path = browseTask.Result[0];
-                                    settingPath.Text = path;
+                                    if (task.Result.Count() > 0)
+                                    {
+                                        string path = browseTask.Result[0];
+                                        Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { settingPath.Text = path; });
+                                        setting.Key.SetValue(plugin.Settings, new System.IO.FileInfo(path));
+                                        PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
 
-                                    setting.Key.SetValue(plugin.Settings, new System.IO.FileInfo(path));
-                                    PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
-
-                                }
+                                    }
+                                });
+                                
                             };
 
                             StackPanel stackPanel = new() { Orientation = Avalonia.Layout.Orientation.Horizontal };
@@ -326,13 +330,12 @@ namespace Observatory.UI.Views
                             stackPanel.Children.Add(settingPath);
 
                             settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(21) });
-                            //settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0, 2);
                             settingsGrid.AddControl(stackPanel, settingsGrid.RowDefinitions.Count - 1, 0, 2);
                             settingsGrid.AddControl(settingBrowse, settingsGrid.RowDefinitions.Count - 1, 2);
 
                             break;
                     }
-                    //wrapPanel.Children.Add(panel);
+                    
                 }
             }
         }
