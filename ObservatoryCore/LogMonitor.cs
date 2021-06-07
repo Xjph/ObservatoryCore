@@ -103,8 +103,6 @@ namespace Observatory
 
         #endregion
 
-
-
         #region Private Fields
 
         private FileSystemWatcher journalWatcher;
@@ -137,7 +135,7 @@ namespace Observatory
             statusWatcher.Changed += StatusUpdateEvent;
         }
 
-        private DirectoryInfo GetJournalFolder(string path)
+        private DirectoryInfo GetJournalFolder(string path = "")
         {
             DirectoryInfo logDirectory;
 
@@ -252,9 +250,10 @@ namespace Observatory
             { 
                 while (monitoring)
                 {
+                    var journalFolder = GetJournalFolder();
                     FileInfo fileToPoke = null;
 
-                    foreach (var file in new DirectoryInfo(Properties.Core.Default.JournalFolder).GetFiles("Journal.????????????.??.log"))
+                    foreach (var file in journalFolder.GetFiles("Journal.????????????.??.log"))
                     {
                         if (fileToPoke == null || string.Compare(file.Name, fileToPoke.Name) > 0)
                         {
