@@ -152,44 +152,44 @@ namespace Observatory.PluginManagement
 
             if (Directory.Exists(pluginPath))
             {
-
+                //Temporarily skipping signature checks. Need to do this the right way later.
                 var pluginLibraries = Directory.GetFiles($".{Path.DirectorySeparatorChar}plugins", "*.dll");
-                var coreToken = Assembly.GetExecutingAssembly().GetName().GetPublicKeyToken();
+                //var coreToken = Assembly.GetExecutingAssembly().GetName().GetPublicKeyToken();
                 foreach (var dll in pluginLibraries)
                 {
                     try
                     {
-                        var pluginToken = AssemblyName.GetAssemblyName(dll).GetPublicKeyToken();
-                        PluginStatus signed;
+                        //var pluginToken = AssemblyName.GetAssemblyName(dll).GetPublicKeyToken();
+                        //PluginStatus signed;
 
-                        if (pluginToken.Length == 0)
-                        {
-                            errorList.Add($"Warning: {dll} not signed.");
-                            signed = PluginStatus.Unsigned;
-                        }
-                        else if (!coreToken.SequenceEqual(pluginToken))
-                        {
-                            errorList.Add($"Warning: {dll} signature does not match.");
-                            signed = PluginStatus.InvalidSignature;
-                        }
-                        else
-                        {
-                            errorList.Add($"OK: {dll} signed.");
-                            signed = PluginStatus.Signed;
-                        }
+                        //if (pluginToken.Length == 0)
+                        //{
+                        //    errorList.Add($"Warning: {dll} not signed.");
+                        //    signed = PluginStatus.Unsigned;
+                        //}
+                        //else if (!coreToken.SequenceEqual(pluginToken))
+                        //{
+                        //    errorList.Add($"Warning: {dll} signature does not match.");
+                        //    signed = PluginStatus.InvalidSignature;
+                        //}
+                        //else
+                        //{
+                        //    errorList.Add($"OK: {dll} signed.");
+                        //    signed = PluginStatus.Signed;
+                        //}
 
-                        if (signed == PluginStatus.Signed || Properties.Core.Default.AllowUnsigned)
-                        {
+                        //if (signed == PluginStatus.Signed || Properties.Core.Default.AllowUnsigned)
+                        //{
                             string error = LoadPluginAssembly(dll, observatoryWorkers, observatoryNotifiers);
                             if (!string.IsNullOrWhiteSpace(error))
                             {
                                 errorList.Add(error);
                             }
-                        }
-                        else
-                        {
-                            LoadPlaceholderPlugin(dll, signed, observatoryNotifiers);
-                        }
+                        //}
+                        //else
+                        //{
+                        //    LoadPlaceholderPlugin(dll, signed, observatoryNotifiers);
+                        //}
                         
 
                     }
