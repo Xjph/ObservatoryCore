@@ -202,7 +202,9 @@ namespace Observatory
                 }
                 else
                 {
-                    throw new DirectoryNotFoundException($"Directory '{path}' does not exist.");
+                    //throw new DirectoryNotFoundException($"Directory '{path}' does not exist.");
+                    //Don't throw, not handling that right now. Just set to current folder.
+                    logDirectory = new DirectoryInfo(".");
                 }
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
