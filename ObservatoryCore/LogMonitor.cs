@@ -82,13 +82,63 @@ namespace Observatory
             readall = true;
             DirectoryInfo logDirectory = GetJournalFolder(path);
             var files = logDirectory.GetFiles("Journal.????????????.??.log");
+            var readErrors = new List<(Exception ex, string file, string line)>();
             foreach (var file in files)
             {
                 var lines = ReadAllLines(file.FullName);
                 foreach (var line in lines)
                 {
-                    DeserializeAndInvoke(line);
+                    try
+                    {
+                        DeserializeAndInvoke(line);
+                    }
+                    catch (Exception ex)
+                    {
+                        readErrors.Add((ex, file.Name, line));
+                    }
                 }
+            }
+
+            if (readErrors.Any())
+            {
+                var errorContent = new System.Text.StringBuilder();
+                int count = 0;
+                foreach (var error in readErrors)
+                {
+                    errorContent.AppendLine(error.ex.InnerException.Message);
+                    errorContent.AppendLine($"File: {error.file}");
+                    if (error.line.Length > 200)
+                    {
+                        errorContent.AppendLine($"Line (first 200 chars): {error.line.Substring(0,200)}");
+                    }
+                    else
+                    {
+                        errorContent.AppendLine($"Line: {error.line}");
+                    }
+                    
+                    if (error != readErrors.Last())
+                    {
+                        errorContent.AppendLine();
+                        if (count++ == 5)
+                        {
+                            errorContent.AppendLine($"There are {readErrors.Count - 6} more errors but let's keep this window manageable.");
+                            break;
+                        }
+                    }
+                }
+                
+                if (Avalonia.Application.Current.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var errorMessage = MessageBox.Avalonia.MessageBoxManager
+                    .GetMessageBoxStandardWindow(new MessageBox.Avalonia.DTO.MessageBoxStandardParams
+                    {
+                        ContentTitle = $"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}",
+                        ContentMessage = errorContent.ToString()
+                    });
+                    errorMessage.ShowDialog(desktop.MainWindow);
+
+                }
+                
             }
             readall = false;
         }
