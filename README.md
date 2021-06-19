@@ -32,4 +32,4 @@ For information on how to create a plugin, refer to the repository for [Observat
 .NET 5, and by extension one of its [supported OSes](https://github.com/dotnet/core/blob/main/release-notes/5.0/5.0-supported-os.md).
 
 ## Prerequisites for building
-C# 9.0, .NET 5.0, [AvaloniaUI 0.10.3](https://github.com/AvaloniaUI/Avalonia).
+C# 9.0, .NET 5.0, [AvaloniaUI 0.10.3](https://github.com/AvaloniaUI/Avalonia), and of course [ObservatoryFramework](https://github.com/Xjph/ObservatoryFramework).
