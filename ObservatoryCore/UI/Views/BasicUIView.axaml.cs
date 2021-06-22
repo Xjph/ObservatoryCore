@@ -8,11 +8,15 @@ using Observatory.Framework.Interfaces;
 using System.Linq;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using System;
+using System.Collections.ObjectModel;
 
 namespace Observatory.UI.Views
 {
     public class BasicUIView : UserControl
     {
+        private DataGrid dataGrid;
+
         public BasicUIView()
         {
             Initialized += OnInitialized;
@@ -65,20 +69,22 @@ namespace Observatory.UI.Views
         private void UITypeChange()
         {
             var uiPanel = this.Find<Panel>("UIPanel");
-
+            dataGrid = null;
             switch (UIType)
             {
                 case PluginUI.UIType.None:
                     break;
                 case PluginUI.UIType.Basic:
-                    DataGrid dataGrid = new()
+                    dataGrid = new()
                     {
                         [!DataGrid.ItemsProperty] = new Binding("BasicUIGrid"),
                         SelectionMode = DataGridSelectionMode.Extended,
                         GridLinesVisibility = DataGridGridLinesVisibility.Vertical,
-                        AutoGenerateColumns = true
+                        AutoGenerateColumns = true,
+                        IsReadOnly = true,
                     };
                     dataGrid.AutoGeneratingColumn += ColumnGeneration;
+                    dataGrid.DataContextChanged += OnDataContextSet;
                     uiPanel.Children.Clear();
                     uiPanel.Children.Add(dataGrid);
                     break;
@@ -93,8 +99,26 @@ namespace Observatory.UI.Views
                 default:
                     break;
             }
+        }
 
+        private void OnDataContextSet(object sender, EventArgs e)
+        {
+            if (UIType != PluginUI.UIType.Basic || !(sender is DataGrid)) return;
+            dataGrid = (DataGrid)sender;
+            if (dataGrid.DataContext != null)
+            {
+                var dataContext = ((ViewModels.BasicUIViewModel)dataGrid.DataContext).BasicUIGrid;
+                dataContext.CollectionChanged += ScrollToLast;
+            }
+        }
 
+        private void ScrollToLast(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            // Only trigger on adds.
+            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add || UIType != PluginUI.UIType.Basic || dataGrid == null || !(sender is ObservableCollection<object>))
+                return;
+            var dataContext = (ObservableCollection<object>)sender;
+            dataGrid.ScrollIntoView(dataContext[dataContext.Count - 1], null);
         }
 
         private Grid GenerateCoreUI()
