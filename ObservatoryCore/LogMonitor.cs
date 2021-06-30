@@ -172,15 +172,15 @@ namespace Observatory
 
             journalWatcher = new FileSystemWatcher(logDirectory.FullName, "Journal.????????????.??.log")
             {
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.LastAccess |
-                                NotifyFilters.FileName | NotifyFilters.CreationTime | NotifyFilters.DirectoryName
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size |
+                                NotifyFilters.FileName | NotifyFilters.CreationTime
             };
             journalWatcher.Changed += LogChangedEvent;
             journalWatcher.Created += LogCreatedEvent;
 
             statusWatcher = new FileSystemWatcher(logDirectory.FullName, "Status.json")
             {
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size | NotifyFilters.LastAccess
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size
             };
             statusWatcher.Changed += StatusUpdateEvent;
         }
