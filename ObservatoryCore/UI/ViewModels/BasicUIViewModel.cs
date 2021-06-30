@@ -29,8 +29,6 @@ namespace Observatory.UI.ViewModels
 
         public BasicUIViewModel(ObservableCollection<object> BasicUIGrid)
         {
-         
-            this.BasicUIGrid = new();
             this.BasicUIGrid = BasicUIGrid;
         }
 

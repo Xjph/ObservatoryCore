@@ -30,12 +30,10 @@ namespace Observatory.UI.ViewModels
                 {
                     CoreModel coreModel = new();
                     coreModel.Name = worker.ShortName;
-                    coreModel.UI = new();
-                    var uiViewModel = new BasicUIViewModel(worker.PluginUI.DataGrid)
+                    coreModel.UI = new BasicUIViewModel(worker.PluginUI.DataGrid)
                     {
                         UIType = worker.PluginUI.PluginUIType
                     };
-                    coreModel.UI = uiViewModel;
                     
                     tabs.Add(coreModel);
                 }
