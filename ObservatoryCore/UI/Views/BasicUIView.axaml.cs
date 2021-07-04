@@ -123,7 +123,7 @@ namespace Observatory.UI.Views
 
         private Grid GenerateCoreUI()
         {
-            
+
             Grid corePanel = new();
 
             ColumnDefinitions columns = new()
@@ -137,11 +137,32 @@ namespace Observatory.UI.Views
             RowDefinitions rows = new()
             {
                 new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
+                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
                 new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) }
             };
             corePanel.RowDefinitions = rows;
 
-            var pluginManager = PluginManagement.PluginManager.GetInstance;
+            #region Native Settings
+
+            TextBlock nativeNotifyLabel = new() { Text = "Basic Notification" }; ;
+            CheckBox nativeNotifyCheckbox = new() { IsChecked = Properties.Core.Default.NativeNotify, Content = nativeNotifyLabel };
+
+            nativeNotifyCheckbox.Checked += (object sender, RoutedEventArgs e) =>
+            {
+                Properties.Core.Default.NativeNotify = true;
+                Properties.Core.Default.Save();
+            };
+
+            nativeNotifyCheckbox.Unchecked += (object sender, RoutedEventArgs e) =>
+            {
+                Properties.Core.Default.NativeNotify = false;
+                Properties.Core.Default.Save();
+            };
+
+            corePanel.AddControl(nativeNotifyCheckbox, 1, 0, 2);
+            
+
+            #endregion
 
             #region Journal Location
             TextBlock journalPathLabel = new()
@@ -186,11 +207,13 @@ namespace Observatory.UI.Views
                 
             };
 
-            corePanel.AddControl(journalPathLabel, 1, 0);
-            corePanel.AddControl(journalPath, 1, 1);
-            corePanel.AddControl(journalBrowse, 1, 2);
+            corePanel.AddControl(journalPathLabel, 2, 0);
+            corePanel.AddControl(journalPath, 2, 1);
+            corePanel.AddControl(journalBrowse, 2, 2);
 
             #endregion
+
+            var pluginManager = PluginManagement.PluginManager.GetInstance;
 
             #region Plugin List
             DataGrid pluginList = new() { Margin = new Thickness(0, 20) };
