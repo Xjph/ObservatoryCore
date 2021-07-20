@@ -103,8 +103,9 @@ namespace Observatory
 
         public void PrereadJournals()
         {
-            // TODO: use the configured journal path, not the "default" detected path.
-            DirectoryInfo logDirectory = GetJournalFolder(String.Empty);
+            if (!Properties.Core.Default.TryPrimeSystemContextOnStartMonitor) return;
+
+            DirectoryInfo logDirectory = GetJournalFolder(Properties.Core.Default.JournalFolder);
             var files = logDirectory.GetFiles("Journal.????????????.??.log");
 
             // Read at most the last two files (in case we were launched after the game and the latest

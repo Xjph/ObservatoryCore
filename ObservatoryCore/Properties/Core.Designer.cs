@@ -58,5 +58,20 @@ namespace Observatory.Properties {
                 this["NativeNotify"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool TryPrimeSystemContextOnStartMonitor
+        {
+            get
+            {
+                return ((bool)(this["TryPrimeSystemContextOnStartMonitor"]));
+            }
+            set
+            {
+                this["TryPrimeSystemContextOnStartMonitor"] = value;
+            }
+        }
     }
 }
