@@ -42,10 +42,10 @@ namespace Observatory
 
         public void Start()
         {
-            if (firstStarMonitor)
+            if (firstStartMonitor)
             {
                 // Only pre-read on first start monitor. Beyond that it's simply pause/resume.
-                firstStarMonitor = false;
+                firstStartMonitor = false;
                 PrereadJournals();
             }
             journalWatcher.EnableRaisingEvents = true;
@@ -86,7 +86,7 @@ namespace Observatory
         public void ReadAllJournals(string path)
         {
             // Prevent pre-reading when starting monitoring after reading all.
-            firstStarMonitor = false;
+            firstStartMonitor = false;
             readall = true;
             DirectoryInfo logDirectory = GetJournalFolder(path);
             var files = logDirectory.GetFiles("Journal.????????????.??.log");
@@ -167,7 +167,7 @@ namespace Observatory
         private Dictionary<string, int> currentLine;
         private bool monitoring = false;
         private bool readall = false;
-        private bool firstStarMonitor = true;
+        private bool firstStartMonitor = true;
 
         #endregion
 
