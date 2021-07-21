@@ -42,6 +42,12 @@ namespace Observatory
 
         public void Start()
         {
+            if (firstStartMonitor)
+            {
+                // Only pre-read on first start monitor. Beyond that it's simply pause/resume.
+                firstStartMonitor = false;
+                PrereadJournals();
+            }
             journalWatcher.EnableRaisingEvents = true;
             statusWatcher.EnableRaisingEvents = true;
             monitoring = true;
@@ -79,68 +85,68 @@ namespace Observatory
 
         public void ReadAllJournals(string path)
         {
+            // Prevent pre-reading when starting monitoring after reading all.
+            firstStartMonitor = false;
             readall = true;
             DirectoryInfo logDirectory = GetJournalFolder(path);
             var files = logDirectory.GetFiles("Journal.????????????.??.log");
             var readErrors = new List<(Exception ex, string file, string line)>();
             foreach (var file in files)
             {
+                readErrors.AddRange(
+                    ProcessLines(ReadAllLines(file.FullName), file.Name));
+            }
+
+            ReportErrors(readErrors);
+            readall = false;
+        }
+
+        public void PrereadJournals()
+        {
+            if (!Properties.Core.Default.TryPrimeSystemContextOnStartMonitor) return;
+
+            DirectoryInfo logDirectory = GetJournalFolder(Properties.Core.Default.JournalFolder);
+            var files = logDirectory.GetFiles("Journal.????????????.??.log");
+
+            // Read at most the last two files (in case we were launched after the game and the latest
+            // journal is mostly empty) but keeping only the lines since the last FSDJump.
+            List<String> lastSystemLines = new();
+            string lastLoadGame = String.Empty;
+            bool sawFSDJump = false;
+            foreach (var file in files.Skip(Math.Max(files.Length - 2, 0)))
+            {
                 var lines = ReadAllLines(file.FullName);
                 foreach (var line in lines)
                 {
-                    try
+                    var eventType = JournalUtilities.GetEventType(line);
+                    if (eventType.Equals("FSDJump"))
                     {
-                        DeserializeAndInvoke(line);
+                        // Reset, start collecting again.
+                        lastSystemLines.Clear();
+                        sawFSDJump = true;
                     }
-                    catch (Exception ex)
+                    else if (eventType.Equals("LoadGame"))
                     {
-                        readErrors.Add((ex, file.Name, line));
+                        lastLoadGame = line;
                     }
+                    lastSystemLines.Add(line);
                 }
             }
 
-            if (readErrors.Any())
+            // So we didn't see a jump in the recent logs. We could be re-logging, or something.
+            // Just bail on this attempt.
+            if (!sawFSDJump) return;
+
+            // If we saw a LoadGame, insert it as well. This ensures odyssey biologicials are properly
+            // counted/presented.
+            if (!String.IsNullOrEmpty(lastLoadGame))
             {
-                var errorContent = new System.Text.StringBuilder();
-                int count = 0;
-                foreach (var error in readErrors)
-                {
-                    errorContent.AppendLine(error.ex.InnerException.Message);
-                    errorContent.AppendLine($"File: {error.file}");
-                    if (error.line.Length > 200)
-                    {
-                        errorContent.AppendLine($"Line (first 200 chars): {error.line.Substring(0,200)}");
-                    }
-                    else
-                    {
-                        errorContent.AppendLine($"Line: {error.line}");
-                    }
-                    
-                    if (error != readErrors.Last())
-                    {
-                        errorContent.AppendLine();
-                        if (count++ == 5)
-                        {
-                            errorContent.AppendLine($"There are {readErrors.Count - 6} more errors but let's keep this window manageable.");
-                            break;
-                        }
-                    }
-                }
-                
-                if (Avalonia.Application.Current.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
-                {
-                    var errorMessage = MessageBox.Avalonia.MessageBoxManager
-                    .GetMessageBoxStandardWindow(new MessageBox.Avalonia.DTO.MessageBoxStandardParams
-                    {
-                        ContentTitle = $"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}",
-                        ContentMessage = errorContent.ToString()
-                    });
-                    errorMessage.ShowDialog(desktop.MainWindow);
-
-                }
-                
+                lastSystemLines.Insert(0, lastLoadGame);
             }
-            readall = false;
+
+            // We found an FSD jump, buffered the lines for that system (possibly including startup logs
+            // over a file boundary). Pump these through the plugins.
+            ReportErrors(ProcessLines(lastSystemLines, "Pre-read"));
         }
 
         #endregion
@@ -161,6 +167,7 @@ namespace Observatory
         private Dictionary<string, int> currentLine;
         private bool monitoring = false;
         private bool readall = false;
+        private bool firstStartMonitor = true;
 
         #endregion
 
@@ -226,6 +233,23 @@ namespace Observatory
             return logDirectory;
         }
 
+        private List<(Exception ex, string file, string line)> ProcessLines(List<String> lines, string file)
+        {
+            var readErrors = new List<(Exception ex, string file, string line)>();
+            foreach (var line in lines)
+            {
+                try
+                {
+                    DeserializeAndInvoke(line);
+                }
+                catch (Exception ex)
+                {
+                    readErrors.Add((ex, "Pre-read", line));
+                }
+            }
+            return readErrors;
+        }
+
         private void DeserializeAndInvoke(string line)
         {
             var eventType = JournalUtilities.GetEventType(line);
@@ -243,6 +267,51 @@ namespace Observatory
 
             handler?.Invoke(this, journalEvent);
 
+        }
+
+        private void ReportErrors(List<(Exception ex, string file, string line)> readErrors)
+        {
+            if (readErrors.Any())
+            {
+                var errorContent = new System.Text.StringBuilder();
+                int count = 0;
+                foreach (var error in readErrors)
+                {
+                    errorContent.AppendLine(error.ex.InnerException.Message);
+                    errorContent.AppendLine($"File: {error.file}");
+                    if (error.line.Length > 200)
+                    {
+                        errorContent.AppendLine($"Line (first 200 chars): {error.line.Substring(0, 200)}");
+                    }
+                    else
+                    {
+                        errorContent.AppendLine($"Line: {error.line}");
+                    }
+
+                    if (error != readErrors.Last())
+                    {
+                        errorContent.AppendLine();
+                        if (count++ == 5)
+                        {
+                            errorContent.AppendLine($"There are {readErrors.Count - 6} more errors but let's keep this window manageable.");
+                            break;
+                        }
+                    }
+                }
+
+                if (Avalonia.Application.Current.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+                {
+                    var errorMessage = MessageBox.Avalonia.MessageBoxManager
+                    .GetMessageBoxStandardWindow(new MessageBox.Avalonia.DTO.MessageBoxStandardParams
+                    {
+                        ContentTitle = $"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}",
+                        ContentMessage = errorContent.ToString()
+                    });
+                    errorMessage.ShowDialog(desktop.MainWindow);
+
+                }
+
+            }
         }
 
         private void LogChangedEvent(object source, FileSystemEventArgs eventArgs)

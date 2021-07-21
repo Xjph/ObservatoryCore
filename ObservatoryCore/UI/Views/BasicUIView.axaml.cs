@@ -138,13 +138,18 @@ namespace Observatory.UI.Views
             {
                 new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
                 new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
+                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
                 new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) }
             };
             corePanel.RowDefinitions = rows;
 
+            SettingRowTracker rowTracker = new SettingRowTracker(corePanel);
+
             #region Native Settings
 
-            TextBlock nativeNotifyLabel = new() { Text = "Basic Notification" }; ;
+            #region Notification settings
+
+            TextBlock nativeNotifyLabel = new() { Text = "Basic Notification" };
             CheckBox nativeNotifyCheckbox = new() { IsChecked = Properties.Core.Default.NativeNotify, Content = nativeNotifyLabel };
 
             nativeNotifyCheckbox.Checked += (object sender, RoutedEventArgs e) =>
@@ -159,8 +164,30 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.Save();
             };
 
-            corePanel.AddControl(nativeNotifyCheckbox, 1, 0, 2);
-            
+            corePanel.AddControl(nativeNotifyCheckbox, rowTracker.NextIndex(), 0, 2);
+
+            #endregion
+
+            #region System Context Priming setting
+
+            TextBlock primeSystemContextLabel = new() { Text = "Try re-load current system information when starting monitor" };
+            CheckBox primeSystemContexCheckbox = new() { IsChecked = Properties.Core.Default.TryPrimeSystemContextOnStartMonitor, Content = primeSystemContextLabel };
+
+            primeSystemContexCheckbox.Checked += (object sender, RoutedEventArgs e) =>
+            {
+                Properties.Core.Default.TryPrimeSystemContextOnStartMonitor = true;
+                Properties.Core.Default.Save();
+            };
+
+            primeSystemContexCheckbox.Unchecked += (object sender, RoutedEventArgs e) =>
+            {
+                Properties.Core.Default.TryPrimeSystemContextOnStartMonitor = false;
+                Properties.Core.Default.Save();
+            };
+
+            corePanel.AddControl(primeSystemContexCheckbox, rowTracker.NextIndex(), 0, 2);
+
+            #endregion
 
             #endregion
 
@@ -207,9 +234,10 @@ namespace Observatory.UI.Views
                 
             };
 
-            corePanel.AddControl(journalPathLabel, 2, 0);
-            corePanel.AddControl(journalPath, 2, 1);
-            corePanel.AddControl(journalBrowse, 2, 2);
+            int journalPathRowIndex = rowTracker.NextIndex();
+            corePanel.AddControl(journalPathLabel, journalPathRowIndex, 0);
+            corePanel.AddControl(journalPath, journalPathRowIndex, 1);
+            corePanel.AddControl(journalBrowse, journalPathRowIndex, 2);
 
             #endregion
 
@@ -249,7 +277,7 @@ namespace Observatory.UI.Views
             }
 
             pluginList.Items = allPlugins;
-            corePanel.AddControl(pluginList, 0, 0, 2);
+            corePanel.AddControl(pluginList, SettingRowTracker.PLUGIN_LIST_ROW_INDEX, 0, 2);
 
             #endregion
 
@@ -450,5 +478,34 @@ namespace Observatory.UI.Views
             Grid.SetColumn(control, column);
             Grid.SetRow(control, row);
         }
+    }
+
+    internal class SettingRowTracker
+    {
+        public const int PLUGIN_LIST_ROW_INDEX = 0;
+        private int nextSettingRowIndex;
+
+        private Grid settingPanel;
+
+        public SettingRowTracker(Grid settingPanel)
+        {
+            this.settingPanel = settingPanel;
+            Reset();
+        }
+
+        public int NextIndex()
+        {
+            if (nextSettingRowIndex > settingPanel.RowDefinitions.Count)
+            {
+                throw new IndexOutOfRangeException("Trying to add more settings than rows in the settings grid.");
+            }
+            return nextSettingRowIndex++;
+        }
+
+        private void Reset()
+        {
+            nextSettingRowIndex = PLUGIN_LIST_ROW_INDEX + 1;
+        }
+
     }
 }
