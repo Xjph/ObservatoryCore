@@ -59,6 +59,15 @@ namespace Observatory.PluginManagement
                 LoadSettings(plugin);
                 plugin.Load(core);
             }
+            foreach (var plugin in notifyPlugins.Select(p => p.plugin))
+            {
+                // Notifiers which are also workers need not be loaded again (they are the same instance).
+                if (!plugin.GetType().IsAssignableTo(typeof(IObservatoryWorker)))
+                {
+                    LoadSettings(plugin);
+                    plugin.Load(core);
+                }
+            }
 
             core.Notification += pluginHandler.OnNotificationEvent;
         }
@@ -228,10 +237,18 @@ namespace Observatory.PluginManagement
                 ConstructorInfo constructor = worker.GetConstructor(Array.Empty<Type>());
                 object instance = constructor.Invoke(Array.Empty<object>());
                 workers.Add((instance as IObservatoryWorker, PluginStatus.Signed));
+                if (instance is IObservatoryNotifier)
+                {
+                    // This is also a notifier; add to the notifier list as well, so the work and notifier are
+                    // the same instance and can share state.
+                    notifiers.Add((instance as IObservatoryNotifier, PluginStatus.Signed));
+                }
                 pluginCount++;
             }
 
-            var notifyTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryNotifier)));
+            // Filter out items which are also workers as we've already created them above.
+            var notifyTypes = types.Where(t =>
+                    t.IsAssignableTo(typeof(IObservatoryNotifier)) && !t.IsAssignableTo(typeof(IObservatoryWorker)));
             foreach (var notifier in notifyTypes)
             {
                 ConstructorInfo constructor = notifier.GetConstructor(Array.Empty<Type>());
