@@ -55,21 +55,15 @@ namespace Observatory.UI.ViewModels
 
         public void ReadAll()
         {
-            foreach (var worker in workers)
-            {
-                worker.ReadAllStarted();
-            }
+            SetWorkerReadAllState(true);
             LogMonitor.GetInstance.ReadAllJournals();
-            foreach (var worker in workers)
-            {
-                worker.ReadAllFinished();
-            }
+            SetWorkerReadAllState(false);
         }
 
         public void ToggleMonitor()
         {
             var logMonitor = LogMonitor.GetInstance;
-            
+
             if (logMonitor.IsMonitoring())
             {
                 logMonitor.Stop();
@@ -77,7 +71,10 @@ namespace Observatory.UI.ViewModels
             }
             else
             {
+                // HACK: Find a better way of suppressing notifications when pre-reading.
+                SetWorkerReadAllState(true);
                 logMonitor.Start();
+                SetWorkerReadAllState(false);
                 ToggleButtonText = "Stop Monitor";
             }
         }
@@ -123,5 +120,20 @@ namespace Observatory.UI.ViewModels
         {
             get { return tabs; }
         }
+        private void SetWorkerReadAllState(bool isReadingAll)
+        {
+            foreach (var worker in workers)
+            {
+                if (isReadingAll)
+                {
+                    worker.ReadAllStarted();
+                }
+                else
+                {
+                    worker.ReadAllFinished();
+                }
+            }
+        }
+
     }
 }
