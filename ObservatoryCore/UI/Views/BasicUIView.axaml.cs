@@ -452,11 +452,6 @@ namespace Observatory.UI.Views
             }
         }
 
-        private void TextBox_TextInput(object sender, Avalonia.Input.TextInputEventArgs e)
-        {
-            throw new NotImplementedException();
-        }
-
         private string GetStatusText(PluginManagement.PluginManager.PluginStatus status)
         {
             string statusText;
