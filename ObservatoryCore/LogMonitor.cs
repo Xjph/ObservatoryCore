@@ -146,7 +146,9 @@ namespace Observatory
 
             // We found an FSD jump, buffered the lines for that system (possibly including startup logs
             // over a file boundary). Pump these through the plugins.
+            readall = true;
             ReportErrors(ProcessLines(lastSystemLines, "Pre-read"));
+            readall = false;
         }
 
         #endregion
