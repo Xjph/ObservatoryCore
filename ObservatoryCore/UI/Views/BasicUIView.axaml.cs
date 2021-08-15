@@ -277,7 +277,7 @@ namespace Observatory.UI.Views
                 if (!uniquePlugins.ContainsKey(plugin.Name)) 
                 {
                     uniquePlugins.Add(plugin.Name, 
-                        new PluginView() { Name = plugin.Name, Types = new() { PluginType.Worker }, Version = plugin.Version, Status = GetStatusText(signed) });
+                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryWorker).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
                 }
             }
 
@@ -286,10 +286,10 @@ namespace Observatory.UI.Views
                 if (!uniquePlugins.ContainsKey(plugin.Name))
                 {
                     uniquePlugins.Add(plugin.Name, 
-                        new PluginView() { Name = plugin.Name, Types = new() { PluginType.Notifier }, Version = plugin.Version, Status = GetStatusText(signed) });
+                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryNotifier).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
                 } else
                 {
-                    uniquePlugins[plugin.Name].Types.Add(PluginType.Notifier);
+                    uniquePlugins[plugin.Name].Types.Add(typeof(IObservatoryNotifier).Name);
                 }
             }
 
@@ -343,7 +343,7 @@ namespace Observatory.UI.Views
                     {
                         settingsGrid.RowDefinitions.Add(new RowDefinition()
                         {
-                            Height = new GridLength(setting.Key.PropertyType != typeof(bool) ? 32 : 25),
+                            Height = new GridLength(setting.Key.PropertyType != typeof(bool) ? 40 : 25),
                         });
                     }
 
@@ -380,21 +380,55 @@ namespace Observatory.UI.Views
                             };
                             break;
                         case int intSetting:
-                            NumericUpDown numericUpDown = new() { Value = intSetting, AllowSpin = true };
-                            SettingNumericBounds attr = (SettingNumericBounds)System.Attribute.GetCustomAttribute(setting.Key, typeof(SettingNumericBounds));
-                            if (attr != null)
+                            // We have two options for integer values:
+                            // 1) A slider (explicit by way of the SettingIntegerUseSlider attribute and bounded to 0..100 by default)
+                            // 2) A numeric up/down (default otherwise, and is unbounded by default).
+                            // Bounds for both can be set via the SettingNumericBounds attribute, only the up/down uses Increment.
+                            Control intControl;
+                            SettingNumericBounds bounds = (SettingNumericBounds)System.Attribute.GetCustomAttribute(setting.Key, typeof(SettingNumericBounds));
+                            if (System.Attribute.IsDefined(setting.Key, typeof(SettingNumericUseSlider)))
                             {
-                                numericUpDown.Minimum = attr.Minimum;
-                                numericUpDown.Maximum = attr.Maximum;
-                                numericUpDown.Increment = attr.Increment;
+                                // TODO: Suss the contents of this block into a function to share with non-integral numeric types as well?
+                                Slider slider = new()
+                                {
+                                    Value = intSetting,
+                                    Height = 40,
+                                    Width = 300,
+                                };
+                                if (bounds != null)
+                                {
+                                    slider.Minimum = bounds.Minimum;
+                                    slider.Maximum = bounds.Maximum;
+                                };
+                                slider.PropertyChanged += (object sender, AvaloniaPropertyChangedEventArgs e) =>
+                                {
+                                    if (e.Property == Slider.ValueProperty)
+                                    {
+                                        setting.Key.SetValue(plugin.Settings, Convert.ToInt32(e.NewValue));
+                                        PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                                    }
+                                };
+                                intControl = slider;
                             }
-                            settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0);
-                            settingsGrid.AddControl(numericUpDown, settingsGrid.RowDefinitions.Count - 1, 1);
-                            numericUpDown.ValueChanged += (object sender, NumericUpDownValueChangedEventArgs e) =>
+                            else // Use a Numeric Up/Down
                             {
-                                setting.Key.SetValue(plugin.Settings, Convert.ToInt32(e.NewValue));
-                                PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
-                            };
+                                NumericUpDown numericUpDown = new() { Value = intSetting, AllowSpin = true };
+                                if (bounds != null)
+                                {
+                                    numericUpDown.Minimum = bounds.Minimum;
+                                    numericUpDown.Maximum = bounds.Maximum;
+                                    numericUpDown.Increment = bounds.Increment;
+                                }
+                                numericUpDown.ValueChanged += (object sender, NumericUpDownValueChangedEventArgs e) =>
+                                {
+                                    setting.Key.SetValue(plugin.Settings, Convert.ToInt32(e.NewValue));
+                                    PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                                };
+                                intControl = numericUpDown;
+                            }
+
+                            settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0);
+                            settingsGrid.AddControl(intControl, settingsGrid.RowDefinitions.Count - 1, 1);
                             break;
                         case System.IO.FileInfo fileSetting:
                             label.Text += ": ";
@@ -402,7 +436,7 @@ namespace Observatory.UI.Views
                             TextBox settingPath = new()
                             {
                                 Text = fileSetting.FullName,
-                                Width = 250,
+                                Width = 300,
                                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right
                             };
 
@@ -499,21 +533,14 @@ namespace Observatory.UI.Views
     internal class PluginView
     {
         public string Name { get; set; }
-        public HashSet<PluginType> Types { get; set; }
-        public string TypesString {
-            get
-            {
-                return string.Join(", ", Types);
-            }
-            set { } }
+        public HashSet<string> Types { get; set; }
+        public string TypesString
+        {
+            get => string.Join(", ", Types);
+            set { }
+        }
         public string Version { get; set; }
         public string Status { get; set; }
-    }
-
-    enum PluginType
-    {
-        Worker,
-        Notifier,
     }
 
     internal static class GridExtention
