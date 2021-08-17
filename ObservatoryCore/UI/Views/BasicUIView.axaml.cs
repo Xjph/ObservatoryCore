@@ -10,6 +10,7 @@ using Avalonia.Interactivity;
 using Avalonia.VisualTree;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 
 namespace Observatory.UI.Views
 {
@@ -254,6 +255,12 @@ namespace Observatory.UI.Views
 
             pluginList.Columns.Add(new DataGridTextColumn()
             {
+                Header = "Types",
+                Binding = new Binding("TypesString")
+            });
+
+            pluginList.Columns.Add(new DataGridTextColumn()
+            {
                 Header = "Version",
                 Binding = new Binding("Version")
             });
@@ -264,19 +271,29 @@ namespace Observatory.UI.Views
                 Binding = new Binding("Status")
             });
 
-            System.Collections.Generic.List<PluginView> allPlugins = new();
-
+            Dictionary<string, PluginView> uniquePlugins = new();
             foreach(var (plugin, signed) in pluginManager.workerPlugins)
             {
-                allPlugins.Add(new PluginView() { Name = plugin.Name, Version = plugin.Version, Status = GetStatusText(signed) });
+                if (!uniquePlugins.ContainsKey(plugin.Name)) 
+                {
+                    uniquePlugins.Add(plugin.Name, 
+                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryWorker).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
+                }
             }
 
             foreach (var (plugin, signed) in pluginManager.notifyPlugins)
             {
-                allPlugins.Add(new PluginView() { Name = plugin.Name, Version = plugin.Version, Status = GetStatusText(signed) });
+                if (!uniquePlugins.ContainsKey(plugin.Name))
+                {
+                    uniquePlugins.Add(plugin.Name, 
+                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryNotifier).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
+                } else
+                {
+                    uniquePlugins[plugin.Name].Types.Add(typeof(IObservatoryNotifier).Name);
+                }
             }
 
-            pluginList.Items = allPlugins;
+            pluginList.Items = uniquePlugins.Values;
             corePanel.AddControl(pluginList, SettingRowTracker.PLUGIN_LIST_ROW_INDEX, 0, 2);
 
             #endregion
@@ -324,10 +341,13 @@ namespace Observatory.UI.Views
                 {
                     if (setting.Key.PropertyType != typeof(bool) || settingsGrid.Children.Count % 2 == 0)
                     {
-                        settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(21) });
+                        settingsGrid.RowDefinitions.Add(new RowDefinition()
+                        {
+                            Height = new GridLength(setting.Key.PropertyType != typeof(bool) ? 40 : 25),
+                        });
                     }
 
-                    TextBlock label = new() { Text = setting.Value };
+                    TextBlock label = new() { Text = setting.Value, VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center };
 
                     switch (setting.Key.GetValue(plugin.Settings))
                     {
@@ -351,13 +371,64 @@ namespace Observatory.UI.Views
                             break;
                         case string stringSetting:
                             TextBox textBox = new() { Text = stringSetting };
-                            settingsGrid.Children.Add(label);
-                            settingsGrid.Children.Add(textBox);
+                            settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0);
+                            settingsGrid.AddControl(textBox, settingsGrid.RowDefinitions.Count - 1, 1);
+                            textBox.TextInput += (object sender, Avalonia.Input.TextInputEventArgs e) =>
+                            {
+                                setting.Key.SetValue(plugin.Settings, e.Text);
+                                PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                            };
                             break;
                         case int intSetting:
-                            NumericUpDown numericUpDown = new() { Text = intSetting.ToString(), AllowSpin = true };
-                            settingsGrid.Children.Add(label);
-                            settingsGrid.Children.Add(numericUpDown);
+                            // We have two options for integer values:
+                            // 1) A slider (explicit by way of the SettingIntegerUseSlider attribute and bounded to 0..100 by default)
+                            // 2) A numeric up/down (default otherwise, and is unbounded by default).
+                            // Bounds for both can be set via the SettingNumericBounds attribute, only the up/down uses Increment.
+                            Control intControl;
+                            SettingNumericBounds bounds = (SettingNumericBounds)System.Attribute.GetCustomAttribute(setting.Key, typeof(SettingNumericBounds));
+                            if (System.Attribute.IsDefined(setting.Key, typeof(SettingNumericUseSlider)))
+                            {
+                                // TODO: Suss the contents of this block into a function to share with non-integral numeric types as well?
+                                Slider slider = new()
+                                {
+                                    Value = intSetting,
+                                    Height = 40,
+                                    Width = 300,
+                                };
+                                if (bounds != null)
+                                {
+                                    slider.Minimum = bounds.Minimum;
+                                    slider.Maximum = bounds.Maximum;
+                                };
+                                slider.PropertyChanged += (object sender, AvaloniaPropertyChangedEventArgs e) =>
+                                {
+                                    if (e.Property == Slider.ValueProperty)
+                                    {
+                                        setting.Key.SetValue(plugin.Settings, Convert.ToInt32(e.NewValue));
+                                        PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                                    }
+                                };
+                                intControl = slider;
+                            }
+                            else // Use a Numeric Up/Down
+                            {
+                                NumericUpDown numericUpDown = new() { Value = intSetting, AllowSpin = true };
+                                if (bounds != null)
+                                {
+                                    numericUpDown.Minimum = bounds.Minimum;
+                                    numericUpDown.Maximum = bounds.Maximum;
+                                    numericUpDown.Increment = bounds.Increment;
+                                }
+                                numericUpDown.ValueChanged += (object sender, NumericUpDownValueChangedEventArgs e) =>
+                                {
+                                    setting.Key.SetValue(plugin.Settings, Convert.ToInt32(e.NewValue));
+                                    PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                                };
+                                intControl = numericUpDown;
+                            }
+
+                            settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0);
+                            settingsGrid.AddControl(intControl, settingsGrid.RowDefinitions.Count - 1, 1);
                             break;
                         case System.IO.FileInfo fileSetting:
                             label.Text += ": ";
@@ -365,7 +436,7 @@ namespace Observatory.UI.Views
                             TextBox settingPath = new()
                             {
                                 Text = fileSetting.FullName,
-                                Width = 250,
+                                Width = 300,
                                 HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right
                             };
 
@@ -404,7 +475,7 @@ namespace Observatory.UI.Views
                             stackPanel.Children.Add(label);
                             stackPanel.Children.Add(settingPath);
 
-                            settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(21) });
+                            settingsGrid.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(32) });
                             settingsGrid.AddControl(stackPanel, settingsGrid.RowDefinitions.Count - 1, 0, 2);
                             settingsGrid.AddControl(settingBrowse, settingsGrid.RowDefinitions.Count - 1, 2);
 
@@ -462,12 +533,15 @@ namespace Observatory.UI.Views
     internal class PluginView
     {
         public string Name { get; set; }
+        public HashSet<string> Types { get; set; }
+        public string TypesString
+        {
+            get => string.Join(", ", Types);
+            set { }
+        }
         public string Version { get; set; }
         public string Status { get; set; }
     }
-
-        
-
 
     internal static class GridExtention
     {
