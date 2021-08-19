@@ -271,25 +271,25 @@ namespace Observatory.UI.Views
                 Binding = new Binding("Status")
             });
 
-            Dictionary<string, PluginView> uniquePlugins = new();
+            Dictionary<IObservatoryPlugin, PluginView> uniquePlugins = new();
             foreach(var (plugin, signed) in pluginManager.workerPlugins)
             {
-                if (!uniquePlugins.ContainsKey(plugin.Name)) 
+                if (!uniquePlugins.ContainsKey(plugin)) 
                 {
-                    uniquePlugins.Add(plugin.Name, 
+                    uniquePlugins.Add(plugin, 
                         new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryWorker).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
                 }
             }
 
             foreach (var (plugin, signed) in pluginManager.notifyPlugins)
             {
-                if (!uniquePlugins.ContainsKey(plugin.Name))
+                if (!uniquePlugins.ContainsKey(plugin))
                 {
-                    uniquePlugins.Add(plugin.Name, 
+                    uniquePlugins.Add(plugin, 
                         new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryNotifier).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
                 } else
                 {
-                    uniquePlugins[plugin.Name].Types.Add(typeof(IObservatoryNotifier).Name);
+                    uniquePlugins[plugin].Types.Add(typeof(IObservatoryNotifier).Name);
                 }
             }
 
@@ -300,7 +300,7 @@ namespace Observatory.UI.Views
 
             #region Plugin Settings
 
-            foreach(var plugin in pluginManager.workerPlugins.Select(p => p.plugin))
+            foreach(var plugin in uniquePlugins.Keys)
             {
                 GeneratePluginSettingUI(corePanel, plugin);
             }
