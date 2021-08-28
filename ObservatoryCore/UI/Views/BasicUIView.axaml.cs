@@ -194,8 +194,6 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.Save();
             };
             
-            notificationGrid.AddControl(nativeNotifyCheckbox, 4, 0);
-
             Button notifyTestButton = new()
             { 
                 Content = "Test",
@@ -210,8 +208,6 @@ namespace Observatory.UI.Views
                     notifyWindow.Show();
                 });
             };
-
-            notificationGrid.AddControl(notifyTestButton, 4, 1);
 
             TextBlock notifyFontLabel = new() 
             { 
@@ -238,10 +234,6 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.Save();
             };
             
-            notificationGrid.AddControl(notifyFontLabel, 0, 0);
-
-            notificationGrid.AddControl(notifyFontDropDown, 0, 1, 2);
-
             TextBlock monitorLabel = new()
             {
                 Text = "Display: ",
@@ -284,10 +276,6 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.Save();
             };
 
-            notificationGrid.AddControl(monitorLabel, 2, 0);
-
-            notificationGrid.AddControl(monitorDropDown, 2, 1, 2);
-
             TextBlock cornerLabel = new()
             {
                 Text = "Corner: ",
@@ -318,10 +306,6 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.Save();
             };
 
-            notificationGrid.AddControl(cornerLabel, 3, 0);
-
-            notificationGrid.AddControl(cornerDropDown, 3, 1, 2);
-
             TextBlock colourLabel = new()
             {
                 Text = "Colour: ",
@@ -333,9 +317,10 @@ namespace Observatory.UI.Views
 
             Egorozh.ColorPicker.Dialog.ColorPickerButton colourPickerButton = new()
             {
-                MinWidth = 200,
-                MinHeight = 25,
-                Color = Color.FromUInt32(Properties.Core.Default.NativeNotifyColour)
+                Width = 25,
+                Height = 25,
+                Color = Color.FromUInt32(Properties.Core.Default.NativeNotifyColour),
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left
                 
             };
 
@@ -348,8 +333,17 @@ namespace Observatory.UI.Views
                 }
             };
 
-            notificationGrid.AddControl(colourLabel, 1, 0);
-            notificationGrid.AddControl(colourPickerButton, 1, 1);
+            notificationGrid.AddControl(monitorLabel, 0, 0);
+            notificationGrid.AddControl(monitorDropDown, 0, 1, 2);
+            notificationGrid.AddControl(cornerLabel, 1, 0);
+            notificationGrid.AddControl(cornerDropDown, 1, 1, 2);
+            notificationGrid.AddControl(notifyFontLabel, 2, 0);
+            notificationGrid.AddControl(notifyFontDropDown, 2, 1, 2);
+            notificationGrid.AddControl(colourLabel, 3, 0);
+            notificationGrid.AddControl(colourPickerButton, 3, 1);
+            notificationGrid.AddControl(notifyTestButton, 3, 1);
+            notificationGrid.AddControl(nativeNotifyCheckbox, 4, 0, 2);
+
 
             notificationExpander.Content = notificationGrid;
             
