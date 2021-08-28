@@ -194,7 +194,24 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.Save();
             };
             
-            notificationGrid.AddControl(nativeNotifyCheckbox, 4, 0, 3);
+            notificationGrid.AddControl(nativeNotifyCheckbox, 4, 0);
+
+            Button notifyTestButton = new()
+            { 
+                Content = "Test",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right
+            };
+
+            notifyTestButton.Click += (object sender, RoutedEventArgs e) =>
+            {
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    var notifyWindow = new UI.Views.NotificationView() { DataContext = new UI.ViewModels.NotificationViewModel("Debug Notification", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque.") };
+                    notifyWindow.Show();
+                });
+            };
+
+            notificationGrid.AddControl(notifyTestButton, 4, 1);
 
             TextBlock notifyFontLabel = new() 
             { 
@@ -338,15 +355,6 @@ namespace Observatory.UI.Views
             
 
             corePanel.AddControl(notificationExpander, rowTracker.NextIndex(), 0, 2);
-
-
-#if DEBUG
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                var notifyWindow = new UI.Views.NotificationView() { DataContext = new UI.ViewModels.NotificationViewModel("Debug Notification", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque.") };
-                notifyWindow.Show();
-            });
-#endif
 
 #endregion
 
