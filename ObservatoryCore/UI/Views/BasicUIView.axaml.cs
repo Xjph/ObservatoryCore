@@ -206,7 +206,7 @@ namespace Observatory.UI.Views
             {
                 Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    var notifyWindow = new UI.Views.NotificationView() { DataContext = new UI.ViewModels.NotificationViewModel("Debug Notification", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque.") };
+                    var notifyWindow = new UI.Views.NotificationView() { DataContext = new UI.ViewModels.NotificationViewModel("Test Notification", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque.") };
                     notifyWindow.Show();
                 });
             };
