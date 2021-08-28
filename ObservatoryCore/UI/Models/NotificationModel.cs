@@ -10,5 +10,6 @@ namespace Observatory.UI.Models
     {
         public string Title { get; set; }
         public string Detail { get; set; }
+        public string Colour { get; set; }
     }
 }

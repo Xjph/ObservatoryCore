@@ -9,6 +9,13 @@ namespace Observatory
         [STAThread]
         static void Main(string[] args)
         {
+            string version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+            if (Properties.Core.Default.CoreVersion != version)
+            {
+                Properties.Core.Default.Upgrade();
+                Properties.Core.Default.CoreVersion = version;
+                Properties.Core.Default.Save();
+            }
             BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         }
 

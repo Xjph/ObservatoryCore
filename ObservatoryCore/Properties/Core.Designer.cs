@@ -58,19 +58,76 @@ namespace Observatory.Properties {
                 this["NativeNotify"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool TryPrimeSystemContextOnStartMonitor
-        {
-            get
-            {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string NativeNotifyFont {
+            get {
+                return ((string)(this["NativeNotifyFont"]));
+            }
+            set {
+                this["NativeNotifyFont"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("4294944000")]
+        public uint NativeNotifyColour {
+            get {
+                return ((uint)(this["NativeNotifyColour"]));
+            }
+            set {
+                this["NativeNotifyColour"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int NativeNotifyCorner {
+            get {
+                return ((int)(this["NativeNotifyCorner"]));
+            }
+            set {
+                this["NativeNotifyCorner"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int NativeNotifyScreen {
+            get {
+                return ((int)(this["NativeNotifyScreen"]));
+            }
+            set {
+                this["NativeNotifyScreen"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool TryPrimeSystemContextOnStartMonitor {
+            get {
                 return ((bool)(this["TryPrimeSystemContextOnStartMonitor"]));
             }
-            set
-            {
+            set {
                 this["TryPrimeSystemContextOnStartMonitor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CoreVersion {
+            get {
+                return ((string)(this["CoreVersion"]));
+            }
+            set {
+                this["CoreVersion"] = value;
             }
         }
     }

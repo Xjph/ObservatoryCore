@@ -5,25 +5,40 @@
         mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="150"
         x:Class="Observatory.UI.Views.NotificationView"
         ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
         Title="Notification"
         Width="400" Height="150"
-        Topmost="True">
-  <StackPanel DataContext="{Binding Notification}">
-    <TextBlock 
-      Padding="10"
-      FontWeight="Bold"
-      FontSize="30"
-      FontFamily="Ebrima"
-      Text="{Binding Title}">
-      Title
-    </TextBlock>
-    <TextBlock 
-      Padding="20,0"
-      FontWeight="Normal"
-      FontSize="20"
-      FontFamily="Ebrima"
-      Text="{Binding Detail}">
-      Detail
-    </TextBlock>
-  </StackPanel>
+        MinWidth="400" MinHeight="150"
+        MaxWidth="400" MaxHeight="150"
+        Topmost="True"
+        SizeToContent="Height"
+        TransparencyLevelHint="AcrylicBlur"
+        Background="Transparent"
+        Focusable="False">
+  <Panel DataContext="{Binding Notification}">
+    <Border BorderBrush="{Binding Colour}" BorderThickness="4">
+      <StackPanel Width="400">
+        <TextBlock
+          Name="Title"
+          Padding="10"
+          FontWeight="Normal"
+          FontSize="30"
+          Foreground="{Binding Colour}"
+          Text="{Binding Title}">
+          Title
+        </TextBlock>
+        <TextBlock
+          Name="Detail"
+          Padding="20,0"
+          FontWeight="Normal"
+          FontSize="20"
+          TextWrapping="Wrap"
+          Foreground="{Binding Colour}"
+          Text="{Binding Detail}">
+          Detail
+        </TextBlock>
+      </StackPanel>
+    </Border>
+  </Panel>
 </Window>

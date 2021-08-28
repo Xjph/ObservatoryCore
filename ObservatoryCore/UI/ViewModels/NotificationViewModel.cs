@@ -10,7 +10,13 @@ namespace Observatory.UI.ViewModels
     {
         public NotificationViewModel(string title, string detail)
         {
-            Notification = new() { Title = title, Detail = detail };
+
+            Notification = new()
+            {
+                Title = title,
+                Detail = detail,
+                Colour = Avalonia.Media.Color.FromUInt32(Properties.Core.Default.NativeNotifyColour).ToString()
+            };
             
         }
 
