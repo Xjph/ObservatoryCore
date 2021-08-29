@@ -42,10 +42,10 @@
     </TabControl>
     <Grid RowDefinitions="Auto,Auto" Grid.Row="2">
       <StackPanel Grid.Column="1" Height="50" VerticalAlignment="Bottom" Orientation="Vertical" HorizontalAlignment="Left">
-        <Button Classes="Hyperlink" Name="github" Margin="10,0,0,5" Command="{Binding OpenGithub}">
+        <Button Classes="Hyperlink" Name="github" Margin="10,0,0,5" Command="{Binding OpenGithub}" FontSize="15">
           github
         </Button>
-        <Button Classes="Hyperlink" Name="Donate" Margin="10,0,0,0" Command="{Binding OpenDonate}">
+        <Button Classes="Hyperlink" Name="Donate" Margin="10,0,0,0" Command="{Binding OpenDonate}" FontSize="15">
           Donate
         </Button>
       </StackPanel>
