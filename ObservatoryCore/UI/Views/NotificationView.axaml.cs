@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using System;
 using System.Runtime.InteropServices;
@@ -14,7 +15,7 @@ namespace Observatory.UI.Views
             SystemDecorations = SystemDecorations.None;
 
             MakeClickThrough(); //Platform specific, currently windows only.
-
+            
             int screen = Properties.Core.Default.NativeNotifyScreen;
             int corner = Properties.Core.Default.NativeNotifyCorner;
             string font = Properties.Core.Default.NativeNotifyFont;
@@ -36,16 +37,20 @@ namespace Observatory.UI.Views
             else
                 screenBounds = Screens.All[screen - 1].Bounds;
 
+            double scale = LayoutHelper.GetLayoutScale(this);
+            double scaleWidth = Width * scale;
+            double scaleHeight = Height * scale;
+
             switch (corner)
             {
                 default: case 0: 
-                    Position = screenBounds.BottomRight - new PixelPoint((int)Width + 50, (int)Height + 50);
+                    Position = screenBounds.BottomRight - new PixelPoint((int)scaleWidth + 50, (int)scaleHeight + 50);
                     break;
                 case 1:
-                    Position = screenBounds.BottomLeft - new PixelPoint(-50, (int)Height + 50);
+                    Position = screenBounds.BottomLeft - new PixelPoint(-50, (int)scaleHeight + 50);
                     break;
                 case 2:
-                    Position = screenBounds.TopRight - new PixelPoint((int)Width + 50, -50);
+                    Position = screenBounds.TopRight - new PixelPoint((int)scaleWidth + 50, -50);
                     break;
                 case 3:
                     Position = screenBounds.TopLeft + new PixelPoint(50, 50);
