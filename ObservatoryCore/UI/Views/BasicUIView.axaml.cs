@@ -11,6 +11,8 @@ using Avalonia.VisualTree;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using Avalonia.Media;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace Observatory.UI.Views
 {
@@ -150,7 +152,35 @@ namespace Observatory.UI.Views
 
             #region Notification settings
 
-            TextBlock nativeNotifyLabel = new() { Text = "Basic Notification" };
+            Expander notificationExpander = new()
+            {
+                Header = "Basic Notifications",
+                DataContext = Properties.Core.Default,
+                Margin = new Thickness(0, 20),
+                Background = this.Background,
+                BorderThickness = new Thickness(0)
+            };
+
+            Grid notificationGrid = new();
+
+            notificationGrid.ColumnDefinitions = new()
+            {
+                new ColumnDefinition() { Width = new GridLength(0, GridUnitType.Star) },
+                new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) },
+                new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) }
+            };
+
+            notificationGrid.RowDefinitions = new()
+            {
+                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
+                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
+                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
+                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
+                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) }
+            };
+
+            TextBlock nativeNotifyLabel = new() { Text = "Enabled" };
+
             CheckBox nativeNotifyCheckbox = new() { IsChecked = Properties.Core.Default.NativeNotify, Content = nativeNotifyLabel };
 
             nativeNotifyCheckbox.Checked += (object sender, RoutedEventArgs e) =>
@@ -164,10 +194,167 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.NativeNotify = false;
                 Properties.Core.Default.Save();
             };
+            
+            Button notifyTestButton = new()
+            { 
+                Content = "Test",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right
+            };
 
-            corePanel.AddControl(nativeNotifyCheckbox, rowTracker.NextIndex(), 0, 2);
+            notifyTestButton.Click += (object sender, RoutedEventArgs e) =>
+            {
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    var notifyWindow = new UI.Views.NotificationView() { DataContext = new UI.ViewModels.NotificationViewModel("Test Notification", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque.") };
+                    notifyWindow.Show();
+                });
+            };
 
-            #endregion
+            TextBlock notifyFontLabel = new() 
+            { 
+                Text = "Font: ",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            ComboBox notifyFontDropDown = new()
+            {
+                MinWidth = 200
+            };
+
+            notifyFontDropDown.Items = new System.Drawing.Text.InstalledFontCollection().Families.Select(font => font.Name);
+
+            if (Properties.Core.Default.NativeNotifyFont.Length > 0)
+            {
+                notifyFontDropDown.SelectedItem = Properties.Core.Default.NativeNotifyFont;
+            }
+
+            notifyFontDropDown.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+            {
+                var comboBox = (ComboBox)sender;
+                Properties.Core.Default.NativeNotifyFont = comboBox.SelectedItem.ToString();
+                Properties.Core.Default.Save();
+            };
+            
+            TextBlock monitorLabel = new()
+            {
+                Text = "Display: ",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            ComboBox monitorDropDown = new()
+            { 
+                MinWidth = 200
+            };
+
+            List<string> displays = new();
+            displays.Add("Primary");
+
+            var application = (IClassicDesktopStyleApplicationLifetime)Application.Current.ApplicationLifetime;
+            var screens = application.MainWindow.Screens.All;
+            
+            if (screens.Count > 1)
+                for (int i = 0; i < screens.Count; i++)
+                {
+                    displays.Add((i + 1).ToString());
+                }
+
+            monitorDropDown.Items = displays;
+
+            if (Properties.Core.Default.NativeNotifyScreen == -1)
+            {
+                monitorDropDown.SelectedItem = "Primary";
+            }
+            else
+            {
+                monitorDropDown.SelectedItem = (Properties.Core.Default.NativeNotifyScreen).ToString();
+            }
+
+            monitorDropDown.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+            {
+                
+                var comboBox = (ComboBox)sender;
+                string selectedItem = comboBox.SelectedItem.ToString();
+                int selectedScreen = selectedItem == "Primary" ? -1 : Int32.Parse(selectedItem);
+                
+                Properties.Core.Default.NativeNotifyScreen = selectedScreen;
+                Properties.Core.Default.Save();
+            };
+
+            TextBlock cornerLabel = new()
+            {
+                Text = "Corner: ",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            ComboBox cornerDropDown = new()
+            {
+                MinWidth = 200
+            };
+
+            List<string> corners = new()
+            {
+                "Bottom-Right",
+                "Bottom-Left",
+                "Top-Right",
+                "Top-Left"
+            };
+
+            cornerDropDown.Items = corners;
+
+            cornerDropDown.SelectedItem = corners[Properties.Core.Default.NativeNotifyCorner];
+
+            cornerDropDown.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+            {
+                var comboBox = (ComboBox)sender;
+                Properties.Core.Default.NativeNotifyCorner = comboBox.SelectedIndex;
+                Properties.Core.Default.Save();
+            };
+
+            TextBlock colourLabel = new()
+            {
+                Text = "Colour: ",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+
+            BrushConverter brushConverter = new();
+
+            Egorozh.ColorPicker.Dialog.ColorPickerButton colourPickerButton = new()
+            {
+                Width = 25,
+                Height = 25,
+                Color = Color.FromUInt32(Properties.Core.Default.NativeNotifyColour),
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left
+                
+            };
+
+            colourPickerButton.PropertyChanged += (object sender, AvaloniaPropertyChangedEventArgs e) =>
+            {
+                if (e.Property.Name == "Color")
+                {
+                    Properties.Core.Default.NativeNotifyColour = ((Color)e.NewValue).ToUint32();
+                    Properties.Core.Default.Save();
+                }
+            };
+
+            notificationGrid.AddControl(monitorLabel, 0, 0);
+            notificationGrid.AddControl(monitorDropDown, 0, 1, 2);
+            notificationGrid.AddControl(cornerLabel, 1, 0);
+            notificationGrid.AddControl(cornerDropDown, 1, 1, 2);
+            notificationGrid.AddControl(notifyFontLabel, 2, 0);
+            notificationGrid.AddControl(notifyFontDropDown, 2, 1, 2);
+            notificationGrid.AddControl(colourLabel, 3, 0);
+            notificationGrid.AddControl(colourPickerButton, 3, 1);
+            notificationGrid.AddControl(notifyTestButton, 3, 1);
+            notificationGrid.AddControl(nativeNotifyCheckbox, 4, 0, 2);
+
+
+            notificationExpander.Content = notificationGrid;
+            
+
+            corePanel.AddControl(notificationExpander, rowTracker.NextIndex(), 0, 2);
+
+#endregion
 
             #region System Context Priming setting
 
