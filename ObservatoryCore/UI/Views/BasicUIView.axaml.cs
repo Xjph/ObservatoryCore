@@ -12,6 +12,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using Avalonia.Media;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace Observatory.UI.Views
 {
@@ -247,7 +248,10 @@ namespace Observatory.UI.Views
 
             List<string> displays = new();
             displays.Add("Primary");
-            var screens = ((Window)Parent.Parent.Parent.Parent).Screens.All;
+
+            var application = (IClassicDesktopStyleApplicationLifetime)Application.Current.ApplicationLifetime;
+            var screens = application.MainWindow.Screens.All;
+            
             if (screens.Count > 1)
                 for (int i = 0; i < screens.Count; i++)
                 {
