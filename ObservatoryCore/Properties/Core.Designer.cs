@@ -142,5 +142,77 @@ namespace Observatory.Properties {
                 this["PluginSettings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool VoiceNotify {
+            get {
+                return ((bool)(this["VoiceNotify"]));
+            }
+            set {
+                this["VoiceNotify"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string VoiceSelected {
+            get {
+                return ((string)(this["VoiceSelected"]));
+            }
+            set {
+                this["VoiceSelected"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("75")]
+        public int VoiceVolume {
+            get {
+                return ((int)(this["VoiceVolume"]));
+            }
+            set {
+                this["VoiceVolume"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int VoiceRate {
+            get {
+                return ((int)(this["VoiceRate"]));
+            }
+            set {
+                this["VoiceRate"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("800, 500")]
+        public global::System.Drawing.Size MainWindowSize {
+            get {
+                return ((global::System.Drawing.Size)(this["MainWindowSize"]));
+            }
+            set {
+                this["MainWindowSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100, 100")]
+        public global::System.Drawing.Point MainWindowPosition {
+            get {
+                return ((global::System.Drawing.Point)(this["MainWindowPosition"]));
+            }
+            set {
+                this["MainWindowPosition"] = value;
+            }
+        }
     }
 }
