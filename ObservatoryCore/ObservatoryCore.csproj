@@ -30,6 +30,7 @@
     <PackageReference Include="Egorozh.ColorPicker.Avalonia.Dialog" Version="0.10.1" />
     <PackageReference Include="MessageBox.Avalonia" Version="1.5.1" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="System.Speech" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

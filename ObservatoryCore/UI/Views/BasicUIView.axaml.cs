@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using Avalonia.Media;
 using Avalonia.Controls.ApplicationLifetimes;
+using System.Runtime.InteropServices;
 
 namespace Observatory.UI.Views
 {
@@ -92,7 +93,8 @@ namespace Observatory.UI.Views
                     uiPanel.Children.Add(dataGrid);
                     break;
                 case PluginUI.UIType.Avalonia:
-                    break;
+                    //TODO: Implement plugins with full Avalonia UI.
+                    throw new NotImplementedException();
                 case PluginUI.UIType.Core:
                     uiPanel.Children.Clear();
                     ScrollViewer scrollViewer = new();
@@ -126,7 +128,6 @@ namespace Observatory.UI.Views
 
         private Grid GenerateCoreUI()
         {
-
             Grid corePanel = new();
 
             ColumnDefinitions columns = new()
@@ -137,31 +138,79 @@ namespace Observatory.UI.Views
             };
             corePanel.ColumnDefinitions = columns;
 
-            RowDefinitions rows = new()
-            {
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) }
-            };
-            corePanel.RowDefinitions = rows;
+            SettingGridManager gridManager = new(corePanel);
 
-            SettingRowTracker rowTracker = new SettingRowTracker(corePanel);
+            var pluginManager = PluginManagement.PluginManager.GetInstance;
 
             #region Native Settings
 
-            #region Notification settings
+            #region Plugin List
+            DataGrid pluginList = new() { Margin = new Thickness(0, 20) };
+
+            pluginList.Columns.Add(new DataGridTextColumn()
+            {
+                Header = "Plugin",
+                Binding = new Binding("Name")
+            });
+
+            pluginList.Columns.Add(new DataGridTextColumn()
+            {
+                Header = "Types",
+                Binding = new Binding("TypesString")
+            });
+
+            pluginList.Columns.Add(new DataGridTextColumn()
+            {
+                Header = "Version",
+                Binding = new Binding("Version")
+            });
+
+            pluginList.Columns.Add(new DataGridTextColumn()
+            {
+                Header = "Status",
+                Binding = new Binding("Status")
+            });
+
+            Dictionary<IObservatoryPlugin, PluginView> uniquePlugins = new();
+            foreach (var (plugin, signed) in pluginManager.workerPlugins)
+            {
+                if (!uniquePlugins.ContainsKey(plugin))
+                {
+                    uniquePlugins.Add(plugin,
+                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryWorker).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
+                }
+            }
+
+            foreach (var (plugin, signed) in pluginManager.notifyPlugins)
+            {
+                if (!uniquePlugins.ContainsKey(plugin))
+                {
+                    uniquePlugins.Add(plugin,
+                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryNotifier).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
+                }
+                else
+                {
+                    uniquePlugins[plugin].Types.Add(typeof(IObservatoryNotifier).Name);
+                }
+            }
+
+            pluginList.Items = uniquePlugins.Values;
+            gridManager.AddSetting(pluginList);
+
+            #endregion
+
+            #region Popup Notification settings
 
             Expander notificationExpander = new()
             {
-                Header = "Basic Notifications",
+                Header = "Popup Notifications",
                 DataContext = Properties.Core.Default,
-                Margin = new Thickness(0, 20),
+                Margin = new Thickness(0, 0),
                 Background = this.Background,
                 BorderThickness = new Thickness(0)
             };
 
-            Grid notificationGrid = new();
+            Grid notificationGrid = new() { Margin = new Thickness(10, 10) };
 
             notificationGrid.ColumnDefinitions = new()
             {
@@ -170,14 +219,9 @@ namespace Observatory.UI.Views
                 new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) }
             };
 
-            notificationGrid.RowDefinitions = new()
-            {
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) },
-                new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) }
-            };
+            notificationGrid.RowDefinitions = new();
+
+            SettingGridManager notificationGridManager = new(notificationGrid);
 
             TextBlock nativeNotifyLabel = new() { Text = "Enabled" };
 
@@ -337,24 +381,188 @@ namespace Observatory.UI.Views
                 }
             };
 
-            notificationGrid.AddControl(monitorLabel, 0, 0);
-            notificationGrid.AddControl(monitorDropDown, 0, 1, 2);
-            notificationGrid.AddControl(cornerLabel, 1, 0);
-            notificationGrid.AddControl(cornerDropDown, 1, 1, 2);
-            notificationGrid.AddControl(notifyFontLabel, 2, 0);
-            notificationGrid.AddControl(notifyFontDropDown, 2, 1, 2);
-            notificationGrid.AddControl(colourLabel, 3, 0);
-            notificationGrid.AddControl(colourPickerButton, 3, 1);
-            notificationGrid.AddControl(notifyTestButton, 3, 1);
-            notificationGrid.AddControl(nativeNotifyCheckbox, 4, 0, 2);
-
+            notificationGridManager.AddSettingWithLabel(monitorLabel, monitorDropDown);
+            notificationGridManager.AddSettingWithLabel(cornerLabel, cornerDropDown);
+            notificationGridManager.AddSettingWithLabel(notifyFontLabel, notifyFontDropDown);
+            notificationGridManager.AddSettingWithLabel(colourLabel, colourPickerButton);
+            notificationGridManager.AddSettingSameLine(notifyTestButton);
+            notificationGridManager.AddSetting(nativeNotifyCheckbox);
 
             notificationExpander.Content = notificationGrid;
             
+            gridManager.AddSetting(notificationExpander);
 
-            corePanel.AddControl(notificationExpander, rowTracker.NextIndex(), 0, 2);
+            #endregion
 
-#endregion
+            #region Voice Notification Settings
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+
+                Expander voiceExpander = new()
+                {
+                    Header = "Voice Notifications",
+                    DataContext = Properties.Core.Default,
+                    Margin = new Thickness(0, 0),
+                    Background = this.Background,
+                    BorderThickness = new Thickness(0)
+                };
+
+                Grid voiceGrid = new() { Margin = new Thickness(10, 10) };
+                SettingGridManager voiceGridManager = new(voiceGrid);
+
+                voiceGrid.ColumnDefinitions = new()
+                {
+                    new ColumnDefinition() { Width = new GridLength(0, GridUnitType.Star) },
+                    new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) },
+                    new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) }
+                };
+
+                TextBlock voiceLabel = new() { Text = "Enabled" };
+
+                CheckBox voiceCheckbox = new() { IsChecked = Properties.Core.Default.VoiceNotify, Content = voiceLabel };
+
+                voiceCheckbox.Checked += (object sender, RoutedEventArgs e) =>
+                {
+                    Properties.Core.Default.VoiceNotify = true;
+                    Properties.Core.Default.Save();
+                };
+
+                voiceCheckbox.Unchecked += (object sender, RoutedEventArgs e) =>
+                {
+                    Properties.Core.Default.VoiceNotify = false;
+                    Properties.Core.Default.Save();
+                };
+
+                Button voiceTestButton = new()
+                {
+                    Content = "Test",
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right
+                };
+
+                voiceTestButton.Click += (object sender, RoutedEventArgs e) =>
+                {
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    {
+                        var speech = new System.Speech.Synthesis.SpeechSynthesizer()
+                        {
+                            Volume = Properties.Core.Default.VoiceVolume,
+                            Rate = Properties.Core.Default.VoiceRate
+                        };
+                        speech.SelectVoice(Properties.Core.Default.VoiceSelected);
+
+                        List<string> harvardSentences = new() 
+                        {
+                            "Oak is strong and also gives shade.",
+                            "Cats and dogs each hate the other.",
+                            "The pipe began to rust while new.",
+                            "Open the crate but don't break the glass.",
+                            "Add the sum to the product of these three.",
+                            "Thieves who rob friends deserve jail.",
+                            "The ripe taste of cheese improves with age.",
+                            "Act on these orders with great speed.",
+                            "The hog crawled under the high fence.",
+                            "Move the vat over the hot fire."
+                        };
+
+                        speech.SpeakAsync("Speech Synthesis Test: " + harvardSentences.OrderBy(s => new Random().NextDouble()).First());
+
+                    }
+                };
+
+                TextBlock voiceSelectionLabel = new()
+                {
+                    Text = "Voice: ",
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                };
+                ComboBox voiceSelectionDropDown = new()
+                {
+                    MinWidth = 200
+                };
+
+                var voices = new System.Speech.Synthesis.SpeechSynthesizer().GetInstalledVoices();
+                voiceSelectionDropDown.Items = voices.Select(v => RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? v.VoiceInfo.Name : string.Empty);
+
+                if (Properties.Core.Default.VoiceSelected.Length > 0)
+                {
+                    voiceSelectionDropDown.SelectedItem = Properties.Core.Default.VoiceSelected;
+                }
+
+                voiceSelectionDropDown.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+                {
+                    var comboBox = (ComboBox)sender;
+                    Properties.Core.Default.VoiceSelected = comboBox.SelectedItem.ToString();
+                    Properties.Core.Default.Save();
+                };
+
+                TextBlock voiceVolumeLabel = new()
+                {
+                    Text = "Volume: ",
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                };
+
+                Slider voiceVolume = new()
+                {
+                    Value = Properties.Core.Default.VoiceVolume,
+                    Height = 40,
+                    Width = 300,
+                    Minimum = 0,
+                    Maximum = 100,
+                    Padding = new Thickness(0,0,0,20),
+                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                };
+                
+                voiceVolume.PropertyChanged += (object sender, AvaloniaPropertyChangedEventArgs e) =>
+                {
+                    if (e.Property == Slider.ValueProperty)
+                    {
+                        Properties.Core.Default.VoiceVolume = Convert.ToInt32(e.NewValue);
+                        Properties.Core.Default.Save();
+                    }
+                };
+
+                TextBlock voiceRateLabel = new()
+                {
+                    Text = "Speed: ",
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                };
+
+                Slider voiceRate = new()
+                {
+                    Value = Properties.Core.Default.VoiceRate,
+                    Height = 40,
+                    Width = 300,
+                    Minimum = -10,
+                    Maximum = 10,
+                    Padding = new Thickness(0, 0, 0, 20),
+                    VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+                };
+
+                voiceRate.PropertyChanged += (object sender, AvaloniaPropertyChangedEventArgs e) =>
+                {
+                    if (e.Property == Slider.ValueProperty)
+                    {
+                        Properties.Core.Default.VoiceRate = Convert.ToInt32(e.NewValue);
+                        Properties.Core.Default.Save();
+                    }
+                };
+
+                voiceGridManager.AddSettingWithLabel(voiceVolumeLabel, voiceVolume);
+                voiceGridManager.AddSettingWithLabel(voiceRateLabel, voiceRate);
+                voiceGridManager.AddSettingWithLabel(voiceSelectionLabel, voiceSelectionDropDown);
+                voiceGridManager.AddSetting(voiceCheckbox);
+                voiceGridManager.AddSettingSameLine(voiceTestButton);
+                
+                voiceExpander.Content = voiceGrid;
+
+                gridManager.AddSetting(voiceExpander);
+
+
+            }
+            #endregion
 
             #region System Context Priming setting
 
@@ -373,7 +581,7 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.Save();
             };
 
-            corePanel.AddControl(primeSystemContexCheckbox, rowTracker.NextIndex(), 0, 2);
+            
 
             #endregion
 
@@ -422,68 +630,11 @@ namespace Observatory.UI.Views
                 
             };
 
-            int journalPathRowIndex = rowTracker.NextIndex();
-            corePanel.AddControl(journalPathLabel, journalPathRowIndex, 0);
-            corePanel.AddControl(journalPath, journalPathRowIndex, 1);
-            corePanel.AddControl(journalBrowse, journalPathRowIndex, 2);
+            
 
             #endregion
 
-            var pluginManager = PluginManagement.PluginManager.GetInstance;
-
-            #region Plugin List
-            DataGrid pluginList = new() { Margin = new Thickness(0, 20) };
-
-            pluginList.Columns.Add(new DataGridTextColumn()
-            {
-                Header = "Plugin",
-                Binding = new Binding("Name")
-            });
-
-            pluginList.Columns.Add(new DataGridTextColumn()
-            {
-                Header = "Types",
-                Binding = new Binding("TypesString")
-            });
-
-            pluginList.Columns.Add(new DataGridTextColumn()
-            {
-                Header = "Version",
-                Binding = new Binding("Version")
-            });
-
-            pluginList.Columns.Add(new DataGridTextColumn()
-            {
-                Header = "Status",
-                Binding = new Binding("Status")
-            });
-
-            Dictionary<IObservatoryPlugin, PluginView> uniquePlugins = new();
-            foreach(var (plugin, signed) in pluginManager.workerPlugins)
-            {
-                if (!uniquePlugins.ContainsKey(plugin)) 
-                {
-                    uniquePlugins.Add(plugin, 
-                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryWorker).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
-                }
-            }
-
-            foreach (var (plugin, signed) in pluginManager.notifyPlugins)
-            {
-                if (!uniquePlugins.ContainsKey(plugin))
-                {
-                    uniquePlugins.Add(plugin, 
-                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryNotifier).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
-                } else
-                {
-                    uniquePlugins[plugin].Types.Add(typeof(IObservatoryNotifier).Name);
-                }
-            }
-
-            pluginList.Items = uniquePlugins.Values;
-            corePanel.AddControl(pluginList, SettingRowTracker.PLUGIN_LIST_ROW_INDEX, 0, 2);
-
-            #endregion
+            
 
             #region Plugin Settings
 
@@ -493,6 +644,10 @@ namespace Observatory.UI.Views
             }
 
             #endregion
+
+            gridManager.AddSetting(primeSystemContexCheckbox);
+            gridManager.AddSettingWithLabel(journalPathLabel, journalPath);
+            gridManager.AddSetting(journalBrowse);
 
             return corePanel;
         }
@@ -507,10 +662,10 @@ namespace Observatory.UI.Views
                 {
                     Header = plugin.Name,
                     DataContext = plugin.Settings,
-                    Margin = new Thickness(0, 20)
+                    Margin = new Thickness(0, 0)
                 };
 
-                Grid settingsGrid = new();
+                Grid settingsGrid = new() { Margin = new Thickness(10,10) };
                 ColumnDefinitions settingColumns = new()
                 {
                     new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) },
@@ -521,7 +676,7 @@ namespace Observatory.UI.Views
                 expander.Content = settingsGrid;
 
                 int nextRow = gridPanel.RowDefinitions.Count;
-                gridPanel.RowDefinitions.Add(new RowDefinition());
+                gridPanel.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) });
                 gridPanel.AddControl(expander, nextRow, 0, 3);
 
                 foreach (var setting in displayedSettings.Where(s => !System.Attribute.IsDefined(s.Key, typeof(SettingIgnore))))
@@ -668,7 +823,6 @@ namespace Observatory.UI.Views
 
                             break;
                     }
-                    
                 }
             }
         }
@@ -741,32 +895,39 @@ namespace Observatory.UI.Views
         }
     }
 
-    internal class SettingRowTracker
+    internal class SettingGridManager
     {
-        public const int PLUGIN_LIST_ROW_INDEX = 0;
-        private int nextSettingRowIndex;
-
         private Grid settingPanel;
 
-        public SettingRowTracker(Grid settingPanel)
+        public SettingGridManager(Grid settingPanel)
         {
             this.settingPanel = settingPanel;
-            Reset();
         }
 
-        public int NextIndex()
+        public int NewRow()
         {
-            if (nextSettingRowIndex > settingPanel.RowDefinitions.Count)
-            {
-                throw new IndexOutOfRangeException("Trying to add more settings than rows in the settings grid.");
-            }
-            return nextSettingRowIndex++;
+            settingPanel.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) });
+            
+            return settingPanel.RowDefinitions.Count - 1;
         }
 
-        private void Reset()
+        public void AddSetting(Control control)
         {
-            nextSettingRowIndex = PLUGIN_LIST_ROW_INDEX + 1;
+            int rowIndex = NewRow();
+            settingPanel.AddControl(control, rowIndex, 0, 2);
         }
 
+        public void AddSettingSameLine(Control control)
+        {
+            int rowIndex = settingPanel.RowDefinitions.Count - 1;
+            settingPanel.AddControl(control, rowIndex, 0, 2);
+        }
+
+        public void AddSettingWithLabel(Control label, Control control)
+        {
+            int rowIndex = NewRow();
+            settingPanel.AddControl(label, rowIndex, 0);
+            settingPanel.AddControl(control, rowIndex, 1, 2);
+        }
     }
 }

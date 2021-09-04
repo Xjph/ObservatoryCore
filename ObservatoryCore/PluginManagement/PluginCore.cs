@@ -2,6 +2,7 @@
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using System;
+using System.Runtime.InteropServices;
 
 namespace Observatory.PluginManagement
 {
@@ -25,6 +26,17 @@ namespace Observatory.PluginManagement
                 if (Properties.Core.Default.NativeNotify)
                 {
                     InvokeNativeNotification(title, text);
+                }
+
+                if (Properties.Core.Default.VoiceNotify && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    var speech = new System.Speech.Synthesis.SpeechSynthesizer()
+                    {
+                        Volume = Properties.Core.Default.VoiceVolume,
+                        Rate = Properties.Core.Default.VoiceRate
+                    };
+                    speech.SelectVoice(Properties.Core.Default.VoiceSelected);
+                    speech.SpeakAsync(title + ": " + text);
                 }
             }
         }
