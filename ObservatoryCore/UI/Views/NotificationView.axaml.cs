@@ -13,7 +13,7 @@ namespace Observatory.UI.Views
         {
             InitializeComponent();
             SystemDecorations = SystemDecorations.None;
-
+            ShowInTaskbar = false;
             MakeClickThrough(); //Platform specific, currently windows only.
             
             int screen = Properties.Core.Default.NativeNotifyScreen;
