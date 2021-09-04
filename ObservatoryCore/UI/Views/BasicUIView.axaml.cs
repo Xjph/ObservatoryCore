@@ -177,7 +177,7 @@ namespace Observatory.UI.Views
                 if (!uniquePlugins.ContainsKey(plugin))
                 {
                     uniquePlugins.Add(plugin,
-                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryWorker).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
+                        new PluginView() { Name = plugin.Name, Types = new() { "Worker" }, Version = plugin.Version, Status = GetStatusText(signed) });
                 }
             }
 
@@ -186,11 +186,11 @@ namespace Observatory.UI.Views
                 if (!uniquePlugins.ContainsKey(plugin))
                 {
                     uniquePlugins.Add(plugin,
-                        new PluginView() { Name = plugin.Name, Types = new() { typeof(IObservatoryNotifier).Name }, Version = plugin.Version, Status = GetStatusText(signed) });
+                        new PluginView() { Name = plugin.Name, Types = new() { "Notifier" }, Version = plugin.Version, Status = GetStatusText(signed) });
                 }
                 else
                 {
-                    uniquePlugins[plugin].Types.Add(typeof(IObservatoryNotifier).Name);
+                    uniquePlugins[plugin].Types.Add("Notifier");
                 }
             }
 
