@@ -74,34 +74,23 @@ namespace Observatory.PluginManagement
 
         private void LoadSettings(IObservatoryPlugin plugin)
         {
-            string settingsFile = GetSettingsFile(plugin);
-            bool createFile = !File.Exists(settingsFile);
+            string savedSettings = Properties.Core.Default.PluginSettings;
+            Dictionary<string, object> pluginSettings;
 
-            if (!createFile)
+            if (!String.IsNullOrWhiteSpace(savedSettings))
             {
-                try
-                {
-                    string settingsJson = File.ReadAllText(settingsFile);
-                    if (settingsJson != "null")
-                        plugin.Settings = JsonSerializer.Deserialize(settingsJson, plugin.Settings.GetType());
-                }
-                catch
-                {
-                    //Invalid settings file, remove and recreate
-                    File.Delete(settingsFile);
-                    createFile = true;
-                }
+                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings);
+            }
+            else
+            {
+                pluginSettings = new();
             }
 
-            if (createFile)
+            if (pluginSettings.ContainsKey(plugin.Name))
             {
-                string settingsJson = JsonSerializer.Serialize(plugin.Settings);
-                string settingsDirectory = new FileInfo(settingsFile).DirectoryName;
-                if (!Directory.Exists(settingsDirectory))
-                {
-                    Directory.CreateDirectory(settingsDirectory);
-                }
-                File.WriteAllText(settingsFile, settingsJson);
+                var settingsElement = (JsonElement)pluginSettings[plugin.Name];
+                var settingsObject = JsonSerializer.Deserialize(settingsElement.GetRawText(), plugin.Settings.GetType());
+                plugin.Settings = settingsObject;    
             }
         }
 
@@ -130,26 +119,41 @@ namespace Observatory.PluginManagement
 
         public void SaveSettings(IObservatoryPlugin plugin, object settings)
         {
-            string settingsFile = GetSettingsFile(plugin);
+            string savedSettings = Properties.Core.Default.PluginSettings;
+            Dictionary<string, object> pluginSettings;
 
-            string settingsJson = JsonSerializer.Serialize(settings, new JsonSerializerOptions()
+            if (!String.IsNullOrWhiteSpace(savedSettings))
+            {
+                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings);
+            }
+            else
+            {
+                pluginSettings = new();
+            }
+
+            if (pluginSettings.ContainsKey(plugin.Name))
+            {
+                pluginSettings[plugin.Name] = settings;
+            }
+            else
+            {
+                pluginSettings.Add(plugin.Name, settings);
+            }
+
+            string newSettings = JsonSerializer.Serialize(pluginSettings, new JsonSerializerOptions()
             {
                 ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
             });
-            string settingsDirectory = new FileInfo(settingsFile).DirectoryName;
-            if (!Directory.Exists(settingsDirectory))
-            {
-                Directory.CreateDirectory(settingsDirectory);
-            }
-            File.WriteAllText(settingsFile, settingsJson);
-            
+
+            Properties.Core.Default.PluginSettings = newSettings;
+            Properties.Core.Default.Save();
         }
 
-        private static string GetSettingsFile(IObservatoryPlugin plugin)
-        {
-            var configDirectory = new FileInfo(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath).Directory;
-            return configDirectory.FullName + "\\" + plugin.Name + ".json";
-        }
+        //private static string GetSettingsFile(IObservatoryPlugin plugin)
+        //{
+        //    var configDirectory = new FileInfo(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath).Directory;
+        //    return configDirectory.FullName + "\\" + plugin.Name + ".json";
+        //}
 
         private static List<string> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
         {
@@ -214,6 +218,28 @@ namespace Observatory.PluginManagement
 
         private static string LoadPluginAssembly(string dllPath, List<(IObservatoryWorker plugin, PluginStatus signed)> workers, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers)
         {
+            System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (context, name) => {
+                if (name.Name.EndsWith("resources"))
+                {
+                    return null;
+                }
+
+                //Importing Observatory.Framework in the Explorer Lua scripts causes an attempt to reload
+                //the assembly, just hand it back the one we already have.
+                if (name.Name.StartsWith("Observatory.Framework"))
+                {
+                    return context.Assemblies.Where(a => a.FullName.Contains("ObservatoryFramework")).First();
+                }
+
+                var foundDlls = Directory.GetFileSystemEntries(new FileInfo($".{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}deps").FullName, name.Name + ".dll", SearchOption.TopDirectoryOnly);
+                if (foundDlls.Any())
+                {
+                    return context.LoadFromAssemblyPath(foundDlls[0]);
+                }
+
+                return context.LoadFromAssemblyName(name);
+            };
+
             var pluginAssembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(new FileInfo(dllPath).FullName);
             Type[] types;
             string err = string.Empty;
