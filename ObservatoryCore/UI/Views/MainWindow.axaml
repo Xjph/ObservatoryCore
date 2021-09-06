@@ -7,5 +7,6 @@
         x:Class="Observatory.UI.Views.MainWindow"
         Title="Elite Observatory"
         ExtendClientAreaToDecorationsHint="True"
-        Content="{Binding core}">
+        Content="{Binding core}"
+        Icon="/Assets/EOCIcon-Presized.ico">
 </Window> 

@@ -18,7 +18,7 @@
     <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
     <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
     <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
-    <ApplicationIcon>EOCIcon-Presized.ico</ApplicationIcon>
+    <ApplicationIcon>Assets\EOCIcon-Presized.ico</ApplicationIcon>
   </PropertyGroup>
   
   <ItemGroup>
@@ -33,6 +33,10 @@
     <PackageReference Include="System.Speech" Version="5.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+  
   <ItemGroup>
     <Reference Include="ObservatoryFramework">
       <HintPath>..\..\ObservatoryFramework\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll</HintPath>
