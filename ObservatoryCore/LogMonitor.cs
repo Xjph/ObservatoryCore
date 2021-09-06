@@ -246,7 +246,7 @@ namespace Observatory
                 }
                 catch (Exception ex)
                 {
-                    readErrors.Add((ex, "Pre-read", line));
+                    readErrors.Add((ex, file, line));
                 }
             }
             return readErrors;
@@ -279,7 +279,16 @@ namespace Observatory
                 int count = 0;
                 foreach (var error in readErrors)
                 {
-                    errorContent.AppendLine(error.ex.InnerException.Message);
+
+                    if (error.ex.InnerException == null)
+                    {
+                        errorContent.AppendLine(error.ex.Message);
+                    }
+                    else
+                    {
+                        errorContent.AppendLine(error.ex.InnerException.Message);
+                    }
+                    
                     errorContent.AppendLine($"File: {error.file}");
                     if (error.line.Length > 200)
                     {
