@@ -5,9 +5,6 @@ Tool for reading/monitoring Elite Dangerous journals for interesting objects. Su
 Observatory Core and it's associated plugins are currently in an alpha state and are neither feature-complete nor using a finalised UI. Over the coming weeks I will outline in detail what functionality is missing *but still planned*, and begin work on getting it to feature parity with the original Elite Observatory.
 
 Omissions to current functionality include:
-* Voice notification
-* Checks based on surface materials (yes, there are checkboxes for them in the Explorer settings, they do not do anything)
-* Having an application icon
 * Integration with Frontier's Companion API
 * Integration with Telegram
 * Data submission to IGAU
