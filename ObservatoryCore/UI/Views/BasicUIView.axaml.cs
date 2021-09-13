@@ -23,7 +23,6 @@ namespace Observatory.UI.Views
 
         public BasicUIView()
         {
-            Initialized += OnInitialized;
             InitializeComponent();
         }
 
@@ -65,15 +64,11 @@ namespace Observatory.UI.Views
             e.Column.CanUserSort = true;
         }
 
-        private void OnInitialized(object sender, System.EventArgs e)
-        {
-            
-        }
-
         private void UITypeChange()
         {
             var uiPanel = this.Find<Panel>("UIPanel");
             dataGrid = null;
+
             switch (UIType)
             {
                 case PluginUI.UIType.None:
@@ -442,7 +437,7 @@ namespace Observatory.UI.Views
 
                 voiceTestButton.Click += (object sender, RoutedEventArgs e) =>
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && Properties.Core.Default.VoiceSelected.Length > 0)
                     {
                         var speech = new System.Speech.Synthesis.SpeechSynthesizer()
                         {
@@ -466,7 +461,6 @@ namespace Observatory.UI.Views
                         };
 
                         speech.SpeakAsync("Speech Synthesis Test: " + harvardSentences.OrderBy(s => new Random().NextDouble()).First());
-
                     }
                 };
 
