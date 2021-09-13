@@ -376,9 +376,59 @@ namespace Observatory.UI.Views
                 }
             };
 
+            TextBlock scaleLabel = new()
+            {
+                Text = "Scale (%): ",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+
+            NumericUpDown scaleSpinner = new() 
+            { 
+                Value = Properties.Core.Default.NativeNotifyScale, 
+                AllowSpin = true,
+                Minimum = 1,
+                Maximum = 1000,
+                Increment = 1,
+                Width = 200,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left
+            };
+
+            scaleSpinner.ValueChanged += (object sender, NumericUpDownValueChangedEventArgs e) =>
+            {
+                Properties.Core.Default.NativeNotifyScale = Convert.ToInt32(e.NewValue);
+                Properties.Core.Default.Save();
+            };
+
+            TextBlock timeoutLabel = new()
+            {
+                Text = "Duration (ms): ",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+
+            NumericUpDown timeoutSpinner = new()
+            {
+                Value = Properties.Core.Default.NativeNotifyTimeout,
+                AllowSpin = true,
+                Minimum = 1,
+                Maximum = 3600000,
+                Increment = 1,
+                Width = 200,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left
+            };
+
+            timeoutSpinner.ValueChanged += (object sender, NumericUpDownValueChangedEventArgs e) =>
+            {
+                Properties.Core.Default.NativeNotifyTimeout = Convert.ToInt32(e.NewValue);
+                Properties.Core.Default.Save();
+            };
+
             notificationGridManager.AddSettingWithLabel(monitorLabel, monitorDropDown);
             notificationGridManager.AddSettingWithLabel(cornerLabel, cornerDropDown);
             notificationGridManager.AddSettingWithLabel(notifyFontLabel, notifyFontDropDown);
+            notificationGridManager.AddSettingWithLabel(scaleLabel, scaleSpinner);
+            notificationGridManager.AddSettingWithLabel(timeoutLabel, timeoutSpinner);
             notificationGridManager.AddSettingWithLabel(colourLabel, colourPickerButton);
             notificationGridManager.AddSettingSameLine(notifyTestButton);
             notificationGridManager.AddSetting(nativeNotifyCheckbox);

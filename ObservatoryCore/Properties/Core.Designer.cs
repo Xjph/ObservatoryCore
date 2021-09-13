@@ -214,5 +214,29 @@ namespace Observatory.Properties {
                 this["MainWindowPosition"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("100")]
+        public int NativeNotifyScale {
+            get {
+                return ((int)(this["NativeNotifyScale"]));
+            }
+            set {
+                this["NativeNotifyScale"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("8000")]
+        public int NativeNotifyTimeout {
+            get {
+                return ((int)(this["NativeNotifyTimeout"]));
+            }
+            set {
+                this["NativeNotifyTimeout"] = value;
+            }
+        }
     }
 }

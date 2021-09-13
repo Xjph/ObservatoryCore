@@ -9,16 +9,13 @@
         ExtendClientAreaTitleBarHeightHint="-1"
         Title="Notification"
         Width="400" Height="150"
-        MinWidth="400" MinHeight="150"
-        MaxWidth="400" MaxHeight="150"
         Topmost="True"
-        SizeToContent="Height"
         TransparencyLevelHint="AcrylicBlur"
         Background="Transparent"
         Focusable="False">
   <Panel DataContext="{Binding Notification}">
-    <Border BorderBrush="{Binding Colour}" BorderThickness="4">
-      <StackPanel Width="400">
+    <Border Name="TextBorder" BorderBrush="{Binding Colour}" BorderThickness="4">
+      <StackPanel Name="TextPanel" Width="400">
         <TextBlock
           Name="Title"
           Padding="10"

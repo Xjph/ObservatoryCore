@@ -19,17 +19,31 @@ namespace Observatory.UI.Views
             int screen = Properties.Core.Default.NativeNotifyScreen;
             int corner = Properties.Core.Default.NativeNotifyCorner;
             string font = Properties.Core.Default.NativeNotifyFont;
-            
+            double scale = Properties.Core.Default.NativeNotifyScale / 100.0;
+
+            var titleText = this.Find<TextBlock>("Title");
+            var detailText = this.Find<TextBlock>("Detail");
+
             if (font.Length > 0)
             {
-                var titleText = this.Find<TextBlock>("Title");
-                var detailText = this.Find<TextBlock>("Detail");
                 var fontFamily = new Avalonia.Media.FontFamily(font);
 
                 titleText.FontFamily = fontFamily;
                 detailText.FontFamily = fontFamily;
             }
 
+            titleText.FontSize *= scale;
+            detailText.FontSize *= scale;
+
+            var textPanel = this.Find<StackPanel>("TextPanel");
+            Width *= scale;
+            Height *= scale;
+            textPanel.Width *= scale;
+            textPanel.Height *= scale;
+
+            var textBorder = this.Find<Border>("TextBorder");
+            textBorder.BorderThickness *= scale;
+            
             PixelRect screenBounds;
 
             if (screen == -1 || screen > Screens.All.Count)
@@ -37,9 +51,9 @@ namespace Observatory.UI.Views
             else
                 screenBounds = Screens.All[screen - 1].Bounds;
 
-            double scale = LayoutHelper.GetLayoutScale(this);
-            double scaleWidth = Width * scale;
-            double scaleHeight = Height * scale;
+            double displayScale = LayoutHelper.GetLayoutScale(this);
+            double scaleWidth = Width * displayScale;
+            double scaleHeight = Height * displayScale;
 
             switch (corner)
             {
@@ -59,7 +73,7 @@ namespace Observatory.UI.Views
 
             var timer = new System.Timers.Timer();
             timer.Elapsed += CloseNotification;
-            timer.Interval = 8000;
+            timer.Interval = Properties.Core.Default.NativeNotifyTimeout;
             timer.Start();
 #if DEBUG
             this.AttachDevTools();
