@@ -3,18 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Observatory.Framework;
 
 namespace Observatory.UI.ViewModels
 {
     public class NotificationViewModel : ViewModelBase
     {
-        public NotificationViewModel(string title, string detail)
+        public NotificationViewModel(NotificationArgs notificationArgs)
         {
 
             Notification = new()
             {
-                Title = title,
-                Detail = detail,
+                Title = notificationArgs.Title,
+                Detail = notificationArgs.Detail,
+                Timeout = notificationArgs.Timeout,
+                XPos = notificationArgs.XPos,
+                YPos = notificationArgs.YPos,
                 Colour = Avalonia.Media.Color.FromUInt32(Properties.Core.Default.NativeNotifyColour).ToString()
             };
             

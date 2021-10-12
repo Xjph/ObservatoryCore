@@ -63,7 +63,6 @@ namespace Observatory.UI.Views
             e.Column.CanUserResize = true;
             e.Column.CanUserSort = true;
         }
-
         private void UITypeChange()
         {
             var uiPanel = this.Find<Panel>("UIPanel");
@@ -109,6 +108,7 @@ namespace Observatory.UI.Views
             {
                 var dataContext = ((ViewModels.BasicUIViewModel)dataGrid.DataContext).BasicUIGrid;
                 dataContext.CollectionChanged += ScrollToLast;
+                
             }
         }
 
@@ -200,9 +200,7 @@ namespace Observatory.UI.Views
             {
                 Header = "Popup Notifications",
                 DataContext = Properties.Core.Default,
-                Margin = new Thickness(0, 0),
-                Background = this.Background,
-                BorderThickness = new Thickness(0)
+                Margin = new Thickness(0, 0)
             };
 
             Grid notificationGrid = new() { Margin = new Thickness(10, 10) };
@@ -244,8 +242,13 @@ namespace Observatory.UI.Views
             {
                 Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    var notifyWindow = new UI.Views.NotificationView() { DataContext = new UI.ViewModels.NotificationViewModel("Test Notification", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque.") };
-                    notifyWindow.Show();
+                    var notificationArgs = new NotificationArgs()
+                    {
+                        Title = "Test Notification",
+                        Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque."
+                    };
+                    
+                    new NativeNotification.NativePopup().InvokeNativeNotification(notificationArgs);
                 });
             };
 
@@ -448,9 +451,7 @@ namespace Observatory.UI.Views
                 {
                     Header = "Voice Notifications",
                     DataContext = Properties.Core.Default,
-                    Margin = new Thickness(0, 0),
-                    Background = this.Background,
-                    BorderThickness = new Thickness(0)
+                    Margin = new Thickness(0, 0)
                 };
 
                 Grid voiceGrid = new() { Margin = new Thickness(10, 10) };
@@ -489,13 +490,6 @@ namespace Observatory.UI.Views
                 {
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && Properties.Core.Default.VoiceSelected.Length > 0)
                     {
-                        var speech = new System.Speech.Synthesis.SpeechSynthesizer()
-                        {
-                            Volume = Properties.Core.Default.VoiceVolume,
-                            Rate = Properties.Core.Default.VoiceRate
-                        };
-                        speech.SelectVoice(Properties.Core.Default.VoiceSelected);
-
                         List<string> harvardSentences = new() 
                         {
                             "Oak is strong and also gives shade.",
@@ -510,7 +504,10 @@ namespace Observatory.UI.Views
                             "Move the vat over the hot fire."
                         };
 
-                        speech.SpeakAsync("Speech Synthesis Test: " + harvardSentences.OrderBy(s => new Random().NextDouble()).First());
+                        NotificationArgs args = new() { Title = "Speech Synthesis Test", Detail = harvardSentences.OrderBy(s => new Random().NextDouble()).First() };
+                        
+                        new NativeNotification.NativeVoice().EnqueueAndAnnounce(args);
+
                     }
                 };
 

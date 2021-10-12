@@ -32,7 +32,7 @@ namespace Observatory.PluginManagement
         public void Load(IObservatoryCore observatoryCore)
         { }
 
-        public void OnNotificationEvent(string title, string text)
+        public void OnNotificationEvent(NotificationArgs notificationArgs)
         { }
     }
 }
