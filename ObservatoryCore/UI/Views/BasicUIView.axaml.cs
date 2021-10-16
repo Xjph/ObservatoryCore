@@ -720,7 +720,9 @@ namespace Observatory.UI.Views
                 gridPanel.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) });
                 gridPanel.AddControl(expander, nextRow, 0, 3);
 
-                foreach (var setting in displayedSettings.Where(s => !System.Attribute.IsDefined(s.Key, typeof(SettingIgnore))))
+                var nonIgnoredSettings = displayedSettings.Where(s => !Attribute.IsDefined(s.Key, typeof(SettingIgnore)));
+
+                foreach (var setting in nonIgnoredSettings)
                 {
                     if (setting.Key.PropertyType != typeof(bool) || settingsGrid.Children.Count % 2 == 0)
                     {
@@ -756,11 +758,13 @@ namespace Observatory.UI.Views
                             TextBox textBox = new() { Text = stringSetting };
                             settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0);
                             settingsGrid.AddControl(textBox, settingsGrid.RowDefinitions.Count - 1, 1);
-                            textBox.TextInput += (object sender, Avalonia.Input.TextInputEventArgs e) =>
+
+                            textBox.LostFocus += (object sender, RoutedEventArgs e) =>
                             {
-                                setting.Key.SetValue(plugin.Settings, e.Text);
+                                setting.Key.SetValue(plugin.Settings, ((TextBox)sender).Text);
                                 PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
                             };
+
                             break;
                         case int intSetting:
                             // We have two options for integer values:
