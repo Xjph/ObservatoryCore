@@ -667,8 +667,15 @@ namespace Observatory.UI.Views
                         Properties.Core.Default.Save();
                     }
                 });
-                
-                
+            };
+
+            journalPath.LostFocus += (object sender, RoutedEventArgs e) =>
+            {
+                if (System.IO.Directory.Exists(journalPath.Text))
+                {
+                    Properties.Core.Default.JournalFolder = journalPath.Text;
+                    Properties.Core.Default.Save();
+                }
             };
 
             
@@ -856,6 +863,23 @@ namespace Observatory.UI.Views
                                     }
                                 });
                                 
+                            };
+
+                            settingPath.LostFocus += (object sender, RoutedEventArgs e) =>
+                            {
+                                string fullPath;
+                                
+                                try
+                                {
+                                    fullPath = System.IO.Path.GetFullPath(settingPath.Text);
+                                }
+                                catch
+                                {
+                                    fullPath = string.Empty;
+                                }
+
+                                setting.Key.SetValue(plugin.Settings, new System.IO.FileInfo(fullPath));
+                                PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
                             };
 
                             StackPanel stackPanel = new() { Orientation = Avalonia.Layout.Orientation.Horizontal };
