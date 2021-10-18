@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using Avalonia.Media;
 using Avalonia.Controls.ApplicationLifetimes;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace Observatory.UI.Views
 {
@@ -140,7 +141,7 @@ namespace Observatory.UI.Views
             #region Native Settings
 
             #region Plugin List
-            DataGrid pluginList = new() { Margin = new Thickness(0, 20) };
+            DataGrid pluginList = new() { Margin = new Thickness(0, 20, 0, 0) };
 
             pluginList.Columns.Add(new DataGridTextColumn()
             {
@@ -191,6 +192,31 @@ namespace Observatory.UI.Views
 
             pluginList.Items = uniquePlugins.Values;
             gridManager.AddSetting(pluginList);
+
+            Button pluginFolderButton = new()
+            {
+                Content = "Open Plugin Folder",
+                Height = 30,
+                Width = 150,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 20)
+            };
+
+            pluginFolderButton.Click += (object sender, RoutedEventArgs e) =>
+            {
+                string pluginDir = AppDomain.CurrentDomain.BaseDirectory + "plugins";
+                
+                if (!Directory.Exists(pluginDir))
+                {
+                    Directory.CreateDirectory(pluginDir);
+                }
+
+                var fileExplorerInfo = new System.Diagnostics.ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
+                System.Diagnostics.Process.Start(fileExplorerInfo);
+            };
+
+            gridManager.AddSetting(pluginFolderButton);
 
             #endregion
 
@@ -678,7 +704,6 @@ namespace Observatory.UI.Views
                 }
             };
 
-            
 
             #endregion
 
