@@ -229,8 +229,11 @@ namespace Observatory
                 throw new NotImplementedException("Current OS Platform Not Supported.");
             }
 
-            Properties.Core.Default.JournalFolder = path;
-            Properties.Core.Default.Save();
+            if (Properties.Core.Default.JournalFolder != path)
+            {
+                Properties.Core.Default.JournalFolder = path;
+                Properties.Core.Default.Save();
+            }
 
             return logDirectory;
         }
@@ -378,11 +381,12 @@ namespace Observatory
         /// </summary>
         private async void JournalPoke()
         {
+            var journalFolder = GetJournalFolder();
+
             await System.Threading.Tasks.Task.Run(() => 
             { 
                 while (monitoring)
                 {
-                    var journalFolder = GetJournalFolder();
                     FileInfo fileToPoke = null;
 
                     foreach (var file in journalFolder.GetFiles("Journal.????????????.??.log"))
