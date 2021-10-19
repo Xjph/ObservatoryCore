@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30128.74
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObservatoryCore", "ObservatoryCore\ObservatoryCore.csproj", "{0E1C4F16-858E-4E53-948A-77D81A8F3395}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObservatoryCore", "ObservatoryCore.csproj", "{0E1C4F16-858E-4E53-948A-77D81A8F3395}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

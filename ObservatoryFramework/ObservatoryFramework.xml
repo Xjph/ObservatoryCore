@@ -1,0 +1,483 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ObservatoryFramework</name>
+    </assembly>
+    <members>
+        <member name="T:Observatory.Framework.JournalEventArgs">
+            <summary>
+            Provides data for Elite Dangerous journal events.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.JournalEventArgs.journalType">
+            <summary>
+            <para>Type of journal entry that triggered event.</para>
+            <para>Will be a class from the Observatory.Framework.Files.Journal namespace derived from JournalBase, or JournalBase itself in the case of an unhandled journal event type.</para>
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.JournalEventArgs.journalEvent">
+            <summary>
+            <para>Elite Dangerous journal event, deserialized into a .NET object of the type specified by JournalEventArgs.journalType.</para>
+            <para>Unhandled json values within a journal entry type will be contained in member property:<br/>Dictionary&lt;string, object&gt; AdditionalProperties.</para>
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.NotificationArgs">
+            <summary>
+            Provides values used as arguments for Observatory notification events.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.Title">
+            <summary>
+            Text typically displayed as header content.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.TitleSsml">
+            <summary>
+            SSML representation of Title text.<br/>
+            This value is optional, if omitted the value of <c>NotificationArgs.Title</c> will be used for voice synthesis without markup.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.Detail">
+            <summary>
+            Text typically displayed as body content.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.DetailSsml">
+            <summary>
+            SSML representation of Detail text.<br/>
+            This value is optional, if omitted the value of <c>NotificationArgs.Detail</c> will be used for voice synthesis without markup.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.Timeout">
+            <summary>
+            Specify window timeout in ms (overrides Core setting). Specify 0 timeout to persist until removed via IObservatoryCore.CancelNotification. Default -1 (use Core setting).
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.XPos">
+            <summary>
+            Specify window X position as a percentage from upper left corner (overrides Core setting). Default -1.0 (use Core setting).
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.YPos">
+            <summary>
+            Specify window Y position as a percentage from upper left corner (overrides Core setting). Default -1.0 (use Core setting).
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.Discoverers">
+            <summary>
+            This property is indicated with strikethrough in Frontier's documentation and may be deprecated.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.Mappers">
+            <summary>
+            This property is indicated with strikethrough in Frontier's documentation and may be deprecated.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.Scan">
+            <summary>
+            Journal "Scan" event generated when directly FSS scanning, from automatic proximity scans, or nav beacon data.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.ScanType">
+            <summary>
+            Type of scan which generated the event. Possible options include "Detailed", "AutoScan", and "NavBeaconDetail" (non-exhaustive).
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.BodyName">
+            <summary>
+            Name of scanned body.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Parents">
+            <summary>
+            List which reflects Frontier's JSON structure for the "Parents" object. Use of Parent property is recommended instead.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Parent">
+            <summary>
+            "Parents" object rearranged into more intuitive structure for ease of use.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.DistanceFromArrivalLS">
+            <summary>
+            Body distance from system arrival point in light-seconds.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.TidalLock">
+            <summary>
+            Indicates if body is tidally locked to another body (parent, child, or binary partner).
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.TerraformState">
+            <summary>
+            Whether the planet can be or has been terraformed. Options include "Terraformable", "Terraformed", or "" (non-terraformable or naturally earth-like).
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.PlanetClass">
+            <summary>
+            Class of planet. Consult your preferred source of journal documentation for all possible values.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Atmosphere">
+            <summary>
+            Descriptive string for body atmosphere, e.g. "hot thick sulfur dioxide atmosphere".
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.AtmosphereType">
+            <summary>
+            Simple string indicating dominant atmosphere type, e.g. "SulfurDioxide".
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.AtmosphereComposition">
+            <summary>
+            List containing full breakdown of atmospheric components and their relative percentages.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Volcanism">
+            <summary>
+            Descriptive string for type of volcanism present, or an empty string for none, e.g. "major silicate vapour geysers volcanism".
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.MassEM">
+            <summary>
+            Mass of body in multiples of Earth's mass (5.972e24 kg).
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Radius">
+            <summary>
+            Radius of body in metres.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.SurfaceGravity">
+            <summary>
+            Surface gravity in m/s².
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.SurfaceTemperature">
+            <summary>
+            Average surface temperature in Kelvin.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.SurfacePressure">
+            <summary>
+            Average surface pressure in Pascals.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Landable">
+            <summary>
+            Whether the body in landable in the player's current version of Elite Dangerous.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Materials">
+            <summary>
+            List containing full breakdown of prospectable surface materials and their relative percentages.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Composition">
+            <summary>
+            Overall composition of body, expressed as percentages of ice, rock, and metal.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.RotationPeriod">
+            <summary>
+            Rotation period of body in seconds.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.AxialTilt">
+            <summary>
+            Axial tilt of body in radians.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Rings">
+            <summary>
+            List of all planetary or stellar ring systems around the body.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.ReserveLevel">
+            <summary>
+            Description of the minable material abundance.<br/>Possible values inclue "PristineResources", "MajorResources", "CommonResources", "LowResources", and "DepletedResources". 
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.StarType">
+            <summary>
+            Type of star. Consult your preferred source of journal documentation for all possible values.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Subclass">
+            <summary>
+            Subclass of star. Consult your preferred source of journal documentation for all possible values.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.StellarMass">
+            <summary>
+            Mass of star in multiples of The Sun's mass (1.989e30 kg).
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.AbsoluteMagnitude">
+            <summary>
+            Absolute magnitude of star.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Age_MY">
+            <summary>
+            Age of body in millions of years.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.Luminosity">
+            <summary>
+            Yerkes luminosity class of star.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.WasDiscovered">
+            <summary>
+            Whether the body has been previously discovered by a player.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.WasMapped">
+            <summary>
+            Whether the body has been previously mapped by a player.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.ScanBaryCentre">
+            <summary>
+            Barycentre orbital properties, automatically recorded when any member of a multiple-body orbital arrangement is first scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.StarSystem">
+            <summary>
+            Name of star system containing scanned body.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.SystemAddress">
+            <summary>
+            64-bit unique identifier for the current star system. Also known as the system's "ID64".
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.BodyID">
+            <summary>
+            Id number of body within a system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.SemiMajorAxis">
+            <summary>
+            Orbital semi-major axis in metres.<br/>Distance from the body's centre of gravity to the parent's centre of gravity at the most distant point in the orbit.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.Eccentricity">
+            <summary>
+            Orbital eccentricity.<br/>0: perfectly circular, 0 &gt; x &gt; 1: eccentric, 1: parabolic (escape) trajectory.<br/>(You should not ever see 1 or 0.)
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.OrbitalInclination">
+            <summary>
+            Orbital inclination in degrees.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.Periapsis">
+            <summary>
+            Argument of periapsis in degrees.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.OrbitalPeriod">
+            <summary>
+            Orbital period in seconds.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.AscendingNode">
+            <summary>
+            Longitude of the ascending node in degrees.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.MeanAnomaly">
+            <summary>
+            Mean anomaly in degrees.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Converters.LegacyFactionConverter`1">
+            <summary>
+            Faction changed from a simple string to an object with additional state information. If we find a string convert it to an object with null state.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Converters.MaterialCompositionConverter">
+            <summary>
+            The format used for materials changed from an object with a key for each material to an array of objects containing "name" and "percent".
+            Need to handle both if we're going to read historical data. This reads the old format into a class reflecting the new structure.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Converters.MaterialConverter">
+            <summary>
+            The format used for materials changed from an object with a key for each material to an array of objects containing "name" and "percent".
+            Need to handle both if we're going to read historical data. This reads the old format into a class reflecting the new structure.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Converters.StarPosConverter">
+            <summary>
+            Converting the ordered array of coordinates from the journal to a named tuple for clarity.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.Files.ParameterTypes.StatusFlags.RadialAltitude">
+            <summary>
+            Altitude above average radius (sea level) when set. Altitude raycast to ground when unset.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Interfaces.IObservatoryPlugin">
+            <summary>
+            <para>Base plugin interface containing methods common to both notifiers and workers.</para>
+            <para>Note: Not intended to be implemented on its own and will not define a functional plugin. Use IObservatoryWorker, IObservatoryNotifier, or both, as appropriate.</para>
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.Load(Observatory.Framework.Interfaces.IObservatoryCore)">
+            <summary>
+            <para>This method will be called on startup by Observatory Core when a plugin is first loaded.</para>
+            <para>Passes the Core interface to the plugin.</para>
+            </summary>
+            <param name="observatoryCore">Object implementing Observatory Core's main interface. A reference to this object should be maintained by the plugin for communication back to Core.</param>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.Name">
+            <summary>
+            Full name of the plugin. Displayed in the Core settings tab's plugin list.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.ShortName">
+            <summary>
+            Short name of the plugin. Used as the tab title for the plugin UI.<br/>
+            Can be omitted, in which case the full Name will be used.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.Version">
+            <summary>
+            Version string displayed in the Core settings tab's plugin list.<br/>
+            Potentially used for automated version checking. (Not yet implemented)
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.PluginUI">
+            <summary>
+            Reference to plugin UI to display within its tab.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.Settings">
+            <summary>
+            <para>Accessors for plugin settings object. Should be initialized in a default state.</para>
+            <para>Saving and loading of settings is handled by Observatory Core, and any previously saved settings will be set after plugin instantiation, but before Load() is called.</para>
+            <para>A plugin's settings class is expected to consist of properties with public getters and setters. The settings UI will be automatically generated based on each property type.<br/>
+            The [SettingDisplayName(string name)] attribute can be used to specify a display name, otherwise the name of the property will be used.<br/>
+            Private or internal properties and methods are ignored and can be used for backing values or any other purpose.<br/>
+            If a public property is necessary but not required to be user accessible the [SettingIgnore] property will suppress display.</para>
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
+            <summary>
+            <para>Interface for worker plugins which process journal data to update their UI or send notifications.</para>
+            <para>Work required on plugin startup — for example object instantiation — can be done in the constructor or Load() method.<br/>
+            Be aware that saved settings will not be available until Load() is called.</para>
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryWorker.JournalEvent``1(``0)">
+            <summary>
+            Method called when new journal data is processed. Most work done by worker plugins will occur here.
+            </summary>
+            <typeparam name="TJournal">Specific type of journal entry being received.</typeparam>
+            <param name="journal"><para>Elite Dangerous journal event, deserialized into a .NET object.</para>
+            <para>Unhandled json values within a journal entry type will be contained in member property:<br/>Dictionary&lt;string, object&gt; AdditionalProperties.</para>
+            <para>Unhandled journal event types will be type JournalBase with all values contained in AdditionalProperties.</para></param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryWorker.StatusChange(Observatory.Framework.Files.Status)">
+            <summary>
+            Method called when status.json content is updated.<br/>
+            Can be omitted for plugins which do not use this data.
+            </summary>
+            <param name="status">Player status.json content, deserialized into a .NET object.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryWorker.ReadAllStarted">
+            <summary>
+            Method called when the user begins "Read All" journal processing, before any journal events are sent.<br/>
+            Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
+            Can be omitted for plugins which do not require the distinction.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryWorker.ReadAllFinished">
+            <summary>
+            Method called when "Read All" journal processing completes.<br/>
+            Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
+            Can be omitted for plugins which do not require the distinction.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Interfaces.IObservatoryNotifier">
+            <summary>
+            <para>Interface for notifier plugins which receive notification events from other plugins for any purpose.</para>
+            <para>Work required on plugin startup — for example object instantiation — can be done in the constructor or Load() method.<br/>
+            Be aware that saved settings will not be available until Load() is called.</para>
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryNotifier.OnNotificationEvent(Observatory.Framework.NotificationArgs)">
+            <summary>
+            Method called when other plugins send notification events to Observatory Core.
+            </summary>
+            <param name="notificationEventArgs">Details of the notification as sent from the originating worker plugin.</param>
+        </member>
+        <member name="T:Observatory.Framework.Interfaces.IObservatoryCore">
+            <summary>
+            Interface passed by Observatory Core to plugins. Primarily used for sending notifications and UI updates back to Core.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendNotification(System.String,System.String)">
+            <summary>
+            Send a notification out to all native notifiers and any plugins implementing IObservatoryNotifier.
+            </summary>
+            <param name="title">Title text for notification.</param>
+            <param name="detail">Detail/body text for notificaiton.</param>
+            <returns>Guid associated with the notification during its lifetime. Used as an argument with CancelNotification and UpdateNotification.</returns>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendNotification(Observatory.Framework.NotificationArgs)">
+            <summary>
+            Send a notification with arguments out to all native notifiers and any plugins implementing IObservatoryNotifier.
+            </summary>
+            <param name="notificationEventArgs">NotificationArgs object specifying notification content and behaviour.</param>
+            <returns>Guid associated with the notification during its lifetime. Used as an argument with CancelNotification and UpdateNotification.</returns>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.CancelNotification(System.Guid)">
+            <summary>
+            Cancel or close an active notification.
+            </summary>
+            <param name="notificationId">Guid of notification to be cancelled.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.UpdateNotification(System.Guid,Observatory.Framework.NotificationArgs)">
+            <summary>
+            Update an active notification with a new set of NotificationsArgs. Timeout values are reset and begin counting again from zero if specified.
+            </summary>
+            <param name="notificationId">Guid of notification to be updated.</param>
+            <param name="notificationEventArgs">NotificationArgs object specifying updated notification content and behaviour.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.AddGridItem(Observatory.Framework.Interfaces.IObservatoryWorker,System.Object)">
+            <summary>
+            Add an item to the bottom of the basic UI grid.
+            </summary>
+            <param name="worker">Reference to the calling plugin's worker interface.</param>
+            <param name="item">Grid item to be added. Object type should match original template item used to create the grid.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.ClearGrid(Observatory.Framework.Interfaces.IObservatoryWorker,System.Object)">
+            <summary>
+            Clears basic UI grid, removing all items.
+            </summary>
+            <param name="worker">Reference to the calling plugin's worker interface.</param>
+            <param name="templateItem">Template item used to re-initialise the grid.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.GetStatus">
+            <summary>
+            Requests current Elite Dangerous status.json content.
+            </summary>
+            <returns>Status object reflecting current Elite Dangerous player status.</returns>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.Version">
+            <summary>
+            Version string of Observatory Core.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.ExecuteOnUIThread(System.Action)">
+            <summary>
+            Perform an action on the current Avalonia UI thread.
+            </summary>
+            <param name="action"></param>
+        </member>
+    </members>
+</doc>
