@@ -37,11 +37,11 @@ namespace Observatory.PluginManagement
             }
         }
 
-        public void OnNotificationEvent(object source, NotificationEventArgs notificationEventArgs)
+        public void OnNotificationEvent(object source, NotificationArgs notificationArgs)
         {
             foreach (var notifier in observatoryNotifiers)
             {
-                notifier.OnNotificationEvent(notificationEventArgs.Title, notificationEventArgs.Detail);
+                notifier.OnNotificationEvent(notificationArgs);
             }
         }
     }

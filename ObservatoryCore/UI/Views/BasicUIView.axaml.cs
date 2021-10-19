@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using Avalonia.Media;
 using Avalonia.Controls.ApplicationLifetimes;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace Observatory.UI.Views
 {
@@ -63,7 +64,6 @@ namespace Observatory.UI.Views
             e.Column.CanUserResize = true;
             e.Column.CanUserSort = true;
         }
-
         private void UITypeChange()
         {
             var uiPanel = this.Find<Panel>("UIPanel");
@@ -109,6 +109,7 @@ namespace Observatory.UI.Views
             {
                 var dataContext = ((ViewModels.BasicUIViewModel)dataGrid.DataContext).BasicUIGrid;
                 dataContext.CollectionChanged += ScrollToLast;
+                
             }
         }
 
@@ -140,7 +141,7 @@ namespace Observatory.UI.Views
             #region Native Settings
 
             #region Plugin List
-            DataGrid pluginList = new() { Margin = new Thickness(0, 20) };
+            DataGrid pluginList = new() { Margin = new Thickness(0, 20, 0, 0) };
 
             pluginList.Columns.Add(new DataGridTextColumn()
             {
@@ -192,6 +193,31 @@ namespace Observatory.UI.Views
             pluginList.Items = uniquePlugins.Values;
             gridManager.AddSetting(pluginList);
 
+            Button pluginFolderButton = new()
+            {
+                Content = "Open Plugin Folder",
+                Height = 30,
+                Width = 150,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center,
+                Margin = new Thickness(0, 0, 0, 20)
+            };
+
+            pluginFolderButton.Click += (object sender, RoutedEventArgs e) =>
+            {
+                string pluginDir = AppDomain.CurrentDomain.BaseDirectory + "plugins";
+                
+                if (!Directory.Exists(pluginDir))
+                {
+                    Directory.CreateDirectory(pluginDir);
+                }
+
+                var fileExplorerInfo = new System.Diagnostics.ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
+                System.Diagnostics.Process.Start(fileExplorerInfo);
+            };
+
+            gridManager.AddSetting(pluginFolderButton);
+
             #endregion
 
             #region Popup Notification settings
@@ -200,9 +226,7 @@ namespace Observatory.UI.Views
             {
                 Header = "Popup Notifications",
                 DataContext = Properties.Core.Default,
-                Margin = new Thickness(0, 0),
-                Background = this.Background,
-                BorderThickness = new Thickness(0)
+                Margin = new Thickness(0, 0)
             };
 
             Grid notificationGrid = new() { Margin = new Thickness(10, 10) };
@@ -244,8 +268,13 @@ namespace Observatory.UI.Views
             {
                 Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    var notifyWindow = new UI.Views.NotificationView() { DataContext = new UI.ViewModels.NotificationViewModel("Test Notification", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque.") };
-                    notifyWindow.Show();
+                    var notificationArgs = new NotificationArgs()
+                    {
+                        Title = "Test Notification",
+                        Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque."
+                    };
+                    
+                    new NativeNotification.NativePopup().InvokeNativeNotification(notificationArgs);
                 });
             };
 
@@ -448,9 +477,7 @@ namespace Observatory.UI.Views
                 {
                     Header = "Voice Notifications",
                     DataContext = Properties.Core.Default,
-                    Margin = new Thickness(0, 0),
-                    Background = this.Background,
-                    BorderThickness = new Thickness(0)
+                    Margin = new Thickness(0, 0)
                 };
 
                 Grid voiceGrid = new() { Margin = new Thickness(10, 10) };
@@ -489,13 +516,6 @@ namespace Observatory.UI.Views
                 {
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && Properties.Core.Default.VoiceSelected.Length > 0)
                     {
-                        var speech = new System.Speech.Synthesis.SpeechSynthesizer()
-                        {
-                            Volume = Properties.Core.Default.VoiceVolume,
-                            Rate = Properties.Core.Default.VoiceRate
-                        };
-                        speech.SelectVoice(Properties.Core.Default.VoiceSelected);
-
                         List<string> harvardSentences = new() 
                         {
                             "Oak is strong and also gives shade.",
@@ -510,7 +530,10 @@ namespace Observatory.UI.Views
                             "Move the vat over the hot fire."
                         };
 
-                        speech.SpeakAsync("Speech Synthesis Test: " + harvardSentences.OrderBy(s => new Random().NextDouble()).First());
+                        NotificationArgs args = new() { Title = "Speech Synthesis Test", Detail = harvardSentences.OrderBy(s => new Random().NextDouble()).First() };
+                        
+                        new NativeNotification.NativeVoice().EnqueueAndAnnounce(args);
+
                     }
                 };
 
@@ -670,11 +693,17 @@ namespace Observatory.UI.Views
                         Properties.Core.Default.Save();
                     }
                 });
-                
-                
             };
 
-            
+            journalPath.LostFocus += (object sender, RoutedEventArgs e) =>
+            {
+                if (System.IO.Directory.Exists(journalPath.Text))
+                {
+                    Properties.Core.Default.JournalFolder = journalPath.Text;
+                    Properties.Core.Default.Save();
+                }
+            };
+
 
             #endregion
 
@@ -723,7 +752,9 @@ namespace Observatory.UI.Views
                 gridPanel.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(0, GridUnitType.Auto) });
                 gridPanel.AddControl(expander, nextRow, 0, 3);
 
-                foreach (var setting in displayedSettings.Where(s => !System.Attribute.IsDefined(s.Key, typeof(SettingIgnore))))
+                var nonIgnoredSettings = displayedSettings.Where(s => !Attribute.IsDefined(s.Key, typeof(SettingIgnore)));
+
+                foreach (var setting in nonIgnoredSettings)
                 {
                     if (setting.Key.PropertyType != typeof(bool) || settingsGrid.Children.Count % 2 == 0)
                     {
@@ -759,11 +790,13 @@ namespace Observatory.UI.Views
                             TextBox textBox = new() { Text = stringSetting };
                             settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0);
                             settingsGrid.AddControl(textBox, settingsGrid.RowDefinitions.Count - 1, 1);
-                            textBox.TextInput += (object sender, Avalonia.Input.TextInputEventArgs e) =>
+
+                            textBox.LostFocus += (object sender, RoutedEventArgs e) =>
                             {
-                                setting.Key.SetValue(plugin.Settings, e.Text);
+                                setting.Key.SetValue(plugin.Settings, ((TextBox)sender).Text);
                                 PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
                             };
+
                             break;
                         case int intSetting:
                             // We have two options for integer values:
@@ -855,6 +888,23 @@ namespace Observatory.UI.Views
                                     }
                                 });
                                 
+                            };
+
+                            settingPath.LostFocus += (object sender, RoutedEventArgs e) =>
+                            {
+                                string fullPath;
+                                
+                                try
+                                {
+                                    fullPath = System.IO.Path.GetFullPath(settingPath.Text);
+                                }
+                                catch
+                                {
+                                    fullPath = string.Empty;
+                                }
+
+                                setting.Key.SetValue(plugin.Settings, new System.IO.FileInfo(fullPath));
+                                PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
                             };
 
                             StackPanel stackPanel = new() { Orientation = Avalonia.Layout.Orientation.Horizontal };

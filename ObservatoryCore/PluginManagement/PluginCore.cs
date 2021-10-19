@@ -1,6 +1,7 @@
 ﻿using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
+using Observatory.NativeNotification;
 using System;
 using System.Runtime.InteropServices;
 
@@ -9,6 +10,15 @@ namespace Observatory.PluginManagement
     public class PluginCore : IObservatoryCore
     {
 
+        private readonly NativeVoice NativeVoice;
+        private readonly NativePopup NativePopup;
+
+        public PluginCore()
+        {
+            NativeVoice = new();
+            NativePopup = new();
+        }
+
         public string Version => System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
 
         public Status GetStatus()
@@ -16,38 +26,42 @@ namespace Observatory.PluginManagement
             throw new NotImplementedException();
         }
 
-        public void SendNotification(string title, string text)
+        public Guid SendNotification(string title, string text)
         {
+            return SendNotification(new NotificationArgs() { Title = title, Detail = text });
+        }
+
+        public Guid SendNotification(NotificationArgs notificationArgs)
+        {
+            var guid = Guid.Empty;
+
             if (!LogMonitor.GetInstance.ReadAllInProgress())
             {
                 var handler = Notification;
-                handler?.Invoke(this, new NotificationEventArgs() { Title = title, Detail = text });
+                handler?.Invoke(this, notificationArgs);
 
                 if (Properties.Core.Default.NativeNotify)
                 {
-                    InvokeNativeNotification(title, text);
+                    guid = NativePopup.InvokeNativeNotification(notificationArgs);
                 }
 
-                if (Properties.Core.Default.VoiceNotify && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                if (Properties.Core.Default.VoiceNotify)
                 {
-                    var speech = new System.Speech.Synthesis.SpeechSynthesizer()
-                    {
-                        Volume = Properties.Core.Default.VoiceVolume,
-                        Rate = Properties.Core.Default.VoiceRate
-                    };
-                    speech.SelectVoice(Properties.Core.Default.VoiceSelected);
-                    speech.SpeakAsync(title + ": " + text);
+                    NativeVoice.EnqueueAndAnnounce(notificationArgs);
                 }
             }
+
+            return guid;
         }
 
-        private void InvokeNativeNotification(string title, string text)
+        public void CancelNotification(Guid id)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                var notifyWindow = new UI.Views.NotificationView() { DataContext = new UI.ViewModels.NotificationViewModel(title, text) };
-                notifyWindow.Show();
-            });
+
+        }
+
+        public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
+        {
+
         }
 
         /// <summary>
@@ -97,6 +111,6 @@ namespace Observatory.PluginManagement
             Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(action);
         }
 
-        public event EventHandler<NotificationEventArgs> Notification;
+        public event EventHandler<NotificationArgs> Notification;
     }
 }

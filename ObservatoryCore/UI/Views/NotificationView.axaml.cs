@@ -2,25 +2,77 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
+using Observatory.UI.ViewModels;
 using System;
+using System.Timers;
 using System.Runtime.InteropServices;
 
 namespace Observatory.UI.Views
 {
     public partial class NotificationView : Window
     {
-        public NotificationView()
+        private readonly double scale;
+        private readonly Timer timer;
+        private readonly Guid guid;
+
+        public NotificationView() : this(default)
+        { }
+
+        public NotificationView(Guid guid)
         {
+            this.guid = guid;
             InitializeComponent();
             SystemDecorations = SystemDecorations.None;
             ShowInTaskbar = false;
             MakeClickThrough(); //Platform specific, currently windows only.
-            
-            int screen = Properties.Core.Default.NativeNotifyScreen;
-            int corner = Properties.Core.Default.NativeNotifyCorner;
-            string font = Properties.Core.Default.NativeNotifyFont;
-            double scale = Properties.Core.Default.NativeNotifyScale / 100.0;
 
+
+            this.DataContextChanged += NotificationView_DataContextChanged;
+            scale = Properties.Core.Default.NativeNotifyScale / 100.0;
+
+            AdjustText();
+
+            AdjustPanel();
+
+            AdjustPosition();
+
+            timer = new();
+            timer.Elapsed += CloseNotification;
+            timer.Interval = Properties.Core.Default.NativeNotifyTimeout;
+            timer.Start();
+
+#if DEBUG
+            this.AttachDevTools();
+#endif
+        }
+
+        public Guid Guid { get => guid; }
+
+        private void NotificationView_DataContextChanged(object sender, EventArgs e)
+        {
+            var notification = ((NotificationViewModel)DataContext).Notification;
+
+            AdjustText();
+
+            AdjustPanel();
+
+            AdjustPosition(notification.XPos / 100, notification.YPos / 100);
+
+            if (notification.Timeout > 0)
+            {
+                timer.Stop();
+                timer.Interval = notification.Timeout;
+                timer.Start();
+            }
+            else if (notification.Timeout == 0)
+            {
+                timer.Stop();
+            }
+        }
+
+        private void AdjustText()
+        {
+            string font = Properties.Core.Default.NativeNotifyFont;
             var titleText = this.Find<TextBlock>("Title");
             var detailText = this.Find<TextBlock>("Detail");
 
@@ -34,7 +86,10 @@ namespace Observatory.UI.Views
 
             titleText.FontSize *= scale;
             detailText.FontSize *= scale;
+        }
 
+        private void AdjustPanel()
+        {
             var textPanel = this.Find<StackPanel>("TextPanel");
             Width *= scale;
             Height *= scale;
@@ -43,8 +98,13 @@ namespace Observatory.UI.Views
 
             var textBorder = this.Find<Border>("TextBorder");
             textBorder.BorderThickness *= scale;
-            
+        }
+
+        private void AdjustPosition(double xOverride = -1.0, double yOverride = -1.0)
+        {
             PixelRect screenBounds;
+            int screen = Properties.Core.Default.NativeNotifyScreen;
+            int corner = Properties.Core.Default.NativeNotifyCorner;
 
             if (screen == -1 || screen > Screens.All.Count)
                 screenBounds = Screens.Primary.Bounds;
@@ -55,29 +115,29 @@ namespace Observatory.UI.Views
             double scaleWidth = Width * displayScale;
             double scaleHeight = Height * displayScale;
 
-            switch (corner)
+            if (xOverride >= 0 && yOverride >= 0)
             {
-                default: case 0: 
-                    Position = screenBounds.BottomRight - new PixelPoint((int)scaleWidth + 50, (int)scaleHeight + 50);
-                    break;
-                case 1:
-                    Position = screenBounds.BottomLeft - new PixelPoint(-50, (int)scaleHeight + 50);
-                    break;
-                case 2:
-                    Position = screenBounds.TopRight - new PixelPoint((int)scaleWidth + 50, -50);
-                    break;
-                case 3:
-                    Position = screenBounds.TopLeft + new PixelPoint(50, 50);
-                    break;
+                Position = screenBounds.TopLeft + new PixelPoint(Convert.ToInt32(screenBounds.Width * xOverride), Convert.ToInt32(screenBounds.Height * yOverride));
             }
-
-            var timer = new System.Timers.Timer();
-            timer.Elapsed += CloseNotification;
-            timer.Interval = Properties.Core.Default.NativeNotifyTimeout;
-            timer.Start();
-#if DEBUG
-            this.AttachDevTools();
-#endif
+            else
+            {
+                switch (corner)
+                {
+                    default:
+                    case 0:
+                        Position = screenBounds.BottomRight - new PixelPoint(Convert.ToInt32(scaleWidth) + 50, Convert.ToInt32(scaleHeight) + 50);
+                        break;
+                    case 1:
+                        Position = screenBounds.BottomLeft - new PixelPoint(-50, Convert.ToInt32(scaleHeight) + 50);
+                        break;
+                    case 2:
+                        Position = screenBounds.TopRight - new PixelPoint(Convert.ToInt32(scaleWidth) + 50, -50);
+                        break;
+                    case 3:
+                        Position = screenBounds.TopLeft + new PixelPoint(50, 50);
+                        break;
+                }
+            }
         }
 
         private void CloseNotification(object sender, System.Timers.ElapsedEventArgs e)
