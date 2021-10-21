@@ -16,12 +16,12 @@
   
   <ItemGroup>
     <Reference Include="ObservatoryFramework">
-      <HintPath>..\..\ObservatoryFramework\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll</HintPath>
+      <HintPath>..\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy $(TargetPath) $(SolutionDir)\..\ObservatoryCore\ObservatoryCore\$(OutDir)plugins\ /y" />
+    <Exec Command="xcopy $(TargetPath) $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\ /y" />
   </Target>
 
 </Project>
