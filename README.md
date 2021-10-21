@@ -19,13 +19,13 @@ The "Read All" button will read all journal files in the specified folder, handi
 
 In addition to updating the content of their respective UI tabs, some workers can also send notifications, which will be distributed to all notifier plugins, as well as be passed to Observatory Core's native notification popup.
 
-For specifics on what each plugin does, please refer to their respective repositories:
-* [Explorer](https://github.com/Xjph/ObservatoryExplorer)
-* [Botanist](https://github.com/Xjph/ObservatoryBotanist)
+For specifics on what each plugin does, please refer to their respective wiki pages:
+* [Explorer](https://github.com/Xjph/ObservatoryCore/wiki/Explorer)
+* [Botanist](https://github.com/Xjph/ObservatoryCore/wiki/Botanist)
 
-If you're interested in Custom Criteria for Explorer in particular you can find [the documentation for writing them](https://github.com/Xjph/ObservatoryCore/wiki/Explorer-%E2%80%94-Lua-Custom-Criteria) in the project wiki.
+If you're interested in Custom Criteria for Explorer in particular you can find [the documentation for writing them](https://github.com/Xjph/ObservatoryCore/wiki/Lua-Custom-Criteria) in the project wiki.
 
-For information on how to create a plugin, refer to the repository for [ObservatoryFramework](https://github.com/Xjph/ObservatoryFramework).
+For information on how to create a plugin, refer to this article about [ObservatoryFramework](https://github.com/Xjph/ObservatoryCore/wiki/Framework).
 
 ## Prerequisites for use
 .NET 5, and by extension one of its [supported OSes](https://github.com/dotnet/core/blob/main/release-notes/5.0/5.0-supported-os.md).
