@@ -23,7 +23,7 @@ For specifics on what each plugin does, please refer to their respective reposit
 * [Explorer](https://github.com/Xjph/ObservatoryExplorer)
 * [Botanist](https://github.com/Xjph/ObservatoryBotanist)
 
-If you're interested in Custom Criteria for Explorer in particular you can find [the documentation for writing them](https://github.com/Xjph/ObservatoryExplorer/wiki/Lua-Custom-Criteria) in the Explorer project wiki.
+If you're interested in Custom Criteria for Explorer in particular you can find [the documentation for writing them](https://github.com/Xjph/ObservatoryCore/wiki/Explorer-%E2%80%94-Lua-Custom-Criteria) in the project wiki.
 
 For information on how to create a plugin, refer to the repository for [ObservatoryFramework](https://github.com/Xjph/ObservatoryFramework).
 
