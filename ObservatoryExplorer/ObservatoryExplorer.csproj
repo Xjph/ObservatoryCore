@@ -1,0 +1,42 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <VersionSuffix>0.1.$([System.DateTime]::UtcNow.DayOfYear.ToString()).$([System.DateTime]::UtcNow.ToString(HHmm))</VersionSuffix>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
+    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+  
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetPath) $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\ /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\NLua.dll $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\KeraLua.dll $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\runtimes\win-x64\native\lua54.dll $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetPath) $(SolutionDir)/../ObservatoryCore/ObservatoryCore/$(OutDir)plugins/ -f" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/NLua.dll $(SolutionDir)/../ObservatoryCore/ObservatoryCore/$(OutDir)plugins/deps/ -f" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/KeraLua.dll $(SolutionDir)/../ObservatoryCore/ObservatoryCore/$(OutDir)plugins/deps/ -f" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp ~/.nuget/packages/keralua/1.2.14/runtimes/linux-x64/native/liblua54.so $(SolutionDir)/../ObservatoryCore/ObservatoryCore/$(OutDir)lua54.so -f" />
+  </Target>
+  
+  <ItemGroup>
+    <PackageReference Include="NLua" Version="1.5.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ObservatoryFramework">
+      <HintPath>..\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
