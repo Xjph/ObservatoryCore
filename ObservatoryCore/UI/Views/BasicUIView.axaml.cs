@@ -530,7 +530,12 @@ namespace Observatory.UI.Views
                             "Move the vat over the hot fire."
                         };
 
-                        NotificationArgs args = new() { Title = "Speech Synthesis Test", Detail = harvardSentences.OrderBy(s => new Random().NextDouble()).First() };
+                        NotificationArgs args = new()
+                        {
+                            Title = "Speech Synthesis Test",
+                            TitleSsml = "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">Speech Synthesis Test</speak>",
+                            Detail = harvardSentences.OrderBy(s => new Random().NextDouble()).First()
+                        };
                         
                         new NativeNotification.NativeVoice().EnqueueAndAnnounce(args);
 
