@@ -14,6 +14,8 @@ namespace Observatory.UI.Views
         private readonly double scale;
         private readonly Timer timer;
         private readonly Guid guid;
+        private bool defaultPosition = true;
+        private PixelPoint originalPosition;
 
         public NotificationView() : this(default)
         { }
@@ -47,6 +49,27 @@ namespace Observatory.UI.Views
         }
 
         public Guid Guid { get => guid; }
+
+        public void AdjustOffset(bool increase)
+        {
+            if (defaultPosition)
+            {
+                if (increase || Position != originalPosition)
+                {
+                    var corner = Properties.Core.Default.NativeNotifyCorner;
+
+                    if ((corner >= 2 && increase) || (corner <= 1 && !increase))
+                    {
+                        Position += new PixelPoint(0, Convert.ToInt32(Height));
+                    }
+                    else
+                    {
+                        Position -= new PixelPoint(0, Convert.ToInt32(Height));
+                    }
+
+                }
+            }
+        }
 
         private void NotificationView_DataContextChanged(object sender, EventArgs e)
         {
@@ -117,10 +140,12 @@ namespace Observatory.UI.Views
 
             if (xOverride >= 0 && yOverride >= 0)
             {
+                defaultPosition = false;
                 Position = screenBounds.TopLeft + new PixelPoint(Convert.ToInt32(screenBounds.Width * xOverride), Convert.ToInt32(screenBounds.Height * yOverride));
             }
             else
             {
+                defaultPosition = true;
                 switch (corner)
                 {
                     default:
@@ -137,6 +162,7 @@ namespace Observatory.UI.Views
                         Position = screenBounds.TopLeft + new PixelPoint(50, 50);
                         break;
                 }
+                originalPosition = Position;
             }
         }
 

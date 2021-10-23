@@ -21,10 +21,12 @@ namespace Observatory.UI.Views
     public class BasicUIView : UserControl
     {
         private DataGrid dataGrid;
+        private NativeNotification.NativePopup nativePopup;
 
         public BasicUIView()
         {
             InitializeComponent();
+            nativePopup = new();
         }
 
         private void InitializeComponent()
@@ -274,7 +276,7 @@ namespace Observatory.UI.Views
                         Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras suscipit hendrerit libero ac scelerisque."
                     };
                     
-                    new NativeNotification.NativePopup().InvokeNativeNotification(notificationArgs);
+                    nativePopup.InvokeNativeNotification(notificationArgs);
                 });
             };
 

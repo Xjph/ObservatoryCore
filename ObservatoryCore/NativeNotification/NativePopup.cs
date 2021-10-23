@@ -22,6 +22,12 @@ namespace Observatory.NativeNotification
             {
                 var notifyWindow = new NotificationView(notificationGuid) { DataContext = new NotificationViewModel(notificationArgs) };
                 notifyWindow.Closed += NotifyWindow_Closed;
+
+                foreach (var notification in notifications)
+                {
+                    notification.Value.AdjustOffset(true);
+                }
+
                 notifications.Add(notificationGuid, notifyWindow);
                 notifyWindow.Show();
             });
@@ -31,10 +37,12 @@ namespace Observatory.NativeNotification
 
         private void NotifyWindow_Closed(object sender, EventArgs e)
         {
-            var notification = (NotificationView)sender;
+            var currentNotification = (NotificationView)sender;
 
-            if (notifications.ContainsKey(notification.Guid))
-                notifications.Remove(notification.Guid);
+            if (notifications.ContainsKey(currentNotification.Guid))
+            {
+                notifications.Remove(currentNotification.Guid);
+            }
         }
 
         public void CloseNotification(Guid guid)
