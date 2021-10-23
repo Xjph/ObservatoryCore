@@ -1,5 +1,6 @@
 ﻿using Observatory.Framework;
 using System.Collections.Generic;
+using System.Xml;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Speech.Synthesis;
@@ -38,12 +39,14 @@ namespace Observatory.NativeNotification
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
+                string voice = Properties.Core.Default.VoiceSelected;
+
                 var speech = new SpeechSynthesizer()
                 {
                     Volume = Properties.Core.Default.VoiceVolume,
                     Rate = Properties.Core.Default.VoiceRate
                 };
-                speech.SelectVoice(Properties.Core.Default.VoiceSelected);
+                speech.SelectVoice(voice);
 
                 while (notificationEvents.Any())
                 {
@@ -51,7 +54,8 @@ namespace Observatory.NativeNotification
 
                     if (notification.TitleSsml?.Length > 0)
                     {
-                        speech.SpeakSsml(notification.TitleSsml);
+                        string ssml = AddVoiceToSsml(notification.TitleSsml, voice);
+                        speech.SpeakSsml(ssml);
                     }
                     else
                     {
@@ -60,7 +64,8 @@ namespace Observatory.NativeNotification
 
                     if (notification.DetailSsml?.Length > 0)
                     {
-                        speech.SpeakSsml(notification.DetailSsml);
+                        string ssml = AddVoiceToSsml(notification.DetailSsml, voice);
+                        speech.SpeakSsml(ssml);
                     }
                     else
                     {
@@ -69,6 +74,40 @@ namespace Observatory.NativeNotification
                 }
             }
             processing = false;
+        }
+
+        private string AddVoiceToSsml(string ssml, string voiceName)
+        {
+            XmlDocument ssmlDoc = new();
+            ssmlDoc.LoadXml(ssml);
+
+            var ssmlNamespace = ssmlDoc.DocumentElement.NamespaceURI;
+            XmlNamespaceManager ssmlNs = new(ssmlDoc.NameTable);
+            ssmlNs.AddNamespace("ssml", ssmlNamespace);
+
+            //If the SSML already has a voice element leave it alone.
+            if (ssmlDoc.SelectSingleNode("/ssml:speak/ssml:voice", ssmlNs) == null)
+            {
+                //Preserve existing content to place it in new voice element
+                string speakContent = ssmlDoc.DocumentElement.InnerText;
+                
+                //Crete new voice element and name attribute objects
+                var voiceElement = ssmlDoc.CreateElement("voice", ssmlNamespace);
+                var voiceAttribute = ssmlDoc.CreateAttribute("name");
+
+                //Update content of new element
+                voiceAttribute.Value = voiceName;
+                voiceElement.Attributes.Append(voiceAttribute);
+                voiceElement.InnerText = speakContent;
+                
+                //Clear existing content and insert new element
+                ssmlDoc.DocumentElement.InnerText = string.Empty;
+                ssmlDoc.DocumentElement.AppendChild(voiceElement);
+                
+                ssml = ssmlDoc.OuterXml;
+            }
+
+            return ssml;
         }
     }
 }
