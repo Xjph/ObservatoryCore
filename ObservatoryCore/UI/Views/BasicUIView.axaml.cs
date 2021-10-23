@@ -854,7 +854,7 @@ namespace Observatory.UI.Views
                             settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0);
                             settingsGrid.AddControl(intControl, settingsGrid.RowDefinitions.Count - 1, 1);
                             break;
-                        case System.IO.FileInfo fileSetting:
+                        case FileInfo fileSetting:
                             label.Text += ": ";
 
                             TextBox settingPath = new()
@@ -887,7 +887,7 @@ namespace Observatory.UI.Views
                                     {
                                         string path = browseTask.Result[0];
                                         Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { settingPath.Text = path; });
-                                        setting.Key.SetValue(plugin.Settings, new System.IO.FileInfo(path));
+                                        setting.Key.SetValue(plugin.Settings, new FileInfo(path));
                                         PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
 
                                     }
@@ -897,19 +897,22 @@ namespace Observatory.UI.Views
 
                             settingPath.LostFocus += (object sender, RoutedEventArgs e) =>
                             {
-                                string fullPath;
-                                
-                                try
+                                if (settingPath.Text.Trim() != string.Empty)
                                 {
-                                    fullPath = System.IO.Path.GetFullPath(settingPath.Text);
-                                }
-                                catch
-                                {
-                                    fullPath = string.Empty;
-                                }
+                                    string fullPath;
 
-                                setting.Key.SetValue(plugin.Settings, new System.IO.FileInfo(fullPath));
-                                PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                                    try
+                                    {
+                                        fullPath = Path.GetFullPath(settingPath.Text);
+                                    }
+                                    catch
+                                    {
+                                        fullPath = string.Empty;
+                                    }
+
+                                    setting.Key.SetValue(plugin.Settings, new FileInfo(fullPath));
+                                    PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                                }
                             };
 
                             StackPanel stackPanel = new() { Orientation = Avalonia.Layout.Orientation.Horizontal };
