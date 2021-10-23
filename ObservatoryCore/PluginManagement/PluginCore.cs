@@ -56,12 +56,12 @@ namespace Observatory.PluginManagement
 
         public void CancelNotification(Guid id)
         {
-
+            NativePopup.CloseNotification(id);
         }
 
         public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
         {
-
+            NativePopup.UpdateNotification(id, notificationArgs);
         }
 
         /// <summary>
