@@ -479,5 +479,75 @@
             </summary>
             <param name="action"></param>
         </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.HttpClient">
+            <summary>
+            Shared application HttpClient object. Provided so that plugins can adhere to .NET recommended behaviour of a single HttpClient object per application.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.PluginUI">
+            <summary>
+            Class permitting plugins to provide their UI, if any, to Observatory Core.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUI.PluginUIType">
+            <summary>
+            Type of UI used by plugin.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUI.UI">
+            <summary>
+            <para>UI object used by plugins with UIType.Avalonia.</para>
+            <para>(Untested/not implemented)</para>
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUI.DataGrid">
+            <summary>
+            <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
+            <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.PluginUI.#ctor(System.Collections.ObjectModel.ObservableCollection{System.Object})">
+            <summary>
+            Instantiate PluginUI of UIType.Basic.
+            </summary>
+            <param name="DataGrid">
+            <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
+            <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
+            </param>
+        </member>
+        <member name="M:Observatory.Framework.PluginUI.#ctor(Observatory.Framework.PluginUI.UIType,System.Object)">
+            <summary>
+            Instantiate PluginUI of specified UIType.
+            <para>(Untested/not implemented)</para>
+            </summary>
+            <param name="uiType">UIType for plugin.</param>
+            <param name="UI">Avalonia control to place in plugin tab.</param>
+        </member>
+        <member name="T:Observatory.Framework.PluginUI.UIType">
+            <summary>
+            Options for plugin UI types.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUI.UIType.None">
+            <summary>
+            No UI. Tab will not be added to list.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUI.UIType.Basic">
+            <summary>
+            Simple DataGrid, to which items can be added or removed.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUI.UIType.Avalonia">
+            <summary>
+            AvaloniaUI control which is placed in plugin tab.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUI.UIType.Core">
+            <summary>
+            UI used by Observatory Core settings tab.<br/>
+            Not intended for use by plugins.
+            </summary>
+        </member>
     </members>
 </doc>
