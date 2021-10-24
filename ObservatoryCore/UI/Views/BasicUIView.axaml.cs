@@ -926,6 +926,21 @@ namespace Observatory.UI.Views
                             settingsGrid.AddControl(settingBrowse, settingsGrid.RowDefinitions.Count - 1, 2);
 
                             break;
+                        case Action action:
+                            Button actionButton = new()
+                            {
+                                Content = label.Text,
+                                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left
+                            };
+
+                            actionButton.Click += (object sender, RoutedEventArgs e) =>
+                            {
+                                action.Invoke();
+                            };
+
+                            settingsGrid.AddControl(actionButton, settingsGrid.RowDefinitions.Count - 1, 0);
+
+                            break;
                     }
                 }
             }
