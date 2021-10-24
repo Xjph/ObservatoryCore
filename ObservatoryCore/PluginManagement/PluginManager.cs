@@ -161,12 +161,12 @@ namespace Observatory.PluginManagement
             observatoryNotifiers = new();
             var errorList = new List<string>();
 
-            string pluginPath = $".{Path.DirectorySeparatorChar}plugins";
+            string pluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
 
             if (Directory.Exists(pluginPath))
             {
                 //Temporarily skipping signature checks. Need to do this the right way later.
-                var pluginLibraries = Directory.GetFiles($".{Path.DirectorySeparatorChar}plugins", "*.dll");
+                var pluginLibraries = Directory.GetFiles($"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins", "*.dll");
                 //var coreToken = Assembly.GetExecutingAssembly().GetName().GetPublicKeyToken();
                 foreach (var dll in pluginLibraries)
                 {
@@ -231,7 +231,7 @@ namespace Observatory.PluginManagement
                     return context.Assemblies.Where(a => a.FullName.Contains("ObservatoryFramework")).First();
                 }
 
-                var foundDlls = Directory.GetFileSystemEntries(new FileInfo($".{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}deps").FullName, name.Name + ".dll", SearchOption.TopDirectoryOnly);
+                var foundDlls = Directory.GetFileSystemEntries(new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}deps").FullName, name.Name + ".dll", SearchOption.TopDirectoryOnly);
                 if (foundDlls.Any())
                 {
                     return context.LoadFromAssemblyPath(foundDlls[0]);
