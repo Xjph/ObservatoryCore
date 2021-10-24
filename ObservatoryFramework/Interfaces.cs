@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
 
@@ -169,5 +170,10 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="action"></param>
         public void ExecuteOnUIThread(Action action);
+
+        /// <summary>
+        /// Shared application HttpClient object. Provided so that plugins can adhere to .NET recommended behaviour of a single HttpClient object per application.
+        /// </summary>
+        public HttpClient HttpClient { get; }
     }
 }

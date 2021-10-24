@@ -3,7 +3,6 @@ using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using Observatory.NativeNotification;
 using System;
-using System.Runtime.InteropServices;
 
 namespace Observatory.PluginManagement
 {
@@ -109,6 +108,11 @@ namespace Observatory.PluginManagement
         public void ExecuteOnUIThread(Action action)
         {
             Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(action);
+        }
+
+        public System.Net.Http.HttpClient HttpClient
+        {
+            get => Observatory.HttpClient.Client;
         }
 
         public event EventHandler<NotificationArgs> Notification;
