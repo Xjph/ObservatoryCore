@@ -362,4 +362,7 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
+# InnoSetup Output
+InnoSetup/ObservatorySetup.exe
+
 *.snk
