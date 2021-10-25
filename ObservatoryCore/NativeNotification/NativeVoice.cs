@@ -90,7 +90,7 @@ namespace Observatory.NativeNotification
             {
                 //Preserve existing content to place it in new voice element
                 string speakContent = ssmlDoc.DocumentElement.InnerXml;
-                speakContent = speakContent.Replace("xmlns=\"http://www.w3.org/2001/10/synthesis\"", string.Empty);
+                speakContent = speakContent.Replace($"xmlns=\"{ssmlNs.LookupNamespace("ssml")}\"", string.Empty);
 
                 //Crete new voice element and name attribute objects
                 var voiceElement = ssmlDoc.CreateElement("voice", ssmlNs.LookupNamespace("ssml"));
