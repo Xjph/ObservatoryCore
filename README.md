@@ -6,7 +6,6 @@ Observatory Core and it's associated plugins are currently in an alpha state and
 
 Omissions to current functionality include:
 * Integration with Frontier's Companion API
-* Integration with Telegram
 * Data submission to IGAU
 * More that I'm just not thinking of right now
 
