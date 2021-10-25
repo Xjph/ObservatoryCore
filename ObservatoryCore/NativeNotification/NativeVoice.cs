@@ -89,25 +89,32 @@ namespace Observatory.NativeNotification
             if (ssmlDoc.SelectSingleNode("/ssml:speak/ssml:voice", ssmlNs) == null)
             {
                 //Preserve existing content to place it in new voice element
-                string speakContent = ssmlDoc.DocumentElement.InnerText;
-                
+                string speakContent = ssmlDoc.DocumentElement.InnerXml;
+                speakContent = speakContent.Replace("xmlns=\"http://www.w3.org/2001/10/synthesis\"", string.Empty);
+
                 //Crete new voice element and name attribute objects
-                var voiceElement = ssmlDoc.CreateElement("voice", ssmlNamespace);
+                var voiceElement = ssmlDoc.CreateElement("voice", ssmlNs.LookupNamespace("ssml"));
                 var voiceAttribute = ssmlDoc.CreateAttribute("name");
 
                 //Update content of new element
                 voiceAttribute.Value = voiceName;
                 voiceElement.Attributes.Append(voiceAttribute);
-                voiceElement.InnerText = speakContent;
+                voiceElement.InnerXml = speakContent;
                 
                 //Clear existing content and insert new element
                 ssmlDoc.DocumentElement.InnerText = string.Empty;
                 ssmlDoc.DocumentElement.AppendChild(voiceElement);
-                
+
                 ssml = ssmlDoc.OuterXml;
             }
 
-            return ssml;
+            //If I leave the namespace in speakContent above it's left behind as a redundant
+            //attribute which breaks the speech generation.
+            //If I remove it then the XmlDoc explicitly adds an empty namespace which *also*
+            //breaks speech generation.
+            //The empty one is easier to remove later, so that's what I'm doing, but if someone
+            //has a better suggestion I'm all for it.
+            return ssml.Replace("xmlns=\"\"", string.Empty);
         }
     }
 }
