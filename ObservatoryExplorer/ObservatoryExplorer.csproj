@@ -23,6 +23,7 @@
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\NLua.dll $(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\KeraLua.dll $(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\runtimes\win-x64\native\lua54.dll $(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="[ ! -d $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps ] &amp;&amp; mkdir -p $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetPath) $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/ -f" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/NLua.dll $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/ -f" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/KeraLua.dll $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/ -f" />
