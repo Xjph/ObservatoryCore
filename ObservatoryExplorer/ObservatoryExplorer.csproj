@@ -19,14 +19,14 @@
   </PropertyGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetPath) $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\ /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\NLua.dll $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\KeraLua.dll $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\runtimes\win-x64\native\lua54.dll $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetPath) $(SolutionDir)/../ObservatoryCore/$(OutDir)plugins/ -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/NLua.dll $(SolutionDir)/../ObservatoryCore/$(OutDir)plugins/deps/ -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/KeraLua.dll $(SolutionDir)/../ObservatoryCore/$(OutDir)plugins/deps/ -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp ~/.nuget/packages/keralua/1.2.14/runtimes/linux-x64/native/liblua54.so $(SolutionDir)/../ObservatoryCore/$(OutDir)lua54.so -f" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetPath) $(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\ /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\NLua.dll $(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\KeraLua.dll $(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetDir)\runtimes\win-x64\native\lua54.dll $(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\ /y" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetPath) $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/ -f" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/NLua.dll $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/ -f" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/KeraLua.dll $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/ -f" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetDir)/runtimes/linux-x64/native/liblua54.so $(ProjectDir)../ObservatoryCore/$(OutDir)lua54.so -f" />
   </Target>
   
   <ItemGroup>

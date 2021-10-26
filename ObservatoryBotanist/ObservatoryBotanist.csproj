@@ -21,8 +21,8 @@
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetPath) $(SolutionDir)\..\ObservatoryCore\$(OutDir)plugins\ /y" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetPath) $(SolutionDir)/../ObservatoryCore/$(OutDir)plugins/ -f" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy $(TargetPath) $(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\ /y" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp $(TargetPath) $(ProjectDir)../ObservatoryCore/$(OutDir)plugins/ -f" />
   </Target>
 
 </Project>
