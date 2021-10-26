@@ -213,16 +213,21 @@ namespace Observatory
                 {
                     //throw new DirectoryNotFoundException($"Directory '{path}' does not exist.");
                     //Don't throw, not handling that right now. Just set to current folder.
-                    logDirectory = new DirectoryInfo(".");
+                    logDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
                 }
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                logDirectory = new DirectoryInfo(GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous");
+                string defaultJournalPath = GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous";
+
+                logDirectory =
+                    Directory.Exists(defaultJournalPath)
+                    ? new DirectoryInfo(defaultJournalPath)
+                    : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                logDirectory = new DirectoryInfo(".");
+                logDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }
             else
             {
