@@ -936,6 +936,9 @@ namespace Observatory.UI.Views
                             actionButton.Click += (object sender, RoutedEventArgs e) =>
                             {
                                 action.Invoke();
+
+                                //Possible for the action to have changed a setting, save just in case.
+                                PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
                             };
 
                             settingsGrid.AddControl(actionButton, settingsGrid.RowDefinitions.Count - 1, 0);
