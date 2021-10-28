@@ -344,7 +344,14 @@ namespace Observatory
 
             foreach (string line in fileContent.Skip(currentLine[eventArgs.FullPath]))
             {
-                DeserializeAndInvoke(line);
+                try
+                {
+                    DeserializeAndInvoke(line);
+                }
+                catch (Exception ex)
+                {
+                    ReportErrors(new List<(Exception ex, string file, string line)>() { (ex, eventArgs.Name, line) });
+                }
             }
 
             currentLine[eventArgs.FullPath] = fileContent.Count;
