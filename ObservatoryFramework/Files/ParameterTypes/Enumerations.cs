@@ -361,7 +361,12 @@ namespace Observatory.Framework.Files.ParameterTypes
         CarrierVendor = 1L << 32,
         ModulePacks = 1L << 33,
         Livery = 1L << 34,
-        SocialSpace = 1L << 35
+        SocialSpace = 1L << 35,
+        Bartender = 1L << 36,
+        VistaGenomics = 1L << 37,
+        PioneerSupplies = 1L << 38,
+        ApexInterstellar = 1L << 39,
+        FrontlineSolutions = 1L << 40
     }
 
     public enum TextChannel
