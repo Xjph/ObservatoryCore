@@ -177,7 +177,7 @@ namespace Observatory.Explorer
 
             var results = DefaultCriteria.CheckInterest(scanEvent, SystemBodyHistory, BodySignalHistory, (ExplorerSettings)ExplorerWorker.Settings);
 
-            if (BarycentreHistory.ContainsKey(scanEvent.SystemAddress) && BarycentreHistory[scanEvent.SystemAddress].ContainsKey(scanEvent.Parent[0].Body))
+            if (BarycentreHistory.ContainsKey(scanEvent.SystemAddress) && scanEvent.Parent != null && BarycentreHistory[scanEvent.SystemAddress].ContainsKey(scanEvent.Parent[0].Body))
             {
                 ProcessScan(ConvertBarycentre(BarycentreHistory[scanEvent.SystemAddress][scanEvent.Parent[0].Body], scanEvent), readAll);
             }
