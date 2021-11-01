@@ -28,6 +28,22 @@ namespace Observatory.Framework
     public class SettingNumericUseSlider : Attribute
     { }
 
+    public class SettingBackingValue : Attribute
+    {
+        private string property;
+
+        public SettingBackingValue(string property)
+        {
+            this.property = property;
+        }
+
+        public string BackingProperty
+        {
+            get => property;
+            set => property = value;
+        }
+    }
+
     public class SettingNumericBounds : Attribute
     {
         private double minimum;

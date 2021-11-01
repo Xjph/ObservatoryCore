@@ -535,7 +535,7 @@ namespace Observatory.UI.Views
                         NotificationArgs args = new()
                         {
                             Title = "Speech Synthesis Test",
-                            TitleSsml = "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">Speech Synthesis Test</speak>",
+                            TitleSsml = "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">Speech Synthesis Test</voice></speak>",
                             Detail = harvardSentences.OrderBy(s => new Random().NextDouble()).First()
                         };
                         
