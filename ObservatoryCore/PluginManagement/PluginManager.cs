@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Data;
 using Observatory.Framework.Interfaces;
 using System.IO;
-using System.Configuration;
+using Observatory.Framework;
 using System.Text.Json;
 
 namespace Observatory.PluginManagement
@@ -54,20 +54,54 @@ namespace Observatory.PluginManagement
 
             var core = new PluginCore();
 
+            List<string> loadErrors = new();
+            Dictionary<IObservatoryWorker, PluginException> workerErrors = new();
+
             foreach (var plugin in workerPlugins.Select(p => p.plugin))
             {
-                LoadSettings(plugin);
-                plugin.Load(core);
+                try
+                {
+                    LoadSettings(plugin);
+                    plugin.Load(core);
+                }
+                catch (PluginException ex)
+                {
+                    workerErrors.Add(plugin, ex);
+                }
             }
+
+            foreach(var error in workerErrors)
+            {
+                loadErrors.Add($"{error.Value.PluginName}: {error.Value.UserMessage}");
+                workerPlugins.Remove(workerPlugins.Where(p => p.plugin == error.Key).First());
+            }
+
+            Dictionary<IObservatoryNotifier, PluginException> notifierErrors = new();
+
             foreach (var plugin in notifyPlugins.Select(p => p.plugin))
             {
                 // Notifiers which are also workers need not be loaded again (they are the same instance).
                 if (!plugin.GetType().IsAssignableTo(typeof(IObservatoryWorker)))
                 {
-                    LoadSettings(plugin);
-                    plugin.Load(core);
+                    try
+                    {
+                        LoadSettings(plugin);
+                        plugin.Load(core);
+                    }
+                    catch (PluginException ex)
+                    {
+                        notifierErrors.Add(plugin, ex);
+                    }
                 }
             }
+
+            foreach (var error in notifierErrors)
+            {
+                loadErrors.Add($"{error.Value.PluginName}: {error.Value.UserMessage}");
+                notifyPlugins.Remove(notifyPlugins.Where(p => p.plugin == error.Key).First());
+            }
+
+            ErrorReporter.ShowErrorPopup("Plugin Load Error", string.Join(Environment.NewLine, loadErrors));
 
             core.Notification += pluginHandler.OnNotificationEvent;
         }

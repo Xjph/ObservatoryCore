@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Xml;
 using Microsoft.CognitiveServices.Speech;
 using System.Collections.ObjectModel;
+using Observatory.Framework;
 
 namespace Observatory.Herald
 {
@@ -48,8 +49,24 @@ namespace Observatory.Herald
                 cacheIndex = new();
             }
 
-            azureKey = GetAzureKey(settings, httpClient);
-            speechConfig = SpeechConfig.FromSubscription(azureKey, "eastus");
+            try
+            {
+                azureKey = GetAzureKey(settings, httpClient);
+            }
+            catch (Exception ex)
+            {
+                throw new PluginException("Herald", "Unable to retrieve Azure API key.", ex);
+            }
+
+            try
+            {
+                speechConfig = SpeechConfig.FromSubscription(azureKey, "eastus");
+            }
+            catch (Exception ex)
+            {
+                throw new PluginException("Herald", "Error retrieving Azure account details.", ex);
+            }
+
             speech = new(speechConfig, null);
         }
 
@@ -83,13 +100,27 @@ namespace Observatory.Herald
 
         private AudioDataStream RequestFromAzure(string ssml)
         {
-            var result = speech.SpeakSsmlAsync(ssml).Result;
-            return AudioDataStream.FromResult(result);
+            try
+            {
+                var result = speech.SpeakSsmlAsync(ssml).Result;
+                return AudioDataStream.FromResult(result);
+            }
+            catch (Exception ex)
+            {
+                throw new PluginException("Herald", "Unable to retrieve audio from Azure.", ex);
+            }
         }
 
         internal ReadOnlyCollection<VoiceInfo> GetVoices()
         {
-            return speech.GetVoicesAsync().Result.Voices;
+            try
+            {
+                return speech.GetVoicesAsync().Result.Voices;
+            }
+            catch (Exception ex)
+            {
+                throw new PluginException("Herald", "Unable to retrieve voice list from Azure.", ex);
+            }
         }
 
         private static string AddVoiceToSsml(string ssml, string voiceName)
