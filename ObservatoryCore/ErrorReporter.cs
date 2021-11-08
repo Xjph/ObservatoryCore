@@ -18,7 +18,7 @@ namespace Observatory
                     ContentTitle = title,
                     ContentMessage = message
                 });
-                errorMessage.ShowDialog(desktop.MainWindow);
+                errorMessage.Show(desktop.MainWindow);
             }
         }
     }
