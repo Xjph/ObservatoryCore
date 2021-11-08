@@ -55,8 +55,8 @@ namespace Observatory.PluginManagement
             var core = new PluginCore();
 
             List<string> loadErrors = new();
-            Dictionary<IObservatoryWorker, PluginException> workerErrors = new();
-
+            List<IObservatoryPlugin> errorPlugins = new();
+            
             foreach (var plugin in workerPlugins.Select(p => p.plugin))
             {
                 try
@@ -66,17 +66,13 @@ namespace Observatory.PluginManagement
                 }
                 catch (PluginException ex)
                 {
-                    workerErrors.Add(plugin, ex);
+                    loadErrors.Add(FormatErrorMessage(ex));
+                    errorPlugins.Add(plugin);
                 }
             }
 
-            foreach(var error in workerErrors)
-            {
-                loadErrors.Add($"{error.Value.PluginName}: {error.Value.UserMessage}");
-                workerPlugins.Remove(workerPlugins.Where(p => p.plugin == error.Key).First());
-            }
-
-            Dictionary<IObservatoryNotifier, PluginException> notifierErrors = new();
+            workerPlugins.RemoveAll(w => errorPlugins.Contains(w.plugin));
+            errorPlugins.Clear();
 
             foreach (var plugin in notifyPlugins.Select(p => p.plugin))
             {
@@ -90,20 +86,23 @@ namespace Observatory.PluginManagement
                     }
                     catch (PluginException ex)
                     {
-                        notifierErrors.Add(plugin, ex);
+                        loadErrors.Add(FormatErrorMessage(ex));
+                        errorPlugins.Add(plugin);
                     }
                 }
             }
 
-            foreach (var error in notifierErrors)
-            {
-                loadErrors.Add($"{error.Value.PluginName}: {error.Value.UserMessage}");
-                notifyPlugins.Remove(notifyPlugins.Where(p => p.plugin == error.Key).First());
-            }
+            notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
 
-            ErrorReporter.ShowErrorPopup("Plugin Load Error", string.Join(Environment.NewLine, loadErrors));
+            if (loadErrors.Any())
+                ErrorReporter.ShowErrorPopup("Plugin Load Error", string.Join(Environment.NewLine, loadErrors));
 
             core.Notification += pluginHandler.OnNotificationEvent;
+        }
+
+        private static string FormatErrorMessage(PluginException ex)
+        {
+            return $"{ex.PluginName}: {ex.UserMessage}";
         }
 
         private void LoadSettings(IObservatoryPlugin plugin)
