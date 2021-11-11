@@ -2,12 +2,12 @@
 {
     public class CarrierSpaceUsage
     {
-        public int TotalCapacity { get; init; }
-        public int Crew { get; init; }
-        public int Cargo { get; init; }
-        public int CargoSpaceReserved { get; init; }
-        public int ShipPacks { get; init; }
-        public int ModulePacks { get; init; }
-        public int FreeSpace { get; init; }
+        public long TotalCapacity { get; init; }
+        public long Crew { get; init; }
+        public long Cargo { get; init; }
+        public long CargoSpaceReserved { get; init; }
+        public long ShipPacks { get; init; }
+        public long ModulePacks { get; init; }
+        public long FreeSpace { get; init; }
     }
 }
