@@ -23,7 +23,7 @@
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)\runtimes\win-x64\native\*.*&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\&quot; /y" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="[ ! -d &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps&quot; ] &amp;&amp; mkdir -p &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps&quot; || echo Directory already exists" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetPath)&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/&quot; -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)Microsoft.CognitiveServices.Speech.csharp.dll&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/&quot; -f" />
+    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)runtimes/linux-x64/lib/netstandard2.0/Microsoft.CognitiveServices.Speech.csharp.dll&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/&quot; -f" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)NetCoreAudio.dll&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/&quot; -f" />
   </Target>
   
