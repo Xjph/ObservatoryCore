@@ -10,7 +10,7 @@ using Observatory.Framework;
 
 namespace Observatory.Herald
 {
-    internal class VoiceAzureCacheManager
+    internal class VoiceSpeechManager
     {
         private string azureKey;
         private DirectoryInfo cacheLocation;
@@ -21,10 +21,10 @@ namespace Observatory.Herald
 
         private string cacheIndexFile
         {
-            get => cacheLocation.FullName + "\\VoiceIndex.json";
+            get => cacheLocation.FullName + "VoiceIndex.json";
         }
 
-        internal VoiceAzureCacheManager(HeraldSettings settings, HttpClient httpClient)
+        internal VoiceSpeechManager(HeraldSettings settings, HttpClient httpClient)
         {
             cacheLocation = new(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ObservatoryCore\\ObservatoryHerald\\");
 
@@ -32,12 +32,12 @@ namespace Observatory.Herald
             {
                 Directory.CreateDirectory(cacheLocation.FullName);
             }
-
+            
             if (File.Exists(cacheIndexFile))
             {
                 try
                 {
-                    cacheIndex = JsonSerializer.Deserialize<Dictionary<string, string>>(cacheIndexFile);
+                    cacheIndex = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(cacheIndexFile));
                 }
                 catch
                 {
@@ -48,7 +48,7 @@ namespace Observatory.Herald
             {
                 cacheIndex = new();
             }
-
+            
             try
             {
                 azureKey = GetAzureKey(settings, httpClient);
@@ -68,12 +68,41 @@ namespace Observatory.Herald
             }
 
             speech = new(speechConfig, null);
+
+            
+            settings.Voices = PopulateVoiceSettingOptions();
+        }
+
+        private Dictionary<string, object> PopulateVoiceSettingOptions()
+        {
+            ReadOnlyCollection<VoiceInfo> voices;
+
+            try
+            {
+                voices = speech.GetVoicesAsync().Result.Voices;
+            }
+            catch (Exception ex)
+            {
+                throw new PluginException("Herald", "Unable to retrieve voice list from Azure.", ex);
+            }
+            
+            var voiceOptions = new Dictionary<string, object>();
+
+
+            foreach (var voice in voices)
+            {
+                voiceOptions.Add(
+                    $"{voice.Locale} - {voice.LocalName}", 
+                    voice);
+            }
+
+            return voiceOptions;
         }
 
         internal string GetAudioFileFromSsml(string ssml, string voice)
         {
             ssml = AddVoiceToSsml(ssml, voice);
-            string ssmlHash = ssml.GetHashCode().ToString("X");
+            string ssmlHash = FNV64(ssml).ToString("X");
 
             string audioFile;
 
@@ -92,10 +121,28 @@ namespace Observatory.Herald
 
         private string CommitToCache(string ssmlHash, AudioDataStream audioData)
         {
-            string newFile = Guid.NewGuid().ToString("D");
-            audioData.SaveToWaveFileAsync(cacheLocation + Path.DirectorySeparatorChar.ToString() + newFile + ".wav").Wait();
+            string newFile = cacheLocation + Guid.NewGuid().ToString("D") + ".wav"; ;
+            audioData.SaveToWaveFileAsync(newFile).Wait();
             cacheIndex.Add(ssmlHash, newFile);
+            string serializedIndex = JsonSerializer.Serialize(cacheIndex, new JsonSerializerOptions()
+            {
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
+            });
+            File.WriteAllText(cacheIndexFile, serializedIndex);
             return newFile;
+        }
+
+        private static ulong FNV64(string data)
+        {
+            string lower_data = data.ToLower();
+            ulong hash = 0xcbf29ce484222325uL;
+            for (int i = 0; i < lower_data.Length; i++)
+            {
+                byte b = (byte)lower_data[i];
+                hash *= 1099511628211uL;
+                hash ^= b;
+            }
+            return hash;
         }
 
         private AudioDataStream RequestFromAzure(string ssml)
@@ -108,18 +155,6 @@ namespace Observatory.Herald
             catch (Exception ex)
             {
                 throw new PluginException("Herald", "Unable to retrieve audio from Azure.", ex);
-            }
-        }
-
-        internal ReadOnlyCollection<VoiceInfo> GetVoices()
-        {
-            try
-            {
-                return speech.GetVoicesAsync().Result.Voices;
-            }
-            catch (Exception ex)
-            {
-                throw new PluginException("Herald", "Unable to retrieve voice list from Azure.", ex);
             }
         }
 

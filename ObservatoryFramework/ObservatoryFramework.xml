@@ -63,6 +63,30 @@
             Specify window Y position as a percentage from upper left corner (overrides Core setting). Default -1.0 (use Core setting).
             </summary>
         </member>
+        <member name="T:Observatory.Framework.PluginException">
+            <summary>
+            Container for exceptions within plugins which cannot be gracefully handled in context,
+            but benefit from having a context-specific user message.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.PluginException.#ctor(System.String,System.String,System.Exception)">
+            <summary>
+            Initialze new PluginException with details of the originating plugin and a specific user-facing message for display.
+            </summary>
+            <param name="pluginName"></param>
+            <param name="userMessage"></param>
+            <param name="innerException"></param>
+        </member>
+        <member name="P:Observatory.Framework.PluginException.PluginName">
+            <summary>
+            Name of plugin from which the exception was thrown.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginException.UserMessage">
+            <summary>
+            Message to be displayed to user.
+            </summary>
+        </member>
         <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.Discoverers">
             <summary>
             This property is indicated with strikethrough in Frontier's documentation and may be deprecated.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
 using NetCoreAudio;
+using System.Threading;
 
 namespace Observatory.Herald
 {
@@ -11,10 +12,10 @@ namespace Observatory.Herald
         private Queue<NotificationArgs> notifications;
         private bool processing;
         private string voice;
-        private VoiceAzureCacheManager azureCacheManager;
+        private VoiceSpeechManager azureCacheManager;
         private Player audioPlayer;
         
-        public HeraldQueue(VoiceAzureCacheManager azureCacheManager)
+        public HeraldQueue(VoiceSpeechManager azureCacheManager)
         {
             this.azureCacheManager = azureCacheManager;
             processing = false;
@@ -65,6 +66,8 @@ namespace Observatory.Herald
                 }
 
             }
+
+            processing = false;
         }
 
         private void Speak(string text)
@@ -75,8 +78,12 @@ namespace Observatory.Herald
         private void SpeakSsml(string ssml)
         {
             string file = azureCacheManager.GetAudioFileFromSsml(ssml, voice);
-
-            audioPlayer.Play(file).Wait();
+            
+            audioPlayer.Play(file);
+            while (audioPlayer.Playing)
+            {
+                Thread.Sleep(20);
+            }
         }
 
         

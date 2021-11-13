@@ -16,9 +16,10 @@ namespace Observatory
                 .GetMessageBoxStandardWindow(new MessageBox.Avalonia.DTO.MessageBoxStandardParams
                 {
                     ContentTitle = title,
-                    ContentMessage = message
+                    ContentMessage = message,
+                    Topmost = true
                 });
-                errorMessage.Show(desktop.MainWindow);
+                errorMessage.Show();
             }
         }
     }

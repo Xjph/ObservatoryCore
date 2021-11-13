@@ -301,7 +301,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         ActiveFighter,
         JumpImminent,
         RestrictedAccess,
-        NoReason
+        NoReason,
+        DockOffline
     }
 
     public enum ScanOrganicType

@@ -39,11 +39,6 @@ namespace Observatory.PluginManagement
         {
             errorList = LoadPlugins(out workerPlugins, out notifyPlugins);
 
-            foreach (var error in errorList)
-            {
-                Console.WriteLine(error);
-            }
-
             var pluginHandler = new PluginEventHandler(workerPlugins.Select(p => p.plugin), notifyPlugins.Select(p => p.plugin));
             var logMonitor = LogMonitor.GetInstance;
             pluginPanels = new();
@@ -54,7 +49,6 @@ namespace Observatory.PluginManagement
 
             var core = new PluginCore();
 
-            List<string> loadErrors = new();
             List<IObservatoryPlugin> errorPlugins = new();
             
             foreach (var plugin in workerPlugins.Select(p => p.plugin))
@@ -66,7 +60,7 @@ namespace Observatory.PluginManagement
                 }
                 catch (PluginException ex)
                 {
-                    loadErrors.Add(FormatErrorMessage(ex));
+                    errorList.Add(FormatErrorMessage(ex));
                     errorPlugins.Add(plugin);
                 }
             }
@@ -86,16 +80,13 @@ namespace Observatory.PluginManagement
                     }
                     catch (PluginException ex)
                     {
-                        loadErrors.Add(FormatErrorMessage(ex));
+                        errorList.Add(FormatErrorMessage(ex));
                         errorPlugins.Add(plugin);
                     }
                 }
             }
 
             notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
-
-            if (loadErrors.Any())
-                ErrorReporter.ShowErrorPopup("Plugin Load Error", string.Join(Environment.NewLine, loadErrors));
 
             core.Notification += pluginHandler.OnNotificationEvent;
         }
