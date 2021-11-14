@@ -14,7 +14,6 @@ namespace Observatory.Herald
     {
         private string azureKey;
         private DirectoryInfo cacheLocation;
-        private Dictionary<string, string> cacheIndex;
         private SpeechConfig speechConfig;
         private SpeechSynthesizer speech;
 
@@ -31,22 +30,6 @@ namespace Observatory.Herald
             if (!Directory.Exists(cacheLocation.FullName))
             {
                 Directory.CreateDirectory(cacheLocation.FullName);
-            }
-            
-            if (File.Exists(cacheIndexFile))
-            {
-                try
-                {
-                    cacheIndex = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(cacheIndexFile));
-                }
-                catch
-                {
-                    cacheIndex = new();
-                }
-            }
-            else
-            {
-                cacheIndex = new();
             }
             
             try
@@ -69,7 +52,6 @@ namespace Observatory.Herald
 
             speech = new(speechConfig, null);
 
-            
             settings.Voices = PopulateVoiceSettingOptions();
         }
 
@@ -104,32 +86,15 @@ namespace Observatory.Herald
             ssml = AddVoiceToSsml(ssml, voice);
             string ssmlHash = FNV64(ssml).ToString("X");
 
-            string audioFile;
+            string audioFile = cacheLocation + ssmlHash + ".wav";
 
-            if (cacheIndex.ContainsKey(ssmlHash))
-            {
-                audioFile = cacheIndex[ssmlHash];
-            }
-            else
+            if (!File.Exists(audioFile))
             {
                 using var stream = RequestFromAzure(ssml);
-                audioFile = CommitToCache(ssmlHash, stream);
+                stream.SaveToWaveFileAsync(audioFile).Wait();
             }
 
             return audioFile;
-        }
-
-        private string CommitToCache(string ssmlHash, AudioDataStream audioData)
-        {
-            string newFile = cacheLocation + Guid.NewGuid().ToString("D") + ".wav"; ;
-            audioData.SaveToWaveFileAsync(newFile).Wait();
-            cacheIndex.Add(ssmlHash, newFile);
-            string serializedIndex = JsonSerializer.Serialize(cacheIndex, new JsonSerializerOptions()
-            {
-                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
-            });
-            File.WriteAllText(cacheIndexFile, serializedIndex);
-            return newFile;
         }
 
         private static ulong FNV64(string data)
