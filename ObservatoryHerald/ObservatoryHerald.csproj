@@ -1,16 +1,26 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <VersionSuffix>0.0.$([System.DateTime]::UtcNow.DayOfYear.ToString()).$([System.DateTime]::UtcNow.ToString(HHmm))</VersionSuffix>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
+    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
+  </PropertyGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.18.0" />
-    <PackageReference Include="NetCoreAudio" Version="1.6.3" />
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="NetCoreAudio">
+      <HintPath>..\..\NetCoreAudio\NetCoreAudio\bin\Release\netstandard2.0\NetCoreAudio.dll</HintPath>
+    </Reference>
     <Reference Include="ObservatoryFramework">
       <HintPath>..\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll</HintPath>
     </Reference>

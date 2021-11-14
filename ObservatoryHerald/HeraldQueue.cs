@@ -55,7 +55,7 @@ namespace Observatory.Herald
                 {
                     SpeakSsml(notification.TitleSsml);
                 }
-                
+
                 if (string.IsNullOrWhiteSpace(notification.DetailSsml))
                 {
                     Speak(notification.Detail);
@@ -64,7 +64,6 @@ namespace Observatory.Herald
                 {
                     SpeakSsml(notification.DetailSsml);
                 }
-
             }
 
             processing = false;
@@ -78,7 +77,8 @@ namespace Observatory.Herald
         private void SpeakSsml(string ssml)
         {
             string file = azureCacheManager.GetAudioFileFromSsml(ssml, voice);
-            
+
+            // For some reason .Wait() concludes before audio playback is complete.
             audioPlayer.Play(file);
             while (audioPlayer.Playing)
             {
