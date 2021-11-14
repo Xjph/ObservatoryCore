@@ -25,7 +25,8 @@ namespace Observatory.Herald
 
         internal VoiceSpeechManager(HeraldSettings settings, HttpClient httpClient)
         {
-            cacheLocation = new(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\ObservatoryCore\\ObservatoryHerald\\");
+            cacheLocation = new(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) 
+                + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}ObservatoryHerald{Path.DirectorySeparatorChar}");
 
             if (!Directory.Exists(cacheLocation.FullName))
             {
