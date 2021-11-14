@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text.Json;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Xml;
@@ -16,12 +15,6 @@ namespace Observatory.Herald
         private DirectoryInfo cacheLocation;
         private SpeechConfig speechConfig;
         private SpeechSynthesizer speech;
-
-
-        private string cacheIndexFile
-        {
-            get => cacheLocation.FullName + "VoiceIndex.json";
-        }
 
         internal VoiceSpeechManager(HeraldSettings settings, HttpClient httpClient)
         {
