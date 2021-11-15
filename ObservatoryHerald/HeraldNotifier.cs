@@ -9,7 +9,14 @@ namespace Observatory.Herald
     {
         public HeraldNotifier()
         {
-            heraldSettings = new();
+            heraldSettings = new()
+            {
+                SelectedVoice = "en-US - Christopher",
+                Locale = "en-US",
+                AzureAPIKeyOverride = string.Empty,
+                Enabled = true
+                
+            };
         }
 
         public string Name => "Observatory Herald";
@@ -36,7 +43,8 @@ namespace Observatory.Herald
 
         public void OnNotificationEvent(NotificationArgs notificationEventArgs)
         {
-            heraldSpeech.Enqueue(notificationEventArgs, GetAzureNameFromSetting(heraldSettings.SelectedVoice));
+            if (heraldSettings.Enabled)
+                heraldSpeech.Enqueue(notificationEventArgs, GetAzureNameFromSetting(heraldSettings.SelectedVoice));
         }
 
         private string GetAzureNameFromSetting(string settingName)
