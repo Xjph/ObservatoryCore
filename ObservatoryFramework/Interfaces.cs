@@ -41,7 +41,7 @@ namespace Observatory.Framework.Interfaces
         public PluginUI PluginUI { get; }
 
         /// <summary>
-        /// <para>Accessors for plugin settings object. Should be initialized in a default state.</para>
+        /// <para>Accessors for plugin settings object. Should be initialized with a default state during the plugin constructor.</para>
         /// <para>Saving and loading of settings is handled by Observatory Core, and any previously saved settings will be set after plugin instantiation, but before Load() is called.</para>
         /// <para>A plugin's settings class is expected to consist of properties with public getters and setters. The settings UI will be automatically generated based on each property type.<br/>
         /// The [SettingDisplayName(string name)] attribute can be used to specify a display name, otherwise the name of the property will be used.<br/>

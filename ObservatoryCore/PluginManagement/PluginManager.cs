@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Data;
 using Observatory.Framework.Interfaces;
 using System.IO;
-using System.Configuration;
+using Observatory.Framework;
 using System.Text.Json;
 
 namespace Observatory.PluginManagement
@@ -39,11 +39,6 @@ namespace Observatory.PluginManagement
         {
             errorList = LoadPlugins(out workerPlugins, out notifyPlugins);
 
-            foreach (var error in errorList)
-            {
-                Console.WriteLine(error);
-            }
-
             var pluginHandler = new PluginEventHandler(workerPlugins.Select(p => p.plugin), notifyPlugins.Select(p => p.plugin));
             var logMonitor = LogMonitor.GetInstance;
             pluginPanels = new();
@@ -54,22 +49,51 @@ namespace Observatory.PluginManagement
 
             var core = new PluginCore();
 
+            List<IObservatoryPlugin> errorPlugins = new();
+            
             foreach (var plugin in workerPlugins.Select(p => p.plugin))
             {
-                LoadSettings(plugin);
-                plugin.Load(core);
+                try
+                {
+                    LoadSettings(plugin);
+                    plugin.Load(core);
+                }
+                catch (PluginException ex)
+                {
+                    errorList.Add(FormatErrorMessage(ex));
+                    errorPlugins.Add(plugin);
+                }
             }
+
+            workerPlugins.RemoveAll(w => errorPlugins.Contains(w.plugin));
+            errorPlugins.Clear();
+
             foreach (var plugin in notifyPlugins.Select(p => p.plugin))
             {
                 // Notifiers which are also workers need not be loaded again (they are the same instance).
                 if (!plugin.GetType().IsAssignableTo(typeof(IObservatoryWorker)))
                 {
-                    LoadSettings(plugin);
-                    plugin.Load(core);
+                    try
+                    {
+                        LoadSettings(plugin);
+                        plugin.Load(core);
+                    }
+                    catch (PluginException ex)
+                    {
+                        errorList.Add(FormatErrorMessage(ex));
+                        errorPlugins.Add(plugin);
+                    }
                 }
             }
 
+            notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
+
             core.Notification += pluginHandler.OnNotificationEvent;
+        }
+
+        private static string FormatErrorMessage(PluginException ex)
+        {
+            return $"{ex.PluginName}: {ex.UserMessage}";
         }
 
         private void LoadSettings(IObservatoryPlugin plugin)

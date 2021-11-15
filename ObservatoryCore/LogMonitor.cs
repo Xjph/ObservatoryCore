@@ -318,18 +318,7 @@ namespace Observatory
                     }
                 }
 
-                if (Avalonia.Application.Current.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
-                {
-                    var errorMessage = MessageBox.Avalonia.MessageBoxManager
-                    .GetMessageBoxStandardWindow(new MessageBox.Avalonia.DTO.MessageBoxStandardParams
-                    {
-                        ContentTitle = $"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}",
-                        ContentMessage = errorContent.ToString()
-                    });
-                    errorMessage.ShowDialog(desktop.MainWindow);
-
-                }
-
+                ErrorReporter.ShowErrorPopup($"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}", errorContent.ToString());
             }
         }
 

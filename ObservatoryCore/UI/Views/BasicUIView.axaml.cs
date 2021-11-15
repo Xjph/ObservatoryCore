@@ -535,7 +535,7 @@ namespace Observatory.UI.Views
                         NotificationArgs args = new()
                         {
                             Title = "Speech Synthesis Test",
-                            TitleSsml = "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\">Speech Synthesis Test</speak>",
+                            TitleSsml = "<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">Speech Synthesis Test</voice></speak>",
                             Detail = harvardSentences.OrderBy(s => new Random().NextDouble()).First()
                         };
                         
@@ -942,6 +942,46 @@ namespace Observatory.UI.Views
                             };
 
                             settingsGrid.AddControl(actionButton, settingsGrid.RowDefinitions.Count - 1, 0);
+
+                            break;
+                        case Dictionary<string, object> dictSetting:
+
+                            var backingValueName = (SettingBackingValue)Attribute.GetCustomAttribute(setting.Key, typeof(SettingBackingValue));
+
+                            var backingValue = from s in displayedSettings
+                                               where s.Value == backingValueName.BackingProperty
+                                               select s.Key;
+
+                            if (backingValue.Count() != 1)
+                                throw new($"{plugin.ShortName}: Dictionary settings must have exactly one backing value.");
+
+                            label.Text += ": ";
+
+                            ComboBox selectionDropDown = new()
+                            {
+                                MinWidth = 200
+                            };
+
+                            selectionDropDown.Items = from s in dictSetting
+                                                      orderby s.Key
+                                                      select s.Key;
+
+                            string currentSelection = backingValue.First().GetValue(plugin.Settings)?.ToString();
+
+                            if (currentSelection?.Length > 0)
+                            {
+                                selectionDropDown.SelectedItem = currentSelection;
+                            }
+
+                            selectionDropDown.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+                            {
+                                var comboBox = (ComboBox)sender;
+                                backingValue.First().SetValue(plugin.Settings, comboBox.SelectedItem.ToString());
+                                PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                            };
+
+                            settingsGrid.AddControl(label, settingsGrid.RowDefinitions.Count - 1, 0);
+                            settingsGrid.AddControl(selectionDropDown, settingsGrid.RowDefinitions.Count - 1, 1);
 
                             break;
                     }
