@@ -12,10 +12,8 @@ namespace Observatory.Herald
             heraldSettings = new()
             {
                 SelectedVoice = "en-US - Christopher",
-                Locale = "en-US",
                 AzureAPIKeyOverride = string.Empty,
                 Enabled = true
-                
             };
         }
 
@@ -38,19 +36,39 @@ namespace Observatory.Herald
 
         private void TestVoice()
         {
-            heraldSpeech.Enqueue(new NotificationArgs() { Title = "Herald voice testing", Detail = "With sample detail text" }, GetAzureNameFromSetting(heraldSettings.SelectedVoice));
+            heraldSpeech.Enqueue(
+                new NotificationArgs() 
+                { 
+                    Title = "Herald voice testing", 
+                    Detail = $"This is {heraldSettings.SelectedVoice.Split(" - ")[1]}." 
+                }, 
+                GetAzureNameFromSetting(heraldSettings.SelectedVoice),
+                GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice));
         }
 
         public void OnNotificationEvent(NotificationArgs notificationEventArgs)
         {
             if (heraldSettings.Enabled)
-                heraldSpeech.Enqueue(notificationEventArgs, GetAzureNameFromSetting(heraldSettings.SelectedVoice));
+                heraldSpeech.Enqueue(
+                    notificationEventArgs, 
+                    GetAzureNameFromSetting(heraldSettings.SelectedVoice),
+                    GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice));
         }
 
         private string GetAzureNameFromSetting(string settingName)
         {
             var voiceInfo = (VoiceInfo)heraldSettings.Voices[settingName];
             return voiceInfo.Name;
+        }
+
+        private string GetAzureStyleNameFromSetting(string settingName)
+        {
+            string[] settingParts = settingName.Split(" - ");
+            
+            if (settingParts.Length == 3)
+                return settingParts[2];
+            else
+                return string.Empty;
         }
 
         private HeraldSettings heraldSettings;

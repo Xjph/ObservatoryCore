@@ -9,14 +9,12 @@ namespace Observatory.Herald
 {
     public class HeraldSettings
     {
-        [SettingDisplayName("Voice Locale")]
-        public string Locale { get; set; }
-
-        [SettingDisplayName("Azure API Key Override")]
+        [SettingDisplayName("API Key Override: ")]
         public string AzureAPIKeyOverride { get; set; }
 
         [SettingDisplayName("Voice")]
         [SettingBackingValue("SelectedVoice")]
+        [System.Text.Json.Serialization.JsonIgnore]
         public Dictionary<string, object> Voices { get; internal set; }
 
         [SettingIgnore]

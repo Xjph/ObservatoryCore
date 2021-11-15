@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Xml;
@@ -64,20 +65,91 @@ namespace Observatory.Herald
             
             var voiceOptions = new Dictionary<string, object>();
 
+            var englishSpeakingVoices = from v in voices 
+                                        where v.Locale.StartsWith("en-") 
+                                        select v;
 
-            foreach (var voice in voices)
+            foreach (var voice in englishSpeakingVoices)
             {
-                voiceOptions.Add(
-                    $"{voice.Locale} - {voice.LocalName}", 
-                    voice);
+                string demonym = GetDemonymFromLocale(voice.Locale);
+
+                if (voice.StyleList.Length > 1)
+                {
+                    foreach (var style in voice.StyleList)
+                    {
+                        voiceOptions.Add(
+                            $"{demonym} - {voice.LocalName} - {style}",
+                            voice);
+                    }
+                }
+                else
+                    voiceOptions.Add(
+                        $"{demonym} - {voice.LocalName}", 
+                        voice);
             }
 
             return voiceOptions;
         }
 
-        internal string GetAudioFileFromSsml(string ssml, string voice)
+        private static string GetDemonymFromLocale(string locale)
         {
-            ssml = AddVoiceToSsml(ssml, voice);
+            string demonym;
+
+            switch (locale)
+            {
+                case "en-AU":
+                    demonym = "Australian";
+                    break;
+                case "en-CA":
+                    demonym = "Canadian";
+                    break;
+                case "en-GB":
+                    demonym = "British";
+                    break;
+                case "en-HK":
+                    demonym = "Hong Konger";
+                    break;
+                case "en-IE":
+                    demonym = "Irish";
+                    break;
+                case "en-IN":
+                    demonym = "Indian";
+                    break;
+                case "en-KE":
+                    demonym = "Kenyan";
+                    break;
+                case "en-NG":
+                    demonym = "Nigerian";
+                    break;
+                case "en-NZ":
+                    demonym = "Kiwi";
+                    break;
+                case "en-PH":
+                    demonym = "Filipino";
+                    break;
+                case "en-SG":
+                    demonym = "Singaporean";
+                    break;
+                case "en-TZ":
+                    demonym = "Tanzanian";
+                    break;
+                case "en-US":
+                    demonym = "American";
+                    break;
+                case "en-ZA":
+                    demonym = "South African";
+                    break;
+                default:
+                    demonym = locale;
+                    break;
+            }
+
+            return demonym;
+        }
+
+        internal string GetAudioFileFromSsml(string ssml, string voice, string style)
+        {
+            ssml = AddVoiceToSsml(ssml, voice, style);
             string ssmlHash = FNV64(ssml).ToString("X");
 
             string audioFile = cacheLocation + ssmlHash + ".wav";
@@ -117,7 +189,7 @@ namespace Observatory.Herald
             }
         }
 
-        private static string AddVoiceToSsml(string ssml, string voiceName)
+        private static string AddVoiceToSsml(string ssml, string voiceName, string styleName)
         {
             XmlDocument ssmlDoc = new();
             ssmlDoc.LoadXml(ssml);
@@ -131,7 +203,24 @@ namespace Observatory.Herald
 
             voiceNode.Attributes.GetNamedItem("name").Value = voiceName;
 
-            return ssmlDoc.OuterXml;
+            string ssmlResult;
+
+            if (!string.IsNullOrWhiteSpace(styleName))
+            {
+                voiceNode.InnerText = $"<mstts:express-as style=\"{styleName}\">" + voiceNode.InnerText + "</mstts:express-as>";
+
+                // This is a kludge but I don't feel like dealing with System.Xml and namespaces
+                ssmlResult = ssmlDoc.OuterXml
+                    .Replace(" xmlns=", " xmlns:mstts=\"https://www.w3.org/2001/mstts\" xmlns=")
+                    .Replace($"&lt;mstts:express-as style=\"{styleName}\"&gt;", $"<mstts:express-as style=\"{styleName}\">")
+                    .Replace("&lt;/mstts:express-as&gt;", "</mstts:express-as>");
+            }
+            else
+            {
+                ssmlResult = ssmlDoc.OuterXml;
+            }
+
+            return ssmlResult;
         }
 
         private static string GetAzureKey(HeraldSettings settings, HttpClient httpClient)

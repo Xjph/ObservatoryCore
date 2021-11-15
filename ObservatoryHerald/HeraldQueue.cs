@@ -12,6 +12,7 @@ namespace Observatory.Herald
         private Queue<NotificationArgs> notifications;
         private bool processing;
         private string voice;
+        private string style;
         private VoiceSpeechManager azureCacheManager;
         private Player audioPlayer;
         
@@ -24,9 +25,10 @@ namespace Observatory.Herald
         }
 
 
-        internal void Enqueue(NotificationArgs notification, string selectedVoice)
+        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "")
         {
             voice = selectedVoice;
+            style = selectedStyle;
             notifications.Enqueue(notification);
 
             if (!processing)
@@ -76,7 +78,7 @@ namespace Observatory.Herald
 
         private void SpeakSsml(string ssml)
         {
-            string file = azureCacheManager.GetAudioFileFromSsml(ssml, voice);
+            string file = azureCacheManager.GetAudioFileFromSsml(ssml, voice, style);
 
             // For some reason .Wait() concludes before audio playback is complete.
             audioPlayer.Play(file);
