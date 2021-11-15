@@ -24,5 +24,8 @@ namespace Observatory.Herald
 
         [System.Text.Json.Serialization.JsonIgnore]
         public Action Test { get; internal set; }
+
+        [SettingDisplayName("Enabled")]
+        public bool Enabled { get; set; }
     }
 }
