@@ -4,6 +4,76 @@
         <name>ObservatoryFramework</name>
     </assembly>
     <members>
+        <member name="T:Observatory.Framework.SettingDisplayName">
+            <summary>
+            Specifies text to display as the name of the setting in the UI instead of the property name.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.SettingDisplayName.#ctor(System.String)">
+            <summary>
+            Specifies text to display as the name of the setting in the UI instead of the property name.
+            </summary>
+            <param name="name">Name to display</param>
+        </member>
+        <member name="P:Observatory.Framework.SettingDisplayName.DisplayName">
+            <summary>
+            Accessor to get/set displayed name.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.SettingIgnore">
+            <summary>
+            Indicates that the property should not be displayed to the user in the UI.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.SettingNumericUseSlider">
+            <summary>
+            Indicates numeric properly should use a slider control instead of a numeric textbox with roller.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.SettingBackingValue">
+            <summary>
+            Specify backing value used by Dictionary&lt;string, object&gt; to indicate selected option.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.SettingBackingValue.#ctor(System.String)">
+            <summary>
+            Specify backing value used by Dictionary&lt;string, object&gt; to indicate selected option.
+            </summary>
+            <param name="property">Property name for backing value.</param>
+        </member>
+        <member name="P:Observatory.Framework.SettingBackingValue.BackingProperty">
+            <summary>
+            Accessor to get/set backing value property name.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.SettingNumericBounds">
+            <summary>
+            Specify bounds for numeric inputs.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.SettingNumericBounds.#ctor(System.Double,System.Double,System.Double)">
+            <summary>
+            Specify bounds for numeric inputs.
+            </summary>
+            <param name="minimum">Minimum allowed value.</param>
+            <param name="maximum">Maximum allowed value.</param>
+            <param name="increment">Increment between allowed values in slider/roller inputs.</param>
+        </member>
+        <member name="P:Observatory.Framework.SettingNumericBounds.Minimum">
+            <summary>
+            Minimum allowed value.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.SettingNumericBounds.Maximum">
+            <summary>
+            Maxunyn allowed value.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.SettingNumericBounds.Increment">
+            <summary>
+            Increment between allowed values in slider/roller inputs.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.JournalEventArgs">
             <summary>
             Provides data for Elite Dangerous journal events.
@@ -344,6 +414,154 @@
             Altitude above average radius (sea level) when set. Altitude raycast to ground when unset.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.Files.ShipyardFile">
+            <summary>
+            Elite Dangerous shipyard.json file.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ShipyardFile.MarketID">
+            <summary>
+            Unique ID of market.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ShipyardFile.StationName">
+            <summary>
+            Name of station where shipyard is located.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ShipyardFile.StarSystem">
+            <summary>
+            Starsystem where shipyard is located.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ShipyardFile.Horizons">
+            <summary>
+            Whether player has access to Horizons content.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ShipyardFile.AllowCobraMkIV">
+            <summary>
+            <para>Whether player has access to the Cobra MkIV.</para>
+            <para>Will never be set to true for CMDR Nuse.</para>
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ShipyardFile.PriceList">
+            <summary>
+            List of all ships and prices for them at the current shipyard.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Status">
+            <summary>
+            Elite Dangerous status.json file.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Flags">
+            <summary>
+            Set of flags representing current player state.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Flags2">
+            <summary>
+            Additional set of flags representing current player state.
+            Added in later versions of Elite Dangerous.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Pips">
+            <summary>
+            Current allocation of power distribution (pips) between SYS, ENG, and WEP, in "half pip" increments.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Firegroup">
+            <summary>
+            Currently selected fire group.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.GuiFocus">
+            <summary>
+            UI component currently focused by the player.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Fuel">
+            <summary>
+            Fuel remaining in the current ship.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Cargo">
+            <summary>
+            Amount of cargo currently carried.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.LegalState">
+            <summary>
+            Legal status in the current jurisdiction.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Altitude">
+            <summary>
+            <para>Current altitude.</para>
+            <para>Check if RadialAltitude is set in StatusFlags to determine if altitude is based on planetary radius (set) or raycast to ground (unset).</para>
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Latitude">
+            <summary>
+            Latitude of current surface location.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Longitude">
+            <summary>
+            Longitude of current surface location.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Heading">
+            <summary>
+            Current heading for surface direction.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.BodyName">
+            <summary>
+            Body name of current location.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.PlanetRadius">
+            <summary>
+            Radius of current planet.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Oxygen">
+            <summary>
+            Oxygen remaining on foot, range from 0.0 - 1.0.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Health">
+            <summary>
+            Health remaining on foot, range from 0.0 - 1.0.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Temperature">
+            <summary>
+            Current environmental temperature in K while on foot.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.SelectedWeapon">
+            <summary>
+            Name of currently selected personal weapon.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Gravity">
+            <summary>
+            Current strength of gravity while on foot, in g.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Balance">
+            <summary>
+            Current credit balance of player.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Status.Destination">
+            <summary>
+            Currently set destination.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryPlugin">
             <summary>
             <para>Base plugin interface containing methods common to both notifiers and workers.</para>
@@ -381,7 +599,7 @@
         </member>
         <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.Settings">
             <summary>
-            <para>Accessors for plugin settings object. Should be initialized in a default state.</para>
+            <para>Accessors for plugin settings object. Should be initialized with a default state during the plugin constructor.</para>
             <para>Saving and loading of settings is handled by Observatory Core, and any previously saved settings will be set after plugin instantiation, but before Load() is called.</para>
             <para>A plugin's settings class is expected to consist of properties with public getters and setters. The settings UI will be automatically generated based on each property type.<br/>
             The [SettingDisplayName(string name)] attribute can be used to specify a display name, otherwise the name of the property will be used.<br/>
