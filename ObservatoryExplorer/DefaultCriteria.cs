@@ -125,6 +125,27 @@ namespace Observatory.Explorer
                 results.Add("Fast Orbit", $"Orbital Period: {Math.Abs(scan.OrbitalPeriod / 3600):N1} hours");
             }
 
+            // Close binary pair
+            if ((settings.CloseBinary || settings.CollidingBinary) && scan.Parent?[0].ParentType == ParentType.Null && scan.Radius / scan.SemiMajorAxis > 0.4)
+            {
+                var binaryPartner = scanHistory[scan.SystemAddress].Where(priorScan => priorScan.Value.Parent?[0].Body == scan.Parent?[0].Body && scan.BodyID != priorScan.Key);
+
+                if (binaryPartner.Count() == 1)
+                {
+                    if (binaryPartner.First().Value.Radius / binaryPartner.First().Value.SemiMajorAxis > 0.4)
+                    {
+                        if (settings.CollidingBinary && binaryPartner.First().Value.Radius + scan.Radius >= binaryPartner.First().Value.SemiMajorAxis * (1 - binaryPartner.First().Value.Eccentricity) + scan.SemiMajorAxis * (1 - scan.Eccentricity))
+                        {
+                            results.Add(("COLLIDING binary", $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}"));
+                        }
+                        else if (settings.CloseBinary)
+                        {
+                            results.Add(("Close binary relative to body size", $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}"));
+                        }
+                    }
+                }
+            }
+
             if (settings.GoodFSDBody && scan.Landable)
             {
                 List<string> boostMaterials = new() 
