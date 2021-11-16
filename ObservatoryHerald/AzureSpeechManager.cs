@@ -73,19 +73,17 @@ namespace Observatory.Herald
             {
                 string demonym = GetDemonymFromLocale(voice.Locale);
 
-                if (voice.StyleList.Length > 1)
+                voiceOptions.Add(
+                    $"{demonym} - {voice.LocalName}",
+                    voice);
+
+                foreach (var style in voice.StyleList)
                 {
-                    foreach (var style in voice.StyleList)
-                    {
+                    if (!string.IsNullOrWhiteSpace(style))
                         voiceOptions.Add(
                             $"{demonym} - {voice.LocalName} - {style}",
                             voice);
-                    }
                 }
-                else
-                    voiceOptions.Add(
-                        $"{demonym} - {voice.LocalName}", 
-                        voice);
             }
 
             return voiceOptions;
