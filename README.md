@@ -24,6 +24,8 @@ For specifics on what each plugin does, please refer to their respective wiki pa
 
 If you're interested in Custom Criteria for Explorer in particular you can find [the documentation for writing them](https://github.com/Xjph/ObservatoryCore/wiki/Lua-Custom-Criteria) in the project wiki.
 
+If you want to chat or collaborate with other users of Observatory you can find us either in the [Elite Dangerous forum thread for Observatory](https://forums.frontier.co.uk/threads/elite-observatory-search-your-journal-for-potentially-interesting-objects-or-notify-you-of-new-ones-on-the-fly-while-exploring.521544/), or on the [Elite Observatory Discord](https://discord.gg/y2evtaas).
+
 For information on how to create a plugin, refer to this article about [ObservatoryFramework](https://github.com/Xjph/ObservatoryCore/wiki/Framework).
 
 ## Prerequisites for use
