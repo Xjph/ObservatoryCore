@@ -130,7 +130,7 @@ namespace Observatory.Explorer
                         {
                             var exceptionResult = new ExplorerUIResults()
                             {
-                                BodyName = "Custom Criteria Processing Error",
+                                BodyName = "Error Reading Custom Criteria File",
                                 Time = DateTime.Now.ToString("G"),
                                 Description = e.Message,
                                 Details = e.OriginalScript
