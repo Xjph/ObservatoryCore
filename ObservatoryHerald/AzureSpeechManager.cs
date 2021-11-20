@@ -195,30 +195,20 @@ namespace Observatory.Herald
             var ssmlNamespace = ssmlDoc.DocumentElement.NamespaceURI;
             XmlNamespaceManager ssmlNs = new(ssmlDoc.NameTable);
             ssmlNs.AddNamespace("ssml", ssmlNamespace);
-
+            ssmlNs.AddNamespace("mstts", "http://www.w3.org/2001/mstts");
 
             var voiceNode = ssmlDoc.SelectSingleNode("/ssml:speak/ssml:voice", ssmlNs);
 
             voiceNode.Attributes.GetNamedItem("name").Value = voiceName;
 
-            string ssmlResult;
-
             if (!string.IsNullOrWhiteSpace(styleName))
             {
-                voiceNode.InnerText = $"<mstts:express-as style=\"{styleName}\">" + voiceNode.InnerText + "</mstts:express-as>";
-
-                // This is a kludge but I don't feel like dealing with System.Xml and namespaces
-                ssmlResult = ssmlDoc.OuterXml
-                    .Replace(" xmlns=", " xmlns:mstts=\"https://www.w3.org/2001/mstts\" xmlns=")
-                    .Replace($"&lt;mstts:express-as style=\"{styleName}\"&gt;", $"<mstts:express-as style=\"{styleName}\">")
-                    .Replace("&lt;/mstts:express-as&gt;", "</mstts:express-as>");
+                var expressAsNode = ssmlDoc.CreateElement("express-as", "http://www.w3.org/2001/mstts");
+                expressAsNode.SetAttribute("style", styleName);
+                expressAsNode.InnerXml = voiceNode.InnerXml;
+                voiceNode.InnerXml = expressAsNode.OuterXml;
             }
-            else
-            {
-                ssmlResult = ssmlDoc.OuterXml;
-            }
-
-            return ssmlResult;
+            return ssmlDoc.OuterXml;
         }
 
         private static string GetAzureKey(HeraldSettings settings, HttpClient httpClient)
