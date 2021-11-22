@@ -160,9 +160,9 @@ namespace Observatory.Explorer
             }
         }
 
-        public List<(string, string)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
+        public List<(string, string, bool)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
         {
-            List<(string, string)> results = new();
+            List<(string, string, bool)> results = new();
            
             foreach (var criteriaFunction in CriteriaFunctions)
             {
@@ -210,13 +210,13 @@ namespace Observatory.Explorer
                     var result = criteriaFunction.Call(scan, parents, scanList, bioSignals, geoSignals);
                     if (result.Length > 0 && ((bool?)result[0]).GetValueOrDefault(false))
                     {
-                        results.Add((result[1].ToString(), result[2].ToString()));
+                        results.Add((result[1].ToString(), result[2].ToString(), false));
                     }
                 }
                 catch (NLua.Exceptions.LuaScriptException e)
                 {
                     settings.EnableCustomCriteria = false;
-                    results.Add((e.Message, scan.Json));
+                    results.Add((e.Message, scan.Json, false));
                     break;
                 }
             }

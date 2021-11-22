@@ -192,7 +192,7 @@ namespace Observatory.Explorer
                 {
                     var scanResult = new ExplorerUIResults()
                     {
-                        BodyName = scanEvent.BodyName,
+                        BodyName = result.SystemWide ? scanEvent.StarSystem : scanEvent.BodyName,
                         Time = scanEvent.TimestampDateTime.ToString("G"),
                         Description = result.Description,
                         Details = result.Detail
@@ -233,6 +233,7 @@ namespace Observatory.Explorer
                 }
                 else
                 {
+                    bodyLabel = "Primary Star";
                     spokenAffix = string.Empty;
                 }
 

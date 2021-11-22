@@ -9,9 +9,9 @@ namespace Observatory.Explorer
 {
     internal static class DefaultCriteria
     {
-        public static List<(string Description, string Detail)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
+        public static List<(string Description, string Detail, bool SystemWide)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
         {
-            List<(string, string)> results = new();
+            List<(string, string, bool)> results = new();
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
 
             bool isRing = scan.BodyName.Contains("Ring");
@@ -136,11 +136,11 @@ namespace Observatory.Explorer
                     {
                         if (settings.CollidingBinary && binaryPartner.First().Value.Radius + scan.Radius >= binaryPartner.First().Value.SemiMajorAxis * (1 - binaryPartner.First().Value.Eccentricity) + scan.SemiMajorAxis * (1 - scan.Eccentricity))
                         {
-                            results.Add(("COLLIDING binary", $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}"));
+                            results.Add("COLLIDING binary", $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}");
                         }
                         else if (settings.CloseBinary)
                         {
-                            results.Add(("Close binary relative to body size", $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}"));
+                            results.Add("Close binary relative to body size", $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}");
                         }
                     }
                 }
@@ -215,10 +215,10 @@ namespace Observatory.Explorer
                 }
 
                 if (notifyGreen)
-                    results.Add("All Premium Boost Materials In System");
+                    results.Add("All Premium Boost Materials In System", string.Empty, true);
 
                 if (notifyGold)
-                    results.Add("All Surface Materials In System");
+                    results.Add("All Surface Materials In System", string.Empty, true);
             }
 
             if (settings.UncommonSecondary && scan.BodyID > 0 && !string.IsNullOrWhiteSpace(scan.StarType) && scan.DistanceFromArrivalLS > 10)
@@ -347,9 +347,9 @@ namespace Observatory.Explorer
             return materials.Count;
         }
 
-        private static void Add(this List<(string, string)> results, string description, string detail = "")
+        private static void Add(this List<(string, string, bool)> results, string description, string detail = "", bool systemWide = false)
         {
-            results.Add((description, detail));
+            results.Add((description, detail, systemWide));
         }
     }
 }
