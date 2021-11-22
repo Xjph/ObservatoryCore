@@ -80,9 +80,6 @@ namespace Observatory.Explorer
         [SettingDisplayName("All Surface Mats In System")]
         public bool GoldSystem { get; set; }
 
-        [SettingDisplayName("Multiple Criteria Notification")]
-        public bool MultipleCriteria { get; set; }
-
         [SettingDisplayName("Enable Custom Criteria")]
         public bool EnableCustomCriteria { get; set; }
 
