@@ -158,9 +158,7 @@ namespace Observatory.Explorer
                     "Polonium"
                 };
 
-                boostMaterials.RemoveMatchedMaterials(scan);
-
-                if (boostMaterials.Count == 1)
+                if (boostMaterials.RemoveMatchedMaterials(scan) == 1)
                 {
                     results.Add("5 of 6 Premium Boost Materials", $"Missing material: {boostMaterials[0]}");
                 }
@@ -178,29 +176,49 @@ namespace Observatory.Explorer
                     "Polonium"
                 };
 
+                List<string> allSurfaceMaterials = new()
+                {
+                    "Antimony", "Arsenic", "Cadmium", "Carbon",
+                    "Chromium", "Germanium", "Iron", "Manganese",
+                    "Mercury", "Molybdenum", "Nickel", "Niobium",
+                    "Phosphorus", "Polonium", "Ruthenium", "Selenium",
+                    "Sulphur", "Technetium", "Tellurium", "Tin",
+                    "Tungsten", "Vanadium", "Yttrium", "Zinc",
+                    "Zirconium"
+                };
+
                 var systemBodies = scanHistory[scan.SystemAddress];
 
                 bool notifyGreen = false;
+                bool notifyGold = false;
 
                 foreach (var body in systemBodies.Values)
                 {
+
+                    // If we enter either check and the count is already zero then a
+                    // previous body in system triggered the check, suppress notification.
                     if (settings.GreenSystem && body.Materials != null)
                     {
-                        if (!boostMaterials.RemoveMatchedMaterials(body) && boostMaterials.Count == 0)
-                        {
-                            //If the list has been emptied but we're still checking more bodies this notification has already fired and we can abort.
-                            notifyGreen = false;
-                            break;
-                        }
-
                         if (boostMaterials.Count == 0)
+                            notifyGreen = false;
+                        else if (boostMaterials.RemoveMatchedMaterials(body) == 0)
                             notifyGreen = true;
-                            
+                    }
+
+                    if (settings.GoldSystem && body.Materials != null)
+                    {
+                        if (allSurfaceMaterials.Count == 0)
+                            notifyGold = false;
+                        else if (allSurfaceMaterials.RemoveMatchedMaterials(body) == 0)
+                            notifyGold = true;
                     }
                 }
 
                 if (notifyGreen)
                     results.Add("All Premium Boost Materials In System");
+
+                if (notifyGold)
+                    results.Add("All Surface Materials In System");
             }
 
             if (settings.UncommonSecondary && scan.BodyID > 0 && !string.IsNullOrWhiteSpace(scan.StarType) && scan.DistanceFromArrivalLS > 10)
@@ -310,7 +328,13 @@ namespace Observatory.Explorer
             return name;
         }
 
-        private static bool RemoveMatchedMaterials(this List<string> materials, Scan body)
+        /// <summary>
+        /// Removes materials from the list if found on the specified body.
+        /// </summary>
+        /// <param name="materials"></param>
+        /// <param name="body"></param>
+        /// <returns>Count of materials remaining in list.</returns>
+        private static int RemoveMatchedMaterials(this List<string> materials, Scan body)
         {
             foreach (var material in body.Materials)
             {
@@ -320,7 +344,7 @@ namespace Observatory.Explorer
                     materials.Remove(matchedMaterial);
                 }
             }
-            return false;
+            return materials.Count;
         }
 
         private static void Add(this List<(string, string)> results, string description, string detail = "")
