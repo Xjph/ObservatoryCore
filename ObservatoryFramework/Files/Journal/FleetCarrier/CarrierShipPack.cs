@@ -5,7 +5,7 @@ namespace Observatory.Framework.Files.Journal
 {
     public class CarrierShipPack : JournalBase
     {
-        public long CarrierID { get; init; }
+        public ulong CarrierID { get; init; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public CarrierOperation Operation { get; init; }
         public string PackTheme { get; init; }

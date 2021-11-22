@@ -2,7 +2,7 @@
 {
     public class CommunityGoalDiscard : JournalBase
     {
-        public long CGID { get; init; }
+        public ulong CGID { get; init; }
         public string Name { get; init; }
         public string System { get; init; }
     }

@@ -2,7 +2,7 @@
 {
     public class CarrierTradeOrder : JournalBase
     {
-        public long CarrierID { get; init; }
+        public ulong CarrierID { get; init; }
         public bool BlackMarket { get; init; }
         public string Commodity { get; init; }
         public string Commodity_Localised { get; init; }

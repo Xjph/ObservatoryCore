@@ -4,7 +4,7 @@ namespace Observatory.Framework.Files.Journal
 {
     public class CodexEntry : JournalBase
     {
-        public long EntryID { get; init; }
+        public ulong EntryID { get; init; }
         public string Name { get; init; }
         public string Name_Localised { get; init; }
         public string SubCategory { get; init; }

@@ -2,7 +2,7 @@
 {
     public class ModuleBuy : JournalBase
     {
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         public string Slot { get; init; }
         public string BuyItem { get; init; }
         public string BuyItem_Localised { get; init; }

@@ -10,7 +10,7 @@ namespace Observatory.Framework.Files.Journal
         public bool Docked { get; init; }
         public string StationName { get; init; }
         public string StationType { get; init; }
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         public Faction StationFaction { get; init; }
         public string StationGovernment { get; init; }
         public string StationGovernment_Localised { get; init; }

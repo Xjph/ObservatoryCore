@@ -2,6 +2,6 @@
 {
     public class CarrierCancelDecommission : JournalBase
     {
-        public long CarrierID { get; init; }
+        public ulong CarrierID { get; init; }
     }
 }

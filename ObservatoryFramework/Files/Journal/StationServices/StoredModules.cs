@@ -7,7 +7,7 @@ namespace Observatory.Framework.Files.Journal
     {
         public string StarSystem { get; init; }
         public string StationName { get; init; }
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         public ImmutableList<StoredItem> Items { get; init; }
     }
 }

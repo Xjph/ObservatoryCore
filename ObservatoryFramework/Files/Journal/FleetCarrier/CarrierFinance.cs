@@ -2,7 +2,7 @@
 {
     public class CarrierFinance : JournalBase
     {
-        public long CarrierID { get; init; }
+        public ulong CarrierID { get; init; }
         public int TaxRate { get; init; }
         public long CarrierBalance { get; init; }
         public long ReserveBalance { get; init; }

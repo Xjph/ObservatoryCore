@@ -10,7 +10,7 @@ namespace Observatory.Framework.Files.Journal
         public string Name { get; init; }
         public string LocalisedName { get; init; }
         public string Faction { get; init; }
-        public long MissionID { get; init; }
+        public ulong MissionID { get; init; }
         [JsonConverter(typeof(MissionEffectConverter))]
         public MissionEffect Influence { get; init; }
         [JsonConverter(typeof(MissionEffectConverter))]

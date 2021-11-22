@@ -7,7 +7,7 @@ namespace Observatory.Framework.Files.Journal
     public class EngineerProgress : JournalBase
     {
         public string Engineer { get; init; }
-        public int EngineerID { get; init; }
+        public ulong EngineerID { get; init; }
         public int Rank { get; init; }
         public int RankProgress { get; init; }
         [JsonConverter(typeof(JsonStringEnumConverter))]

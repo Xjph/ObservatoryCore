@@ -2,6 +2,6 @@
 {
     public class FighterDestroyed : JournalBase
     {
-        public int ID { get; init; }
+        public ulong ID { get; init; }
     }
 }

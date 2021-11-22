@@ -6,7 +6,7 @@ namespace Observatory.Framework.Files.Journal
     public class EngineerContribution : JournalBase
     {
         public string Engineer { get; init; }
-        public long EngineerID { get; init; }
+        public ulong EngineerID { get; init; }
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public ContributionType Type { get; init; }
         public string Commodity { get; init; }

@@ -6,7 +6,7 @@ namespace Observatory.Framework.Files.Journal
 {
     public class CarrierCrewServices : JournalBase
     {
-        public long CarrierID { get; init; }
+        public ulong CarrierID { get; init; }
         public string CrewRole { get; init; }
         public string CrewName { get; init; }
         [JsonConverter(typeof(JsonStringEnumConverter))]

@@ -2,7 +2,7 @@
 {
     public class ScientificResearch : JournalBase
     {
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         public string Name { get; init; }
         public string Category { get; init; }
         public int Count { get; init; }

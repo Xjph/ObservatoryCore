@@ -8,11 +8,11 @@ namespace Observatory.Framework.Files.Journal
     public class EngineerCraft : JournalBase
     {
         public string Engineer { get; init; }
-        public long EngineerID { get; init; }
+        public ulong EngineerID { get; init; }
         public string Blueprint { get; init; }
         public string Slot { get; init; }
         public string Module { get; init; }
-        public long BlueprintID { get; init; }
+        public ulong BlueprintID { get; init; }
         public string BlueprintName { get; init; }
         public string ExperimentalEffect { get; init; }
         public string ExperimentalEffect_Localised { get; init; }

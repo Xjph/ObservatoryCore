@@ -2,7 +2,7 @@
 {
     public class ModuleSwap : JournalBase
     {
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         public string FromSlot { get; init; }
         public string ToSlot { get; init; }
         public string FromItem { get; init; }

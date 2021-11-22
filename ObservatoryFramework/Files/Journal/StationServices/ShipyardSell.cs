@@ -2,9 +2,9 @@
 {
     public class ShipyardSell : JournalBase
     {
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         public string ShipType { get; init; }
-        public int SellShipID { get; init; }
+        public ulong SellShipID { get; init; }
         public long ShipPrice { get; init; }
         public string System { get; init; }
     }

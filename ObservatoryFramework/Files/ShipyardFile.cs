@@ -11,7 +11,7 @@ namespace Observatory.Framework.Files
         /// <summary>
         /// Unique ID of market.
         /// </summary>
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         /// <summary>
         /// Name of station where shipyard is located.
         /// </summary>

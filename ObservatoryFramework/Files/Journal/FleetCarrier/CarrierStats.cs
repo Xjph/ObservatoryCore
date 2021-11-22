@@ -6,7 +6,7 @@ namespace Observatory.Framework.Files.Journal
 {
     public class CarrierStats : JournalBase
     {
-        public long CarrierID { get; init; }
+        public ulong CarrierID { get; init; }
         public string Callsign { get; init; }
         public string Name { get; init; }
         [JsonConverter(typeof(JsonStringEnumConverter))]

@@ -2,6 +2,6 @@
 {
     public class DockFighter : JournalBase
     {
-        public int ID { get; init; }
+        public ulong ID { get; init; }
     }
 }

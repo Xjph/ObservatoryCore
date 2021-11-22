@@ -4,7 +4,7 @@
     {
         public string ShipType { get; init; }
         public string System { get; init; }
-        public int SellShipId { get; init; }
+        public ulong SellShipId { get; init; }
         public long ShipPrice { get; init; }
     }
 }

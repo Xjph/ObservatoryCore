@@ -3,6 +3,6 @@
     public class CrewFire : JournalBase
     {
         public string Name { get; init; }
-        public long CrewID { get; init; }
+        public ulong CrewID { get; init; }
     }
 }

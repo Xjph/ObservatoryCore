@@ -4,6 +4,6 @@
     {
         public string ShipType { get; init; }
         public string ShipType_Localised { get; init; }
-        public int NewShipID { get; init; }
+        public ulong NewShipID { get; init; }
     }
 }

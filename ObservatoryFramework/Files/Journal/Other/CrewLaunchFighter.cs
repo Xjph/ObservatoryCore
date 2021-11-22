@@ -2,6 +2,6 @@
 {
     public class CrewLaunchFighter : CrewMemberJoins
     {
-        public int ID { get; init; }
+        public ulong ID { get; init; }
     }
 }

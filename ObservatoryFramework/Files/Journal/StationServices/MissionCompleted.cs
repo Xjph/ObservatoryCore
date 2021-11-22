@@ -10,7 +10,7 @@ namespace Observatory.Framework.Files.Journal
         public string Name { get; init; }
         public string LocalisedName { get; init; }
         public string Faction { get; init; }
-        public long MissionID { get; init; }
+        public ulong MissionID { get; init; }
         public string Commodity { get; init; }
         public string Commodity_Localised { get; init; }
         public int Count { get; init; }
