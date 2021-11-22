@@ -205,10 +205,9 @@ namespace Observatory.Explorer
                     parents = null;
                 }
 
-                var result = criteriaFunction.Call(scan, parents, scanList, bioSignals, geoSignals);
-
                 try
                 {
+                    var result = criteriaFunction.Call(scan, parents, scanList, bioSignals, geoSignals);
                     if (result.Length > 0 && ((bool?)result[0]).GetValueOrDefault(false))
                     {
                         results.Add((result[1].ToString(), result[2].ToString()));
