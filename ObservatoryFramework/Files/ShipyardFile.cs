@@ -4,12 +4,12 @@ using System.Collections.Immutable;
 namespace Observatory.Framework.Files
 {
     /// <summary>
-    /// Elite Dangerous shipyard.json file.
+    /// Elite Dangerous shipyard.json file. Contains data about ships available for purchase at the current station.
     /// </summary>
     public class ShipyardFile : Journal.JournalBase
     {
         /// <summary>
-        /// Unique ID of market.
+        /// Unique ID of current market.
         /// </summary>
         public ulong MarketID { get; init; }
         /// <summary>
