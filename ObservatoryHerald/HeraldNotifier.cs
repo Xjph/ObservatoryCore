@@ -13,7 +13,7 @@ namespace Observatory.Herald
             {
                 SelectedVoice = "American - Christopher",
                 AzureAPIKeyOverride = string.Empty,
-                Enabled = true
+                Enabled = false
             };
         }
 
