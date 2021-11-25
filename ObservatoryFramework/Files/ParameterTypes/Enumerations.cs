@@ -80,7 +80,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         onfoot_theft,
         onfoot_profileCloningIntent,
         onFoot_failureToSubmitToPolice,
-        onfoot_dataTransfer
+        onfoot_dataTransfer,
+        onFoot_carryingStolenGoods
     }
 
     public enum LimpetDrone
