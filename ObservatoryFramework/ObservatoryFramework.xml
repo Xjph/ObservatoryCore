@@ -157,6 +157,31 @@
             Message to be displayed to user.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.Files.Journal.BackpackFile">
+            <summary>
+            Elite Dangerous backpack.json file. Describes all the items currently carried by the player.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.BackpackFile.Items">
+            <summary>
+            List of all items carried.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.BackpackFile.Components">
+            <summary>
+            List of all components carried.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.BackpackFile.Consumables">
+            <summary>
+            List of player consumable items carried.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.BackpackFile.Data">
+            <summary>
+            List of all data currently stored by the player.
+            </summary>
+        </member>
         <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.Discoverers">
             <summary>
             This property is indicated with strikethrough in Frontier's documentation and may be deprecated.
@@ -387,6 +412,26 @@
             Mean anomaly in degrees.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.Files.CargoFile">
+            <summary>
+            Elite Dangerous cargo.json file. Describes the current cargo carried above the player's ship.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.CargoFile.Vessel">
+            <summary>
+            Type of vehicle currently being reported. "Ship" or "SRV".
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.CargoFile.Count">
+            <summary>
+            Number of different types of cargo carried(?)
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.CargoFile.Inventory">
+            <summary>
+            List of full cargo details.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Files.Converters.LegacyFactionConverter`1">
             <summary>
             Faction changed from a simple string to an object with additional state information. If we find a string convert it to an object with null state.
@@ -409,6 +454,86 @@
             Converting the ordered array of coordinates from the journal to a named tuple for clarity.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.Files.MarketFile">
+            <summary>
+            Elite Dangerous market.json file. Contains details about all available commodities available at the current station.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.MarketFile.MarketID">
+            <summary>
+            Unique ID of current market.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.MarketFile.StationName">
+            <summary>
+            Name of the station where the market is located.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.MarketFile.StationType">
+            <summary>
+            Type of station where the market is located.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.MarketFile.StarSystem">
+            <summary>
+            Name of star system where the market is located.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.MarketFile.Items">
+            <summary>
+            List of all commodities available in the market.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.ModulesInfo">
+            <summary>
+            Information about current player ship equipped modules.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ModulesInfo.Modules">
+            <summary>
+            List of all equipped modules.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.NavRouteFile">
+            <summary>
+            Elite Dangerous navroute.json file. Contains data about currently plotted FSD jump route.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.NavRouteFile.Route">
+            <summary>
+            List of star systems and their locations in the current route.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.OutfittingFile">
+            <summary>
+            Elite Dangerous outfitting.json file. Contains data about ship modules available for purchase at the current station.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.OutfittingFile.MarketID">
+            <summary>
+            Unique ID of current market.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.OutfittingFile.StationName">
+            <summary>
+            Name of the station where the market is located.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.OutfittingFile.StarSystem">
+            <summary>
+            Name of the star system where the market is located.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.OutfittingFile.Horizons">
+            <summary>
+            Indicator if the player has access to Horizons content.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.OutfittingFile.Items">
+            <summary>
+            List of all available parts in shipyard.
+            </summary>
+        </member>
         <member name="F:Observatory.Framework.Files.ParameterTypes.StatusFlags.RadialAltitude">
             <summary>
             Altitude above average radius (sea level) when set. Altitude raycast to ground when unset.
@@ -416,12 +541,12 @@
         </member>
         <member name="T:Observatory.Framework.Files.ShipyardFile">
             <summary>
-            Elite Dangerous shipyard.json file.
+            Elite Dangerous shipyard.json file. Contains data about ships available for purchase at the current station.
             </summary>
         </member>
         <member name="P:Observatory.Framework.Files.ShipyardFile.MarketID">
             <summary>
-            Unique ID of market.
+            Unique ID of current market.
             </summary>
         </member>
         <member name="P:Observatory.Framework.Files.ShipyardFile.StationName">
