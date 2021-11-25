@@ -9,7 +9,7 @@
         public bool Hot { get; init; }
         public bool InTransit { get; init; }
         public string StarSystem { get; init; }
-        public long ShipMarketID { get; init; }
+        public ulong ShipMarketID { get; init; }
         public long TransferPrice { get; init; }
         public long TransferTime { get; init; }
     }

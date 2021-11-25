@@ -10,6 +10,6 @@
 
         public int Stolen { get; init; }
 
-        public long? MissionID { get; init; }
+        public ulong? MissionID { get; init; }
     }
 }

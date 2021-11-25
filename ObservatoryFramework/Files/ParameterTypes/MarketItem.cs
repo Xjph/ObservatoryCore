@@ -2,7 +2,7 @@
 {
     public class MarketItem
     {
-        public long id { get; init; }
+        public ulong id { get; init; }
         public string Name { get; init; }
         public string Name_Localised { get; init; }
         public string Category { get; init; }

@@ -2,7 +2,7 @@
 {
     public class Passenger
     {
-        public long MissionID { get; init; }
+        public ulong MissionID { get; init; }
 
         public string Type { get; init; }
 

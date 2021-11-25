@@ -2,7 +2,7 @@
 {
     public class Mission
     {
-        public long MissionID { get; init; }
+        public ulong MissionID { get; init; }
 
         public string Name { get; init; }
 
