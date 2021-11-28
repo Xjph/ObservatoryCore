@@ -655,7 +655,24 @@ namespace Observatory.UI.Views
                 Properties.Core.Default.Save();
             };
 
-            
+            #endregion
+
+            #region Monitor On Launch
+
+            TextBlock startMonitorLabel = new() { Text = "Start monitor on Observatory launch" };
+            CheckBox startMonitorCheckbox = new() { IsChecked = Properties.Core.Default.StartMonitor, Content = startMonitorLabel };
+
+            startMonitorCheckbox.Checked += (object sender, RoutedEventArgs e) =>
+            {
+                Properties.Core.Default.StartMonitor = true;
+                Properties.Core.Default.Save();
+            };
+
+            startMonitorCheckbox.Unchecked += (object sender, RoutedEventArgs e) =>
+            {
+                Properties.Core.Default.StartMonitor = false;
+                Properties.Core.Default.Save();
+            };
 
             #endregion
 
@@ -726,6 +743,7 @@ namespace Observatory.UI.Views
             #endregion
 
             gridManager.AddSetting(primeSystemContexCheckbox);
+            gridManager.AddSetting(startMonitorCheckbox);
             gridManager.AddSettingWithLabel(journalPathLabel, journalPath);
             gridManager.AddSetting(journalBrowse);
 
