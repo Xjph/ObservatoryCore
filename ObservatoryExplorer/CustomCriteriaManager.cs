@@ -23,60 +23,79 @@ namespace Observatory.Explorer
             LuaState = new();
             LuaState.State.Encoding = Encoding.UTF8;
             LuaState.LoadCLRPackage();
-            
+
             #region Iterators
+
+            // Empty function for nil iterators
+            LuaState.DoString("function nil_iterator() end");
 
             //Materials and AtmosphereComposition
             LuaState.DoString(@"
                 function materials (material_list)
-                    local i = 0
-                    local count = material_list.Count
-                    return function ()
-                        i = i + 1
-                        if i <= count then
-                            return { name = material_list[i - 1].Name, percent = material_list[i - 1].Percent }
+                    if material_list then
+                        local i = 0
+                        local count = material_list.Count
+                        return function ()
+                            i = i + 1
+                            if i <= count then
+                                return { name = material_list[i - 1].Name, percent = material_list[i - 1].Percent }
+                            end
                         end
+                    else
+                        return nil_iterator
                     end
                 end");
 
             //Rings
             LuaState.DoString(@"
                 function rings (ring_list)
-                    local i = 0
-                    local count = ring_list.Count
-                    return function ()
-                        i = i + 1
-                        if i <= count then
-                            local ring = ring_list[i - 1]
-                            return { name = ring.Name, ringclass = ring.RingClass, massmt = ring.MassMT, innerrad = ring.InnerRad, outerrad = ring.OuterRad }
+                    if ring_list then
+                        local i = 0
+                        local count = ring_list.Count
+                        return function ()
+                            i = i + 1
+                            if i <= count then
+                                local ring = ring_list[i - 1]
+                                return { name = ring.Name, ringclass = ring.RingClass, massmt = ring.MassMT, innerrad = ring.InnerRad, outerrad = ring.OuterRad }
+                            end
                         end
+                    else
+                        return nil_iterator
                     end
                 end");
 
             //Bodies in system
             LuaState.DoString(@"
                 function bodies (system_list)
-                    local i = 0
-                    local count = system_list.Count
-                    return function ()
-                        i = i + 1
-                        if i <= count then
-                            return system_list[i - 1]
+                    if system_list then
+                        local i = 0
+                        local count = system_list.Count
+                        return function ()
+                            i = i + 1
+                            if i <= count then
+                                return system_list[i - 1]
+                            end
                         end
+                    else
+                        return nil_iterator
                     end
                 end");
 
             //Parent bodies
             LuaState.DoString(@"
                 function allparents (parent_list)
-                    local i = 0
-                    local count
-                    if parent_list then count = parent_list.Count else count = 0 end
-                    return function ()
-                        i = i + 1
-                        if i <= count then
-                            return { parenttype = parent_list[i - 1].ParentType, body = parent_list[i - 1].Body, scan = parent_list[i - 1].Scan }
+                    if parent_list then
+                        local i = 0
+                        local count
+                        if parent_list then count = parent_list.Count else count = 0 end
+                        return function ()
+                            i = i + 1
+                            if i <= count then
+                                return { parenttype = parent_list[i - 1].ParentType, body = parent_list[i - 1].Body, scan = parent_list[i - 1].Scan }
+                            end
                         end
+                    else
+                        return nil_iterator
                     end
                 end");
 
