@@ -8,6 +8,7 @@ namespace Observatory.NativeNotification
 {
     public class NativePopup
     {
+        // TODO: This needs to be cleaned up when the app is closed.
         private Dictionary<Guid, NotificationView> notifications;
 
         public NativePopup()
@@ -48,13 +49,23 @@ namespace Observatory.NativeNotification
         public void CloseNotification(Guid guid)
         {
             if (notifications.ContainsKey(guid))
-                notifications[guid].Close();
+            {
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    notifications[guid].Close();
+                });
+            }
         }
 
         public void UpdateNotification(Guid guid, NotificationArgs notificationArgs)
         {
             if (notifications.ContainsKey(guid))
-                notifications[guid].DataContext = new NotificationViewModel(notificationArgs);
+            {
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    notifications[guid].DataContext = new NotificationViewModel(notificationArgs);
+                });
+            }
         }
     }
 }
