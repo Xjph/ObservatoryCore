@@ -54,5 +54,19 @@ namespace Observatory.Framework
         /// Specify window Y position as a percentage from upper left corner (overrides Core setting). Default -1.0 (use Core setting).
         /// </summary>
         public double YPos = -1.0;
+        /// <summary>
+        /// Specifies the desired renderings of the notification.
+        /// </summary>
+        public NotificationRendering Rendering = NotificationRendering.All;
+    }
+
+    [Flags]
+    public enum NotificationRendering
+    {
+        // These need to be multiples of 2 as they're used via masking.
+        NativeVisual = 1,
+        NativeVocal = 2,
+        PluginNotifier = 4,
+        All = (NativeVisual | NativeVocal | PluginNotifier)
     }
 }

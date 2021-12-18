@@ -36,15 +36,18 @@ namespace Observatory.PluginManagement
 
             if (!LogMonitor.GetInstance.ReadAllInProgress())
             {
-                var handler = Notification;
-                handler?.Invoke(this, notificationArgs);
+                if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
+                {
+                    var handler = Notification;
+                    handler?.Invoke(this, notificationArgs);
+                }
 
-                if (Properties.Core.Default.NativeNotify)
+                if (Properties.Core.Default.NativeNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
                 {
                     guid = NativePopup.InvokeNativeNotification(notificationArgs);
                 }
 
-                if (Properties.Core.Default.VoiceNotify)
+                if (Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 {
                     NativeVoice.EnqueueAndAnnounce(notificationArgs);
                 }
@@ -60,7 +63,23 @@ namespace Observatory.PluginManagement
 
         public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
         {
-            NativePopup.UpdateNotification(id, notificationArgs);
+            if (!LogMonitor.GetInstance.ReadAllInProgress())
+            {
+
+                if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
+                {
+                    var handler = Notification;
+                    handler?.Invoke(this, notificationArgs);
+                }
+
+                if (notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
+                    NativePopup.UpdateNotification(id, notificationArgs);
+
+                if (Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
+                {
+                    NativeVoice.EnqueueAndAnnounce(notificationArgs);
+                }
+            }
         }
 
         /// <summary>
