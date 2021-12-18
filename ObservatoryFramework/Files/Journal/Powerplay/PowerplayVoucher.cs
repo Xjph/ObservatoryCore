@@ -1,4 +1,6 @@
-﻿namespace Observatory.Framework.Files.Journal
+﻿using System.Collections.Immutable;
+
+namespace Observatory.Framework.Files.Journal
 {
     public class PowerplayVoucher : PowerplayJoin
     {
