@@ -119,7 +119,7 @@ namespace Observatory
                 foreach (var line in lines)
                 {
                     var eventType = JournalUtilities.GetEventType(line);
-                    if (eventType.Equals("FSDJump"))
+                    if (eventType.Equals("FSDJump") || (eventType.Equals("CarrierJump") && line.Contains("\"Docked\":true")))
                     {
                         // Reset, start collecting again.
                         lastSystemLines.Clear();
