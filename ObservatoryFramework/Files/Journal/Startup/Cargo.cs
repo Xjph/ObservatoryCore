@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using Observatory.Framework.Files.ParameterTypes;
+using System.Collections.Immutable;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -6,6 +7,6 @@ namespace Observatory.Framework.Files.Journal
     {
         public string Vessel { get; init; }
         public int Count { get; init; }
-        public ImmutableList<Cargo> Inventory { get; init; }
+        public ImmutableList<CargoType> Inventory { get; init; }
     }
 }
