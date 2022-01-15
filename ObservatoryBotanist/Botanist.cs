@@ -30,6 +30,7 @@ namespace Observatory.Botanist
         ObservableCollection<object> GridCollection;
         private PluginUI pluginUI;
         private bool readAllInProgress = false;
+        private Guid? samplerStatusNotification = null;
 
         public string Name => "Observatory Botanist";
 
@@ -98,6 +99,25 @@ namespace Observatory.Botanist
                             {
                                 case ScanOrganicType.Log:
                                 case ScanOrganicType.Sample:
+                                    if (!readAllInProgress)
+                                    {
+                                        NotificationArgs args = new()
+                                        {
+                                            Title = scanOrganic.Species_Localised,
+                                            Detail = string.Format("Sample {0} of 3", scanOrganic.ScanType == ScanOrganicType.Log ? 1 : 2),
+                                            Rendering = NotificationRendering.NativeVisual,
+                                            Timeout = 0,
+                                        };
+                                        if (samplerStatusNotification == null)
+                                        {
+                                            samplerStatusNotification = Core.SendNotification(args);
+                                        }
+                                        else
+                                        {
+                                            Core.UpdateNotification(samplerStatusNotification.Value, args);
+                                        }
+                                    }
+
                                     if (!bioPlanet.speciesFound.Contains(scanOrganic.Species_Localised))
                                     {
                                         bioPlanet.speciesFound.Add(scanOrganic.Species_Localised);
@@ -107,6 +127,12 @@ namespace Observatory.Botanist
                                     if (!bioPlanet.speciesAnalysed.Contains(scanOrganic.Species_Localised))
                                     {
                                         bioPlanet.speciesAnalysed.Add(scanOrganic.Species_Localised);
+                                    }
+
+                                    if (samplerStatusNotification != null)
+                                    {
+                                        Core.CancelNotification(samplerStatusNotification.Value);
+                                        samplerStatusNotification = null;
                                     }
                                     break;
                             }
