@@ -250,7 +250,7 @@ namespace Observatory.PluginManagement
 
                 //Importing Observatory.Framework in the Explorer Lua scripts causes an attempt to reload
                 //the assembly, just hand it back the one we already have.
-                if (name.Name.StartsWith("Observatory.Framework"))
+                if (name.Name.StartsWith("Observatory.Framework") || name.Name == "ObservatoryFramework")
                 {
                     return context.Assemblies.Where(a => a.FullName.Contains("ObservatoryFramework")).First();
                 }
