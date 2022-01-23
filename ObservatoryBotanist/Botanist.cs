@@ -30,7 +30,11 @@ namespace Observatory.Botanist
         ObservableCollection<object> GridCollection;
         private PluginUI pluginUI;
         private bool readAllInProgress = false;
-
+        private Guid? samplerStatusNotification = null;
+        private BotanistSettings botanistSettings = new()
+        {
+            OverlayEnabled = true,
+        };
         public string Name => "Observatory Botanist";
 
         public string ShortName => "Botanist";
@@ -39,7 +43,7 @@ namespace Observatory.Botanist
 
         public PluginUI PluginUI => pluginUI;
 
-        public object Settings { get => null; set { } }
+        public object Settings { get => botanistSettings; set { botanistSettings = (BotanistSettings)value;  } }
 
         public void JournalEvent<TJournal>(TJournal journal) where TJournal : JournalBase
         {
@@ -82,7 +86,7 @@ namespace Observatory.Botanist
                         var systemBodyId = (scanOrganic.SystemAddress, scanOrganic.Body);
                         if (!BioPlanets.ContainsKey(systemBodyId))
                         {
-                            //Unlikely to ever end up in here, but just in case create a new planet entry.
+                            // Unlikely to ever end up in here, but just in case create a new planet entry.
                             List<string> genus = new();
                             List<string> species = new();
                             genus.Add(scanOrganic.Genus_Localised);
@@ -98,6 +102,25 @@ namespace Observatory.Botanist
                             {
                                 case ScanOrganicType.Log:
                                 case ScanOrganicType.Sample:
+                                    if (!readAllInProgress && botanistSettings.OverlayEnabled)
+                                    {
+                                        NotificationArgs args = new()
+                                        {
+                                            Title = scanOrganic.Species_Localised,
+                                            Detail = string.Format("Sample {0} of 3", scanOrganic.ScanType == ScanOrganicType.Log ? 1 : 2),
+                                            Rendering = NotificationRendering.NativeVisual,
+                                            Timeout = 0,
+                                        };
+                                        if (samplerStatusNotification == null)
+                                        {
+                                            samplerStatusNotification = Core.SendNotification(args);
+                                        }
+                                        else
+                                        {
+                                            Core.UpdateNotification(samplerStatusNotification.Value, args);
+                                        }
+                                    }
+
                                     if (!bioPlanet.speciesFound.Contains(scanOrganic.Species_Localised))
                                     {
                                         bioPlanet.speciesFound.Add(scanOrganic.Species_Localised);
@@ -108,12 +131,30 @@ namespace Observatory.Botanist
                                     {
                                         bioPlanet.speciesAnalysed.Add(scanOrganic.Species_Localised);
                                     }
+                                    MaybeCloseSamplerStatusNotification();
                                     break;
                             }
                         }
                         UpdateUIGrid();
                     }
                     break;
+                case LeaveBody:
+                case FSDJump:
+                case Shutdown:
+                    // These are all good reasons to kill any open notification. Note that SupercruiseEntry is NOT a
+                    // suitable reason to close the notification as the player hopping out only to double check the
+                    // DSS map for another location. Note that a game client crash will not close the status notification.
+                    MaybeCloseSamplerStatusNotification();
+                    break;
+            }
+        }
+
+        private void MaybeCloseSamplerStatusNotification()
+        {
+            if (samplerStatusNotification != null)
+            {
+                Core.CancelNotification(samplerStatusNotification.Value);
+                samplerStatusNotification = null;
             }
         }
 
