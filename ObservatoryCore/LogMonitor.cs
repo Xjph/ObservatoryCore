@@ -111,6 +111,7 @@ namespace Observatory
             // Read at most the last two files (in case we were launched after the game and the latest
             // journal is mostly empty) but keeping only the lines since the last FSDJump.
             List<String> lastSystemLines = new();
+            List<String> lastFileLines = new();
             string lastLoadGame = String.Empty;
             bool sawFSDJump = false;
             foreach (var file in files.Skip(Math.Max(files.Length - 2, 0)))
@@ -125,29 +126,38 @@ namespace Observatory
                         lastSystemLines.Clear();
                         sawFSDJump = true;
                     }
+                    else if (eventType.Equals("Fileheader"))
+                    {
+                        lastFileLines.Clear();
+                    }
                     else if (eventType.Equals("LoadGame"))
                     {
                         lastLoadGame = line;
                     }
                     lastSystemLines.Add(line);
+                    lastFileLines.Add(line);
                 }
             }
 
-            // So we didn't see a jump in the recent logs. We could be re-logging, or something.
-            // Just bail on this attempt.
-            if (!sawFSDJump) return;
-
-            // If we saw a LoadGame, insert it as well. This ensures odyssey biologicials are properly
-            // counted/presented.
-            if (!String.IsNullOrEmpty(lastLoadGame))
+            // If we didn't see a jump in the recent logs (Cmdr is stationary in a system for a while
+            // ie. deep-space mining from a carrier), at very least, read from the beginning of the
+            // current journal file which includes the important stuff like the last "LoadGame", etc. This
+            // also helps out in cases where one forgets to hit "Start Monitor" until part-way into the
+            // session (if auto-start is not enabled).
+            List<string> linesToRead = lastFileLines;
+            if (sawFSDJump)
             {
-                lastSystemLines.Insert(0, lastLoadGame);
+                // If we saw a LoadGame, insert it as well. This ensures odyssey biologicials are properly
+                // counted/presented.
+                if (!String.IsNullOrEmpty(lastLoadGame))
+                {
+                    lastSystemLines.Insert(0, lastLoadGame);
+                }
+                linesToRead = lastSystemLines;
             }
 
-            // We found an FSD jump, buffered the lines for that system (possibly including startup logs
-            // over a file boundary). Pump these through the plugins.
             readall = true;
-            ReportErrors(ProcessLines(lastSystemLines, "Pre-read"));
+            ReportErrors(ProcessLines(linesToRead, "Pre-read"));
             readall = false;
         }
 
