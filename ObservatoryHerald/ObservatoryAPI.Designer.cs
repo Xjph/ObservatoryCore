@@ -61,7 +61,7 @@ namespace Observatory.Herald {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to e698cf7e-0fbc-4e9a-b6a4-2480381afcc1.
+        ///   Looks up a localized string similar to .
         /// </summary>
         internal static string ApiKey {
             get {
