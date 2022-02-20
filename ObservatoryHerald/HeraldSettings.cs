@@ -15,10 +15,25 @@ namespace Observatory.Herald
         [SettingDisplayName("Voice")]
         [SettingBackingValue("SelectedVoice")]
         [System.Text.Json.Serialization.JsonIgnore]
-        public Dictionary<string, object> Voices { get; internal set; }
+        public Dictionary<string, object> Voices {get; internal set;}
 
         [SettingIgnore]
         public string SelectedVoice { get; set; }
+
+        [SettingBackingValue("SelectedRate")]
+        public Dictionary<string, object> Rate
+        { get => new Dictionary<string, object> 
+            {
+                {"Slowest", null},
+                {"Slower", null},
+                {"Default", null},
+                {"Faster", null},
+                {"Fastest", null}
+            }; 
+        }
+
+        [SettingIgnore]
+        public string SelectedRate { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
         public Action Test { get; internal set; }

@@ -12,6 +12,7 @@ namespace Observatory.Herald
             heraldSettings = new()
             {
                 SelectedVoice = "American - Christopher",
+                SelectedRate = "Default",
                 AzureAPIKeyOverride = string.Empty,
                 Enabled = false
             };
