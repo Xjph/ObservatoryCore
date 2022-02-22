@@ -318,7 +318,8 @@ namespace Observatory
                     }
                 }
 
-                ErrorReporter.ShowErrorPopup($"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}", errorContent.ToString());
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ErrorReporter.ShowErrorPopup($"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}", errorContent.ToString()));
+                
             }
         }
 
