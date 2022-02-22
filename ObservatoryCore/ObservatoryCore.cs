@@ -19,15 +19,15 @@ namespace Observatory
                     Properties.Core.Default.Save();
                 }
                 BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
-                throw new Exception("Test Exception", new Exception("Inner Exception Test"));
             }
             catch (Exception ex)
             {
                 var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
                 var errorMessage = new System.Text.StringBuilder();
-                errorMessage.AppendLine($"Error encountered in Elite Observatory {version}.");
-                errorMessage.AppendLine(FormatExceptionMessage(ex));
-                errorMessage.AppendLine();
+                errorMessage
+                    .AppendLine($"Error encountered in Elite Observatory {version}.")
+                    .AppendLine(FormatExceptionMessage(ex))
+                    .AppendLine();
                 System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorMessage.ToString());
             }
 
@@ -36,9 +36,10 @@ namespace Observatory
         static string FormatExceptionMessage(Exception ex, bool inner = false)
         {
             var errorMessage = new System.Text.StringBuilder();
-            errorMessage.AppendLine($"{(inner ? "Inner e" : "E")}xception message: {ex.Message}");
-            errorMessage.AppendLine($"Stack trace:");
-            errorMessage.AppendLine(ex.StackTrace);
+            errorMessage
+                .AppendLine($"{(inner ? "Inner e" : "E")}xception message: {ex.Message}")
+                .AppendLine($"Stack trace:")
+                .AppendLine(ex.StackTrace);
             if (ex.InnerException != null)
                 errorMessage.AppendLine(FormatExceptionMessage(ex.InnerException, true));
             
