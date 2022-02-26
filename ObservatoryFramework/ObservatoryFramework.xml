@@ -133,6 +133,11 @@
             Specify window Y position as a percentage from upper left corner (overrides Core setting). Default -1.0 (use Core setting).
             </summary>
         </member>
+        <member name="F:Observatory.Framework.NotificationArgs.Rendering">
+            <summary>
+            Specifies the desired renderings of the notification.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.PluginException">
             <summary>
             Container for exceptions within plugins which cannot be gracefully handled in context,
