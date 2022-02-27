@@ -11,11 +11,17 @@ namespace Observatory.PluginManagement
 
         private readonly NativeVoice NativeVoice;
         private readonly NativePopup NativePopup;
+        private LogMonitorState currentLogMonitorState = LogMonitorState.None;
 
         public PluginCore()
         {
             NativeVoice = new();
             NativePopup = new();
+        }
+
+        internal void OnLogMonitorStateChanged(object sender, LogMonitorStateChangedEventArgs e)
+        {
+            currentLogMonitorState = e.NewState;
         }
 
         public string Version => System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
@@ -34,7 +40,7 @@ namespace Observatory.PluginManagement
         {
             var guid = Guid.Empty;
 
-            if (!LogMonitor.GetInstance.ReadAllInProgress())
+            if (!IsLogMonitorBatchReading)
             {
                 if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
                 {
@@ -63,7 +69,7 @@ namespace Observatory.PluginManagement
 
         public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
         {
-            if (!LogMonitor.GetInstance.ReadAllInProgress())
+            if (!IsLogMonitorBatchReading)
             {
 
                 if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
@@ -134,6 +140,24 @@ namespace Observatory.PluginManagement
             get => Observatory.HttpClient.Client;
         }
 
+        public LogMonitorState CurrentLogMonitorState
+        {
+            get => currentLogMonitorState;
+        }
+
+        public bool IsLogMonitorBatchReading
+        {
+            get
+            {
+                switch(currentLogMonitorState)
+                {
+                    case LogMonitorState.ReadAllBatch:
+                    case LogMonitorState.PreReadBatch:
+                        return true;
+                }
+                return false;
+            }
+        }
         public event EventHandler<NotificationArgs> Notification;
     }
 }

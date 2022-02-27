@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
 using Observatory.Framework;
 using Observatory.Framework.Files;
 
@@ -34,6 +33,7 @@ namespace Observatory
             currentLine = new();
             journalTypes = JournalReader.PopulateEventClasses();
             InitializeWatchers(string.Empty);
+            SetLogMonitorState(LogMonitorState.Idle);
         }
 
         #endregion
@@ -50,7 +50,7 @@ namespace Observatory
             }
             journalWatcher.EnableRaisingEvents = true;
             statusWatcher.EnableRaisingEvents = true;
-            monitoring = true;
+            SetLogMonitorState(LogMonitorState.Realtime);
             JournalPoke();
         }
 
@@ -58,7 +58,7 @@ namespace Observatory
         {
             journalWatcher.EnableRaisingEvents = false;
             statusWatcher.EnableRaisingEvents = false;
-            monitoring = false;
+            SetLogMonitorState(LogMonitorState.Idle);
         }
 
         public void ChangeWatchedDirectory(string path)
@@ -73,9 +73,11 @@ namespace Observatory
             return monitoring;
         }
 
+        // TODO(fredjk_gh): Remove?
         public bool ReadAllInProgress()
         {
-            return readall;
+            return currentState == LogMonitorState.ReadAllBatch
+                || currentState == LogMonitorState.PreReadBatch;
         }
 
         public void ReadAllJournals()
@@ -87,7 +89,9 @@ namespace Observatory
         {
             // Prevent pre-reading when starting monitoring after reading all.
             firstStartMonitor = false;
-            readall = true;
+            var preReadAllState = currentState;
+            SetLogMonitorState(LogMonitorState.ReadAllBatch);
+
             DirectoryInfo logDirectory = GetJournalFolder(path);
             var files = logDirectory.GetFiles("Journal.????????????.??.log");
             var readErrors = new List<(Exception ex, string file, string line)>();
@@ -98,12 +102,14 @@ namespace Observatory
             }
 
             ReportErrors(readErrors);
-            readall = false;
+            SetLogMonitorState(preReadAllState);
         }
 
         public void PrereadJournals()
         {
             if (!Properties.Core.Default.TryPrimeSystemContextOnStartMonitor) return;
+
+            SetLogMonitorState(LogMonitorState.PreReadBatch);
 
             DirectoryInfo logDirectory = GetJournalFolder(Properties.Core.Default.JournalFolder);
             var files = logDirectory.GetFiles("Journal.????????????.??.log");
@@ -156,14 +162,14 @@ namespace Observatory
                 linesToRead = lastSystemLines;
             }
 
-            readall = true;
             ReportErrors(ProcessLines(linesToRead, "Pre-read"));
-            readall = false;
         }
 
         #endregion
 
         #region Public Events
+
+        public event EventHandler<LogMonitorStateChangedEventArgs> LogMonitorStateChanged;
 
         public event EventHandler<JournalEventArgs> JournalEntry;
 
@@ -177,13 +183,33 @@ namespace Observatory
         private FileSystemWatcher statusWatcher;
         private Dictionary<string, Type> journalTypes;
         private Dictionary<string, int> currentLine;
+        private LogMonitorState currentState = LogMonitorState.None; // Change via #SetLogMonitorState
         private bool monitoring = false;
-        private bool readall = false;
         private bool firstStartMonitor = true;
 
         #endregion
 
         #region Private Methods
+
+        private void SetLogMonitorState(LogMonitorState newState)
+        {
+            var oldState = currentState;
+            currentState = newState;
+            LogMonitorStateChanged?.Invoke(this, new LogMonitorStateChangedEventArgs
+            {
+                PreviousState = oldState,
+                NewState = newState
+            });;
+
+            // Keep track of starting/stopping monitoring explicitly so after a read-all, we properly resume.
+            // Not doing this would result in the watcher loop exiting if a read-all is done after starting
+            // (ie. technically a read-all after starting the monitor means we're in 2 states at the same time, but
+            // read-all takes precedence in terms of how the program handles notifications for the resulting records).
+            if (newState == LogMonitorState.Realtime)  monitoring = true;
+            else if (newState == LogMonitorState.Idle) monitoring = false;
+
+            System.Diagnostics.Debug.WriteLine("LogMonitor State change: {0} -> {1}; monitoring? {2}", oldState, newState, monitoring);
+        }
 
         private void InitializeWatchers(string path)
         {
