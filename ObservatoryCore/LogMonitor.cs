@@ -226,18 +226,17 @@ namespace Observatory
                     logDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
                 }
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
-                string defaultJournalPath = GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous";
+                string defaultJournalPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) 
+                    + "/.steam/debian-installation/steamapps/compatdata/359320/pfx/drive_c/users/steamuser/Saved Games/Frontier Developments/Elite Dangerous"
+                    : GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous";
 
                 logDirectory =
                     Directory.Exists(defaultJournalPath)
                     ? new DirectoryInfo(defaultJournalPath)
                     : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                logDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }
             else
             {
