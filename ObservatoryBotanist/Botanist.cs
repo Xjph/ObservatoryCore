@@ -29,7 +29,6 @@ namespace Observatory.Botanist
             > BioPlanets;
         ObservableCollection<object> GridCollection;
         private PluginUI pluginUI;
-        private bool readAllInProgress = false;
         private Guid? samplerStatusNotification = null;
         private BotanistSettings botanistSettings = new()
         {
@@ -102,7 +101,7 @@ namespace Observatory.Botanist
                             {
                                 case ScanOrganicType.Log:
                                 case ScanOrganicType.Sample:
-                                    if (!readAllInProgress && botanistSettings.OverlayEnabled)
+                                    if (!Core.IsLogMonitorBatchReading && botanistSettings.OverlayEnabled)
                                     {
                                         NotificationArgs args = new()
                                         {
@@ -171,22 +170,24 @@ namespace Observatory.Botanist
             Core = observatoryCore;
         }
 
-        public void ReadAllStarted()
+        public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs args)
         {
-            readAllInProgress = true;
-            Core.ClearGrid(this, new BotanistGrid());
-        }
-
-        public void ReadAllFinished()
-        {
-            readAllInProgress = false;
-            UpdateUIGrid();
+            if (LogMonitorStateChangedEventArgs.IsBatchRead(args.NewState))
+            {
+                // Beginning a batch read. Clear grid.
+                Core.ClearGrid(this, new BotanistGrid());
+            }
+            else if (LogMonitorStateChangedEventArgs.IsBatchRead(args.PreviousState))
+            {
+                // Batch read is complete. Show data.
+                UpdateUIGrid();
+            }
         }
 
         private void UpdateUIGrid()
         {
             // Suppress repainting the entire contents of the grid on every ScanOrganic record we read.
-            if (readAllInProgress) return;
+            if (Core.IsLogMonitorBatchReading) return;
 
             BotanistGrid uiObject = new();
             Core.ClearGrid(this, uiObject);

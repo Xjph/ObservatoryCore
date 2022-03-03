@@ -34,8 +34,7 @@ namespace Observatory.Explorer
         private ObservableCollection<object> resultsGrid;
         private IObservatoryCore Core;
 
-        private bool readAllStarting = false;
-        private bool readAllInProgress = false;
+        private bool recordProcessedSinceBatchStart = false;
 
         public string Name => "Observatory Explorer";
 
@@ -57,12 +56,12 @@ namespace Observatory.Explorer
 
         public void JournalEvent<TJournal>(TJournal journal) where TJournal : JournalBase
         {
-            bool recordProcessed = false;
             switch (journal)
             {
                 case Scan scan:
-                    explorer.ProcessScan(scan, readAllInProgress);
-                    recordProcessed = true;
+                    explorer.ProcessScan(scan, Core.IsLogMonitorBatchReading && recordProcessedSinceBatchStart);
+                    // Set this *after* the first scan processes so that we get the current custom criteria file.
+                    if (Core.IsLogMonitorBatchReading) recordProcessedSinceBatchStart = true;
                     break;
                 case FSSBodySignals signals:
                     explorer.RecordSignal(signals);
@@ -84,24 +83,20 @@ namespace Observatory.Explorer
                     break;
             }
             
-            //Set this *after* the first scan processes so that we get the current custom criteria file.
-            if (readAllStarting && recordProcessed)
-                readAllInProgress = true;
         }
 
-        public void ReadAllStarted()
+        public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs args)
         {
-            readAllStarting = true;
-            Core.ClearGrid(this, new ExplorerUIResults());
-            explorer.Clear();
+            if (LogMonitorStateChangedEventArgs.IsBatchRead(args.NewState))
+            {
+                // Beginning a batch read. Clear grid.
+                recordProcessedSinceBatchStart = false;
+                Core.ClearGrid(this, new ExplorerUIResults());
+                explorer.Clear();
+            }
         }
 
-        public void ReadAllFinished()
-        {
-            readAllStarting = false;
-            readAllInProgress = false;
-        }
-
+        
         public object Settings
         {
             get => settings;

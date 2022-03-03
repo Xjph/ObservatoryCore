@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text.Json.Serialization;
 using Observatory.Framework;
 using Observatory.Framework.Files;
 
@@ -34,6 +33,7 @@ namespace Observatory
             currentLine = new();
             journalTypes = JournalReader.PopulateEventClasses();
             InitializeWatchers(string.Empty);
+            SetLogMonitorState(LogMonitorState.Idle);
         }
 
         #endregion
@@ -50,7 +50,7 @@ namespace Observatory
             }
             journalWatcher.EnableRaisingEvents = true;
             statusWatcher.EnableRaisingEvents = true;
-            monitoring = true;
+            SetLogMonitorState(LogMonitorState.Realtime);
             JournalPoke();
         }
 
@@ -58,7 +58,7 @@ namespace Observatory
         {
             journalWatcher.EnableRaisingEvents = false;
             statusWatcher.EnableRaisingEvents = false;
-            monitoring = false;
+            SetLogMonitorState(LogMonitorState.Idle);
         }
 
         public void ChangeWatchedDirectory(string path)
@@ -70,12 +70,13 @@ namespace Observatory
 
         public bool IsMonitoring()
         {
-            return monitoring;
+            return (currentState & LogMonitorState.Realtime) == LogMonitorState.Realtime;
         }
 
+        // TODO(fredjk_gh): Remove?
         public bool ReadAllInProgress()
         {
-            return readall;
+            return LogMonitorStateChangedEventArgs.IsBatchRead(currentState);
         }
 
         public void ReadAllJournals()
@@ -87,7 +88,8 @@ namespace Observatory
         {
             // Prevent pre-reading when starting monitoring after reading all.
             firstStartMonitor = false;
-            readall = true;
+            SetLogMonitorState(currentState | LogMonitorState.Batch);
+
             DirectoryInfo logDirectory = GetJournalFolder(path);
             var files = logDirectory.GetFiles("Journal.????????????.??.log");
             var readErrors = new List<(Exception ex, string file, string line)>();
@@ -98,12 +100,14 @@ namespace Observatory
             }
 
             ReportErrors(readErrors);
-            readall = false;
+            SetLogMonitorState(currentState & ~LogMonitorState.Batch);
         }
 
         public void PrereadJournals()
         {
             if (!Properties.Core.Default.TryPrimeSystemContextOnStartMonitor) return;
+
+            SetLogMonitorState(currentState | LogMonitorState.PreRead);
 
             DirectoryInfo logDirectory = GetJournalFolder(Properties.Core.Default.JournalFolder);
             var files = logDirectory.GetFiles("Journal.????????????.??.log");
@@ -156,14 +160,15 @@ namespace Observatory
                 linesToRead = lastSystemLines;
             }
 
-            readall = true;
             ReportErrors(ProcessLines(linesToRead, "Pre-read"));
-            readall = false;
+            SetLogMonitorState(currentState & ~LogMonitorState.PreRead);
         }
 
         #endregion
 
         #region Public Events
+
+        public event EventHandler<LogMonitorStateChangedEventArgs> LogMonitorStateChanged;
 
         public event EventHandler<JournalEventArgs> JournalEntry;
 
@@ -177,13 +182,26 @@ namespace Observatory
         private FileSystemWatcher statusWatcher;
         private Dictionary<string, Type> journalTypes;
         private Dictionary<string, int> currentLine;
+        private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
         private bool monitoring = false;
-        private bool readall = false;
         private bool firstStartMonitor = true;
 
         #endregion
 
         #region Private Methods
+
+        private void SetLogMonitorState(LogMonitorState newState)
+        {
+            var oldState = currentState;
+            currentState = newState;
+            LogMonitorStateChanged?.Invoke(this, new LogMonitorStateChangedEventArgs
+            {
+                PreviousState = oldState,
+                NewState = newState
+            });;
+
+            System.Diagnostics.Debug.WriteLine("LogMonitor State change: {0} -> {1}", oldState, newState);
+        }
 
         private void InitializeWatchers(string path)
         {

@@ -77,10 +77,18 @@ namespace Observatory.Framework.Interfaces
         { }
 
         /// <summary>
+        /// Called when the LogMonitor changes state. Useful for suppressing output in certain situations
+        /// such as batch reads (ie. "Read all") or responding to other state transitions.
+        /// </summary>
+        public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs eventArgs)
+        { }
+
+        /// <summary>
         /// Method called when the user begins "Read All" journal processing, before any journal events are sent.<br/>
         /// Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
+        [Obsolete] // Replaced by LogMonitorStateChanged 
         public void ReadAllStarted()
         { }
 
@@ -89,6 +97,7 @@ namespace Observatory.Framework.Interfaces
         /// Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
+        [Obsolete] // Replaced by LogMonitorStateChanged
         public void ReadAllFinished()
         { }
     }
@@ -175,5 +184,15 @@ namespace Observatory.Framework.Interfaces
         /// Shared application HttpClient object. Provided so that plugins can adhere to .NET recommended behaviour of a single HttpClient object per application.
         /// </summary>
         public HttpClient HttpClient { get; }
+
+        /// <summary>
+        /// Returns the current LogMonitor state.
+        /// </summary>
+        public LogMonitorState CurrentLogMonitorState { get; }
+
+        /// <summary>
+        /// Returns true if the current LogMonitor state represents a batch-read mode.
+        /// </summary>
+        public bool IsLogMonitorBatchReading { get; }
     }
 }

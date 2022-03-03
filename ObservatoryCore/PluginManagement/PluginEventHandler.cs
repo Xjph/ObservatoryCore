@@ -61,6 +61,21 @@ namespace Observatory.PluginManagement
             }
         }
 
+        internal void OnLogMonitorStateChanged(object sender, LogMonitorStateChangedEventArgs e)
+        {
+            foreach (var worker in observatoryWorkers)
+            {
+                try
+                {
+                    worker.LogMonitorStateChanged(e);
+                }
+                catch (Exception ex)
+                {
+                    RecordError(ex, worker.Name, "LogMonitorStateChanged event");
+                }
+            }
+        }
+
         public void OnNotificationEvent(object source, NotificationArgs notificationArgs)
         {
             foreach (var notifier in observatoryNotifiers)

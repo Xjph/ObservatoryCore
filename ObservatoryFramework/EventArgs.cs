@@ -18,7 +18,7 @@ namespace Observatory.Framework
         /// </summary>
         public object journalEvent;
     }
-    
+
     /// <summary>
     /// Provides values used as arguments for Observatory notification events.
     /// </summary>
@@ -68,5 +68,41 @@ namespace Observatory.Framework
         NativeVocal = 2,
         PluginNotifier = 4,
         All = (NativeVisual | NativeVocal | PluginNotifier)
+    }
+
+    [Flags]
+    public enum LogMonitorState : uint
+    {
+        // These need to be multiples of 2 as they're used via masking.
+        Idle = 0, // Monitoring is stopped
+        Realtime = 1, // Real-time monitoring is active
+        Batch = 2, // Performing a batch read of history
+        PreRead = 4 // Currently pre-reading current system context (a batch read)
+    }
+
+    /// <summary>
+    /// Provides information about a LogMonitor state transition.
+    /// </summary>
+    public class LogMonitorStateChangedEventArgs : EventArgs
+    {
+        /// <summary>
+        /// The previous LogMonitor state.
+        /// </summary>
+        public LogMonitorState PreviousState;
+
+        /// <summary>
+        /// The new, current LogMonitor state.
+        /// </summary>
+        public LogMonitorState NewState;
+
+        /// <summary>
+        /// Determins if the given state is a batch read of any form.
+        /// </summary>
+        /// <param name="state">The state to evaluate</param>
+        /// <returns>A boolean; True iff the state provided represents a batch-mode read.</returns>
+        public static bool IsBatchRead(LogMonitorState state)
+        {
+            return (state & (LogMonitorState.Batch | LogMonitorState.PreRead)) > 0;
+        }
     }
 }
