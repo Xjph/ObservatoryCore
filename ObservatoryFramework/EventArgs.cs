@@ -70,13 +70,14 @@ namespace Observatory.Framework
         All = (NativeVisual | NativeVocal | PluginNotifier)
     }
 
-    public enum LogMonitorState
+    [Flags]
+    public enum LogMonitorState : uint
     {
-        None, // This is used only for startup.
-        Idle, // Monitoring is stopped
-        ReadAllBatch, // Performing a batch read of history. Formerly known as "read-all".
-        PreReadBatch, // Currently pre-reading current system context, if enabled, prior to RealTime monitoring
-        Realtime, // Real-time monitoring is active
+        // These need to be multiples of 2 as they're used via masking.
+        Idle = 0, // Monitoring is stopped
+        Realtime = 1, // Real-time monitoring is active
+        Batch = 2, // Performing a batch read of history
+        PreRead = 4 // Currently pre-reading current system context (a batch read)
     }
 
     /// <summary>
@@ -101,7 +102,7 @@ namespace Observatory.Framework
         /// <returns>A boolean; True iff the state provided represents a batch-mode read.</returns>
         public static bool IsBatchRead(LogMonitorState state)
         {
-            return state == LogMonitorState.ReadAllBatch || state == LogMonitorState.PreReadBatch;
+            return (state & (LogMonitorState.Batch | LogMonitorState.PreRead)) > 0;
         }
     }
 }

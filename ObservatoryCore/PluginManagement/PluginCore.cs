@@ -11,7 +11,7 @@ namespace Observatory.PluginManagement
 
         private readonly NativeVoice NativeVoice;
         private readonly NativePopup NativePopup;
-        private LogMonitorState currentLogMonitorState = LogMonitorState.None;
+        private LogMonitorState currentLogMonitorState = LogMonitorState.Idle;
 
         public PluginCore()
         {
@@ -147,17 +147,9 @@ namespace Observatory.PluginManagement
 
         public bool IsLogMonitorBatchReading
         {
-            get
-            {
-                switch(currentLogMonitorState)
-                {
-                    case LogMonitorState.ReadAllBatch:
-                    case LogMonitorState.PreReadBatch:
-                        return true;
-                }
-                return false;
-            }
+            get => LogMonitorStateChangedEventArgs.IsBatchRead(currentLogMonitorState);
         }
+
         public event EventHandler<NotificationArgs> Notification;
     }
 }
