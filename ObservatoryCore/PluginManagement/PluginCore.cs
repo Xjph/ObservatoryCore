@@ -11,17 +11,11 @@ namespace Observatory.PluginManagement
 
         private readonly NativeVoice NativeVoice;
         private readonly NativePopup NativePopup;
-        private LogMonitorState currentLogMonitorState = LogMonitorState.Idle;
 
         public PluginCore()
         {
             NativeVoice = new();
             NativePopup = new();
-        }
-
-        internal void OnLogMonitorStateChanged(object sender, LogMonitorStateChangedEventArgs e)
-        {
-            currentLogMonitorState = e.NewState;
         }
 
         public string Version => System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
@@ -142,12 +136,12 @@ namespace Observatory.PluginManagement
 
         public LogMonitorState CurrentLogMonitorState
         {
-            get => currentLogMonitorState;
+            get => LogMonitor.GetInstance.CurrentState;
         }
 
         public bool IsLogMonitorBatchReading
         {
-            get => LogMonitorStateChangedEventArgs.IsBatchRead(currentLogMonitorState);
+            get => LogMonitorStateChangedEventArgs.IsBatchRead(LogMonitor.GetInstance.CurrentState);
         }
 
         public event EventHandler<NotificationArgs> Notification;
