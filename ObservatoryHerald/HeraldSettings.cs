@@ -35,6 +35,10 @@ namespace Observatory.Herald
         [SettingIgnore]
         public string SelectedRate { get; set; }
 
+        [SettingDisplayName("Volume")]
+        [SettingNumericUseSlider, SettingNumericBounds(0,100,1)]
+        public int Volume { get; set;}
+
         [System.Text.Json.Serialization.JsonIgnore]
         public Action Test { get; internal set; }
 
