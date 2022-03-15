@@ -38,6 +38,13 @@ namespace Observatory
 
         #endregion
 
+        #region Public properties
+        public LogMonitorState CurrentState
+        {
+            get => currentState;
+        }
+        #endregion
+
         #region Public Methods
 
         public void Start()
