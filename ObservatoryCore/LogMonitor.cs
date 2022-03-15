@@ -425,7 +425,7 @@ namespace Observatory
                 {
                     FileInfo fileToPoke = null;
 
-                    foreach (var file in journalFolder.GetFiles("Journal.????????????.??.log"))
+                    foreach (var file in journalFolder.GetFiles("Journal.*.??.log"))
                     {
                         if (fileToPoke == null || string.Compare(file.Name, fileToPoke.Name) > 0)
                         {
