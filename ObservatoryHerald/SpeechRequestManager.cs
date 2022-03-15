@@ -9,12 +9,12 @@ namespace Observatory.Herald
 {
     class SpeechRequestManager
     {
-        private HeraldSettings heraldSettings;
         private HttpClient httpClient;
+        private string ApiKey;
 
-        public SpeechRequestManager(HeraldSettings heraldSettings, HttpClient httpClient)
+        public SpeechRequestManager(HttpClient httpClient)
         {
-            this.heraldSettings = heraldSettings;
+            ApiKey = ObservatoryAPI.ApiKey;
             this.httpClient = httpClient;
         }
 

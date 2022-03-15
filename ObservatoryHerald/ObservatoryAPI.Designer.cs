@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ObservatoryHerald {
+namespace Observatory.Herald {
     using System;
     
     
@@ -61,7 +61,7 @@ namespace ObservatoryHerald {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to .
+        ///   Looks up a localized string similar to e698cf7e-0fbc-4e9a-b6a4-2480381afcc1.
         /// </summary>
         internal static string ApiKey {
             get {
