@@ -98,7 +98,7 @@ namespace Observatory
             SetLogMonitorState(currentState | LogMonitorState.Batch);
 
             DirectoryInfo logDirectory = GetJournalFolder(path);
-            var files = logDirectory.GetFiles("Journal.????????????.??.log");
+            var files = logDirectory.GetFiles("Journal.*.??.log");
             var readErrors = new List<(Exception ex, string file, string line)>();
             foreach (var file in files)
             {
@@ -117,8 +117,8 @@ namespace Observatory
             SetLogMonitorState(currentState | LogMonitorState.PreRead);
 
             DirectoryInfo logDirectory = GetJournalFolder(Properties.Core.Default.JournalFolder);
-            var files = logDirectory.GetFiles("Journal.????????????.??.log");
-
+            var files = logDirectory.GetFiles("Journal.*.??.log");
+            
             // Read at most the last two files (in case we were launched after the game and the latest
             // journal is mostly empty) but keeping only the lines since the last FSDJump.
             List<String> lastSystemLines = new();
@@ -214,7 +214,7 @@ namespace Observatory
         {
             DirectoryInfo logDirectory = GetJournalFolder(path);
 
-            journalWatcher = new FileSystemWatcher(logDirectory.FullName, "Journal.????????????.??.log")
+            journalWatcher = new FileSystemWatcher(logDirectory.FullName, "Journal.*.??.log")
             {
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size |
                                 NotifyFilters.FileName | NotifyFilters.CreationTime
