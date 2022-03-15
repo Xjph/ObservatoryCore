@@ -13,12 +13,12 @@ namespace Observatory.Herald
         private bool processing;
         private string voice;
         private string style;
-        private VoiceSpeechManager azureCacheManager;
+        private SpeechRequestManager speechManager;
         private Player audioPlayer;
         
-        public HeraldQueue(VoiceSpeechManager azureCacheManager)
+        public HeraldQueue(SpeechRequestManager speechManager)
         {
-            this.azureCacheManager = azureCacheManager;
+            this.speechManager = speechManager;
             processing = false;
             notifications = new();
             audioPlayer = new();
@@ -78,7 +78,7 @@ namespace Observatory.Herald
 
         private void SpeakSsml(string ssml)
         {
-            string file = azureCacheManager.GetAudioFileFromSsml(ssml, voice, style);
+            string file = speechManager.GetAudioFileFromSsml(ssml, voice, style);
 
             // For some reason .Wait() concludes before audio playback is complete.
             audioPlayer.Play(file);

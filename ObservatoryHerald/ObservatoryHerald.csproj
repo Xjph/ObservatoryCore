@@ -26,6 +26,21 @@
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="ObservatoryAPI.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ObservatoryAPI.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="ObservatoryAPI.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ObservatoryAPI.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\&quot; /y" />
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)Microsoft.CognitiveServices.Speech.csharp.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\&quot; /y" />
