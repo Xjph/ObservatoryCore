@@ -2,5 +2,6 @@
 {
     public class QuitACrew : JoinACrew
     {
+        public bool Telepresence { get; init; }
     }
 }

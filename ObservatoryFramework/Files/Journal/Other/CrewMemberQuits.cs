@@ -2,5 +2,6 @@
 {
     public class CrewMemberQuits : CrewMemberJoins
     {
+        public bool Telepresence { get; init; }
     }
 }

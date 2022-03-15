@@ -81,7 +81,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         onfoot_profileCloningIntent,
         onFoot_failureToSubmitToPolice,
         onfoot_dataTransfer,
-        onFoot_carryingStolenGoods
+        onFoot_carryingStolenGoods,
+        onFoot_eBreachUse
     }
 
     public enum LimpetDrone
@@ -477,7 +478,9 @@ namespace Observatory.Framework.Files.ParameterTypes
         OnFootInHangar = 1 << 13,
         OnFootInSocialSpace = 1 << 14,
         OnFootExterior = 1 << 15,
-        BreathableAtmosphere = 1 << 16
+        BreathableAtmosphere = 1 << 16,
+        TelepresenceMulticrew = 1 << 17,
+        PhysicalMulticrew = 1 << 18
     }
 
     public enum LegalStatus

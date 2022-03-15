@@ -4,5 +4,6 @@
     {
         public string Crew { get; init; }
         public bool OnCrime { get; init; }
+        public bool Telepresence { get; init; }
     }
 }
