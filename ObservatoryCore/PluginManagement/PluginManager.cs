@@ -49,7 +49,6 @@ namespace Observatory.PluginManagement
             logMonitor.LogMonitorStateChanged += pluginHandler.OnLogMonitorStateChanged;
 
             var core = new PluginCore();
-            logMonitor.LogMonitorStateChanged += core.OnLogMonitorStateChanged;
 
             List<IObservatoryPlugin> errorPlugins = new();
             
