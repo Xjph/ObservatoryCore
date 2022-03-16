@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Observatory.Framework;
 using Observatory.Framework.Files;
 
@@ -98,7 +99,7 @@ namespace Observatory
             SetLogMonitorState(currentState | LogMonitorState.Batch);
 
             DirectoryInfo logDirectory = GetJournalFolder(path);
-            var files = logDirectory.GetFiles("Journal.*.??.log");
+            var files = GetJournalFilesOrdered(logDirectory);
             var readErrors = new List<(Exception ex, string file, string line)>();
             foreach (var file in files)
             {
@@ -117,7 +118,7 @@ namespace Observatory
             SetLogMonitorState(currentState | LogMonitorState.PreRead);
 
             DirectoryInfo logDirectory = GetJournalFolder(Properties.Core.Default.JournalFolder);
-            var files = logDirectory.GetFiles("Journal.*.??.log");
+            var files = GetJournalFilesOrdered(logDirectory);
             
             // Read at most the last two files (in case we were launched after the game and the latest
             // journal is mostly empty) but keeping only the lines since the last FSDJump.
@@ -425,7 +426,9 @@ namespace Observatory
                 {
                     FileInfo fileToPoke = null;
 
-                    foreach (var file in journalFolder.GetFiles("Journal.*.??.log"))
+                    // TODO: If we now have reliable file ordering guarantees, do we need this loop? Could we
+                    // just poke file in the last slot of the array returned by GetJournalFilesOrdered?
+                    foreach (var file in GetJournalFilesOrdered(journalFolder))
                     {
                         if (fileToPoke == null || string.Compare(file.Name, fileToPoke.Name) > 0)
                         {
@@ -454,6 +457,13 @@ namespace Observatory
             {
                 Marshal.FreeCoTaskMem(pathPtr);
             }
+        }
+
+        private IEnumerable<FileInfo> GetJournalFilesOrdered(DirectoryInfo journalFolder)
+        {
+            return from file in journalFolder.GetFiles("Journal.*.??.log")
+                   orderby file.LastWriteTime
+                   select file;
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
