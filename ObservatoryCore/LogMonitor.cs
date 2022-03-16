@@ -459,45 +459,11 @@ namespace Observatory
             }
         }
 
-        private Regex datePartRe = new(@"Journal\.(.+)\.\d+\.log", RegexOptions.Compiled);
-        private Regex numericDateRe = new(@"^\d+$", RegexOptions.Compiled);
-
-        FileInfo[] GetJournalFilesOrdered(DirectoryInfo journalFolder)
+        private IEnumerable<FileInfo> GetJournalFilesOrdered(DirectoryInfo journalFolder)
         {
-            // Sort files by Elite's timestamp to deal with different filename formats.
-            return journalFolder.GetFiles("Journal.*.??.log")
-                .ToDictionary(f => TimestampFromFile(f), f => f)
-                .OrderBy(kvp => kvp.Key)
-                .Select(kvp => kvp.Value)
-                .ToArray();
-        }
-
-        private long TimestampFromFile(FileInfo f)
-        {
-            string filename = f.Name;
-
-            Match datePart = datePartRe.Match(filename);
-            if (!datePart.Success)
-            {
-                // No date part? Unexpected filename.
-                return 0;
-            }
-
-            DateTimeOffset timeStamp;
-            if (numericDateRe.Match(datePart.Groups[1].Value).Success)
-            {
-                // This is a numeric date from old journals in the format: yyMMddHHmmss
-                timeStamp = DateTimeOffset.ParseExact(datePart.Groups[1].Value, "yyMMddHHmmss", null);
-            }
-            // Try parse this as a new style date of the format: yyyy-MM-ddTHHmmss
-            else if (!DateTimeOffset.TryParseExact(datePart.Groups[1].Value, "yyyy-MM-ddTHHmmss", null, System.Globalization.DateTimeStyles.None, out timeStamp))
-            {
-                // Unfamiliar date format.
-                return 0;
-            }
-
-            // Give me a good, ol' fashioned unix timestamp...
-            return timeStamp.ToUnixTimeSeconds();
+            return from file in journalFolder.GetFiles("Journal.*.??.log")
+                   orderby file.LastWriteTime
+                   select file;
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
