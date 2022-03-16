@@ -78,7 +78,7 @@ namespace Observatory
 
         public bool IsMonitoring()
         {
-            return (currentState & LogMonitorState.Realtime) == LogMonitorState.Realtime;
+            return currentState.HasFlag(LogMonitorState.Realtime);
         }
 
         // TODO(fredjk_gh): Remove?
