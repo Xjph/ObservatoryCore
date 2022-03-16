@@ -126,7 +126,7 @@ namespace Observatory
             List<String> lastFileLines = new();
             string lastLoadGame = String.Empty;
             bool sawFSDJump = false;
-            foreach (var file in files.Skip(Math.Max(files.Length - 2, 0)))
+            foreach (var file in files.Skip(Math.Max(files.Count() - 2, 0)))
             {
                 var lines = ReadAllLines(file.FullName);
                 foreach (var line in lines)
@@ -191,7 +191,6 @@ namespace Observatory
         private Dictionary<string, Type> journalTypes;
         private Dictionary<string, int> currentLine;
         private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
-        private bool monitoring = false;
         private bool firstStartMonitor = true;
 
         #endregion
@@ -422,19 +421,9 @@ namespace Observatory
 
             await System.Threading.Tasks.Task.Run(() => 
             { 
-                while (monitoring)
+                while (IsMonitoring())
                 {
-                    FileInfo fileToPoke = null;
-
-                    // TODO: If we now have reliable file ordering guarantees, do we need this loop? Could we
-                    // just poke file in the last slot of the array returned by GetJournalFilesOrdered?
-                    foreach (var file in GetJournalFilesOrdered(journalFolder))
-                    {
-                        if (fileToPoke == null || string.Compare(file.Name, fileToPoke.Name) > 0)
-                        {
-                            fileToPoke = file;
-                        }
-                    }
+                    FileInfo fileToPoke = GetJournalFilesOrdered(journalFolder).Last();
 
                     using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                     stream.Close();
