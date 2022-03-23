@@ -70,7 +70,9 @@ namespace Observatory.Explorer
                         var separation = Math.Min(Math.Abs(scan.SemiMajorAxis - ring.OuterRad), Math.Abs(ring.InnerRad - scan.SemiMajorAxis));
                         if (separation < scan.Radius * 10)
                         {
-                            results.Add("Close Ring Proximity", $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Radius: {scan.Radius / 1000:N0}km, Distance from ring: {separation / 1000:N0}km");
+                            var ringTypeName = ring.Name.Contains("Belt") ? "Belt" : "Ring";
+                            results.Add($"Close {ringTypeName} Proximity",
+                                $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Radius: {scan.Radius / 1000:N0}km, Distance from {ringTypeName.ToLower()}: {separation / 1000:N0}km");
                         }
                     }
                 }
