@@ -44,5 +44,8 @@ namespace Observatory.Herald
 
         [SettingDisplayName("Enabled")]
         public bool Enabled { get; set; }
+
+        [SettingIgnore]
+        public string ApiEndpoint { get; set; }
     }
 }

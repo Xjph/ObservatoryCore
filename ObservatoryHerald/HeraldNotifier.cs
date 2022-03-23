@@ -15,7 +15,8 @@ namespace Observatory.Herald
                 SelectedRate = "Default",
                 Volume = 75,
                 AzureAPIKeyOverride = string.Empty,
-                Enabled = false
+                Enabled = false,
+                ApiEndpoint = "https://api.observatory.xjph.net/AzureVoice"
             };
         }
 
