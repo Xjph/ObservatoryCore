@@ -102,7 +102,7 @@ namespace Observatory.Framework
         /// <returns>A boolean; True iff the state provided represents a batch-mode read.</returns>
         public static bool IsBatchRead(LogMonitorState state)
         {
-            return (state & (LogMonitorState.Batch | LogMonitorState.PreRead)) > 0;
+            return state.HasFlag(LogMonitorState.Batch) || state.HasFlag(LogMonitorState.PreRead);
         }
     }
 }
