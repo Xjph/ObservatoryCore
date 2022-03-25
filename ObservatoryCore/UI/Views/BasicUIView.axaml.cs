@@ -111,7 +111,6 @@ namespace Observatory.UI.Views
             {
                 var dataContext = ((ViewModels.BasicUIViewModel)dataGrid.DataContext).BasicUIGrid;
                 dataContext.CollectionChanged += ScrollToLast;
-                
             }
         }
 
@@ -121,7 +120,10 @@ namespace Observatory.UI.Views
             if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add || UIType != PluginUI.UIType.Basic || dataGrid == null || !(sender is ObservableCollection<object>))
                 return;
             var dataContext = (ObservableCollection<object>)sender;
-            dataGrid.ScrollIntoView(dataContext[dataContext.Count - 1], null);
+            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                dataGrid.ScrollIntoView(dataContext[dataContext.Count - 1], null);
+            });
         }
 
         private Grid GenerateCoreUI()
