@@ -57,7 +57,8 @@ namespace Observatory.Herald
                     notificationEventArgs, 
                     GetAzureNameFromSetting(heraldSettings.SelectedVoice),
                     GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice),
-                    heraldSettings.SelectedRate, heraldSettings.Volume);
+                    heraldSettings.Rate[heraldSettings.SelectedRate].ToString(), 
+                    heraldSettings.Volume);
         }
 
         private string GetAzureNameFromSetting(string settingName)
