@@ -194,5 +194,10 @@ namespace Observatory.Framework.Interfaces
         /// Returns true if the current LogMonitor state represents a batch-read mode.
         /// </summary>
         public bool IsLogMonitorBatchReading { get; }
+
+        /// <summary>
+        /// Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
+        /// </summary>
+        public string PluginStorageFolder { get; }
     }
 }

@@ -39,7 +39,7 @@ namespace Observatory.Herald {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ObservatoryHerald.ObservatoryAPI", typeof(ObservatoryAPI).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Observatory.Herald.ObservatoryAPI", typeof(ObservatoryAPI).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

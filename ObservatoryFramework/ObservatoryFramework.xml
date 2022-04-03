@@ -138,6 +138,28 @@
             Specifies the desired renderings of the notification.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.LogMonitorStateChangedEventArgs">
+            <summary>
+            Provides information about a LogMonitor state transition.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.LogMonitorStateChangedEventArgs.PreviousState">
+            <summary>
+            The previous LogMonitor state.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.LogMonitorStateChangedEventArgs.NewState">
+            <summary>
+            The new, current LogMonitor state.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.LogMonitorStateChangedEventArgs.IsBatchRead(Observatory.Framework.LogMonitorState)">
+            <summary>
+            Determins if the given state is a batch read of any form.
+            </summary>
+            <param name="state">The state to evaluate</param>
+            <returns>A boolean; True iff the state provided represents a batch-mode read.</returns>
+        </member>
         <member name="T:Observatory.Framework.PluginException">
             <summary>
             Container for exceptions within plugins which cannot be gracefully handled in context,
@@ -760,6 +782,12 @@
             </summary>
             <param name="status">Player status.json content, deserialized into a .NET object.</param>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryWorker.LogMonitorStateChanged(Observatory.Framework.LogMonitorStateChangedEventArgs)">
+            <summary>
+            Called when the LogMonitor changes state. Useful for suppressing output in certain situations
+            such as batch reads (ie. "Read all") or responding to other state transitions.
+            </summary>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryWorker.ReadAllStarted">
             <summary>
             Method called when the user begins "Read All" journal processing, before any journal events are sent.<br/>
@@ -854,6 +882,21 @@
         <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.HttpClient">
             <summary>
             Shared application HttpClient object. Provided so that plugins can adhere to .NET recommended behaviour of a single HttpClient object per application.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.CurrentLogMonitorState">
+            <summary>
+            Returns the current LogMonitor state.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.IsLogMonitorBatchReading">
+            <summary>
+            Returns true if the current LogMonitor state represents a batch-read mode.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.PluginStorageFolder">
+            <summary>
+            Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
             </summary>
         </member>
         <member name="T:Observatory.Framework.PluginUI">

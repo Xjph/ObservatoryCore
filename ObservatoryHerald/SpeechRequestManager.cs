@@ -19,15 +19,14 @@ namespace Observatory.Herald
         private DirectoryInfo cacheLocation;
         private int cacheSize;
         
-        internal SpeechRequestManager(HeraldSettings settings, HttpClient httpClient)
+        internal SpeechRequestManager(HeraldSettings settings, HttpClient httpClient, string cacheFolder)
         {
             ApiKey = ObservatoryAPI.ApiKey;
             ApiEndpoint = settings.ApiEndpoint;
             this.httpClient = httpClient;
             cacheSize = settings.CacheSize;
-            cacheLocation = new(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-                + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}ObservatoryHerald{Path.DirectorySeparatorChar}");
-            
+            cacheLocation = new DirectoryInfo(cacheFolder);
+                        
             if (!Directory.Exists(cacheLocation.FullName))
             {
                 Directory.CreateDirectory(cacheLocation.FullName);

@@ -3,6 +3,7 @@ using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using Observatory.NativeNotification;
 using System;
+using System.IO;
 
 namespace Observatory.PluginManagement
 {
@@ -145,5 +146,21 @@ namespace Observatory.PluginManagement
         }
 
         public event EventHandler<NotificationArgs> Notification;
+
+        public string PluginStorageFolder
+        {
+            get
+            {
+                var context = new System.Diagnostics.StackFrame(1).GetMethod();
+
+                string folderLocation = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
+                    + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}{context.DeclaringType.Assembly.GetName().Name}{Path.DirectorySeparatorChar}";
+
+                if (!Directory.Exists(folderLocation))
+                    Directory.CreateDirectory(folderLocation);
+
+                return folderLocation;
+            }
+        }
     }
 }
