@@ -261,9 +261,9 @@ namespace Observatory.Herald
                 if (staleFile == currentFile.Name)
                     break;
 
+                currentCacheSize -= new FileInfo(cacheLocation + staleFile).Length;
                 File.Delete(cacheLocation + staleFile);
                 cacheIndex.Remove(staleFile);
-                currentCacheSize -= new FileInfo(cacheLocation + staleFile).Length;
             }
 
             File.WriteAllText(cacheIndexFile, JsonSerializer.Serialize(cacheIndex));
