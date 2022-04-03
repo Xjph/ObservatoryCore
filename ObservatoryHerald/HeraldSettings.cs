@@ -24,11 +24,11 @@ namespace Observatory.Herald
         public Dictionary<string, object> Rate
         { get => new Dictionary<string, object> 
             {
-                {"Slowest", null},
-                {"Slower", null},
-                {"Default", null},
-                {"Faster", null},
-                {"Fastest", null}
+                {"Slowest", "x-slow"},
+                {"Slower", "slow"},
+                {"Default", "default"},
+                {"Faster", "fast"},
+                {"Fastest", "x-fast"}
             }; 
         }
 
@@ -47,5 +47,8 @@ namespace Observatory.Herald
 
         [SettingIgnore]
         public string ApiEndpoint { get; set; }
+
+        [SettingDisplayName("Cache Size (MB): ")]
+        public int CacheSize { get; set; }
     }
 }

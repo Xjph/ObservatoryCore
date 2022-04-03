@@ -1,7 +1,6 @@
-﻿using Microsoft.CognitiveServices.Speech;
-using Observatory.Framework;
+﻿using Observatory.Framework;
 using Observatory.Framework.Interfaces;
-using System;
+using System.Text.Json;
 
 namespace Observatory.Herald
 {
@@ -14,9 +13,9 @@ namespace Observatory.Herald
                 SelectedVoice = "American - Christopher",
                 SelectedRate = "Default",
                 Volume = 75,
-                AzureAPIKeyOverride = string.Empty,
                 Enabled = false,
-                ApiEndpoint = "https://api.observatory.xjph.net/AzureVoice"
+                ApiEndpoint = "https://api.observatory.xjph.net/AzureVoice",
+                CacheSize = 100
             };
         }
 
@@ -46,7 +45,8 @@ namespace Observatory.Herald
                     Detail = $"This is {heraldSettings.SelectedVoice.Split(" - ")[1]}." 
                 }, 
                 GetAzureNameFromSetting(heraldSettings.SelectedVoice),
-                GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice));
+                GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice),
+                heraldSettings.Rate[heraldSettings.SelectedRate].ToString());
         }
 
         public void OnNotificationEvent(NotificationArgs notificationEventArgs)
@@ -55,13 +55,14 @@ namespace Observatory.Herald
                 heraldSpeech.Enqueue(
                     notificationEventArgs, 
                     GetAzureNameFromSetting(heraldSettings.SelectedVoice),
-                    GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice));
+                    GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice),
+                    heraldSettings.SelectedRate);
         }
 
         private string GetAzureNameFromSetting(string settingName)
         {
-            var voiceInfo = (VoiceInfo)heraldSettings.Voices[settingName];
-            return voiceInfo.Name;
+            var voiceInfo = (JsonElement)heraldSettings.Voices[settingName];
+            return voiceInfo.GetProperty("ShortName").GetString();
         }
 
         private string GetAzureStyleNameFromSetting(string settingName)

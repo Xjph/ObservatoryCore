@@ -13,6 +13,8 @@ namespace Observatory.Herald
         private bool processing;
         private string voice;
         private string style;
+        private string rate;
+        private byte volume;
         private SpeechRequestManager speechManager;
         private Player audioPlayer;
         
@@ -25,10 +27,12 @@ namespace Observatory.Herald
         }
 
 
-        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "")
+        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "", string selectedRate = "", byte volume = 75)
         {
             voice = selectedVoice;
             style = selectedStyle;
+            rate = selectedRate;
+            this.volume = volume;
             notifications.Enqueue(notification);
 
             if (!processing)
@@ -78,17 +82,16 @@ namespace Observatory.Herald
 
         private void SpeakSsml(string ssml)
         {
-            string file = speechManager.GetAudioFileFromSsml(ssml, voice, style);
+            string file = speechManager.GetAudioFileFromSsml(ssml, voice, style, rate);
 
-            // For some reason .Wait() concludes before audio playback is complete.
+            audioPlayer.SetVolume(volume).Wait();
+
+            #pragma warning disable CS4014 // For some reason .Wait() concludes before audio playback is complete.
             audioPlayer.Play(file);
             while (audioPlayer.Playing)
             {
                 Thread.Sleep(20);
             }
         }
-
-        
-
     }
 }
