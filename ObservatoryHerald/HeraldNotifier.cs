@@ -8,7 +8,12 @@ namespace Observatory.Herald
     {
         public HeraldNotifier()
         {
-            heraldSettings = new()
+            heraldSettings = DefaultSettings;
+        }
+
+        private static HeraldSettings DefaultSettings
+        {
+            get => new HeraldSettings()
             {
                 SelectedVoice = "American - Christopher",
                 SelectedRate = "Default",
@@ -27,8 +32,26 @@ namespace Observatory.Herald
 
         public PluginUI PluginUI => new (PluginUI.UIType.None, null);
 
-        public object Settings { get => heraldSettings; set => heraldSettings = (HeraldSettings)value; }
+        public object Settings
+        {
+            get => heraldSettings;
+            set
+            {
+                // Need to perform validation here, older
+                // version settings object not fully compatible.
+                var savedSettings = (HeraldSettings)value;
+                if (string.IsNullOrWhiteSpace(savedSettings.SelectedVoice))
+                    savedSettings.SelectedVoice = heraldSettings.SelectedVoice;
 
+                if (string.IsNullOrWhiteSpace(savedSettings.SelectedRate))
+                    savedSettings.SelectedRate = heraldSettings.SelectedRate;
+
+                if (string.IsNullOrWhiteSpace(savedSettings.ApiEndpoint))
+                    savedSettings.ApiEndpoint = heraldSettings.ApiEndpoint;
+
+                heraldSettings = savedSettings;
+            }
+        }
         public void Load(IObservatoryCore observatoryCore)
         {
             var speechManager = new SpeechRequestManager(heraldSettings, observatoryCore.HttpClient, observatoryCore.PluginStorageFolder);
