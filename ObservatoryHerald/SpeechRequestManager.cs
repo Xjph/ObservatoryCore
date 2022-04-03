@@ -24,7 +24,7 @@ namespace Observatory.Herald
             ApiKey = ObservatoryAPI.ApiKey;
             ApiEndpoint = settings.ApiEndpoint;
             this.httpClient = httpClient;
-            cacheSize = settings.CacheSize;
+            cacheSize = Math.Max(settings.CacheSize, 1);
             cacheLocation = new DirectoryInfo(cacheFolder);
                         
             if (!Directory.Exists(cacheLocation.FullName))
