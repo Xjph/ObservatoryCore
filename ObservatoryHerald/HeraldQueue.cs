@@ -33,7 +33,12 @@ namespace Observatory.Herald
             style = selectedStyle;
             rate = selectedRate;
             // Ignore invalid values; assume default.
-            this.volume = (byte)(volume >= 0 && volume <= 100 ? volume : 75);
+            volume = volume >= 0 && volume <= 100 ? volume : 75;
+
+            // Volume is perceived logarithmically, convert to exponential curve
+            // to make perceived volume more in line with value set.
+            this.volume = ((byte)System.Math.Floor(System.Math.Pow(volume / 100.0, 2.0) * 100));
+            
             notifications.Enqueue(notification);
 
             if (!processing)
@@ -83,16 +88,25 @@ namespace Observatory.Herald
 
         private void SpeakSsml(string ssml)
         {
-            string file = speechManager.GetAudioFileFromSsml(ssml, voice, style, rate);
+            // NetCoreAudio is a bit loosey-goosey with its timing,
+            // need to add very slight pauses between calls.
 
+            var timer = new System.Diagnostics.Stopwatch();
+            timer.Start();
             audioPlayer.SetVolume(volume).Wait();
 
-            #pragma warning disable CS4014 // For some reason .Wait() concludes before audio playback is complete.
-            audioPlayer.Play(file);
+            string file = speechManager.GetAudioFileFromSsml(ssml, voice, style, rate);
+
+            if (timer.ElapsedMilliseconds < 75)
+                Thread.Sleep(75);
+
+            timer.Stop();
+
+            audioPlayer.Play(file).Wait();
+
             while (audioPlayer.Playing)
-            {
-                Thread.Sleep(20);
-            }
+                Thread.Sleep(50);
+
         }
     }
 }

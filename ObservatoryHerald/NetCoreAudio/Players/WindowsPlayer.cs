@@ -96,7 +96,7 @@ namespace NetCoreAudio.Players
         {
             Playing = false;
             PlaybackFinished?.Invoke(this, e);
-            _playbackTimer.Dispose();
+            _playbackTimer?.Dispose();
             _playbackTimer = null;
         }
 
@@ -118,7 +118,7 @@ namespace NetCoreAudio.Players
             }
 
             if (commandString.ToLower().StartsWith("status") && int.TryParse(sb.ToString(), out var length))
-                _playbackTimer.Interval = length;
+                _playbackTimer.Interval = length + 75;
 
             return Task.CompletedTask;
         }
