@@ -37,19 +37,18 @@ namespace Observatory.Herald
             get => heraldSettings;
             set
             {
-                // Need to perform validation here, older
+                // Need to perform migration here, older
                 // version settings object not fully compatible.
                 var savedSettings = (HeraldSettings)value;
-                if (string.IsNullOrWhiteSpace(savedSettings.SelectedVoice))
-                    savedSettings.SelectedVoice = heraldSettings.SelectedVoice;
-
                 if (string.IsNullOrWhiteSpace(savedSettings.SelectedRate))
-                    savedSettings.SelectedRate = heraldSettings.SelectedRate;
-
-                if (string.IsNullOrWhiteSpace(savedSettings.ApiEndpoint))
-                    savedSettings.ApiEndpoint = heraldSettings.ApiEndpoint;
-
-                heraldSettings = savedSettings;
+                {
+                    heraldSettings.SelectedVoice = savedSettings.SelectedVoice;
+                    heraldSettings.Enabled = savedSettings.Enabled;
+                }
+                else
+                {
+                    heraldSettings = savedSettings;
+                }
             }
         }
         public void Load(IObservatoryCore observatoryCore)
