@@ -21,11 +21,11 @@ namespace Observatory.Herald
         public Dictionary<string, object> Rate
         { get => new Dictionary<string, object> 
             {
-                {"Slowest", "x-slow"},
-                {"Slower", "slow"},
-                {"Default", "default"},
-                {"Faster", "fast"},
-                {"Fastest", "x-fast"}
+                {"Slowest", "0.5"},
+                {"Slower", "0.75"},
+                {"Default", "1.0"},
+                {"Faster", "1.25"},
+                {"Fastest", "1.5"}
             }; 
         }
 
