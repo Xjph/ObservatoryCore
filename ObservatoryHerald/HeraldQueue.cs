@@ -27,12 +27,13 @@ namespace Observatory.Herald
         }
 
 
-        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "", string selectedRate = "", byte volume = 75)
+        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "", string selectedRate = "", int volume = 75)
         {
             voice = selectedVoice;
             style = selectedStyle;
             rate = selectedRate;
-            this.volume = volume;
+            // Ignore invalid values; assume default.
+            this.volume = (byte)(volume >= 0 && volume <= 100 ? volume : 75);
             notifications.Enqueue(notification);
 
             if (!processing)
