@@ -237,6 +237,13 @@ namespace Observatory.Herald
                 cacheIndex = new();
             }
 
+            // Re-index orphaned files in event of corrupted or lost index.
+            var cacheFiles = cacheLocation.GetFiles("*.mp3");
+            foreach (var file in cacheFiles.Where(file => !cacheIndex.ContainsKey(file.Name)))
+            {
+                cacheIndex.Add(file.Name, new(file.CreationTime, 0));
+            };
+
             if (cacheIndex.ContainsKey(currentFile.Name))
             {
                 cacheIndex[currentFile.Name] = new(
@@ -249,11 +256,10 @@ namespace Observatory.Herald
                 cacheIndex.Add(currentFile.Name, new(DateTime.UtcNow, 1));
             }
 
-            var cacheFiles = cacheLocation.GetFiles("*.mp3");
             var currentCacheSize = cacheFiles.Sum(f => f.Length);
-
             while (currentCacheSize > cacheSize * 1024 * 1024)
             {
+
                 var staleFile = (from file in cacheIndex
                                 orderby file.Value.HitCount, file.Value.Created
                                 select file.Key).First();
@@ -267,6 +273,11 @@ namespace Observatory.Herald
             }
 
             File.WriteAllText(cacheIndexFile, JsonSerializer.Serialize(cacheIndex));
+
+            // Purge cache from earlier versions, if still present.
+            var legacyCache = cacheLocation.GetFiles("*.wav");
+            Array.ForEach(legacyCache, file => File.Delete(file.FullName));
+            
         }
 
         public class CacheData
