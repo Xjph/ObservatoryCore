@@ -11,30 +11,37 @@
     <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
     <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
     <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
+    <RootNamespace>Observatory.Herald</RootNamespace>
   </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.18.0" />
-  </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="NetCoreAudio">
-      <HintPath>..\..\NetCoreAudio\NetCoreAudio\bin\Release\netstandard2.0\NetCoreAudio.dll</HintPath>
-    </Reference>
     <Reference Include="ObservatoryFramework">
       <HintPath>..\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="ObservatoryAPI.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ObservatoryAPI.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="ObservatoryAPI.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ObservatoryAPI.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="NetCoreAudio\Players\" />
+  </ItemGroup>
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)Microsoft.CognitiveServices.Speech.csharp.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)NetCoreAudio.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)\runtimes\win-x64\native\*.*&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\&quot; /y" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="[ ! -d &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps&quot; ] &amp;&amp; mkdir -p &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps&quot; || echo Directory already exists" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetPath)&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/&quot; -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)runtimes/linux-x64/lib/netstandard2.0/Microsoft.CognitiveServices.Speech.csharp.dll&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/&quot; -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)NetCoreAudio.dll&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/&quot; -f" />
   </Target>
   
 </Project>

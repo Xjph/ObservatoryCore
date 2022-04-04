@@ -22,15 +22,19 @@ namespace Observatory
             }
             catch (Exception ex)
             {
-                var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
-                var errorMessage = new System.Text.StringBuilder();
-                errorMessage
-                    .AppendLine($"Error encountered in Elite Observatory {version}.")
-                    .AppendLine(FormatExceptionMessage(ex))
-                    .AppendLine();
-                System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorMessage.ToString());
+                LogError(ex, version);
             }
+        }
 
+        internal static void LogError(Exception ex, string context)
+        {
+            var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+            var errorMessage = new System.Text.StringBuilder();
+            errorMessage
+                .AppendLine($"Error encountered in Elite Observatory {context}.")
+                .AppendLine(FormatExceptionMessage(ex))
+                .AppendLine();
+            System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorMessage.ToString());
         }
 
         static string FormatExceptionMessage(Exception ex, bool inner = false)

@@ -32,7 +32,14 @@ namespace Observatory.NativeNotification
 
         private async void ProcessQueueAsync()
         {
-            await Task.Factory.StartNew(ProcessQueue);
+            try
+            {
+                await Task.Factory.StartNew(ProcessQueue);
+            }
+            catch (System.Exception ex)
+            {
+                ObservatoryCore.LogError(ex, " - Native Voice Notifier");
+            }
         }
 
         private void ProcessQueue()

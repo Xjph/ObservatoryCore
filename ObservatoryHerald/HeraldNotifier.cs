@@ -1,7 +1,6 @@
-﻿using Microsoft.CognitiveServices.Speech;
-using Observatory.Framework;
+﻿using Observatory.Framework;
 using Observatory.Framework.Interfaces;
-using System;
+using System.Text.Json;
 
 namespace Observatory.Herald
 {
@@ -9,11 +8,19 @@ namespace Observatory.Herald
     {
         public HeraldNotifier()
         {
-            heraldSettings = new()
+            heraldSettings = DefaultSettings;
+        }
+
+        private static HeraldSettings DefaultSettings
+        {
+            get => new HeraldSettings()
             {
                 SelectedVoice = "American - Christopher",
-                AzureAPIKeyOverride = string.Empty,
-                Enabled = false
+                SelectedRate = "Default",
+                Volume = 75,
+                Enabled = false,
+                ApiEndpoint = "https://api.observatory.xjph.net/AzureVoice",
+                CacheSize = 100
             };
         }
 
@@ -25,12 +32,29 @@ namespace Observatory.Herald
 
         public PluginUI PluginUI => new (PluginUI.UIType.None, null);
 
-        public object Settings { get => heraldSettings; set => heraldSettings = (HeraldSettings)value; }
-
+        public object Settings
+        {
+            get => heraldSettings;
+            set
+            {
+                // Need to perform migration here, older
+                // version settings object not fully compatible.
+                var savedSettings = (HeraldSettings)value;
+                if (string.IsNullOrWhiteSpace(savedSettings.SelectedRate))
+                {
+                    heraldSettings.SelectedVoice = savedSettings.SelectedVoice;
+                    heraldSettings.Enabled = savedSettings.Enabled;
+                }
+                else
+                {
+                    heraldSettings = savedSettings;
+                }
+            }
+        }
         public void Load(IObservatoryCore observatoryCore)
         {
-            var azureManager = new VoiceSpeechManager(heraldSettings, observatoryCore.HttpClient);
-            heraldSpeech = new HeraldQueue(azureManager);
+            var speechManager = new SpeechRequestManager(heraldSettings, observatoryCore.HttpClient, observatoryCore.PluginStorageFolder);
+            heraldSpeech = new HeraldQueue(speechManager);
             heraldSettings.Test = TestVoice;
         }
 
@@ -43,7 +67,9 @@ namespace Observatory.Herald
                     Detail = $"This is {heraldSettings.SelectedVoice.Split(" - ")[1]}." 
                 }, 
                 GetAzureNameFromSetting(heraldSettings.SelectedVoice),
-                GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice));
+                GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice),
+                heraldSettings.Rate[heraldSettings.SelectedRate].ToString(),
+                heraldSettings.Volume);
         }
 
         public void OnNotificationEvent(NotificationArgs notificationEventArgs)
@@ -52,13 +78,15 @@ namespace Observatory.Herald
                 heraldSpeech.Enqueue(
                     notificationEventArgs, 
                     GetAzureNameFromSetting(heraldSettings.SelectedVoice),
-                    GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice));
+                    GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice),
+                    heraldSettings.Rate[heraldSettings.SelectedRate].ToString(), 
+                    heraldSettings.Volume);
         }
 
         private string GetAzureNameFromSetting(string settingName)
         {
-            var voiceInfo = (VoiceInfo)heraldSettings.Voices[settingName];
-            return voiceInfo.Name;
+            var voiceInfo = (JsonElement)heraldSettings.Voices[settingName];
+            return voiceInfo.GetProperty("ShortName").GetString();
         }
 
         private string GetAzureStyleNameFromSetting(string settingName)

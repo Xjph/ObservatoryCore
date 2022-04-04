@@ -13,22 +13,32 @@ namespace Observatory.Herald
         private bool processing;
         private string voice;
         private string style;
-        private VoiceSpeechManager azureCacheManager;
+        private string rate;
+        private byte volume;
+        private SpeechRequestManager speechManager;
         private Player audioPlayer;
         
-        public HeraldQueue(VoiceSpeechManager azureCacheManager)
+        public HeraldQueue(SpeechRequestManager speechManager)
         {
-            this.azureCacheManager = azureCacheManager;
+            this.speechManager = speechManager;
             processing = false;
             notifications = new();
             audioPlayer = new();
         }
 
 
-        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "")
+        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "", string selectedRate = "", int volume = 75)
         {
             voice = selectedVoice;
             style = selectedStyle;
+            rate = selectedRate;
+            // Ignore invalid values; assume default.
+            volume = volume >= 0 && volume <= 100 ? volume : 75;
+
+            // Volume is perceived logarithmically, convert to exponential curve
+            // to make perceived volume more in line with value set.
+            this.volume = ((byte)System.Math.Floor(System.Math.Pow(volume / 100.0, 2.0) * 100));
+
             notifications.Enqueue(notification);
 
             if (!processing)
@@ -45,50 +55,60 @@ namespace Observatory.Herald
 
         private void ProcessQueue()
         {
+            
             while (notifications.Any())
             {
+                audioPlayer.SetVolume(volume).Wait();
                 var notification = notifications.Dequeue();
+
+                Task<string>[] audioRequestTasks = new Task<string> [2];
+                
 
                 if (string.IsNullOrWhiteSpace(notification.TitleSsml))
                 {
-                    Speak(notification.Title);
+                    audioRequestTasks[0] = RetrieveAudioToFile(notification.Title);
                 }
                 else
                 {
-                    SpeakSsml(notification.TitleSsml);
+                    audioRequestTasks[0] = RetrieveAudioSsmlToFile(notification.TitleSsml);
                 }
 
                 if (string.IsNullOrWhiteSpace(notification.DetailSsml))
                 {
-                    Speak(notification.Detail);
+                    audioRequestTasks[1] = RetrieveAudioToFile(notification.Detail);
                 }
                 else
                 {
-                    SpeakSsml(notification.DetailSsml);
+                    audioRequestTasks[1] = RetrieveAudioSsmlToFile(notification.DetailSsml);
                 }
+
+                PlayAudioRequestsSequentially(audioRequestTasks);
             }
 
             processing = false;
         }
 
-        private void Speak(string text)
+        private async Task<string> RetrieveAudioToFile(string text)
         {
-            SpeakSsml($"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{text}</voice></speak>");
+            return await RetrieveAudioSsmlToFile($"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{text}</voice></speak>");
         }
 
-        private void SpeakSsml(string ssml)
+        private async Task<string> RetrieveAudioSsmlToFile(string ssml)
         {
-            string file = azureCacheManager.GetAudioFileFromSsml(ssml, voice, style);
+            return await speechManager.GetAudioFileFromSsml(ssml, voice, style, rate);
+        }
 
-            // For some reason .Wait() concludes before audio playback is complete.
-            audioPlayer.Play(file);
-            while (audioPlayer.Playing)
+        private void PlayAudioRequestsSequentially(Task<string>[] requestTasks)
+        {
+            foreach (var request in requestTasks)
             {
-                Thread.Sleep(20);
+                string file = request.Result;
+                audioPlayer.Play(file).Wait();
+
+                while (audioPlayer.Playing)
+                    Thread.Sleep(50);
+
             }
         }
-
-        
-
     }
 }
