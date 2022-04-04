@@ -32,8 +32,7 @@ namespace NetCoreAudio.Players
 
         public Task Play(string fileName)
         {
-            FileUtil.ClearTempFiles();
-            _fileName = $"\"{FileUtil.CheckFileToPlay(fileName)}\"";
+            _fileName = $"\"{fileName}\"";
             _playbackTimer = new Timer
             {
                 AutoReset = false
@@ -87,7 +86,6 @@ namespace NetCoreAudio.Players
                 Paused = false;
                 _playbackTimer.Stop();
                 _playStopwatch.Stop();
-                FileUtil.ClearTempFiles();
             }
             return Task.CompletedTask;
         }
