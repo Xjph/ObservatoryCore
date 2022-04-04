@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Xml;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 namespace Observatory.Herald
 {
@@ -35,7 +36,7 @@ namespace Observatory.Herald
             settings.Voices = PopulateVoiceSettingOptions();
         }
 
-        internal string GetAudioFileFromSsml(string ssml, string voice, string style, string rate)
+        internal async Task<string> GetAudioFileFromSsml(string ssml, string voice, string style, string rate)
         {
 
             ssml = AddVoiceToSsml(ssml, voice, style, rate);
@@ -58,7 +59,7 @@ namespace Observatory.Herald
                     }
                 };
                 
-                using var response = httpClient.PostAsync(ApiEndpoint + "/Speak", request).Result;
+                using var response = await httpClient.PostAsync(ApiEndpoint + "/Speak", request);
 
                 if (response.IsSuccessStatusCode)
                 {
