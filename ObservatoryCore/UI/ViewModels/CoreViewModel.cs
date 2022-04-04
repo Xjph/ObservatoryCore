@@ -179,7 +179,9 @@ namespace Observatory.UI.ViewModels
 
                     foreach (var release in releases)
                     {
-                        if (release.GetProperty("tag_name").ToString().CompareTo("v" + System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString()) > 0)
+                        var ver = release.GetProperty("tag_name").ToString()[1..].Split('.').Select(verString => int.Parse(verString)).ToArray();
+                        Version version = new(ver[0], ver[1], ver[2], ver[3]);
+                        if (version > System.Reflection.Assembly.GetEntryAssembly().GetName().Version)
                         {
                             return true;
                         }
