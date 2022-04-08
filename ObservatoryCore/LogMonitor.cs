@@ -423,10 +423,15 @@ namespace Observatory
             { 
                 while (IsMonitoring())
                 {
-                    FileInfo fileToPoke = GetJournalFilesOrdered(journalFolder).Last();
+                    var journals = GetJournalFilesOrdered(journalFolder);
 
-                    using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                    stream.Close();
+                    if (journals.Any())
+                    {
+                        FileInfo fileToPoke = GetJournalFilesOrdered(journalFolder).Last();
+
+                        using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                        stream.Close();
+                    }
                     System.Threading.Thread.Sleep(250);
                 }
             });
