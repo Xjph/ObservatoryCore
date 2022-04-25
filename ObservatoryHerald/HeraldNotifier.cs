@@ -55,7 +55,7 @@ namespace Observatory.Herald
         {
             var speechManager = new SpeechRequestManager(
                 heraldSettings, observatoryCore.HttpClient, observatoryCore.PluginStorageFolder, observatoryCore.GetPluginErrorLogger(this));
-            heraldSpeech = new HeraldQueue(speechManager);
+            heraldSpeech = new HeraldQueue(speechManager, observatoryCore.GetPluginErrorLogger(this));
             heraldSettings.Test = TestVoice;
         }
 
