@@ -19,15 +19,18 @@ namespace Observatory.Herald
         private string ApiEndpoint;
         private DirectoryInfo cacheLocation;
         private int cacheSize;
-        
-        internal SpeechRequestManager(HeraldSettings settings, HttpClient httpClient, string cacheFolder)
+        private Action<Exception, String> ErrorLogger;
+
+        internal SpeechRequestManager(
+            HeraldSettings settings, HttpClient httpClient, string cacheFolder, Action<Exception, String> errorLogger)
         {
             ApiKey = ObservatoryAPI.ApiKey;
             ApiEndpoint = settings.ApiEndpoint;
             this.httpClient = httpClient;
             cacheSize = Math.Max(settings.CacheSize, 1);
             cacheLocation = new DirectoryInfo(cacheFolder);
-                        
+            ErrorLogger = errorLogger;
+
             if (!Directory.Exists(cacheLocation.FullName))
             {
                 Directory.CreateDirectory(cacheLocation.FullName);
@@ -49,7 +52,19 @@ namespace Observatory.Herald
 
             var audioFilename = cacheLocation + ssmlHash + ".mp3";
 
-            if (!File.Exists(audioFilename))
+            FileInfo audioFileInfo = null;
+            if (File.Exists(audioFilename))
+            {
+                audioFileInfo = new FileInfo(audioFilename);
+                if (audioFileInfo.Length == 0)
+                {
+                    File.Delete(audioFilename);
+                    audioFileInfo = null;
+                }
+            }
+
+
+            if (audioFileInfo == null)
             {
                 using StringContent request = new(ssml)
                 {
@@ -71,10 +86,10 @@ namespace Observatory.Herald
                 {
                     throw new PluginException("Herald", "Unable to retrieve audio data.", new Exception(response.StatusCode.ToString() + ": " + response.ReasonPhrase));
                 }
-
+                audioFileInfo = new FileInfo(audioFilename);
             }
 
-            UpdateAndPruneCache(new FileInfo(audioFilename));
+            UpdateAndPruneCache(audioFileInfo);
                         
             return audioFilename;
         }
@@ -231,6 +246,7 @@ namespace Observatory.Herald
                 {
                     Console.WriteLine(ex.Message);
                     cacheIndex = new();
+                    ErrorLogger(ex, "deserializing CacheIndex.json");
                 }
             }
             else

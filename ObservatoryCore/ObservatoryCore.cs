@@ -30,8 +30,9 @@ namespace Observatory
         {
             var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
             var errorMessage = new System.Text.StringBuilder();
+            var timestamp = DateTime.Now.ToString("G");
             errorMessage
-                .AppendLine($"Error encountered in Elite Observatory {context}.")
+                .AppendLine($"[{timestamp}] Error encountered in Elite Observatory {context}")
                 .AppendLine(FormatExceptionMessage(ex))
                 .AppendLine();
             System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorMessage.ToString());
