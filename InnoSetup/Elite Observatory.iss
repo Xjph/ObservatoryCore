@@ -65,14 +65,6 @@ Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\lua54.dll"; DestDir:
 Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\KeraLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
 Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\NLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
 Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\Microsoft.CognitiveServices.Speech.core.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\Microsoft.CognitiveServices.Speech.csharp.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\Microsoft.CognitiveServices.Speech.extension.audio.sys.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\Microsoft.CognitiveServices.Speech.extension.codec.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\Microsoft.CognitiveServices.Speech.extension.kws.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\Microsoft.CognitiveServices.Speech.extension.lu.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\Microsoft.CognitiveServices.Speech.extension.silk_codec.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\NetCoreAudio.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Herald
 Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\ObservatoryBotanist.dll"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
 Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\ObservatoryTelegram.dll"; DestDir: "{app}\plugins"; Components: Plugins\Telegram
 Source: ".\netcorecheck.exe"; Flags: dontcopy noencryption
