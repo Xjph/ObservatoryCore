@@ -21,6 +21,14 @@ namespace Observatory.PluginManagement
 
         public string Version => System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
 
+        public Action<Exception, String> GetPluginErrorLogger(IObservatoryPlugin plugin)
+        {
+            return (ex, context) =>
+            {
+                ObservatoryCore.LogError(ex, $"from plugin {plugin.ShortName} {context}");
+            };
+        }
+
         public Status GetStatus()
         {
             throw new NotImplementedException();

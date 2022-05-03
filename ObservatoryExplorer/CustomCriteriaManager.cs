@@ -12,9 +12,12 @@ namespace Observatory.Explorer
     {
         private Lua LuaState;
         private List<LuaFunction> CriteriaFunctions;
-        
-        public CustomCriteriaManager()
+        Action<Exception, String> ErrorLogger;
+
+
+        public CustomCriteriaManager(Action<Exception, String> errorLogger)
         {
+            ErrorLogger = errorLogger;
             CriteriaFunctions = new();
         }
 
@@ -174,8 +177,14 @@ namespace Observatory.Explorer
 
                 originalScript = originalScript.Remove(originalScript.LastIndexOf(Environment.NewLine));
                 originalScript = originalScript[(originalScript.IndexOf(Environment.NewLine) + Environment.NewLine.Length)..];
-                
-                throw new CriteriaLoadException(e.Message, originalScript.Replace('\t', ' '));
+                originalScript = originalScript.Replace('\t', ' ');
+
+                StringBuilder errorDetail = new();
+                errorDetail.AppendLine("Error Reading Custom Criteria File:")
+                    .AppendLine(originalScript)
+                    .AppendLine("NOTE: Custom criteria processing has been disable to prevent further errors.");
+                ErrorLogger(e, errorDetail.ToString());
+                throw new CriteriaLoadException(e.Message, originalScript);
             }
         }
 
@@ -236,6 +245,12 @@ namespace Observatory.Explorer
                 {
                     settings.EnableCustomCriteria = false;
                     results.Add((e.Message, scan.Json, false));
+
+                    StringBuilder errorDetail = new();
+                    errorDetail.AppendLine("while processing a custom criteria on scan:")
+                        .AppendLine(scan.Json)
+                        .AppendLine("NOTE: Custom criteria process has been disabled to prevent further errors.");
+                    ErrorLogger(e, errorDetail.ToString());
                     break;
                 }
             }

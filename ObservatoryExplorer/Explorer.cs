@@ -29,7 +29,7 @@ namespace Observatory.Explorer
             ExplorerWorker = explorerWorker;
             ObservatoryCore = core;
             Results = results;
-            CustomCriteriaManager = new();
+            CustomCriteriaManager = new(core.GetPluginErrorLogger(explorerWorker));
             CriteriaLastModified = new DateTime(0);
         }
 

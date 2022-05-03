@@ -175,6 +175,13 @@ namespace Observatory.Framework.Interfaces
         public string Version { get; }
 
         /// <summary>
+        /// Returns a delegate for logging an error for the calling plugin. A plugin can wrap this method
+        /// or pass it along to its collaborators.
+        /// </summary>
+        /// <param name="plugin">The calling plugin</param>
+        public Action<Exception, String> GetPluginErrorLogger (IObservatoryPlugin plugin);
+
+        /// <summary>
         /// Perform an action on the current Avalonia UI thread.
         /// </summary>
         /// <param name="action"></param>
