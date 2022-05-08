@@ -190,6 +190,8 @@ namespace Observatory.PluginManagement
 
             if (Directory.Exists(pluginPath))
             {
+                ExtractPlugins(pluginPath);
+
                 //Temporarily skipping signature checks. Need to do this the right way later.
                 var pluginLibraries = Directory.GetFiles($"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins", "*.dll");
                 //var coreToken = Assembly.GetExecutingAssembly().GetName().GetPublicKeyToken();
@@ -239,6 +241,18 @@ namespace Observatory.PluginManagement
                 }
             }
             return errorList;
+        }
+
+        private static void ExtractPlugins(string pluginFolder)
+        {
+            var files = Directory.GetFiles(pluginFolder, "*.zip")
+                .Concat(Directory.GetFiles(pluginFolder, "*.eop"));
+
+            foreach (var file in files)
+            {
+                System.IO.Compression.ZipFile.ExtractToDirectory(file, pluginFolder, true);
+                File.Delete(file);
+            }
         }
 
         private static string LoadPluginAssembly(string dllPath, List<(IObservatoryWorker plugin, PluginStatus signed)> workers, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers)

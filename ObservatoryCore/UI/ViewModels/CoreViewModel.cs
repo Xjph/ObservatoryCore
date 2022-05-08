@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Observatory.Framework.Interfaces;
 using Observatory.UI.Models;
 using ReactiveUI;
@@ -114,6 +115,87 @@ namespace Observatory.UI.ViewModels
             Process.Start(githubOpen);
         }
 
+        public void ExportGrid()
+        {
+            var exportFolder = Properties.Core.Default.ExportFolder;
+
+            if (string.IsNullOrEmpty(exportFolder))
+            {
+                exportFolder = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            }
+
+            OpenFolderDialog openFolderDialog = new()
+            {
+                Directory = exportFolder
+            };
+
+            var selectedFolder = openFolderDialog.ShowAsync(((IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow).Result;
+            
+            if (!string.IsNullOrEmpty(selectedFolder))
+            {
+                Properties.Core.Default.ExportFolder = selectedFolder;
+                Properties.Core.Default.Save();
+                exportFolder = selectedFolder;
+            }
+            
+            foreach (var tab in tabs.Where(t => t.Name != "Core"))
+            {
+                var uiGrid = ((BasicUIViewModel)tab.UI).BasicUIGrid;
+                
+                var columns = uiGrid[0].GetType().GetProperties();
+                Dictionary<string, int> colSize = new();
+                Dictionary<string, List<string>> colContent = new();
+
+                foreach (var column in columns)
+                {
+                    colSize.Add(column.Name, 0);
+                    colContent.Add(column.Name, new());
+                }
+
+                var lineType = uiGrid[0].GetType();
+
+                foreach (var line in uiGrid)
+                {
+                    foreach (var column in colContent)
+                    {
+                        var cellValue = lineType.GetProperty(column.Key).GetValue(line)?.ToString() ?? string.Empty;
+                        column.Value.Add(cellValue);
+                        if (colSize[column.Key] < cellValue.Length)
+                            colSize[column.Key] = cellValue.Length;
+                    }
+                }
+
+                System.Text.StringBuilder exportData = new();
+                
+
+                foreach (var colTitle in colContent.Keys)
+                {
+                    if (colSize[colTitle] < colTitle.Length)
+                        colSize[colTitle] = colTitle.Length; 
+
+                    exportData.Append(colTitle.PadRight(colSize[colTitle]) + "  ");
+                }
+                exportData.AppendLine();
+
+                for (int i = 0; i < colContent.First().Value.Count; i++)
+                {
+                    foreach(var column in colContent)
+                    {
+                        if (column.Value[i].Length > 0 && !char.IsNumber(column.Value[i][0]) && column.Value[i].Count(char.IsLetter) / (float)column.Value[i].Length > 0.25)
+                            exportData.Append(column.Value[i].PadRight(colSize[column.Key]) + "  ");
+                        else
+                            exportData.Append(column.Value[i].PadLeft(colSize[column.Key]) + "  ");
+                    }
+                    exportData.AppendLine();
+                }
+                
+                string exportPath = $"{exportFolder}{System.IO.Path.DirectorySeparatorChar}Observatory Export - {DateTime.UtcNow:yyyyMMdd-HHmmss} - {tab.Name}.txt";
+
+                System.IO.File.WriteAllText(exportPath, exportData.ToString());
+
+            }
+        }
+
         public string ToggleButtonText
         {
             get => toggleButtonText;
@@ -179,7 +261,9 @@ namespace Observatory.UI.ViewModels
 
                     foreach (var release in releases)
                     {
-                        var ver = release.GetProperty("tag_name").ToString()[1..].Split('.').Select(verString => int.Parse(verString)).ToArray();
+                        var tag = release.GetProperty("tag_name").ToString();
+                        var verstrings = tag[1..].Split('.');
+                        var ver = verstrings.Select(verString => int.Parse(verString)).ToArray();
                         Version version = new(ver[0], ver[1], ver[2], ver[3]);
                         if (version > System.Reflection.Assembly.GetEntryAssembly().GetName().Version)
                         {
