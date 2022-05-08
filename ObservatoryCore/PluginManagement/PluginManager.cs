@@ -251,7 +251,11 @@ namespace Observatory.PluginManagement
 
         private static string LoadPluginAssembly(string dllPath, List<(IObservatoryWorker plugin, PluginStatus signed)> workers, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers)
         {
+
+            string recursionGuard = string.Empty;
+
             System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (context, name) => {
+            
                 if (name.Name.EndsWith("resources"))
                 {
                     return null;
@@ -270,7 +274,17 @@ namespace Observatory.PluginManagement
                     return context.LoadFromAssemblyPath(foundDlls[0]);
                 }
 
-                return context.LoadFromAssemblyName(name);
+                if (name.Name != recursionGuard)
+                {
+                    recursionGuard = name.Name;
+
+                    return context.LoadFromAssemblyName(name);
+                }
+                else
+                {
+                    throw new Exception("Unable to load assembly " + name.Name);
+                }
+    
             };
 
             var pluginAssembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(new FileInfo(dllPath).FullName);
