@@ -115,7 +115,7 @@ namespace Observatory.UI.ViewModels
             Process.Start(githubOpen);
         }
 
-        public void ExportGrid()
+        public async void ExportGrid()
         {
             var exportFolder = Properties.Core.Default.ExportFolder;
 
@@ -129,70 +129,72 @@ namespace Observatory.UI.ViewModels
                 Directory = exportFolder
             };
 
-            var selectedFolder = openFolderDialog.ShowAsync(((IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime).MainWindow).Result;
-            
+            var application = (IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime;
+
+            var selectedFolder = await openFolderDialog.ShowAsync(application.MainWindow);
+
             if (!string.IsNullOrEmpty(selectedFolder))
             {
                 Properties.Core.Default.ExportFolder = selectedFolder;
                 Properties.Core.Default.Save();
                 exportFolder = selectedFolder;
-            }
-            
-            foreach (var tab in tabs.Where(t => t.Name != "Core"))
-            {
-                var uiGrid = ((BasicUIViewModel)tab.UI).BasicUIGrid;
-                
-                var columns = uiGrid[0].GetType().GetProperties();
-                Dictionary<string, int> colSize = new();
-                Dictionary<string, List<string>> colContent = new();
-
-                foreach (var column in columns)
+                        
+                foreach (var tab in tabs.Where(t => t.Name != "Core"))
                 {
-                    colSize.Add(column.Name, 0);
-                    colContent.Add(column.Name, new());
-                }
+                    var uiGrid = ((BasicUIViewModel)tab.UI).BasicUIGrid;
+                    
+                    var columns = uiGrid[0].GetType().GetProperties();
+                    Dictionary<string, int> colSize = new();
+                    Dictionary<string, List<string>> colContent = new();
 
-                var lineType = uiGrid[0].GetType();
-
-                foreach (var line in uiGrid)
-                {
-                    foreach (var column in colContent)
+                    foreach (var column in columns)
                     {
-                        var cellValue = lineType.GetProperty(column.Key).GetValue(line)?.ToString() ?? string.Empty;
-                        column.Value.Add(cellValue);
-                        if (colSize[column.Key] < cellValue.Length)
-                            colSize[column.Key] = cellValue.Length;
+                        colSize.Add(column.Name, 0);
+                        colContent.Add(column.Name, new());
                     }
-                }
 
-                System.Text.StringBuilder exportData = new();
-                
+                    var lineType = uiGrid[0].GetType();
 
-                foreach (var colTitle in colContent.Keys)
-                {
-                    if (colSize[colTitle] < colTitle.Length)
-                        colSize[colTitle] = colTitle.Length; 
-
-                    exportData.Append(colTitle.PadRight(colSize[colTitle]) + "  ");
-                }
-                exportData.AppendLine();
-
-                for (int i = 0; i < colContent.First().Value.Count; i++)
-                {
-                    foreach(var column in colContent)
+                    foreach (var line in uiGrid)
                     {
-                        if (column.Value[i].Length > 0 && !char.IsNumber(column.Value[i][0]) && column.Value[i].Count(char.IsLetter) / (float)column.Value[i].Length > 0.25)
-                            exportData.Append(column.Value[i].PadRight(colSize[column.Key]) + "  ");
-                        else
-                            exportData.Append(column.Value[i].PadLeft(colSize[column.Key]) + "  ");
+                        foreach (var column in colContent)
+                        {
+                            var cellValue = lineType.GetProperty(column.Key).GetValue(line)?.ToString() ?? string.Empty;
+                            column.Value.Add(cellValue);
+                            if (colSize[column.Key] < cellValue.Length)
+                                colSize[column.Key] = cellValue.Length;
+                        }
+                    }
+
+                    System.Text.StringBuilder exportData = new();
+                    
+
+                    foreach (var colTitle in colContent.Keys)
+                    {
+                        if (colSize[colTitle] < colTitle.Length)
+                            colSize[colTitle] = colTitle.Length; 
+
+                        exportData.Append(colTitle.PadRight(colSize[colTitle]) + "  ");
                     }
                     exportData.AppendLine();
+
+                    for (int i = 0; i < colContent.First().Value.Count; i++)
+                    {
+                        foreach(var column in colContent)
+                        {
+                            if (column.Value[i].Length > 0 && !char.IsNumber(column.Value[i][0]) && column.Value[i].Count(char.IsLetter) / (float)column.Value[i].Length > 0.25)
+                                exportData.Append(column.Value[i].PadRight(colSize[column.Key]) + "  ");
+                            else
+                                exportData.Append(column.Value[i].PadLeft(colSize[column.Key]) + "  ");
+                        }
+                        exportData.AppendLine();
+                    }
+                    
+                    string exportPath = $"{exportFolder}{System.IO.Path.DirectorySeparatorChar}Observatory Export - {DateTime.UtcNow:yyyyMMdd-HHmmss} - {tab.Name}.txt";
+
+                    System.IO.File.WriteAllText(exportPath, exportData.ToString());
+
                 }
-                
-                string exportPath = $"{exportFolder}{System.IO.Path.DirectorySeparatorChar}Observatory Export - {DateTime.UtcNow:yyyyMMdd-HHmmss} - {tab.Name}.txt";
-
-                System.IO.File.WriteAllText(exportPath, exportData.ToString());
-
             }
         }
 

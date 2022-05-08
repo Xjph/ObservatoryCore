@@ -174,12 +174,6 @@ namespace Observatory.PluginManagement
             Properties.Core.Default.Save();
         }
 
-        //private static string GetSettingsFile(IObservatoryPlugin plugin)
-        //{
-        //    var configDirectory = new FileInfo(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath).Directory;
-        //    return configDirectory.FullName + "\\" + plugin.Name + ".json";
-        //}
-
         private static List<string> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
         {
             observatoryWorkers = new();
@@ -246,7 +240,7 @@ namespace Observatory.PluginManagement
         private static void ExtractPlugins(string pluginFolder)
         {
             var files = Directory.GetFiles(pluginFolder, "*.zip")
-                .Concat(Directory.GetFiles(pluginFolder, "*.eop"));
+                .Concat(Directory.GetFiles(pluginFolder, "*.eop")); // Elite Observatory Plugin
 
             foreach (var file in files)
             {
@@ -263,8 +257,8 @@ namespace Observatory.PluginManagement
                     return null;
                 }
 
-                //Importing Observatory.Framework in the Explorer Lua scripts causes an attempt to reload
-                //the assembly, just hand it back the one we already have.
+                // Importing Observatory.Framework in the Explorer Lua scripts causes an attempt to reload
+                // the assembly, just hand it back the one we already have.
                 if (name.Name.StartsWith("Observatory.Framework") || name.Name == "ObservatoryFramework")
                 {
                     return context.Assemblies.Where(a => a.FullName.Contains("ObservatoryFramework")).First();
