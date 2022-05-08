@@ -130,7 +130,10 @@ namespace Observatory.UI.Views
             int corner = Properties.Core.Default.NativeNotifyCorner;
 
             if (screen == -1 || screen > Screens.All.Count)
-                screenBounds = Screens.Primary.Bounds;
+                if (Screens.All.Count == 1)
+                    screenBounds = Screens.All[0].Bounds;
+                else
+                    screenBounds = Screens.Primary.Bounds;
             else
                 screenBounds = Screens.All[screen - 1].Bounds;
 
