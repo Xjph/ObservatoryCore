@@ -15,7 +15,8 @@ namespace Observatory.UI.ViewModels
     public class BasicUIViewModel : ViewModelBase
     {
         private ObservableCollection<object> basicUIGrid;
-        
+
+        public System.Collections.IList SelectedItems { get; set; }        
 
         public ObservableCollection<object> BasicUIGrid
         {

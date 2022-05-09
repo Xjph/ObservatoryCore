@@ -174,12 +174,6 @@ namespace Observatory.PluginManagement
             Properties.Core.Default.Save();
         }
 
-        //private static string GetSettingsFile(IObservatoryPlugin plugin)
-        //{
-        //    var configDirectory = new FileInfo(ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath).Directory;
-        //    return configDirectory.FullName + "\\" + plugin.Name + ".json";
-        //}
-
         private static List<string> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
         {
             observatoryWorkers = new();
@@ -190,6 +184,8 @@ namespace Observatory.PluginManagement
 
             if (Directory.Exists(pluginPath))
             {
+                ExtractPlugins(pluginPath);
+
                 //Temporarily skipping signature checks. Need to do this the right way later.
                 var pluginLibraries = Directory.GetFiles($"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins", "*.dll");
                 //var coreToken = Assembly.GetExecutingAssembly().GetName().GetPublicKeyToken();
@@ -241,16 +237,39 @@ namespace Observatory.PluginManagement
             return errorList;
         }
 
+        private static void ExtractPlugins(string pluginFolder)
+        {
+            var files = Directory.GetFiles(pluginFolder, "*.zip")
+                .Concat(Directory.GetFiles(pluginFolder, "*.eop")); // Elite Observatory Plugin
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    System.IO.Compression.ZipFile.ExtractToDirectory(file, pluginFolder, true);
+                    File.Delete(file);
+                }
+                catch 
+                { 
+                    // Just ignore files that don't extract successfully.
+                }
+            }
+        }
+
         private static string LoadPluginAssembly(string dllPath, List<(IObservatoryWorker plugin, PluginStatus signed)> workers, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers)
         {
+
+            string recursionGuard = string.Empty;
+
             System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (context, name) => {
+            
                 if (name.Name.EndsWith("resources"))
                 {
                     return null;
                 }
 
-                //Importing Observatory.Framework in the Explorer Lua scripts causes an attempt to reload
-                //the assembly, just hand it back the one we already have.
+                // Importing Observatory.Framework in the Explorer Lua scripts causes an attempt to reload
+                // the assembly, just hand it back the one we already have.
                 if (name.Name.StartsWith("Observatory.Framework") || name.Name == "ObservatoryFramework")
                 {
                     return context.Assemblies.Where(a => a.FullName.Contains("ObservatoryFramework")).First();
@@ -262,7 +281,17 @@ namespace Observatory.PluginManagement
                     return context.LoadFromAssemblyPath(foundDlls[0]);
                 }
 
-                return context.LoadFromAssemblyName(name);
+                if (name.Name != recursionGuard)
+                {
+                    recursionGuard = name.Name;
+
+                    return context.LoadFromAssemblyName(name);
+                }
+                else
+                {
+                    throw new Exception("Unable to load assembly " + name.Name);
+                }
+    
             };
 
             var pluginAssembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(new FileInfo(dllPath).FullName);

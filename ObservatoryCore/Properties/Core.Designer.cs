@@ -12,7 +12,7 @@ namespace Observatory.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.8.1.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.1.0.0")]
     internal sealed partial class Core : global::System.Configuration.ApplicationSettingsBase {
         
         private static Core defaultInstance = ((Core)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Core())));
@@ -238,7 +238,7 @@ namespace Observatory.Properties {
                 this["NativeNotifyTimeout"] = value;
             }
         }
-
+        
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
@@ -248,6 +248,18 @@ namespace Observatory.Properties {
             }
             set {
                 this["StartMonitor"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ExportFolder {
+            get {
+                return ((string)(this["ExportFolder"]));
+            }
+            set {
+                this["ExportFolder"] = value;
             }
         }
     }

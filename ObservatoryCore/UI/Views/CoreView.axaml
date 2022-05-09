@@ -73,6 +73,14 @@
           Cursor="Hand">
           Update Available
         </Button>
+		<Button
+		  Name="export"
+		  Margin="10"
+		  FontSize="15"
+		  Command="{Binding ExportGrid}"
+		  Content="Export">
+		  Export
+		</Button>
         <Button 
           Name="ToggleMonitor" 
           Margin="10" 
