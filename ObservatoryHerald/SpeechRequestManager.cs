@@ -295,7 +295,7 @@ namespace Observatory.Herald
             stopwatch.Start();
             
             while (!IsFileWritable(cacheIndexFile) && stopwatch.ElapsedMilliseconds < 1000)
-                await new Task(() => System.Threading.Thread.Sleep(100));
+                await Task.Factory.StartNew(() => System.Threading.Thread.Sleep(100));
 
             // 1000ms should be more than enough for a conflicting title or detail to complete,
             // if we're still waiting something else is locking the file, just give up.
