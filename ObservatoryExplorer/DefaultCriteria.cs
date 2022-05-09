@@ -63,11 +63,11 @@ namespace Observatory.Explorer
             {
                 if (HighValueTerraformablePlanetClasses.Contains(scan.PlanetClass) && scan.TerraformState?.Length > 0)
                 {
-                    results.Add("High-Value Terraformable");
+                    results.Add("High-Value Mapping", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass} (TF)");
                 }
                 if (HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass) && scan.TerraformState?.Length == 0)
                 {
-                    results.Add("High-Value Non-Terraformable");
+                    results.Add("High-Value Mapping", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass}");
                 }
             }
             #endregion
