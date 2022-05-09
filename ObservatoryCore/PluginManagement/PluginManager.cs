@@ -244,8 +244,15 @@ namespace Observatory.PluginManagement
 
             foreach (var file in files)
             {
-                System.IO.Compression.ZipFile.ExtractToDirectory(file, pluginFolder, true);
-                File.Delete(file);
+                try
+                {
+                    System.IO.Compression.ZipFile.ExtractToDirectory(file, pluginFolder, true);
+                    File.Delete(file);
+                }
+                catch 
+                { 
+                    // Just ignore files that don't extract successfully.
+                }
             }
         }
 
