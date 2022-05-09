@@ -229,7 +229,7 @@ namespace Observatory.Herald
             return demonym;
         }
 
-        private void UpdateAndPruneCache(FileInfo currentFile)
+        private async void UpdateAndPruneCache(FileInfo currentFile)
         {
             Dictionary<string, CacheData> cacheIndex;
 
@@ -289,12 +289,40 @@ namespace Observatory.Herald
                 cacheIndex.Remove(staleFile);
             }
 
-            File.WriteAllText(cacheIndexFile, JsonSerializer.Serialize(cacheIndex));
-
-            // Purge cache from earlier versions, if still present.
-            var legacyCache = cacheLocation.GetFiles("*.wav");
-            Array.ForEach(legacyCache, file => File.Delete(file.FullName));
+            // Race conditions between title and detail speech make a collision here possible.
+            // Wait for file to become writable, but return control to call site while we wait.
+            System.Diagnostics.Stopwatch stopwatch = new();
+            stopwatch.Start();
             
+            while (!IsFileWritable(cacheIndexFile) && stopwatch.ElapsedMilliseconds < 1000)
+                await new Task(() => System.Threading.Thread.Sleep(100));
+
+            // 1000ms should be more than enough for a conflicting title or detail to complete,
+            // if we're still waiting something else is locking the file, just give up.
+            if (stopwatch.ElapsedMilliseconds < 1000)
+            {
+                File.WriteAllText(cacheIndexFile, JsonSerializer.Serialize(cacheIndex));
+
+                // Purge cache from earlier versions, if still present.
+                var legacyCache = cacheLocation.GetFiles("*.wav");
+                Array.ForEach(legacyCache, file => File.Delete(file.FullName));
+            }
+
+            stopwatch.Stop();
+        }
+
+        private static bool IsFileWritable(string path)
+        {
+            try
+            {
+                using FileStream fs = File.OpenWrite(path);
+                fs.Close();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public class CacheData
