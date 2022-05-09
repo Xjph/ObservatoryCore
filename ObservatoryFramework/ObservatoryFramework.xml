@@ -873,6 +873,13 @@
             Version string of Observatory Core.
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.GetPluginErrorLogger(Observatory.Framework.Interfaces.IObservatoryPlugin)">
+            <summary>
+            Returns a delegate for logging an error for the calling plugin. A plugin can wrap this method
+            or pass it along to its collaborators.
+            </summary>
+            <param name="plugin">The calling plugin</param>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.ExecuteOnUIThread(System.Action)">
             <summary>
             Perform an action on the current Avalonia UI thread.
