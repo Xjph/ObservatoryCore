@@ -368,3 +368,4 @@ InnoSetup/ObservatorySetup.exe
 *.snk
 ObservatoryFramework/ObservatoryFramework.xml
 InnoSetup/ObservatoryCore.zip
+/ObservatoryHerald/ObservatoryAPI - Build.resx
