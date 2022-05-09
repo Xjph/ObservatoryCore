@@ -9,6 +9,18 @@ namespace Observatory.Explorer
 {
     internal static class DefaultCriteria
     {
+        private static IList<string> HighValueNonTerraformablePlanetClasses = new string[] {
+            "Earthlike body",
+            "Ammonia world",
+            "Water world",
+        };
+
+        private static IList<string> HighValueTerraformablePlanetClasses = new string[] {
+            "Water world",
+            "High metal content body",
+            "Rocky body",
+        };
+
         public static List<(string Description, string Detail, bool SystemWide)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
         {
             List<(string, string, bool)> results = new();
@@ -46,6 +58,20 @@ namespace Observatory.Explorer
             }
             #endregion
 
+            #region Value Checks
+            if (settings.HighValueMappable)
+            {
+                if (HighValueTerraformablePlanetClasses.Contains(scan.PlanetClass) && scan.TerraformState?.Length > 0)
+                {
+                    results.Add("High-Value Mapping", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass} (TF)");
+                }
+                if (HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass) && scan.TerraformState?.Length == 0)
+                {
+                    results.Add("High-Value Mapping", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass}");
+                }
+            }
+            #endregion
+            
             #region Parent Relative Checks
 
             if (scan.SystemAddress != 0 && scan.SemiMajorAxis != 0 &&
