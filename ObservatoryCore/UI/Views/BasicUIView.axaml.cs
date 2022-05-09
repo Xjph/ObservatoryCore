@@ -82,10 +82,11 @@ namespace Observatory.UI.Views
                         SelectionMode = DataGridSelectionMode.Extended,
                         GridLinesVisibility = DataGridGridLinesVisibility.Vertical,
                         AutoGenerateColumns = true,
-                        IsReadOnly = true,
+                        IsReadOnly = true
                     };
                     dataGrid.AutoGeneratingColumn += ColumnGeneration;
                     dataGrid.DataContextChanged += OnDataContextSet;
+                    dataGrid.SelectionChanged += OnSelectionChanged;
                     uiPanel.Children.Clear();
                     uiPanel.Children.Add(dataGrid);
                     break;
@@ -101,6 +102,12 @@ namespace Observatory.UI.Views
                 default:
                     break;
             }
+        }
+
+        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ((Observatory.UI.ViewModels.BasicUIViewModel)dataGrid.DataContext).SelectedItems = dataGrid.SelectedItems;
+
         }
 
         private void OnDataContextSet(object sender, EventArgs e)

@@ -141,9 +141,23 @@ namespace Observatory.UI.ViewModels
                         
                 foreach (var tab in tabs.Where(t => t.Name != "Core"))
                 {
-                    var uiGrid = ((BasicUIViewModel)tab.UI).BasicUIGrid;
+                    var ui = (BasicUIViewModel)tab.UI;
+                    List<object> selectedData;
+                    bool specificallySelected = ui.SelectedItems?.Count > 1;
+
+                    if (specificallySelected)
+                    {
+                        selectedData = new();
+
+                        foreach (var item in ui.SelectedItems)
+                            selectedData.Add(item);
+                    }
+                    else
+                    {
+                        selectedData = ui.BasicUIGrid.ToList();
+                    }
                     
-                    var columns = uiGrid[0].GetType().GetProperties();
+                    var columns = selectedData[0].GetType().GetProperties();
                     Dictionary<string, int> colSize = new();
                     Dictionary<string, List<string>> colContent = new();
 
@@ -153,9 +167,9 @@ namespace Observatory.UI.ViewModels
                         colContent.Add(column.Name, new());
                     }
 
-                    var lineType = uiGrid[0].GetType();
+                    var lineType = selectedData[0].GetType();
 
-                    foreach (var line in uiGrid)
+                    foreach (var line in selectedData)
                     {
                         foreach (var column in colContent)
                         {
@@ -193,6 +207,7 @@ namespace Observatory.UI.ViewModels
                     string exportPath = $"{exportFolder}{System.IO.Path.DirectorySeparatorChar}Observatory Export - {DateTime.UtcNow:yyyyMMdd-HHmmss} - {tab.Name}.txt";
 
                     System.IO.File.WriteAllText(exportPath, exportData.ToString());
+                    
 
                 }
             }
@@ -242,7 +257,7 @@ namespace Observatory.UI.ViewModels
             }
         }
 
-        private bool CheckUpdate()
+        private static bool CheckUpdate()
         {
             try
             {
@@ -265,15 +280,17 @@ namespace Observatory.UI.ViewModels
                     {
                         var tag = release.GetProperty("tag_name").ToString();
                         var verstrings = tag[1..].Split('.');
-                        var ver = verstrings.Select(verString => int.Parse(verString)).ToArray();
-                        Version version = new(ver[0], ver[1], ver[2], ver[3]);
-                        if (version > System.Reflection.Assembly.GetEntryAssembly().GetName().Version)
+                        var ver = verstrings.Select(verString => { _ = int.TryParse(verString, out int ver); return ver; }).ToArray();
+                        if (ver.Length == 4)
                         {
-                            return true;
+                            Version version = new(ver[0], ver[1], ver[2], ver[3]);
+                            if (version > System.Reflection.Assembly.GetEntryAssembly().GetName().Version)
+                            {
+                                return true;
+                            }
                         }
                     }
                 }
-
             }
             catch
             {
