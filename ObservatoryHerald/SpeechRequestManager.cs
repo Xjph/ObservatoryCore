@@ -127,8 +127,6 @@ namespace Observatory.Herald
                 voiceNode.InnerXml = expressAsNode.OuterXml;
             }
 
-            
-
             return ssmlDoc.OuterXml;
         }
 

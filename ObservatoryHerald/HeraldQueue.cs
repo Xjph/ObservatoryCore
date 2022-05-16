@@ -131,6 +131,10 @@ namespace Observatory.Herald
                 while (audioPlayer.Playing)
                     Thread.Sleep(50);
 
+                // Explicit stop to ensure device is ready for next file.
+                // ...hopefully.
+                audioPlayer.Stop(true).Wait();
+
             }
             speechManager.CommitCache();
         }
