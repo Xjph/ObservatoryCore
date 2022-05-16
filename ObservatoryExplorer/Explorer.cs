@@ -222,13 +222,13 @@ namespace Observatory.Explorer
                     {
                         int ringIndex = bodyAffix.Length - 6;
                         spokenAffix =
-                            "<say-as interpret-as=\"spell-out\">" + bodyAffix.Substring(0, ringIndex) +
-                            "</say-as><break strength=\"weak\"/><say-as interpret-as=\"spell-out\">" +
-                            bodyAffix.Substring(ringIndex, 1) + "</say-as>" + bodyAffix.Substring(ringIndex + 1, bodyAffix.Length - (ringIndex + 1));
+                            "<say-as interpret-as=\"spell-out\">" + bodyAffix[..ringIndex]
+                            + "</say-as><break strength=\"weak\"/>" + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
+                            + bodyAffix.Substring(ringIndex + 1, bodyAffix.Length - (ringIndex + 1));
                     }
                     else
                     {
-                        spokenAffix = "<say-as interpret-as=\"spell-out\">" + bodyAffix + "</say-as>";
+                        spokenAffix = SplitOrdinalForSsml(bodyAffix);
                     }
                 }
                 else
@@ -248,5 +248,18 @@ namespace Observatory.Explorer
             }
         }
 
+        private static string SplitOrdinalForSsml(string ordinalString)
+        {
+            var ordinalSegments = ordinalString.Split(' ');
+            StringBuilder affix = new();
+            foreach (var ordinalSegment in ordinalSegments)
+            {
+                if (ordinalSegment.All(Char.IsDigit))
+                    affix.Append(" " + ordinalSegment);
+                else
+                    affix.Append("<say-as interpret-as=\"spell-out\">" + ordinalSegment + "</say-as>");
+            }
+            return affix.ToString();
+        }
     }
 }
