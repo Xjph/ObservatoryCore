@@ -83,11 +83,8 @@ namespace NetCoreAudio.Players
                 ExecuteMciCommand($"Stop {_fileName}");
 				Playing = false;
                 Paused = false;
-                if (!force)
-                {
-                    _playbackTimer.Stop();
-                    _playStopwatch.Stop();
-                }
+                _playbackTimer?.Stop();
+                _playStopwatch?.Stop();
             }
             return Task.CompletedTask;
         }
