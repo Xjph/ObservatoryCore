@@ -106,25 +106,28 @@ namespace Observatory.Herald
             XmlNamespaceManager ssmlNs = new(ssmlDoc.NameTable);
             ssmlNs.AddNamespace("ssml", ssmlNamespace);
             ssmlNs.AddNamespace("mstts", "http://www.w3.org/2001/mstts");
+            ssmlNs.AddNamespace("emo", "http://www.w3.org/2009/10/emotionml");
 
             var voiceNode = ssmlDoc.SelectSingleNode("/ssml:speak/ssml:voice", ssmlNs);
             voiceNode.Attributes.GetNamedItem("name").Value = voiceName;
 
+            if (!string.IsNullOrWhiteSpace(rate))
+            {
+                var prosodyNode = ssmlDoc.CreateElement("ssml", "prosody", ssmlNamespace);
+                prosodyNode.SetAttribute("rate", rate);
+                prosodyNode.InnerXml = voiceNode.InnerXml;
+                voiceNode.InnerXml = prosodyNode.OuterXml;
+            }
+
             if (!string.IsNullOrWhiteSpace(styleName))
             {
-                var expressAsNode = ssmlDoc.CreateElement("express-as", "http://www.w3.org/2001/mstts");
+                var expressAsNode = ssmlDoc.CreateElement("mstts", "express-as", "http://www.w3.org/2001/mstts");
                 expressAsNode.SetAttribute("style", styleName);
                 expressAsNode.InnerXml = voiceNode.InnerXml;
                 voiceNode.InnerXml = expressAsNode.OuterXml;
             }
 
-            if (!string.IsNullOrWhiteSpace(rate))
-            {
-                var prosodyNode = ssmlDoc.CreateElement("prosody", ssmlNamespace);
-                prosodyNode.SetAttribute("rate", rate);
-                prosodyNode.InnerXml = voiceNode.InnerXml;
-                voiceNode.InnerXml = prosodyNode.OuterXml;
-            }
+            
 
             return ssmlDoc.OuterXml;
         }
