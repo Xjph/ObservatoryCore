@@ -132,6 +132,7 @@ namespace Observatory.Herald
                     Thread.Sleep(50);
 
             }
+            speechManager.CommitCache();
         }
     }
 }
