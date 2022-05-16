@@ -9,18 +9,6 @@ namespace Observatory.Explorer
 {
     internal static class DefaultCriteria
     {
-        private static IList<string> HighValueNonTerraformablePlanetClasses = new string[] {
-            "Earthlike body",
-            "Ammonia world",
-            "Water world",
-        };
-
-        private static IList<string> HighValueTerraformablePlanetClasses = new string[] {
-            "Water world",
-            "High metal content body",
-            "Rocky body",
-        };
-
         public static List<(string Description, string Detail, bool SystemWide)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
         {
             List<(string, string, bool)> results = new();
@@ -61,13 +49,23 @@ namespace Observatory.Explorer
             #region Value Checks
             if (settings.HighValueMappable)
             {
-                if (HighValueTerraformablePlanetClasses.Contains(scan.PlanetClass) && scan.TerraformState?.Length > 0)
+                IList<string> HighValueNonTerraformablePlanetClasses = new string[] {
+                    "Earthlike body",
+                    "Ammonia world",
+                    "Water world",
+                };
+
+                if (HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass) || scan.TerraformState?.Length > 0)
                 {
-                    results.Add("High-Value Mapping", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass} (TF)");
-                }
-                if (HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass) && scan.TerraformState?.Length == 0)
-                {
-                    results.Add("High-Value Mapping", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass}");
+                    var info = new System.Text.StringBuilder(" ");
+                    if (scan.TerraformState?.Length > 0)
+                        info.Append("(TF)");
+                    if (!scan.WasDiscovered)
+                        info.Append("(FD)");
+                    if (!scan.WasMapped)
+                        info.Append("(FM)");
+
+                    results.Add("High-Value Body", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass}{(info.Length > 1 ? info.ToString(): string.Empty)}");
                 }
             }
             #endregion

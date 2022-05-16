@@ -80,7 +80,7 @@ namespace Observatory.Explorer
         [SettingDisplayName("All Surface Mats In System")]
         public bool GoldSystem { get; set; }
 
-        [SettingDisplayName("High-Value Mapping")]
+        [SettingDisplayName("High-Value Body")]
         public bool HighValueMappable { get; set; }
 
         [SettingDisplayName("Enable Custom Criteria")]
