@@ -43,7 +43,8 @@ namespace Observatory.Herald
             // to make perceived volume more in line with value set.
             this.volume = ((byte)System.Math.Floor(System.Math.Pow(volume / 100.0, 2.0) * 100));
 
-            notifications.Enqueue(notification);
+            if (!notifications.Where(n => n.Title.Trim().ToLower() == notification.Title.Trim().ToLower()).Any())
+                notifications.Enqueue(notification);
 
             if (!processing)
             {
