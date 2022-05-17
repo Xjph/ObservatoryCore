@@ -106,7 +106,7 @@ namespace Observatory.Herald
 
         private async Task<string> RetrieveAudioToFile(string text)
         {
-            return await RetrieveAudioSsmlToFile($"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{text}</voice></speak>");
+            return await RetrieveAudioSsmlToFile($"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{System.Security.SecurityElement.Escape(text)}</voice></speak>");
         }
 
         private async Task<string> RetrieveAudioSsmlToFile(string ssml)

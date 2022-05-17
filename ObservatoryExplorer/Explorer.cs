@@ -224,7 +224,7 @@ namespace Observatory.Explorer
                         spokenAffix =
                             "<say-as interpret-as=\"spell-out\">" + bodyAffix[..ringIndex]
                             + "</say-as><break strength=\"weak\"/>" + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
-                            + bodyAffix.Substring(ringIndex + 1, bodyAffix.Length - (ringIndex + 1));
+                            + bodyAffix[(ringIndex + 1)..];
                     }
                     else
                     {
@@ -237,10 +237,12 @@ namespace Observatory.Explorer
                     spokenAffix = string.Empty;
                 }
 
+                string ssmlContent = System.Security.SecurityElement.Escape(bodyLabel + " " + spokenAffix);
+                
                 NotificationArgs args = new()
                 {
                     Title = bodyLabel + bodyAffix,
-                    TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
+                    TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{ssmlContent}</voice></speak>",
                     Detail = notificationDetail.ToString()
                 };
 
