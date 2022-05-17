@@ -6,6 +6,7 @@ namespace Observatory.Framework.Files.ParameterTypes
     {
         public string Label { get; init; }
 
+        [JsonConverter(typeof(Converters.MutableStringDoubleConverter))]
         public object Value 
         { 
             get
