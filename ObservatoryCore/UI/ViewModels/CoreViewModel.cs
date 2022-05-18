@@ -213,6 +213,29 @@ namespace Observatory.UI.ViewModels
             }
         }
 
+        public void ClearGrid()
+        {
+            foreach (var tab in tabs.Where(t => t.Name != "Core"))
+            {
+                var ui = (BasicUIViewModel)tab.UI;
+
+                var rowTemplate = ui.BasicUIGrid.First();
+
+                foreach (var property in rowTemplate.GetType().GetProperties())
+                {
+                    property.SetValue(rowTemplate, string.Empty);
+                }
+
+                ui.BasicUIGrid.Clear();
+                ui.BasicUIGrid.Add(rowTemplate);
+
+                // For some reason UIType's change event will properly
+                // redraw the grid, not BasicUIGris's.
+                ui.RaisePropertyChanged(nameof(ui.UIType));
+               
+            }
+        }
+
         public string ToggleButtonText
         {
             get => toggleButtonText;

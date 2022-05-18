@@ -81,6 +81,14 @@
 		  Content="Export">
 		  Export
 		</Button>
+		<Button
+		  Name="clear"
+		  Margin="10"
+		  FontSize="15"
+		  Command="{Binding ClearGrid}"
+		  Content="Clear">
+		  Clear
+		</Button>
         <Button 
           Name="ToggleMonitor" 
           Margin="10" 
