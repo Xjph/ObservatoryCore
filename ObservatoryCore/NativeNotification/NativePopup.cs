@@ -8,7 +8,6 @@ namespace Observatory.NativeNotification
 {
     public class NativePopup
     {
-        // TODO: This needs to be cleaned up when the app is closed.
         private Dictionary<Guid, NotificationView> notifications;
 
         public NativePopup()
