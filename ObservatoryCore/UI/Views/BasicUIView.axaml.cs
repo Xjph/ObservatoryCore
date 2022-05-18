@@ -27,6 +27,11 @@ namespace Observatory.UI.Views
         {
             InitializeComponent();
             nativePopup = new();
+
+            this.DetachedFromVisualTree += (o, e) =>
+            {
+                nativePopup.CloseAll();
+            };
         }
 
         private void InitializeComponent()

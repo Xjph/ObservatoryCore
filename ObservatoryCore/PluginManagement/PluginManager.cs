@@ -34,6 +34,7 @@ namespace Observatory.PluginManagement
         public readonly List<DataTable> pluginTables;
         public readonly List<(IObservatoryWorker plugin, PluginStatus signed)> workerPlugins;
         public readonly List<(IObservatoryNotifier plugin, PluginStatus signed)> notifyPlugins;
+        private readonly PluginCore core;
         
         private PluginManager()
         {
@@ -48,7 +49,7 @@ namespace Observatory.PluginManagement
             logMonitor.StatusUpdate += pluginHandler.OnStatusUpdate;
             logMonitor.LogMonitorStateChanged += pluginHandler.OnLogMonitorStateChanged;
 
-            var core = new PluginCore();
+            core = new PluginCore();
 
             List<IObservatoryPlugin> errorPlugins = new();
             
@@ -344,6 +345,11 @@ namespace Observatory.PluginManagement
             }
 
             return err;
+        }
+
+        internal void Shutdown()
+        {
+            core.Shutdown();
         }
 
         private static void LoadPlaceholderPlugin(string dllPath, PluginStatus pluginStatus, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers)

@@ -21,6 +21,11 @@ namespace Observatory.UI
                 {
                     DataContext = new MainWindowViewModel(pluginManager)
                 };
+
+                desktop.MainWindow.Closing += (o, e) =>
+                {
+                    pluginManager.Shutdown();
+                };
             }
 
             base.OnFrameworkInitializationCompleted();

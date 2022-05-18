@@ -67,5 +67,13 @@ namespace Observatory.NativeNotification
                 });
             }
         }
+
+        public void CloseAll()
+        {
+            foreach (var notification in notifications)
+            {
+                notification.Value?.Close();
+            }
+        }
     }
 }
