@@ -212,7 +212,7 @@ namespace Observatory.Explorer
                     bodyAffix = string.Empty;
                 }
 
-                string bodyLabel = scanEvent.PlanetClass == "Barycentre" ? "Barycentre" : "Body";
+                string bodyLabel = System.Security.SecurityElement.Escape(scanEvent.PlanetClass == "Barycentre" ? "Barycentre" : "Body");
 
                 string spokenAffix;
 
@@ -237,12 +237,10 @@ namespace Observatory.Explorer
                     spokenAffix = string.Empty;
                 }
 
-                string ssmlContent = System.Security.SecurityElement.Escape(bodyLabel + " " + spokenAffix);
-                
                 NotificationArgs args = new()
                 {
                     Title = bodyLabel + bodyAffix,
-                    TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{ssmlContent}</voice></speak>",
+                    TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
                     Detail = notificationDetail.ToString()
                 };
 
