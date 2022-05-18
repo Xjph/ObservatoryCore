@@ -141,11 +141,9 @@ namespace Observatory.Explorer
                 results.Add("Nested Moon");
             }
 
-            if (settings.FastRotation && scan.RotationPeriod != 0 && !scan.TidalLock && Math.Abs(scan.RotationPeriod) < 28800 && !isRing)
+            if (settings.FastRotation && scan.RotationPeriod != 0 && !scan.TidalLock && Math.Abs(scan.RotationPeriod) < 28800 && !isRing && string.IsNullOrEmpty(scan.StarType))
             {
-                var spinningRemnants = new List<string> { "H", "N" };
-                if (!spinningRemnants.Contains(scan.StarType))
-                    results.Add("Non-locked Body with Fast Rotation", $"Period: {scan.RotationPeriod/3600:N1} hours");
+                results.Add("Non-locked Body with Fast Rotation", $"Period: {scan.RotationPeriod/3600:N1} hours");
             }
 
             if (settings.FastOrbit && scan.OrbitalPeriod != 0 && Math.Abs(scan.OrbitalPeriod) < 28800 && !isRing)
