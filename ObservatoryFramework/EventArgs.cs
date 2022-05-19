@@ -58,6 +58,18 @@ namespace Observatory.Framework
         /// Specifies the desired renderings of the notification.
         /// </summary>
         public NotificationRendering Rendering = NotificationRendering.All;
+        /// <summary>
+        /// Specifies if some part of the notification should be suppressed. (Currently only respected by Herald.)
+        /// </summary>
+        public NotificationSuppression Suppression = NotificationSuppression.None;
+    }
+
+    [Flags]
+    public enum NotificationSuppression
+    {
+        None = 0,
+        Title = 1,
+        Detail = 2,
     }
 
     [Flags]
