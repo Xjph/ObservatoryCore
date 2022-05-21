@@ -56,7 +56,7 @@ namespace NetCoreAudio.Players
             return Task.CompletedTask;
         }
 
-        public Task Stop()
+        public Task Stop(bool force = false)
         {
             if (_process != null)
             {

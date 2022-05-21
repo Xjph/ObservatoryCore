@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Xml;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using System.Collections.Concurrent;
 
 namespace Observatory.Herald
 {
@@ -19,7 +20,8 @@ namespace Observatory.Herald
         private string ApiEndpoint;
         private DirectoryInfo cacheLocation;
         private int cacheSize;
-        private Action<Exception, String> ErrorLogger;
+        private Action<Exception, string> ErrorLogger;
+        private ConcurrentDictionary<string, CacheData> cacheIndex;
 
         internal SpeechRequestManager(
             HeraldSettings settings, HttpClient httpClient, string cacheFolder, Action<Exception, String> errorLogger)
@@ -29,6 +31,7 @@ namespace Observatory.Herald
             this.httpClient = httpClient;
             cacheSize = Math.Max(settings.CacheSize, 1);
             cacheLocation = new DirectoryInfo(cacheFolder);
+            ReadCache();
             ErrorLogger = errorLogger;
 
             if (!Directory.Exists(cacheLocation.FullName))
@@ -103,24 +106,25 @@ namespace Observatory.Herald
             XmlNamespaceManager ssmlNs = new(ssmlDoc.NameTable);
             ssmlNs.AddNamespace("ssml", ssmlNamespace);
             ssmlNs.AddNamespace("mstts", "http://www.w3.org/2001/mstts");
+            ssmlNs.AddNamespace("emo", "http://www.w3.org/2009/10/emotionml");
 
             var voiceNode = ssmlDoc.SelectSingleNode("/ssml:speak/ssml:voice", ssmlNs);
             voiceNode.Attributes.GetNamedItem("name").Value = voiceName;
 
-            if (!string.IsNullOrWhiteSpace(styleName))
-            {
-                var expressAsNode = ssmlDoc.CreateElement("express-as", "http://www.w3.org/2001/mstts");
-                expressAsNode.SetAttribute("style", styleName);
-                expressAsNode.InnerXml = voiceNode.InnerXml;
-                voiceNode.InnerXml = expressAsNode.OuterXml;
-            }
-
             if (!string.IsNullOrWhiteSpace(rate))
             {
-                var prosodyNode = ssmlDoc.CreateElement("prosody", ssmlNamespace);
+                var prosodyNode = ssmlDoc.CreateElement("ssml", "prosody", ssmlNamespace);
                 prosodyNode.SetAttribute("rate", rate);
                 prosodyNode.InnerXml = voiceNode.InnerXml;
                 voiceNode.InnerXml = prosodyNode.OuterXml;
+            }
+
+            if (!string.IsNullOrWhiteSpace(styleName))
+            {
+                var expressAsNode = ssmlDoc.CreateElement("mstts", "express-as", "http://www.w3.org/2001/mstts");
+                expressAsNode.SetAttribute("style", styleName);
+                expressAsNode.InnerXml = voiceNode.InnerXml;
+                voiceNode.InnerXml = expressAsNode.OuterXml;
             }
 
             return ssmlDoc.OuterXml;
@@ -229,10 +233,8 @@ namespace Observatory.Herald
             return demonym;
         }
 
-        private async void UpdateAndPruneCache(FileInfo currentFile)
+        private void ReadCache()
         {
-            Dictionary<string, CacheData> cacheIndex;
-
             string cacheIndexFile = cacheLocation + "CacheIndex.json";
 
             if (File.Exists(cacheIndexFile))
@@ -240,7 +242,7 @@ namespace Observatory.Herald
                 var indexFileContent = File.ReadAllText(cacheIndexFile);
                 try
                 {
-                    cacheIndex = JsonSerializer.Deserialize<Dictionary<string, CacheData>>(indexFileContent);
+                    cacheIndex = JsonSerializer.Deserialize<ConcurrentDictionary<string, CacheData>>(indexFileContent);
                 }
                 catch (Exception ex)
                 {
@@ -258,9 +260,13 @@ namespace Observatory.Herald
             var cacheFiles = cacheLocation.GetFiles("*.mp3");
             foreach (var file in cacheFiles.Where(file => !cacheIndex.ContainsKey(file.Name)))
             {
-                cacheIndex.Add(file.Name, new(file.CreationTime, 0));
+                cacheIndex.TryAdd(file.Name, new(file.CreationTime, 0));
             };
+        }
 
+        private void UpdateAndPruneCache(FileInfo currentFile)
+        {
+            var cacheFiles = cacheLocation.GetFiles("*.mp3");
             if (cacheIndex.ContainsKey(currentFile.Name))
             {
                 cacheIndex[currentFile.Name] = new(
@@ -270,13 +276,15 @@ namespace Observatory.Herald
             }
             else
             {
-                cacheIndex.Add(currentFile.Name, new(DateTime.UtcNow, 1));
+                cacheIndex.TryAdd(currentFile.Name, new(DateTime.UtcNow, 1));
             }
 
-            var currentCacheSize = cacheFiles.Sum(f => f.Length);
-            while (currentCacheSize > cacheSize * 1024 * 1024)
-            {
+            var indexedCacheSize = cacheFiles
+                .Where(f => cacheIndex.ContainsKey(f.Name))
+                .Sum(f => f.Length);
 
+            while (indexedCacheSize > cacheSize * 1024 * 1024)
+            {
                 var staleFile = (from file in cacheIndex
                                 orderby file.Value.HitCount, file.Value.Created
                                 select file.Key).First();
@@ -284,16 +292,19 @@ namespace Observatory.Herald
                 if (staleFile == currentFile.Name)
                     break;
 
-                currentCacheSize -= new FileInfo(cacheLocation + staleFile).Length;
-                File.Delete(cacheLocation + staleFile);
-                cacheIndex.Remove(staleFile);
+                cacheIndex.TryRemove(staleFile, out _);
             }
+        }
 
-            // Race conditions between title and detail speech make a collision here possible.
-            // Wait for file to become writable, but return control to call site while we wait.
+        internal async void CommitCache()
+        {
+            string cacheIndexFile = cacheLocation + "CacheIndex.json";
+
             System.Diagnostics.Stopwatch stopwatch = new();
             stopwatch.Start();
-            
+
+            // Race condition isn't a concern anymore, but should check this anyway to be safe.
+            // (Maybe someone is poking at the file with notepad?)
             while (!IsFileWritable(cacheIndexFile) && stopwatch.ElapsedMilliseconds < 1000)
                 await Task.Factory.StartNew(() => System.Threading.Thread.Sleep(100));
 
@@ -325,7 +336,7 @@ namespace Observatory.Herald
             }
         }
 
-        public class CacheData
+        private class CacheData
         {
             public CacheData(DateTime Created, int HitCount)
             {

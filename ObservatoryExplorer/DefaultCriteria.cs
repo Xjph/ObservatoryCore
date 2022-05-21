@@ -9,18 +9,6 @@ namespace Observatory.Explorer
 {
     internal static class DefaultCriteria
     {
-        private static IList<string> HighValueNonTerraformablePlanetClasses = new string[] {
-            "Earthlike body",
-            "Ammonia world",
-            "Water world",
-        };
-
-        private static IList<string> HighValueTerraformablePlanetClasses = new string[] {
-            "Water world",
-            "High metal content body",
-            "Rocky body",
-        };
-
         public static List<(string Description, string Detail, bool SystemWide)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
         {
             List<(string, string, bool)> results = new();
@@ -61,13 +49,25 @@ namespace Observatory.Explorer
             #region Value Checks
             if (settings.HighValueMappable)
             {
-                if (HighValueTerraformablePlanetClasses.Contains(scan.PlanetClass) && scan.TerraformState?.Length > 0)
+                IList<string> HighValueNonTerraformablePlanetClasses = new string[] {
+                    "Earthlike body",
+                    "Ammonia world",
+                    "Water world",
+                };
+
+                if (HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass) || scan.TerraformState?.Length > 0)
                 {
-                    results.Add("High-Value Mapping", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass} (TF)");
-                }
-                if (HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass) && scan.TerraformState?.Length == 0)
-                {
-                    results.Add("High-Value Mapping", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass}");
+                    var info = new System.Text.StringBuilder();
+                                        
+                    if (!scan.WasDiscovered)
+                        info.Append("Undiscovered ");
+                    else if (!scan.WasMapped)
+                        info.Append("Unmapped ");
+
+                    if (scan.TerraformState?.Length > 0)
+                        info.Append("Terraformable ");
+
+                    results.Add("High-Value Body", $"{(info.Length > 1 ? info.ToString() : string.Empty)}{textInfo.ToTitleCase(scan.PlanetClass)}, {scan.DistanceFromArrivalLS:N0}Ls");
                 }
             }
             #endregion
@@ -143,7 +143,7 @@ namespace Observatory.Explorer
                 results.Add("Nested Moon");
             }
 
-            if (settings.FastRotation && scan.RotationPeriod != 0 && !scan.TidalLock && Math.Abs(scan.RotationPeriod) < 28800 && !isRing)
+            if (settings.FastRotation && scan.RotationPeriod != 0 && !scan.TidalLock && Math.Abs(scan.RotationPeriod) < 28800 && !isRing && string.IsNullOrEmpty(scan.StarType))
             {
                 results.Add("Non-locked Body with Fast Rotation", $"Period: {scan.RotationPeriod/3600:N1} hours");
             }

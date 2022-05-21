@@ -262,5 +262,17 @@ namespace Observatory.Properties {
                 this["ExportFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool StartReadAll {
+            get {
+                return ((bool)(this["StartReadAll"]));
+            }
+            set {
+                this["StartReadAll"] = value;
+            }
+        }
     }
 }

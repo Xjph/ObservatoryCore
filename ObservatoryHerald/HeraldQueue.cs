@@ -43,6 +43,15 @@ namespace Observatory.Herald
             // to make perceived volume more in line with value set.
             this.volume = ((byte)System.Math.Floor(System.Math.Pow(volume / 100.0, 2.0) * 100));
 
+            Debug.WriteLine("Attempting to de-dupe notification titles against '{0}': '{1}'",
+                notification.Title.Trim().ToLower(),
+                String.Join(',', notifications.Select(n => n.Title.Trim().ToLower())));
+
+            if (notifications.Where(n => n.Title.Trim().ToLower() == notification.Title.Trim().ToLower()).Any())
+            {
+                // Suppress title.
+                notification.Suppression |= NotificationSuppression.Title;
+            }
             notifications.Enqueue(notification);
 
             if (!processing)
@@ -59,7 +68,7 @@ namespace Observatory.Herald
 
         private void ProcessQueue()
         {
-
+            Thread.Sleep(200); // Allow time for other notifications to arrive.
             NotificationArgs notification = null;
             try
             {
@@ -69,24 +78,20 @@ namespace Observatory.Herald
                     notification = notifications.Dequeue();
                     Debug.WriteLine("Processing notification: {0} - {1}", notification.Title, notification.Detail);
 
-                    Task<string>[] audioRequestTasks = new Task<string>[2];
+                    List<Task<string>> audioRequestTasks = new();
 
-                    if (string.IsNullOrWhiteSpace(notification.TitleSsml))
+                    if (!notification.Suppression.HasFlag(NotificationSuppression.Title))
                     {
-                        audioRequestTasks[0] = RetrieveAudioToFile(notification.Title);
-                    }
-                    else
-                    {
-                        audioRequestTasks[0] = RetrieveAudioSsmlToFile(notification.TitleSsml);
+                        audioRequestTasks.Add(string.IsNullOrWhiteSpace(notification.TitleSsml)
+                            ? RetrieveAudioToFile(notification.Title)
+                            : RetrieveAudioSsmlToFile(notification.TitleSsml));
                     }
 
-                    if (string.IsNullOrWhiteSpace(notification.DetailSsml))
+                    if (!notification.Suppression.HasFlag(NotificationSuppression.Detail))
                     {
-                        audioRequestTasks[1] = RetrieveAudioToFile(notification.Detail);
-                    }
-                    else
-                    {
-                        audioRequestTasks[1] = RetrieveAudioSsmlToFile(notification.DetailSsml);
+                        audioRequestTasks.Add(string.IsNullOrWhiteSpace(notification.DetailSsml)
+                            ? RetrieveAudioToFile(notification.Detail)
+                            : RetrieveAudioSsmlToFile(notification.DetailSsml));
                     }
 
                     PlayAudioRequestsSequentially(audioRequestTasks);
@@ -105,7 +110,7 @@ namespace Observatory.Herald
 
         private async Task<string> RetrieveAudioToFile(string text)
         {
-            return await RetrieveAudioSsmlToFile($"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{text}</voice></speak>");
+            return await RetrieveAudioSsmlToFile($"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{System.Security.SecurityElement.Escape(text)}</voice></speak>");
         }
 
         private async Task<string> RetrieveAudioSsmlToFile(string ssml)
@@ -113,7 +118,7 @@ namespace Observatory.Herald
             return await speechManager.GetAudioFileFromSsml(ssml, voice, style, rate);
         }
 
-        private void PlayAudioRequestsSequentially(Task<string>[] requestTasks)
+        private void PlayAudioRequestsSequentially(List<Task<string>> requestTasks)
         {
             foreach (var request in requestTasks)
             {
@@ -131,7 +136,12 @@ namespace Observatory.Herald
                 while (audioPlayer.Playing)
                     Thread.Sleep(50);
 
+                // Explicit stop to ensure device is ready for next file.
+                // ...hopefully.
+                audioPlayer.Stop(true).Wait();
+
             }
+            speechManager.CommitCache();
         }
     }
 }

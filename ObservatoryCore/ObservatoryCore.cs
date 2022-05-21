@@ -9,6 +9,15 @@ namespace Observatory
         [STAThread]
         static void Main(string[] args)
         {
+            if (args.Length > 0 && System.IO.File.Exists(args[0]))
+            {
+                var fileInfo = new System.IO.FileInfo(args[0]);
+                if (fileInfo.Extension == ".eop" || fileInfo.Extension == ".zip")
+                    System.IO.File.Copy(
+                        fileInfo.FullName,
+                         $"{AppDomain.CurrentDomain.BaseDirectory}{System.IO.Path.DirectorySeparatorChar}plugins{System.IO.Path.DirectorySeparatorChar}{fileInfo.Name}");
+            }
+
             string version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
             try
             {

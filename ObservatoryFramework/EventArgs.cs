@@ -55,29 +55,81 @@ namespace Observatory.Framework
         /// </summary>
         public double YPos = -1.0;
         /// <summary>
-        /// Specifies the desired renderings of the notification.
+        /// Specifies the desired renderings of the notification. Defaults to <see cref="NotificationRendering.All"/>.
         /// </summary>
         public NotificationRendering Rendering = NotificationRendering.All;
+        /// <summary>
+        /// Specifies if some part of the notification should be suppressed. Not supported by all notifiers. Defaults to <see cref="NotificationSuppression.None"/>.
+        /// </summary>
+        public NotificationSuppression Suppression = NotificationSuppression.None;
     }
 
+    /// <summary>
+    /// Defines constants for suppression of title or detail announcement in a notification.
+    /// </summary>
+    [Flags]
+    public enum NotificationSuppression
+    {
+        /// <summary>
+        /// No suppression.
+        /// </summary>
+        None = 0,
+        /// <summary>
+        /// Suppress title.
+        /// </summary>
+        Title = 1,
+        /// <summary>
+        /// Suppress detail.
+        /// </summary>
+        Detail = 2,
+    }
+
+    /// <summary>
+    /// Defines constants for controlling notification routing to plugins or native notification handlers.
+    /// </summary>
     [Flags]
     public enum NotificationRendering
     {
-        // These need to be multiples of 2 as they're used via masking.
+        /// <summary>
+        /// Send notification to native visual popup notificaiton handler.
+        /// </summary>
         NativeVisual = 1,
+        /// <summary>
+        /// Send notification to native speech notification handler.
+        /// </summary>
         NativeVocal = 2,
+        /// <summary>
+        /// Send notification to all installed notifier plugins.
+        /// </summary>
         PluginNotifier = 4,
+        /// <summary>
+        /// Send notification to all available handlers.
+        /// </summary>
         All = (NativeVisual | NativeVocal | PluginNotifier)
     }
 
+    /// <summary>
+    /// Flags indicating current state of journal monitoring.
+    /// </summary>
     [Flags]
     public enum LogMonitorState : uint
     {
-        // These need to be multiples of 2 as they're used via masking.
-        Idle = 0, // Monitoring is stopped
-        Realtime = 1, // Real-time monitoring is active
-        Batch = 2, // Performing a batch read of history
-        PreRead = 4 // Currently pre-reading current system context (a batch read)
+        /// <summary>
+        /// Monitoring is stopped.
+        /// </summary>
+        Idle = 0,
+        /// <summary>
+        /// Real-time monitoring is active.
+        /// </summary>
+        Realtime = 1,
+        /// <summary>
+        /// Batch read of historical journals is in progress.
+        /// </summary>
+        Batch = 2,
+        /// <summary>
+        /// Batch read of recent journals is in progress to establish current player state.
+        /// </summary>
+        PreRead = 4
     }
 
     /// <summary>

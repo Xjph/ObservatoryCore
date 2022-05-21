@@ -71,9 +71,9 @@ namespace NetCoreAudio
         /// Stops any current playback and clears the buffer. Sets Playing and Paused flags to false.
         /// </summary>
         /// <returns></returns>
-        public async Task Stop()
+        public async Task Stop(bool force = false)
         {
-            await _internalPlayer.Stop();
+            await _internalPlayer.Stop(force);
         }
 
         private void OnPlaybackFinished(object sender, EventArgs e)

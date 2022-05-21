@@ -170,5 +170,10 @@ namespace Observatory.PluginManagement
                 return folderLocation;
             }
         }
+
+        internal void Shutdown()
+        {
+            NativePopup.CloseAll();
+        }
     }
 }
