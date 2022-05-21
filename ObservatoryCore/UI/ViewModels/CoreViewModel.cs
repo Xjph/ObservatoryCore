@@ -58,9 +58,10 @@ namespace Observatory.UI.ViewModels
             tabs.Add(new CoreModel() { Name = "Core", UI = new BasicUIViewModel(new ObservableCollection<object>()) { UIType = Framework.PluginUI.UIType.Core } });
 
             if (Properties.Core.Default.StartMonitor)
-            {
                 ToggleMonitor();
-            }
+            
+            if (Properties.Core.Default.StartReadAll)
+                ReadAll();
 
         }
 

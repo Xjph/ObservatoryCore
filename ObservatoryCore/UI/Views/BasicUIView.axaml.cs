@@ -671,7 +671,7 @@ namespace Observatory.UI.Views
 
             #endregion
 
-            #region Monitor On Launch
+            #region Actions On Launch
 
             TextBlock startMonitorLabel = new() { Text = "Start monitor on Observatory launch" };
             CheckBox startMonitorCheckbox = new() { IsChecked = Properties.Core.Default.StartMonitor, Content = startMonitorLabel };
@@ -685,6 +685,21 @@ namespace Observatory.UI.Views
             startMonitorCheckbox.Unchecked += (object sender, RoutedEventArgs e) =>
             {
                 Properties.Core.Default.StartMonitor = false;
+                Properties.Core.Default.Save();
+            };
+
+            TextBlock startReadAllLabel = new() { Text = "Read All on Observatory launch" };
+            CheckBox startReadAllCheckbox = new() { IsChecked = Properties.Core.Default.StartReadAll, Content = startReadAllLabel };
+
+            startReadAllCheckbox.Checked += (object sender, RoutedEventArgs e) =>
+            {
+                Properties.Core.Default.StartReadAll = true;
+                Properties.Core.Default.Save();
+            };
+
+            startReadAllCheckbox.Unchecked += (object sender, RoutedEventArgs e) =>
+            {
+                Properties.Core.Default.StartReadAll = false;
                 Properties.Core.Default.Save();
             };
 
@@ -758,6 +773,7 @@ namespace Observatory.UI.Views
 
             gridManager.AddSetting(primeSystemContexCheckbox);
             gridManager.AddSetting(startMonitorCheckbox);
+            gridManager.AddSetting(startReadAllCheckbox);
             gridManager.AddSettingWithLabel(journalPathLabel, journalPath);
             gridManager.AddSetting(journalBrowse);
 
