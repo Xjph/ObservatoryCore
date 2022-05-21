@@ -57,15 +57,17 @@ namespace Observatory.Explorer
 
                 if (HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass) || scan.TerraformState?.Length > 0)
                 {
-                    var info = new System.Text.StringBuilder(" ");
-                    if (scan.TerraformState?.Length > 0)
-                        info.Append("(TF)");
+                    var info = new System.Text.StringBuilder();
+                                        
                     if (!scan.WasDiscovered)
-                        info.Append("(FD)");
-                    if (!scan.WasMapped)
-                        info.Append("(FM)");
+                        info.Append("Undiscovered ");
+                    else if (!scan.WasMapped)
+                        info.Append("Unmapped ");
 
-                    results.Add("High-Value Body", $"{scan.DistanceFromArrivalLS:0}Ls, {scan.PlanetClass}{(info.Length > 1 ? info.ToString(): string.Empty)}");
+                    if (scan.TerraformState?.Length > 0)
+                        info.Append("Terraformable ");
+
+                    results.Add("High-Value Body", $"{(info.Length > 1 ? info.ToString() : string.Empty)}{textInfo.ToTitleCase(scan.PlanetClass)}, {scan.DistanceFromArrivalLS:N0}Ls");
                 }
             }
             #endregion
