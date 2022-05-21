@@ -135,7 +135,82 @@
         </member>
         <member name="F:Observatory.Framework.NotificationArgs.Rendering">
             <summary>
-            Specifies the desired renderings of the notification.
+            Specifies the desired renderings of the notification. Defaults to <see cref="F:Observatory.Framework.NotificationRendering.All"/>.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.Suppression">
+            <summary>
+            Specifies if some part of the notification should be suppressed. Not supported by all notifiers. Defaults to <see cref="F:Observatory.Framework.NotificationSuppression.None"/>.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.NotificationSuppression">
+            <summary>
+            Defines constants for suppression of title or detail announcement in a notification.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationSuppression.None">
+            <summary>
+            No suppression.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationSuppression.Title">
+            <summary>
+            Suppress title.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationSuppression.Detail">
+            <summary>
+            Suppress detail.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.NotificationRendering">
+            <summary>
+            Defines constants for controlling notification routing to plugins or native notification handlers.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationRendering.NativeVisual">
+            <summary>
+            Send notification to native visual popup notificaiton handler.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationRendering.NativeVocal">
+            <summary>
+            Send notification to native speech notification handler.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationRendering.PluginNotifier">
+            <summary>
+            Send notification to all installed notifier plugins.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationRendering.All">
+            <summary>
+            Send notification to all available handlers.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.LogMonitorState">
+            <summary>
+            Flags indicating current state of journal monitoring.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.LogMonitorState.Idle">
+            <summary>
+            Monitoring is stopped.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.LogMonitorState.Realtime">
+            <summary>
+            Real-time monitoring is active.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.LogMonitorState.Batch">
+            <summary>
+            Batch read of historical journals is in progress.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.LogMonitorState.PreRead">
+            <summary>
+            Batch read of recent journals is in progress to establish current player state.
             </summary>
         </member>
         <member name="T:Observatory.Framework.LogMonitorStateChangedEventArgs">
