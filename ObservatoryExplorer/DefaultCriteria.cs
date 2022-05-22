@@ -59,15 +59,18 @@ namespace Observatory.Explorer
                 {
                     var info = new System.Text.StringBuilder();
                                         
-                    if (!scan.WasDiscovered)
-                        info.Append("Undiscovered ");
-                    else if (!scan.WasMapped)
-                        info.Append("Unmapped ");
+                    if (!scan.WasMapped)
+                    {
+                        if (!scan.WasDiscovered)
+                            info.Append("Undiscovered ");
+                        else
+                            info.Append("Unmapped ");
+                    }
 
                     if (scan.TerraformState?.Length > 0)
                         info.Append("Terraformable ");
 
-                    results.Add("High-Value Body", $"{(info.Length > 1 ? info.ToString() : string.Empty)}{textInfo.ToTitleCase(scan.PlanetClass)}, {scan.DistanceFromArrivalLS:N0}Ls");
+                    results.Add("High-Value Body", $"{info.ToString()}{textInfo.ToTitleCase(scan.PlanetClass)}, {scan.DistanceFromArrivalLS:N0}Ls");
                 }
             }
             #endregion
