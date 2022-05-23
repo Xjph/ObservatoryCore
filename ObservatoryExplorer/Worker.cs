@@ -69,6 +69,14 @@ namespace Observatory.Explorer
                 case ScanBaryCentre barycentre:
                     explorer.RecordBarycentre(barycentre);
                     break;
+                case FSDJump fsdjump:
+                    if (fsdjump is CarrierJump && !((CarrierJump)fsdjump).Docked)
+                        break;
+                    explorer.SetSystem(fsdjump.StarSystem);
+                    break;
+                case Location location:
+                    explorer.SetSystem(location.StarSystem);
+                    break;
                 case DiscoveryScan discoveryScan:
                     break;
                 case FSSDiscoveryScan discoveryScan:
@@ -95,7 +103,6 @@ namespace Observatory.Explorer
                 explorer.Clear();
             }
         }
-
         
         public object Settings
         {
@@ -103,6 +110,6 @@ namespace Observatory.Explorer
             set => settings = (ExplorerSettings)value;
         }
 
-        private ExplorerSettings settings;
+        internal ExplorerSettings settings;
     }
 }
