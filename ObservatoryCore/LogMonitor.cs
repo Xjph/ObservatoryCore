@@ -113,7 +113,8 @@ namespace Observatory
 
         public void PrereadJournals()
         {
-            if (!Properties.Core.Default.TryPrimeSystemContextOnStartMonitor) return;
+            if (!Properties.Core.Default.TryPrimeSystemContextOnStartMonitor ||
+                Properties.Core.Default.StartReadAll) return;
 
             SetLogMonitorState(currentState | LogMonitorState.PreRead);
 
