@@ -20,6 +20,7 @@ namespace Observatory.Explorer
         private Dictionary<ulong, Dictionary<int, ScanBaryCentre>> BarycentreHistory;
         private CustomCriteriaManager CustomCriteriaManager;
         private DateTime CriteriaLastModified;
+        private string currentSystem = string.Empty;
 
         internal Explorer(ExplorerWorker explorerWorker, IObservatoryCore core, ObservableCollection<object> results)
         {
@@ -109,12 +110,24 @@ namespace Observatory.Explorer
 
             return barycentreScan;
         }
+        public void SetSystem(string potentialNewSystem)
+        {
+            if (string.IsNullOrEmpty(currentSystem) || currentSystem != potentialNewSystem)
+            {
+                currentSystem = potentialNewSystem;
+                if (ExplorerWorker.settings.OnlyShowCurrentSystem && !ObservatoryCore.IsLogMonitorBatchReading)
+                {
+                    ObservatoryCore.ClearGrid(ExplorerWorker, new ExplorerUIResults());
+                    Clear();
+                }
+            }
+        }
 
         public void ProcessScan(Scan scanEvent, bool readAll)
         {
             if (!readAll)
             {
-                string criteriaFilePath = ((ExplorerSettings)ExplorerWorker.Settings).CustomCriteriaFile;
+                string criteriaFilePath = ExplorerWorker.settings.CustomCriteriaFile;
                 
                 if (File.Exists(criteriaFilePath))
                 {
@@ -136,7 +149,7 @@ namespace Observatory.Explorer
                                 Details = e.OriginalScript
                             };
                             ObservatoryCore.AddGridItem(ExplorerWorker, exceptionResult);
-                            ((ExplorerSettings)ExplorerWorker.Settings).EnableCustomCriteria = false;
+                            ExplorerWorker.settings.EnableCustomCriteria = false;
                         }
                         
                         CriteriaLastModified = fileModified;
@@ -175,15 +188,15 @@ namespace Observatory.Explorer
             if (scanEvent.SystemAddress != 0 && !systemBodies.ContainsKey(scanEvent.BodyID))
                 systemBodies.Add(scanEvent.BodyID, scanEvent);
 
-            var results = DefaultCriteria.CheckInterest(scanEvent, SystemBodyHistory, BodySignalHistory, (ExplorerSettings)ExplorerWorker.Settings);
+            var results = DefaultCriteria.CheckInterest(scanEvent, SystemBodyHistory, BodySignalHistory, ExplorerWorker.settings);
 
             if (BarycentreHistory.ContainsKey(scanEvent.SystemAddress) && scanEvent.Parent != null && BarycentreHistory[scanEvent.SystemAddress].ContainsKey(scanEvent.Parent[0].Body))
             {
                 ProcessScan(ConvertBarycentre(BarycentreHistory[scanEvent.SystemAddress][scanEvent.Parent[0].Body], scanEvent), readAll);
             }
 
-            if (((ExplorerSettings)ExplorerWorker.Settings).EnableCustomCriteria)
-                results.AddRange(CustomCriteriaManager.CheckInterest(scanEvent, SystemBodyHistory, BodySignalHistory, (ExplorerSettings)ExplorerWorker.Settings));
+            if (ExplorerWorker.settings.EnableCustomCriteria)
+                results.AddRange(CustomCriteriaManager.CheckInterest(scanEvent, SystemBodyHistory, BodySignalHistory, ExplorerWorker.settings));
 
             if (results.Count > 0)
             {
