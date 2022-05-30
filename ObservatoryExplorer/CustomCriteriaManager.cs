@@ -13,12 +13,13 @@ namespace Observatory.Explorer
         private Lua LuaState;
         private List<LuaFunction> CriteriaFunctions;
         Action<Exception, String> ErrorLogger;
-
+        private uint ScanCount;
 
         public CustomCriteriaManager(Action<Exception, String> errorLogger)
         {
             ErrorLogger = errorLogger;
             CriteriaFunctions = new();
+            ScanCount = 0;
         }
 
         public void RefreshCriteria(string criteriaPath)
@@ -191,7 +192,8 @@ namespace Observatory.Explorer
         public List<(string, string, bool)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
         {
             List<(string, string, bool)> results = new();
-           
+            ScanCount++;
+
             foreach (var criteriaFunction in CriteriaFunctions)
             {
                 var scanList = scanHistory[scan.SystemAddress].Values.ToList();
@@ -255,7 +257,18 @@ namespace Observatory.Explorer
                 }
             }
 
+            if (ScanCount > 99)
+            {
+                ScanCount = 0;
+                LuaGC();
+            }
+
             return results;
+        }
+
+        private void LuaGC()
+        {
+            LuaState.DoString("collectgarbage()");
         }
 
         internal class Parent
