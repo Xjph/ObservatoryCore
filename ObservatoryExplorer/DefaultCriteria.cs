@@ -87,7 +87,7 @@ namespace Observatory.Explorer
                     results.Add("Close Orbit", $"Orbital Radius: {scan.SemiMajorAxis / 1000:N0}km, Parent Radius: {parent.Radius / 1000:N0}km");
                 }
 
-                if (settings.ShepherdMoon && !isRing && parent.Rings?.Last().OuterRad > scan.SemiMajorAxis && !parent.Rings.Last().Name.Contains("Belt"))
+                if (settings.ShepherdMoon && !isRing && parent.Rings?.Any() == true && parent.Rings.Last().OuterRad > scan.SemiMajorAxis && !parent.Rings.Last().Name.Contains("Belt"))
                 {
                     results.Add("Shepherd Moon", $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Ring Radius: {parent.Rings.Last().OuterRad / 1000:N0}km");
                 }
