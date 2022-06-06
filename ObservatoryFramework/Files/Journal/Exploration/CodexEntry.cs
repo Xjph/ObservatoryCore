@@ -23,5 +23,6 @@ namespace Observatory.Framework.Files.Journal
         public int VoucherAmount { get; init; }
         public float Latitude { get; init; }
         public float Longitude { get; init; }
+        public int BodyID { get; init; }
     }
 }

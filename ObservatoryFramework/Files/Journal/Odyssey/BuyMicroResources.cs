@@ -1,4 +1,5 @@
 ﻿using Observatory.Framework.Files.ParameterTypes;
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 
 namespace Observatory.Framework.Files.Journal
@@ -12,5 +13,7 @@ namespace Observatory.Framework.Files.Journal
         public int Count { get; init; }
         public int Price { get; init; }
         public ulong MarketID { get; init; }
+        public int TotalCount { get; init; }
+        public ImmutableList<MicroResource> MicroResources { get; init; }
     }
 }
