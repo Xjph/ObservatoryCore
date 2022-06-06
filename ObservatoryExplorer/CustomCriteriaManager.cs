@@ -123,6 +123,9 @@ namespace Observatory.Explorer
                             i++;
                             do
                             {
+                                if (i >= criteria.Length)
+                                    throw new Exception("Unterminated multi-line criteria.\r\nAre you missing an ::End::?");
+
                                 script.AppendLine(criteria[i]);
                                 i++;
                             } while (!criteria[i].Trim().ToLower().StartsWith("::end::"));
@@ -183,7 +186,7 @@ namespace Observatory.Explorer
                 StringBuilder errorDetail = new();
                 errorDetail.AppendLine("Error Reading Custom Criteria File:")
                     .AppendLine(originalScript)
-                    .AppendLine("NOTE: Custom criteria processing has been disable to prevent further errors.");
+                    .AppendLine("NOTE: Custom criteria processing has been disabled to prevent further errors.");
                 ErrorLogger(e, errorDetail.ToString());
                 throw new CriteriaLoadException(e.Message, originalScript);
             }
