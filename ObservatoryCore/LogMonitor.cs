@@ -193,6 +193,18 @@ namespace Observatory
         private Dictionary<string, int> currentLine;
         private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
         private bool firstStartMonitor = true;
+        private string[] EventsWithAncillaryFile = new string[] 
+        { 
+            "Cargo", 
+            "NavRoute", 
+            "Market", 
+            "Outfitting", 
+            "Shipyard", 
+            "Backpack", 
+            "FCMaterials",
+            "ModuleInfo",
+            "ShipLocker"
+        };
 
         #endregion
 
@@ -295,6 +307,16 @@ namespace Observatory
             return readErrors;
         }
 
+        private JournalEventArgs DeserializeToEventArgs(string eventType, string line)
+        {
+            
+            var eventClass = journalTypes[eventType];
+            MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
+            MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
+            object entry = journalGeneric.Invoke(null, new object[] { line });
+            return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
+        }
+
         private void DeserializeAndInvoke(string line)
         {
             var eventType = JournalUtilities.GetEventType(line);
@@ -303,14 +325,32 @@ namespace Observatory
                 eventType = "JournalBase";
             }
 
-            var eventClass = journalTypes[eventType];
-            MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
-            MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
-            object entry = journalGeneric.Invoke(null, new object[] { line });
-            var journalEvent = new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
-            var handler = JournalEntry;
+            var journalEvent = DeserializeToEventArgs(eventType, line);
+            
+            JournalEntry?.Invoke(this, journalEvent);
 
-            handler?.Invoke(this, journalEvent);
+            // Files are only valid if realtime, otherwise they will be stale or empty.
+            if (!currentState.HasFlag(LogMonitorState.Batch) && EventsWithAncillaryFile.Contains(eventType))
+            {
+                HandleAncillaryFile(eventType);
+            }
+        }
+
+        private void HandleAncillaryFile(string eventType)
+        {
+            string filename = eventType == "ModuleInfo"
+                ? "ModulesInfo.json" // Just FDev things
+                : eventType + ".json";
+
+            // I have no idea what order Elite writes these files or if they're already written
+            // by the time the journal updates.
+            // Brief sleep to ensure the content is updated before we read it.
+            System.Threading.Thread.Sleep(50);
+
+            string fileContent = File.ReadAllText(journalWatcher.Path + Path.DirectorySeparatorChar + filename);
+
+            var fileObject = DeserializeToEventArgs(eventType + "File", fileContent);
+            JournalEntry?.Invoke(this, fileObject);
 
         }
 
