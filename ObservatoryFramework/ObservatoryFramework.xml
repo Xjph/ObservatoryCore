@@ -556,6 +556,16 @@
             Converting the ordered array of coordinates from the journal to a named tuple for clarity.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.Files.FCMaterialsFile">
+            <summary>
+            Elite Dangerous fcmaterials.json file. Contains data about current fleet carrier bartender stock.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.FCMaterialsFile.Items">
+            <summary>
+            List of items in stock and in demand from the carrier bartender.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Files.MarketFile">
             <summary>
             Elite Dangerous market.json file. Contains details about all available commodities available at the current station.
@@ -586,12 +596,12 @@
             List of all commodities available in the market.
             </summary>
         </member>
-        <member name="T:Observatory.Framework.Files.ModulesInfo">
+        <member name="T:Observatory.Framework.Files.ModuleInfoFile">
             <summary>
             Information about current player ship equipped modules.
             </summary>
         </member>
-        <member name="P:Observatory.Framework.Files.ModulesInfo.Modules">
+        <member name="P:Observatory.Framework.Files.ModuleInfoFile.Modules">
             <summary>
             List of all equipped modules.
             </summary>

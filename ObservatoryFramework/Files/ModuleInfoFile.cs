@@ -6,7 +6,7 @@ namespace Observatory.Framework.Files
     /// <summary>
     /// Information about current player ship equipped modules.
     /// </summary>
-    public class ModulesInfo : Journal.JournalBase
+    public class ModuleInfoFile : Journal.JournalBase
     {
         /// <summary>
         /// List of all equipped modules.
