@@ -284,14 +284,419 @@
             List of all data currently stored by the player.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.Files.Journal.BuyExplorationData">
+            <summary>
+            Journal event generated when buying system data from the galaxy map while docked.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.BuyExplorationData.System">
+            <summary>
+            Name of the system for which data was purchased.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.BuyExplorationData.Cost">
+            <summary>
+            Amount paid for the data.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.CodexEntry">
+            <summary>
+            Event generated when an item in the codex is scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.EntryID">
+            <summary>
+            Unique ID of the entry.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Name">
+            <summary>
+            Name of the item scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Name_Localised">
+            <summary>
+            Localised name of the item scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.SubCategory">
+            <summary>
+            Codex sub category of the item scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.SubCategory_Localised">
+            <summary>
+            Localised sub category name of the item scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Category">
+            <summary>
+            Codex category of the item scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Category_Localised">
+            <summary>
+            Localised category name of the item scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Region">
+            <summary>
+            Codex region the scan occured in.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Region_Localised">
+            <summary>
+            Localised name of the region.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.System">
+            <summary>
+            Name of the system in which the scan occured.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.SystemAddress">
+            <summary>
+            Unique ID of the system in which the scan occured.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.NearestDestination">
+            <summary>
+            Name of the nearest surface signal.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.NearestDestination_Localised">
+            <summary>
+            Localised name of hte nearest surface signal.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.IsNewEntry">
+            <summary>
+            Indicator that this codex entry hasn't been previously scanned by the CMDR.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.NewTraitsDiscovered">
+            <summary>
+            Indicator that htis codex entry has a trait not previously seen by the CMDR.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Traits">
+            <summary>
+            List of trais of the scanned item.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.VoucherAmount">
+            <summary>
+            Value of the codex entry when sold to Universal Cartographics.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Latitude">
+            <summary>
+            Surface latitude where the scan occured.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.Longitude">
+            <summary>
+             Surface longitude where the scan occured.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.CodexEntry.BodyID">
+            <summary>
+            Body ID of the system body where the scan occured.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.DiscoveryScan">
+            <summary>
+            Event generated when using the discovery scanner (honk) to initially scan system. No longer used in live game client, will be found only in historical data.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.DiscoveryScan.SystemAddress">
+            <summary>
+            Unique ID of system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.DiscoveryScan.Bodies">
+            <summary>
+            Number of bodies in system.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.FSSAllBodiesFound">
+            <summary>
+            Event generated when all bodies within a system have been scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSAllBodiesFound.SystemName">
+            <summary>
+            Name of the system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSAllBodiesFound.SystemAddress">
+            <summary>
+            Unique ID of the system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSAllBodiesFound.Count">
+            <summary>
+            Count of all scanned bodies in system.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.FSSBodySignals">
+            <summary>
+            Event generated when the full spectrum scanner finds surface signals on a body.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.FSSDiscoveryScan">
+            <summary>
+            Event generated when using the discovery scanner (honk) to initially scan system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSDiscoveryScan.SystemName">
+            <summary>
+            Name of the current system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSDiscoveryScan.SystemAddress">
+            <summary>
+            Unique ID of the current system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSDiscoveryScan.Progress">
+            <summary>
+            Percentage of current system already scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSDiscoveryScan.BodyCount">
+            <summary>
+            Number of scannable bodies in system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSDiscoveryScan.NonBodyCount">
+            <summary>
+            Number of scannable non-body locations in system.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.FSSSignalDiscovered">
+            <summary>
+            Event generated when a signal source is identified or scanned.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SignalName">
+            <summary>
+            Name of the signal type.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SignalName_Localised">
+            <summary>
+            Localised name of the signal type.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SpawningState">
+            <summary>
+            Faction state or circumstance that caused this signal to appear.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SpawningState_Localised">
+            <summary>
+            Localised description of spawning state.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SpawningFaction">
+            <summary>
+            Faction name which is associated with this signal.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SpawningFaction_Localised">
+            <summary>
+            Localised name of the associated faction.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.TimeRemaining">
+            <summary>
+            Time until the signal despawns, in seconds.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SystemAddress">
+            <summary>
+            Unique ID of current system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.ThreatLevel">
+            <summary>
+            Numeric representation of the signal threat level.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.USSType">
+            <summary>
+            Type of signal.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.USSType_Localised">
+            <summary>
+            Localised name of signal type.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.IsStation">
+            <summary>
+            Indicator if the signal is a station which can be docked with.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.MaterialCollected">
+            <summary>
+            Event generated when a material resource is collected.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MaterialCollected.Category">
+            <summary>
+            Category to which the material belongs.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MaterialCollected.Name">
+            <summary>
+            Name of the material.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MaterialCollected.Name_Localised">
+            <summary>
+            Localised name of the material.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MaterialCollected.Count">
+            <summary>
+            Count of the material.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.MaterialDiscarded">
+            <summary>
+            Event generated when discarding held material resources.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.MaterialDiscovered">
+            <summary>
+            Event generated the first time a CMDR finds a particular material resource.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MaterialDiscovered.Category">
+            <summary>
+            Category of the material.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MaterialDiscovered.Name">
+            <summary>
+            Name of the material.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MaterialDiscovered.Name_Localised">
+            <summary>
+            Localised name of the material.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MaterialDiscovered.DiscoveryNumber">
+            <summary>
+            Count of the number of discovered items in that category by the CMDR.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.MultiSellExplorationData">
+            <summary>
+            Event generated when discovery data for multiple systems are sold at once.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MultiSellExplorationData.Discovered">
+            <summary>
+            List of all sold first discoveries.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MultiSellExplorationData.BaseValue">
+            <summary>
+            Base value of total sold data.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MultiSellExplorationData.Bonus">
+            <summary>
+            Bonus value added to base amount.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.MultiSellExplorationData.TotalEarnings">
+            <summary>
+            Total amount earned by CMDR for data sale.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.NavBeaconScan">
+            <summary>
+            Event generated when scanned a populated system's navigation beacon.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.NavBeaconScan.NumBodies">
+            <summary>
+            Number of bodies in system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.NavBeaconScan.SystemAddress">
+            <summary>
+            Unique ID of system.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.SAAScanComplete">
+            <summary>
+            Event generated when a body surface scan is completed.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.SystemAddress">
+            <summary>
+            Unique ID of current system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.BodyName">
+            <summary>
+            Name of the scanned body.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.BodyID">
+            <summary>
+            ID of the scanned body within the system.
+            </summary>
+        </member>
         <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.Discoverers">
             <summary>
-            This property is indicated with strikethrough in Frontier's documentation and may be deprecated.
+            This property is indicated with strikethrough in Frontier's documentation and is likely unused.
             </summary>
         </member>
         <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.Mappers">
             <summary>
-            This property is indicated with strikethrough in Frontier's documentation and may be deprecated.
+            This property is indicated with strikethrough in Frontier's documentation and is likely unused.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.ProbesUsed">
+            <summary>
+            Number of probes fired to complete the surface scan.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAAScanComplete.EfficiencyTarget">
+            <summary>
+            Maximum number of probes which can be used to get efficiency bonus.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.SAASignalsFound">
+            <summary>
+            Event written when the surface scan finds signals on the body.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAASignalsFound.SystemAddress">
+            <summary>
+            Unique ID of current system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAASignalsFound.BodyName">
+            <summary>
+            Name of the scanned body.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAASignalsFound.BodyID">
+            <summary>
+            ID of the body within the system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAASignalsFound.Signals">
+            <summary>
+            List of signals found.
             </summary>
         </member>
         <member name="T:Observatory.Framework.Files.Journal.Scan">
@@ -512,6 +917,87 @@
         <member name="P:Observatory.Framework.Files.Journal.ScanBaryCentre.MeanAnomaly">
             <summary>
             Mean anomaly in degrees.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.Screenshot">
+            <summary>
+            Event generated when the player takes a screenshot.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.Filename">
+            <summary>
+            <para>Filename of the screenshot taken in the form of "\\ED Pictures\\filename"</para>
+            <para>"\\ED Pictures\\" corresponds to "%userprofile%\Pictures\Frontier Developments\Elite Dangerous\"</para>
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.Width">
+            <summary>
+            Pixel width of the saved image.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.Height">
+            <summary>
+            Pixel height of the saved image.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.System">
+            <summary>
+            System name of the current system.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.Body">
+            <summary>
+            Body name of the current location.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.Latitude">
+            <summary>
+            Current latitude if applicable.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.Longitude">
+            <summary>
+            Current longitude if applicable.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.Altitude">
+            <summary>
+            Current altitude if applicable.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Screenshot.Heading">
+            <summary>
+            Current heading if applicable.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.SellExplorationData">
+            <summary>
+            Event generated when selling exploration data. Historically also written for multi-selling, but used only for single system sales in current live game client.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SellExplorationData.Systems">
+            <summary>
+            List of systems for which data was sold.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SellExplorationData.Discovered">
+            <summary>
+            List of first discovered bodies.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SellExplorationData.BaseValue">
+            <summary>
+            Base value of sold data.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SellExplorationData.Bonus">
+            <summary>
+            Extra amount from bonuses.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.SellExplorationData.TotalEarnings">
+            <summary>
+            Total amount made from selling data.
             </summary>
         </member>
         <member name="T:Observatory.Framework.Files.CargoFile">
