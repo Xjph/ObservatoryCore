@@ -271,7 +271,7 @@ namespace Observatory.Explorer
 
         private void LuaGC()
         {
-            LuaState.DoString("collectgarbage()");
+            LuaState?.DoString("collectgarbage()");
         }
 
         internal class Parent
