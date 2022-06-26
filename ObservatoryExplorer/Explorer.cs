@@ -72,27 +72,42 @@ namespace Observatory.Explorer
             string childAffix = childScan.BodyName
                 .Replace(childScan.StarSystem, string.Empty);
 
-            char childOrdinal = childAffix.ToCharArray().Last();
+            string baryName;
 
-            bool lowChild = childScan.BodyID - barycentre.BodyID == 1;
-
-            string baryAffix;
-
-            if (lowChild)
+            if (!string.IsNullOrEmpty(childAffix))
             {
-                baryAffix = new string(new char[] { childOrdinal, (char)(childOrdinal + 1) });
+                char childOrdinal = childAffix.ToCharArray().Last();
+
+                // If the ID is one higher than the barycentre than this is the "first" child body
+                bool lowChild = childScan.BodyID - barycentre.BodyID == 1;
+
+                string baryAffix;
+
+                // Barycentre ordinal always labelled as low before high, e.g. "AB"
+                if (lowChild)
+                {
+                    baryAffix = new string(new char[] { childOrdinal, (char)(childOrdinal + 1) });
+                }
+                else
+                {
+                    baryAffix = new string(new char[] { (char)(childOrdinal - 1), childOrdinal });
+                }
+
+                baryAffix = childAffix.Replace(childOrdinal.ToString(), baryAffix);
+
+                baryName = barycentre.StarSystem + baryAffix;
             }
             else
             {
-                baryAffix = new string(new char[] { (char)(childOrdinal - 1), childOrdinal });
+                // Without ordinals it's complicated to determine what the ordinal *should* be.
+                // Just name the barycentre after the child object.
+                baryName = childScan.BodyName + " Barycentre";
             }
-
-            baryAffix = childAffix.Replace(childOrdinal.ToString(), baryAffix);
 
             Scan barycentreScan = new()
             {
                 Timestamp = barycentre.Timestamp,
-                BodyName = barycentre.StarSystem + baryAffix,
+                BodyName = baryName,
                 Parents = childScan.Parents.RemoveAt(0),
                 PlanetClass = "Barycentre",
                 StarSystem = barycentre.StarSystem,
