@@ -347,11 +347,28 @@ namespace Observatory
             // Brief sleep to ensure the content is updated before we read it.
             System.Threading.Thread.Sleep(50);
 
-            string fileContent = File.ReadAllText(journalWatcher.Path + Path.DirectorySeparatorChar + filename);
+            // Some files are still locked by another process after 50ms.
+            // Retry every 50ms for 0.5 seconds before giving up.
 
-            var fileObject = DeserializeToEventArgs(eventType + "File", fileContent);
-            JournalEntry?.Invoke(this, fileObject);
-
+            string fileContent = null;
+            int retryCount = 0;
+            
+            while (fileContent == null || retryCount < 10)
+            {
+                try
+                {
+                    using var fileStream = File.Open(journalWatcher.Path + Path.DirectorySeparatorChar + filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using var reader = new StreamReader(fileStream);
+                    fileContent = reader.ReadToEnd();
+                    var fileObject = DeserializeToEventArgs(eventType + "File", fileContent);
+                    JournalEntry?.Invoke(this, fileObject);
+                }
+                catch
+                {
+                    retryCount++;
+                    System.Threading.Thread.Sleep(50);
+                }
+            }
         }
 
         private void ReportErrors(List<(Exception ex, string file, string line)> readErrors)
