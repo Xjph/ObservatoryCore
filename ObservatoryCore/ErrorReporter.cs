@@ -32,10 +32,14 @@ namespace Observatory
             var timestamp = DateTime.Now.ToString("G");
             StringBuilder errorLog = new();
             foreach (var error in errorList)
-                errorLog.AppendLine($"[{timestamp}]: {error.error} - {error.detail}");
+            {
+                errorLog.AppendLine($"[{timestamp}]:");
+                errorLog.AppendLine($"{error.error} - {error.detail}");
+                errorLog.AppendLine();
+            }
 
             var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
-            System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryCrashLog.txt", errorLog.ToString());
+            System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorLog.ToString());
         }
     }
 }
