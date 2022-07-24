@@ -345,8 +345,7 @@ namespace Observatory
             // I have no idea what order Elite writes these files or if they're already written
             // by the time the journal updates.
             // Brief sleep to ensure the content is updated before we read it.
-            System.Threading.Thread.Sleep(50);
-
+            
             // Some files are still locked by another process after 50ms.
             // Retry every 50ms for 0.5 seconds before giving up.
 
@@ -355,6 +354,7 @@ namespace Observatory
             
             while (fileContent == null || retryCount < 10)
             {
+                System.Threading.Thread.Sleep(50);
                 try
                 {
                     using var fileStream = File.Open(journalWatcher.Path + Path.DirectorySeparatorChar + filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -366,7 +366,6 @@ namespace Observatory
                 catch
                 {
                     retryCount++;
-                    System.Threading.Thread.Sleep(50);
                 }
             }
         }
