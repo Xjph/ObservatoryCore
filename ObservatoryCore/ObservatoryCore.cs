@@ -44,7 +44,7 @@ namespace Observatory
                 .AppendLine($"[{timestamp}] Error encountered in Elite Observatory {context}")
                 .AppendLine(FormatExceptionMessage(ex))
                 .AppendLine();
-            System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorMessage.ToString());
+            System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryCrashLog.txt", errorMessage.ToString());
         }
 
         static string FormatExceptionMessage(Exception ex, bool inner = false)

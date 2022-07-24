@@ -207,8 +207,8 @@ namespace Observatory.UI.ViewModels
             {
                 ObservatoryCore.LogError(e, "while exporting data");
                 ErrorReporter.ShowErrorPopup("Error encountered!",
-                    "An error occurred while exporting; output may be missing or incomplete." + Environment.NewLine +
-                    "Please check the error log (found in your Documents folder) for more details and visit our discord to report it.");
+                    new List<(string, string)> { ("An error occurred while exporting; output may be missing or incomplete." + Environment.NewLine +
+                    "Please check the error log (found in your Documents folder) for more details and visit our discord to report it.", e.Message) });
             }
         }
 

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Observatory.Framework.Files.Journal;
+using System.Timers;
 
 namespace Observatory.PluginManagement
 {
@@ -12,13 +13,20 @@ namespace Observatory.PluginManagement
     {
         private IEnumerable<IObservatoryWorker> observatoryWorkers;
         private IEnumerable<IObservatoryNotifier> observatoryNotifiers;
-        private List<string> errorList;
+        private List<(string error, string detail)> errorList;
+        private Timer timer;
 
         public PluginEventHandler(IEnumerable<IObservatoryWorker> observatoryWorkers, IEnumerable<IObservatoryNotifier> observatoryNotifiers)
         {
             this.observatoryWorkers = observatoryWorkers;
             this.observatoryNotifiers = observatoryNotifiers;
             errorList = new();
+
+            // Use a timer to delay error reporting until incoming errors are "quiet" for one full second.
+            // Should resolve issue where repeated plugin errors open hundreds of error windows.
+            timer = new();
+            timer.Interval = 1000;
+            timer.Elapsed += ReportErrorsIfAny;
         }
 
         public void OnJournalEvent(object source, JournalEventArgs journalEventArgs)
@@ -35,9 +43,9 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name);
+                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name, ((JournalBase)journalEventArgs.journalEvent).Json);
                 }
-                ReportErrorsIfAny();
+                ResetTimer();
             }
         }
 
@@ -55,9 +63,9 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name);
+                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name, ((JournalBase)journalEventArgs.journalEvent).Json);
                 }
-                ReportErrorsIfAny();
+                ResetTimer();
             }
         }
 
@@ -71,7 +79,7 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, "LogMonitorStateChanged event");
+                    RecordError(ex, worker.Name, "LogMonitorStateChanged event", ex.StackTrace);
                 }
             }
         }
@@ -90,29 +98,35 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, notifier.Name, notificationArgs.Title);
+                    RecordError(ex, notifier.Name, notificationArgs.Title, notificationArgs.Detail);
                 }
-                ReportErrorsIfAny();
+                ResetTimer();
             }
+        }
+
+        private void ResetTimer()
+        {
+            timer.Stop();
+            timer.Start();
         }
 
         private void RecordError(PluginException ex)
         {
-            errorList.Add($"Error in {ex.PluginName}: {ex.Message}");
+            errorList.Add(($"Error in {ex.PluginName}: {ex.Message}", ex.StackTrace));
         }
 
-        private void RecordError(Exception ex, string plugin, string eventType)
+        private void RecordError(Exception ex, string plugin, string eventType, string eventDetail)
         {
-            errorList.Add($"Error in {plugin} while handling {eventType}: {ex.Message}");
+            errorList.Add(($"Error in {plugin} while handling {eventType}: {ex.Message}", eventDetail));
         }
 
-        private void ReportErrorsIfAny()
+        private void ReportErrorsIfAny(object sender, ElapsedEventArgs e)
         {
             if (errorList.Any())
             {
-                ErrorReporter.ShowErrorPopup($"Plugin Error{(errorList.Count > 1 ? "s" : "")}", string.Join(Environment.NewLine, errorList));
-
-                errorList.Clear();
+                ErrorReporter.ShowErrorPopup($"Plugin Error{(errorList.Count > 1 ? "s" : "")}", errorList);
+                
+                timer.Stop();
             }
         }
     }

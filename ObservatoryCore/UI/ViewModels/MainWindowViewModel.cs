@@ -11,7 +11,7 @@ namespace Observatory.UI.ViewModels
             core = new CoreViewModel(pluginManager.workerPlugins, pluginManager.notifyPlugins);
 
             if (pluginManager.errorList.Any())
-                ErrorReporter.ShowErrorPopup("Plugin Load Error", string.Join(Environment.NewLine, pluginManager.errorList));
+                ErrorReporter.ShowErrorPopup("Plugin Load Error", pluginManager.errorList);
         }
 
         public CoreViewModel core { get; }
