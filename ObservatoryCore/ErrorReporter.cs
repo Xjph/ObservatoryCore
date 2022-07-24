@@ -11,21 +11,26 @@ namespace Observatory
         public static void ShowErrorPopup(string title, List<(string error, string detail)> errorList)
         {
             // Limit number of errors displayed.
-            string displayMessage = string.Join(Environment.NewLine, errorList.Take(Math.Min(10, errorList.Count)).Select(e => e.error));
-
-            if (errorList.Count > 10)
-                displayMessage += $"{errorList.Count - 10} more errors logged.";
+            StringBuilder displayMessage = new();
+            displayMessage.AppendLine($"{errorList.Count} error{(errorList.Count > 1 ? "s" : string.Empty)} encountered.");
+            var firstFiveErrors = errorList.Take(Math.Min(5, errorList.Count)).Select(e => e.error);
+            displayMessage.AppendJoin(Environment.NewLine, firstFiveErrors);
+            displayMessage.AppendLine();
+            displayMessage.Append("Full error details logged to ObservatoryErrorLog file in your documents folder.");
 
             if (Avalonia.Application.Current.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var errorMessage = MessageBox.Avalonia.MessageBoxManager
-                .GetMessageBoxStandardWindow(new MessageBox.Avalonia.DTO.MessageBoxStandardParams
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    ContentTitle = title,
-                    ContentMessage = displayMessage,
-                    Topmost = true
+                    var errorMessage = MessageBox.Avalonia.MessageBoxManager
+                    .GetMessageBoxStandardWindow(new MessageBox.Avalonia.DTO.MessageBoxStandardParams
+                    {
+                        ContentTitle = title,
+                        ContentMessage = displayMessage.ToString(),
+                        Topmost = true
+                    });
+                    errorMessage.Show();
                 });
-                errorMessage.Show();
             }
 
             // Log entirety of errors out to file.
@@ -40,6 +45,8 @@ namespace Observatory
 
             var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
             System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorLog.ToString());
+
+            errorList.Clear();
         }
     }
 }

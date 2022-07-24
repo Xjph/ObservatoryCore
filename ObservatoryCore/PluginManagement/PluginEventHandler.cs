@@ -125,6 +125,8 @@ namespace Observatory.PluginManagement
             if (errorList.Any())
             {
                 ErrorReporter.ShowErrorPopup($"Plugin Error{(errorList.Count > 1 ? "s" : "")}", errorList);
+                
+                timer.Stop();
             }
         }
     }
