@@ -29,7 +29,7 @@ namespace Observatory.PluginManagement
         }
 
 
-        public readonly List<string> errorList;
+        public readonly List<(string error, string detail)> errorList;
         public readonly List<Panel> pluginPanels;
         public readonly List<DataTable> pluginTables;
         public readonly List<(IObservatoryWorker plugin, PluginStatus signed)> workerPlugins;
@@ -62,7 +62,7 @@ namespace Observatory.PluginManagement
                 }
                 catch (PluginException ex)
                 {
-                    errorList.Add(FormatErrorMessage(ex));
+                    errorList.Add((FormatErrorMessage(ex), ex.StackTrace));
                     errorPlugins.Add(plugin);
                 }
             }
@@ -82,7 +82,7 @@ namespace Observatory.PluginManagement
                     }
                     catch (PluginException ex)
                     {
-                        errorList.Add(FormatErrorMessage(ex));
+                        errorList.Add((FormatErrorMessage(ex), ex.StackTrace));
                         errorPlugins.Add(plugin);
                     }
                 }
@@ -175,11 +175,11 @@ namespace Observatory.PluginManagement
             Properties.Core.Default.Save();
         }
 
-        private static List<string> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
+        private static List<(string, string)> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
         {
             observatoryWorkers = new();
             observatoryNotifiers = new();
-            var errorList = new List<string>();
+            var errorList = new List<(string, string)>();
 
             string pluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
 
@@ -218,7 +218,7 @@ namespace Observatory.PluginManagement
                             string error = LoadPluginAssembly(dll, observatoryWorkers, observatoryNotifiers);
                             if (!string.IsNullOrWhiteSpace(error))
                             {
-                                errorList.Add(error);
+                                errorList.Add((error, string.Empty));
                             }
                         //}
                         //else
@@ -230,7 +230,7 @@ namespace Observatory.PluginManagement
                     }
                     catch (Exception ex)
                     {
-                        errorList.Add($"ERROR: {new FileInfo(dll).Name}, {ex.Message}");
+                        errorList.Add(($"ERROR: {new FileInfo(dll).Name}, {ex.Message}", ex.StackTrace));
                         LoadPlaceholderPlugin(dll, PluginStatus.InvalidLibrary, observatoryNotifiers);
                     }
                 }

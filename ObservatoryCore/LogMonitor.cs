@@ -374,42 +374,21 @@ namespace Observatory
         {
             if (readErrors.Any())
             {
-                var errorContent = new System.Text.StringBuilder();
-                int count = 0;
-                foreach (var error in readErrors)
+                var errorList = readErrors.Select(error =>
                 {
-
+                    string message;
                     if (error.ex.InnerException == null)
                     {
-                        errorContent.AppendLine(error.ex.Message);
+                        message = error.ex.Message;
                     }
                     else
                     {
-                        errorContent.AppendLine(error.ex.InnerException.Message);
+                        message = error.ex.InnerException.Message;
                     }
-                    
-                    errorContent.AppendLine($"File: {error.file}");
-                    if (error.line.Length > 200)
-                    {
-                        errorContent.AppendLine($"Line (first 200 chars): {error.line.Substring(0, 200)}");
-                    }
-                    else
-                    {
-                        errorContent.AppendLine($"Line: {error.line}");
-                    }
+                    return ($"Error reading file {error.file}: {message}", error.line);
+                });
 
-                    if (error != readErrors.Last())
-                    {
-                        errorContent.AppendLine();
-                        if (count++ == 5)
-                        {
-                            errorContent.AppendLine($"There are {readErrors.Count - 6} more errors but let's keep this window manageable.");
-                            break;
-                        }
-                    }
-                }
-
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ErrorReporter.ShowErrorPopup($"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}", errorContent.ToString()));
+                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => ErrorReporter.ShowErrorPopup($"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}", errorList.ToList()));
                 
             }
         }

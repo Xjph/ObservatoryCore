@@ -13,7 +13,7 @@ namespace Observatory.PluginManagement
     {
         private IEnumerable<IObservatoryWorker> observatoryWorkers;
         private IEnumerable<IObservatoryNotifier> observatoryNotifiers;
-        private List<string> errorList;
+        private List<(string error, string detail)> errorList;
         private Timer timer;
 
         public PluginEventHandler(IEnumerable<IObservatoryWorker> observatoryWorkers, IEnumerable<IObservatoryNotifier> observatoryNotifiers)
@@ -43,7 +43,7 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name);
+                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name, ((JournalBase)journalEventArgs.journalEvent).Json);
                 }
                 ResetTimer();
             }
@@ -63,7 +63,7 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name);
+                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name, ((JournalBase)journalEventArgs.journalEvent).Json);
                 }
                 ResetTimer();
             }
@@ -79,7 +79,7 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, "LogMonitorStateChanged event");
+                    RecordError(ex, worker.Name, "LogMonitorStateChanged event", ex.StackTrace);
                 }
             }
         }
@@ -98,7 +98,7 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, notifier.Name, notificationArgs.Title);
+                    RecordError(ex, notifier.Name, notificationArgs.Title, notificationArgs.Detail);
                 }
                 ResetTimer();
             }
@@ -112,21 +112,19 @@ namespace Observatory.PluginManagement
 
         private void RecordError(PluginException ex)
         {
-            errorList.Add($"Error in {ex.PluginName}: {ex.Message}");
+            errorList.Add(($"Error in {ex.PluginName}: {ex.Message}", ex.StackTrace));
         }
 
-        private void RecordError(Exception ex, string plugin, string eventType)
+        private void RecordError(Exception ex, string plugin, string eventType, string eventDetail)
         {
-            errorList.Add($"Error in {plugin} while handling {eventType}: {ex.Message}");
+            errorList.Add(($"Error in {plugin} while handling {eventType}: {ex.Message}", eventDetail));
         }
 
         private void ReportErrorsIfAny(object sender, ElapsedEventArgs e)
         {
             if (errorList.Any())
             {
-                ErrorReporter.ShowErrorPopup($"Plugin Error{(errorList.Count > 1 ? "s" : "")}", string.Join(Environment.NewLine, errorList));
-
-                errorList.Clear();
+                ErrorReporter.ShowErrorPopup($"Plugin Error{(errorList.Count > 1 ? "s" : "")}", errorList);
             }
         }
     }
