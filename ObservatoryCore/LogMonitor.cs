@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -352,7 +352,7 @@ namespace Observatory
             string fileContent = null;
             int retryCount = 0;
             
-            while (fileContent == null || retryCount < 10)
+            while (fileContent == null && retryCount < 10)
             {
                 System.Threading.Thread.Sleep(50);
                 try
