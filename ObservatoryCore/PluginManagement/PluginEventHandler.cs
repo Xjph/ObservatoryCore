@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Observatory.Framework.Files.Journal;
+using System.Timers;
 
 namespace Observatory.PluginManagement
 {
@@ -13,12 +14,19 @@ namespace Observatory.PluginManagement
         private IEnumerable<IObservatoryWorker> observatoryWorkers;
         private IEnumerable<IObservatoryNotifier> observatoryNotifiers;
         private List<string> errorList;
+        private Timer timer;
 
         public PluginEventHandler(IEnumerable<IObservatoryWorker> observatoryWorkers, IEnumerable<IObservatoryNotifier> observatoryNotifiers)
         {
             this.observatoryWorkers = observatoryWorkers;
             this.observatoryNotifiers = observatoryNotifiers;
             errorList = new();
+
+            // Use a timer to delay error reporting until incoming errors are "quiet" for one full second.
+            // Should resolve issue where repeated plugin errors open hundreds of error windows.
+            timer = new();
+            timer.Interval = 1000;
+            timer.Elapsed += ReportErrorsIfAny;
         }
 
         public void OnJournalEvent(object source, JournalEventArgs journalEventArgs)
@@ -37,7 +45,7 @@ namespace Observatory.PluginManagement
                 {
                     RecordError(ex, worker.Name, journalEventArgs.journalType.Name);
                 }
-                ReportErrorsIfAny();
+                ResetTimer();
             }
         }
 
@@ -57,7 +65,7 @@ namespace Observatory.PluginManagement
                 {
                     RecordError(ex, worker.Name, journalEventArgs.journalType.Name);
                 }
-                ReportErrorsIfAny();
+                ResetTimer();
             }
         }
 
@@ -92,8 +100,14 @@ namespace Observatory.PluginManagement
                 {
                     RecordError(ex, notifier.Name, notificationArgs.Title);
                 }
-                ReportErrorsIfAny();
+                ResetTimer();
             }
+        }
+
+        private void ResetTimer()
+        {
+            timer.Stop();
+            timer.Start();
         }
 
         private void RecordError(PluginException ex)
@@ -106,7 +120,7 @@ namespace Observatory.PluginManagement
             errorList.Add($"Error in {plugin} while handling {eventType}: {ex.Message}");
         }
 
-        private void ReportErrorsIfAny()
+        private void ReportErrorsIfAny(object sender, ElapsedEventArgs e)
         {
             if (errorList.Any())
             {
