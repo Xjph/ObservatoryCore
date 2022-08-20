@@ -11,7 +11,7 @@ namespace Observatory.Explorer
     internal class CustomCriteriaManager
     {
         private Lua LuaState;
-        private List<LuaFunction> CriteriaFunctions;
+        private Dictionary<String,LuaFunction> CriteriaFunctions;
         Action<Exception, String> ErrorLogger;
         private uint ScanCount;
 
@@ -50,22 +50,72 @@ namespace Observatory.Explorer
                     end
                 end");
 
-            //Rings
+            //Rings - internal filterable iterator
             LuaState.DoString(@"
-                function rings (ring_list)
+                function _ringsFiltered (ring_list, filter_by)
                     if ring_list then
                         local i = 0
                         local count = ring_list.Count
                         return function ()
                             i = i + 1
-                            if i <= count then
+                            while i <= count do
                                 local ring = ring_list[i - 1]
-                                return { name = ring.Name, ringclass = ring.RingClass, massmt = ring.MassMT, innerrad = ring.InnerRad, outerrad = ring.OuterRad }
+                                if (filter_by == nil or string.find(ring.Name, filter_by)) then
+                                    return { name = ring.Name, ringclass = ring.RingClass, massmt = ring.MassMT, innerrad = ring.InnerRad, outerrad = ring.OuterRad }
+                                else
+                                    i = i + 1
+                                end
                             end
                         end
                     else
                         return nil_iterator
                     end
+                end");
+
+            //Rings - internal filterable hasX check
+            LuaState.DoString(@"
+                function _hasRingsFiltered (ring_list, filter_by)
+                    if ring_list then
+                        local i = 0
+                        local count = ring_list.Count
+                        while i < count do
+                            if string.find(ring_list[i].Name, filter_by) then
+                                return true
+                            end
+                            i = i + 1
+                        end
+                    end
+                    return false
+                end");
+
+            //Rings - iterate all - nil filter
+            LuaState.DoString(@"
+                function rings (ring_list)
+                    return _ringsFiltered(ring_list, nil)
+                end");
+
+            //Rings - iterate proper rings only
+            LuaState.DoString(@"
+                function ringsOnly (ring_list)
+                    return _ringsFiltered(ring_list, 'Ring')
+                end");
+
+            //Rings - has > 0 proper rings
+            LuaState.DoString(@"
+                function hasRings (ring_list)
+                    return _hasRingsFiltered(ring_list, 'Ring')
+                end");
+
+            //Rings - iterate belts only
+            LuaState.DoString(@"
+                function beltsOnly (ring_list)
+                    return _ringsFiltered(ring_list, 'Belt')
+                end");
+
+            //Rings - has > 0 belts
+            LuaState.DoString(@"
+                function hasBelts (ring_list)
+                    return _hasRingsFiltered(ring_list, 'Belt')
                 end");
 
             //Bodies in system
@@ -116,7 +166,7 @@ namespace Observatory.Explorer
                     if (criteria[i].Trim().StartsWith("::"))
                     {
                         string scriptDescription = criteria[i].Trim().Replace("::", string.Empty);
-                        if (scriptDescription.ToLower() == "criteria")
+                        if (scriptDescription.ToLower() == "criteria" || scriptDescription.ToLower().StartsWith("criteria="))
                         {
                             string functionName = $"Criteria{i}";
                             script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
@@ -132,7 +182,7 @@ namespace Observatory.Explorer
                             script.AppendLine("end");
 
                             LuaState.DoString(script.ToString());
-                            CriteriaFunctions.Add(LuaState[functionName] as LuaFunction);
+                            CriteriaFunctions.Add(GetUniqueDescription(functionName, scriptDescription), LuaState[functionName] as LuaFunction);
                             script.Clear();
                         }
                         else if (scriptDescription.ToLower() == "global")
@@ -154,22 +204,22 @@ namespace Observatory.Explorer
 
                             script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
                             script.AppendLine($"    local result = {criteria[i]}");
+                            script.AppendLine("    local detail = ''");
 
                             if (criteria.Length > i + 1 && criteria[i + 1].Trim().ToLower() == "::detail::")
                             {
                                 i++; i++;
-                                script.AppendLine($"    local detail = {criteria[i]}");
-                            }
-                            else
-                            {
-                                script.AppendLine("    local detail = ''");
+                                // Gate detail evaluation on result to allow safe use of criteria-checked values in detail string.
+                                script.AppendLine("    if result then");
+                                script.AppendLine($"        detail = {criteria[i]}");
+                                script.AppendLine("    end");
                             }
 
                             script.AppendLine($"    return result, '{scriptDescription}', detail");
                             script.AppendLine("end");
 
                             LuaState.DoString(script.ToString());
-                            CriteriaFunctions.Add(LuaState[functionName] as LuaFunction);
+                            CriteriaFunctions.Add(GetUniqueDescription(functionName, scriptDescription), LuaState[functionName] as LuaFunction);
                             script.Clear();
                         }
                     }
@@ -240,7 +290,7 @@ namespace Observatory.Explorer
 
                 try
                 {
-                    var result = criteriaFunction.Call(scan, parents, scanList, bioSignals, geoSignals);
+                    var result = criteriaFunction.Value.Call(scan, parents, scanList, bioSignals, geoSignals);
                     if (result.Length > 0 && ((bool?)result[0]).GetValueOrDefault(false))
                     {
                         results.Add((result[1].ToString(), result[2].ToString(), false));
@@ -252,9 +302,9 @@ namespace Observatory.Explorer
                     results.Add((e.Message, scan.Json, false));
 
                     StringBuilder errorDetail = new();
-                    errorDetail.AppendLine("while processing a custom criteria on scan:")
+                    errorDetail.AppendLine($"while processing custom criteria '{criteriaFunction.Key}' on scan:")
                         .AppendLine(scan.Json)
-                        .AppendLine("NOTE: Custom criteria process has been disabled to prevent further errors.");
+                        .AppendLine("NOTE: Custom criteria processing has been disabled to prevent further errors.");
                     ErrorLogger(e, errorDetail.ToString());
                     break;
                 }
@@ -267,6 +317,16 @@ namespace Observatory.Explorer
             }
 
             return results;
+        }
+
+        private string GetUniqueDescription(string functionName, string scriptDescription)
+        {
+            string uniqueDescription = functionName;
+            if (scriptDescription.ToLower().StartsWith("criteria="))
+            {
+                uniqueDescription += scriptDescription.Replace("criteria=", "=", StringComparison.CurrentCultureIgnoreCase);
+            }
+            return uniqueDescription;
         }
 
         private void LuaGC()
