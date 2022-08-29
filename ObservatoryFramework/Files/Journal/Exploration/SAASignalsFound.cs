@@ -24,5 +24,9 @@ namespace Observatory.Framework.Files.Journal
         /// List of signals found.
         /// </summary>
         public ImmutableList<Signal> Signals { get; init; }
+        /// <summary>
+        /// List of genuses present.
+        /// </summary>
+        public ImmutableList<GenusType> Genuses { get; init; }
     }
 }

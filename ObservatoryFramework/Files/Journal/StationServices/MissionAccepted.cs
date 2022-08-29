@@ -44,6 +44,7 @@ namespace Observatory.Framework.Files.Journal
         }
         public string DestinationSystem { get; init; }
         public string DestinationStation { get; init; }
+        public string DestinationSettlement { get; init; }
         public string NewDestinationSystem { get; init; }
         public string NewDestinationStation { get; init; }
         public int PassengerCount { get; init; }
