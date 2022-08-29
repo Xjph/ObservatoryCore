@@ -933,7 +933,7 @@ namespace Observatory.UI.Views
                                 var browseTask = openFileDialog.ShowAsync((Window)((Button)source).GetVisualRoot());
                                 browseTask.ContinueWith((task) => 
                                 {
-                                    if (task.Result.Count() > 0)
+                                    if (task.Result?.Count() > 0)
                                     {
                                         string path = browseTask.Result[0];
                                         Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { settingPath.Text = path; });
