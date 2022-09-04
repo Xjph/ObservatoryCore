@@ -100,22 +100,10 @@ namespace Observatory.Explorer
                     return _ringsFiltered(ring_list, 'Ring')
                 end");
 
-            //Rings - has > 0 proper rings
-            LuaState.DoString(@"
-                function hasRings (ring_list)
-                    return _hasRingsFiltered(ring_list, 'Ring')
-                end");
-
             //Rings - iterate belts only
             LuaState.DoString(@"
                 function beltsOnly (ring_list)
                     return _ringsFiltered(ring_list, 'Belt')
-                end");
-
-            //Rings - has > 0 belts
-            LuaState.DoString(@"
-                function hasBelts (ring_list)
-                    return _hasRingsFiltered(ring_list, 'Belt')
                 end");
 
             //Bodies in system
@@ -151,6 +139,42 @@ namespace Observatory.Explorer
                     else
                         return nil_iterator
                     end
+                end");
+
+            #endregion
+
+            #region Convenience Functions
+
+            //Rings - has > 0 belts
+            LuaState.DoString(@"
+                function hasBelts (ring_list)
+                    return _hasRingsFiltered(ring_list, 'Belt')
+                end");
+
+            //Rings - has > 0 proper rings
+            LuaState.DoString(@"
+                function hasRings (ring_list)
+                    return _hasRingsFiltered(ring_list, 'Ring')
+                end");
+
+            LuaState.DoString(@"
+                function isStar (scan)
+                    return scan.StarType and scan.StarType ~= ''
+                end");
+
+            LuaState.DoString(@"
+                function isPlanet (scan)
+                    return scan.PlanetClass ~= nil
+                end");
+
+            LuaState.DoString(@"
+                function hasAtmosphere (scan)
+                    return scan.AtmosphereComposition ~= nil
+                end");
+
+            LuaState.DoString(@"
+                function hasLandableAtmosphere (scan)
+                    return scan.Landable and scan.AtmosphereComposition ~= nil
                 end");
 
             #endregion
