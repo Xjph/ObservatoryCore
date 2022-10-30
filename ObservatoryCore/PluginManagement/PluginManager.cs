@@ -85,12 +85,20 @@ namespace Observatory.PluginManagement
                         errorList.Add((FormatErrorMessage(ex), ex.StackTrace));
                         errorPlugins.Add(plugin);
                     }
+                    catch (Exception ex)
+                    {
+                        errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
+                        errorPlugins.Add(plugin);
+                    }
                 }
             }
 
             notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
 
             core.Notification += pluginHandler.OnNotificationEvent;
+
+            if (errorList.Any())
+                ErrorReporter.ShowErrorPopup("Plugin Load Error" + (errorList.Count > 1 ? "s" : String.Empty), errorList);
         }
 
         private static string FormatErrorMessage(PluginException ex)
