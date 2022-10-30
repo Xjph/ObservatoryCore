@@ -699,6 +699,11 @@
             List of signals found.
             </summary>
         </member>
+        <member name="P:Observatory.Framework.Files.Journal.SAASignalsFound.Genuses">
+            <summary>
+            List of genuses present.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Files.Journal.Scan">
             <summary>
             Journal "Scan" event generated when directly FSS scanning, from automatic proximity scans, or nav beacon data.
@@ -1135,6 +1140,21 @@
         <member name="F:Observatory.Framework.Files.ParameterTypes.StatusFlags.RadialAltitude">
             <summary>
             Altitude above average radius (sea level) when set. Altitude raycast to ground when unset.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.ParameterTypes.GenusType">
+            <summary>
+            Genus object used within SAASignalsFound event
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ParameterTypes.GenusType.Genus">
+            <summary>
+            Internal (non-localised) name of genus, e.g.: "$Codex_Ent_Stratum_Genus_Name"
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.ParameterTypes.GenusType.Genus_Localised">
+            <summary>
+            Name of genus localised for player locale, e.g.: "Stratum"
             </summary>
         </member>
         <member name="T:Observatory.Framework.Files.ShipyardFile">
