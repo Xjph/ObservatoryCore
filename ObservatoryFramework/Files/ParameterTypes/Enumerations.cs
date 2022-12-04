@@ -480,7 +480,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         OnFootExterior = 1 << 15,
         BreathableAtmosphere = 1 << 16,
         TelepresenceMulticrew = 1 << 17,
-        PhysicalMulticrew = 1 << 18
+        PhysicalMulticrew = 1 << 18,
+        FsdHyperdriveCharging = 1 << 19
     }
 
     public enum LegalStatus

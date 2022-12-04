@@ -8,5 +8,6 @@
         public ulong CarrierID { get; init; }
         public string SystemName { get; init; }
         public ulong SystemID { get; init; }
+        public string DepartureTime { get; init; }
     }
 }

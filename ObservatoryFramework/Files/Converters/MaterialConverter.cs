@@ -30,6 +30,7 @@ namespace Observatory.Framework.Files.Converters
                             var material = new Material
                             {
                                 Name = name,
+                                Name_Localised = name,
                                 Count = count
                             };
                             materialComposition.Add(material);
