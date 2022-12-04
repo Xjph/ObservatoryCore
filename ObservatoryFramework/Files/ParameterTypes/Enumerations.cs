@@ -492,7 +492,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         Wanted,
         Hostile,
         PassengerWanted,
-        Warrant
+        Warrant,
+        Thargoid
     }
 
     public enum FocusStatus
