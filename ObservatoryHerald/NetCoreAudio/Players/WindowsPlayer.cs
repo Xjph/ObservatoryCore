@@ -19,7 +19,7 @@ namespace NetCoreAudio.Players
         [DllImport("winmm.dll")]
         public static extern int waveOutSetVolume(IntPtr hwo, uint dwVolume);
 
-		private Timer _playbackTimer;
+		private System.Timers.Timer _playbackTimer;
         private Stopwatch _playStopwatch;
 
 		private string _fileName;
@@ -32,7 +32,7 @@ namespace NetCoreAudio.Players
         public Task Play(string fileName)
         {
             _fileName = $"\"{fileName}\"";
-            _playbackTimer = new Timer
+            _playbackTimer = new System.Timers.Timer
             {
                 AutoReset = false
             };

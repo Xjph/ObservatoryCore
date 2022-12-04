@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net5.0</TargetFramework>
+	<TargetFramework>net6.0</TargetFramework>
+	<ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Observatory</RootNamespace>
     <SignAssembly>false</SignAssembly>
     <DelaySign>false</DelaySign>
@@ -39,7 +40,7 @@
   
   <ItemGroup>
     <Reference Include="ObservatoryFramework">
-      <HintPath>..\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll</HintPath>
+      <HintPath>..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
 

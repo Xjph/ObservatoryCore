@@ -12,7 +12,7 @@ namespace Observatory.UI.Views
     public partial class NotificationView : Window
     {
         private readonly double scale;
-        private readonly Timer timer;
+        private readonly System.Timers.Timer timer;
         private readonly Guid guid;
         private bool defaultPosition = true;
         private PixelPoint originalPosition;

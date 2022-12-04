@@ -14,7 +14,7 @@ namespace Observatory.PluginManagement
         private IEnumerable<IObservatoryWorker> observatoryWorkers;
         private IEnumerable<IObservatoryNotifier> observatoryNotifiers;
         private List<(string error, string detail)> errorList;
-        private Timer timer;
+        private System.Timers.Timer timer;
 
         public PluginEventHandler(IEnumerable<IObservatoryWorker> observatoryWorkers, IEnumerable<IObservatoryNotifier> observatoryNotifiers)
         {
