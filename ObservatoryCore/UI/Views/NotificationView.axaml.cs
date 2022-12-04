@@ -25,9 +25,9 @@ namespace Observatory.UI.Views
             this.guid = guid;
             InitializeComponent();
             SystemDecorations = SystemDecorations.None;
+            ShowActivated = false;
             ShowInTaskbar = false;
             MakeClickThrough(); //Platform specific, currently windows only.
-
 
             this.DataContextChanged += NotificationView_DataContextChanged;
             scale = Properties.Core.Default.NativeNotifyScale / 100.0;
