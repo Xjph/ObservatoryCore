@@ -405,7 +405,8 @@ namespace Observatory.Framework.Files.ParameterTypes
     public enum VehicleSwitchTo
     {
         Mothership,
-        Fighter
+        Fighter,
+        SRV
     }
 
     public enum VoucherType
