@@ -5,7 +5,7 @@
 #define MyAppPublisher "Jonathan Miller"
 #define MyAppURL "https://github.com/xjph/ObservatoryCore"
 #define MyAppExeName "ObservatoryCore.exe"
-#define MyAppVersion GetVersionNumbersString('..\ObservatoryCore\bin\Release\net5.0\publish\framework-dependent\ObservatoryCore.exe')
+#define MyAppVersion GetVersionNumbersString('..\ObservatoryCore\bin\Release\net6.0\publish\framework-dependent\ObservatoryCore.exe')
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -22,7 +22,7 @@ DefaultDirName={autopf}\{#MyAppName}
 DisableDirPage=false
 DefaultGroupName={#MyAppName}
 AllowNoIcons=yes
-LicenseFile=C:\Users\Xjph\Source\Repos\MIT.txt
+LicenseFile=C:\Users\Xjph\Repos\MIT.txt
 ; Uncomment the following line to run in non administrative install mode (install for current user only.)
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
@@ -60,15 +60,15 @@ Name: "Plugins\Telegram"; Description: "{cm:TelegramDescription}"; Types: Full
 Name: "{app}\plugins"; Permissions: users-modify
 
 [Files]
-Source: "..\ObservatoryCore\bin\Release\net5.0\publish\framework-dependent\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\ObservatoryCore\bin\Release\net5.0\publish\framework-dependent\*"; Excludes: "\plugins\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\ObservatoryExplorer.dll"; DestDir: "{app}\plugins"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\lua54.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\KeraLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\deps\NLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\ObservatoryBotanist.dll"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
-Source: "..\ObservatoryCore\bin\Release\net5.0\plugins\ObservatoryTelegram.dll"; DestDir: "{app}\plugins"; Components: Plugins\Telegram
+Source: "..\ObservatoryCore\bin\Release\net6.0\publish\framework-dependent\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\ObservatoryCore\bin\Release\net6.0\publish\framework-dependent\*"; Excludes: "\plugins\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\ObservatoryExplorer.dll"; DestDir: "{app}\plugins"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\deps\lua54.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\deps\KeraLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\deps\NLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
+Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\ObservatoryBotanist.dll"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
+Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\ObservatoryTelegram.dll"; DestDir: "{app}\plugins"; Components: Plugins\Telegram
 Source: ".\netcorecheck.exe"; Flags: dontcopy noencryption
 Source: ".\netcorecheck_x64.exe"; Flags: dontcopy noencryption
 
@@ -315,14 +315,14 @@ begin
   Dependency_List[DependencyCount] := Dependency;
 end;
 
-procedure Dependency_AddDotNet50Desktop;
+procedure Dependency_AddDotNet60Desktop;
 begin
   // https://dotnet.microsoft.com/download/dotnet/5.0
-  if not Dependency_IsNetCoreInstalled('Microsoft.WindowsDesktop.App 5.0.7') then begin
+  if not Dependency_IsNetCoreInstalled('Microsoft.WindowsDesktop.App 6.0.11') then begin
     Dependency_Add('dotnet50desktop' + Dependency_ArchSuffix + '.exe',
       '/lcid ' + IntToStr(GetUILanguage) + ' /passive /norestart',
-      '.NET Desktop Runtime 5.0.7' + Dependency_ArchTitle,
-      Dependency_String('https://go.microsoft.com/fwlink/?linkid=2166320', 'https://go.microsoft.com/fwlink/?linkid=2166224'),
+      '.NET Desktop Runtime 6.0.11' + Dependency_ArchTitle,
+      Dependency_String('https://download.visualstudio.microsoft.com/download/pr/2a392287-fd51-4ee8-9c15-a672ab9bc55d/03d4784b3a543a0fb9ce5677ed13a9a3/windowsdesktop-runtime-6.0.11-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/0192a249-3ec8-4374-a827-e186dd58d55d/cec046575f3eb2247a10ba3d50f5cf6c/windowsdesktop-runtime-6.0.11-win-x64.exe'),
       '', False, False);
   end;
 end;
@@ -330,7 +330,7 @@ end;
 function InitializeSetup: Boolean;
 begin
   // add the dependencies you need
-  Dependency_AddDotNet50Desktop;
+  Dependency_AddDotNet60Desktop;
   // ...
   Result := true;
 end;
