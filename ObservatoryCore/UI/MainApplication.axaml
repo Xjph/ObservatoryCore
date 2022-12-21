@@ -7,10 +7,9 @@
     <local:ViewLocator/>
   </Application.DataTemplates>
   <Application.Styles>
-    <FluentTheme Mode="Dark"/>
-    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Default.xaml"/>
-    <StyleInclude Source="resm:Avalonia.Themes.Default.Accents.BaseDark.xaml?assembly=Avalonia.Themes.Default"/>
+    <FluentTheme Mode="Light"/>
+    <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
     <StyleInclude Source="avares://Egorozh.ColorPicker.Avalonia.Dialog/Themes/Default.axaml" />
-    <dialog:FluentColorPickerTheme Mode="Dark" />
+    <dialog:FluentColorPickerTheme Mode="Light" />
   </Application.Styles>
 </Application>
