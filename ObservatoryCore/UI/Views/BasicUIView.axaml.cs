@@ -992,9 +992,9 @@ namespace Observatory.UI.Views
                                 NumericUpDown numericUpDown = new() { Value = intSetting, AllowSpin = true };
                                 if (bounds != null)
                                 {
-                                    numericUpDown.Minimum = bounds.Minimum;
-                                    numericUpDown.Maximum = bounds.Maximum;
-                                    numericUpDown.Increment = bounds.Increment;
+                                    numericUpDown.Minimum = (decimal)bounds.Minimum;
+                                    numericUpDown.Maximum = (decimal)bounds.Maximum;
+                                    numericUpDown.Increment = (decimal)bounds.Increment;
                                 }
                                 numericUpDown.ValueChanged += (object sender, NumericUpDownValueChangedEventArgs e) =>
                                 {
