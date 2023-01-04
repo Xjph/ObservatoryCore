@@ -9,38 +9,73 @@ using Observatory.UI.Models;
 using ReactiveUI;
 using System.Reactive.Linq;
 using Observatory.Framework;
+using System.Collections.Specialized;
 
 namespace Observatory.UI.ViewModels
 {
     public class BasicUIViewModel : ViewModelBase
     {
-        private ObservableCollection<object> basicUIGrid;
+        private ObservableCollection<string> _headers;
+        private ObservableCollection<string> _formats;
+        private ObservableCollection<ObservableCollection<object>> _items;
 
         public System.Collections.IList SelectedItems { get; set; }        
 
-        public ObservableCollection<object> BasicUIGrid
+        
+        public ObservableCollection<string> Headers
         {
-            get => basicUIGrid;
+            get => _headers;
             set
             {
-                basicUIGrid = value;
-                this.RaisePropertyChanged(nameof(BasicUIGrid));
+                _headers = value;
+                _headers.CollectionChanged += (o, e) => this.RaisePropertyChanged(nameof(Headers));
+                this.RaisePropertyChanged(nameof(Headers));
             }
         }
 
-        public BasicUIViewModel(ObservableCollection<object> BasicUIGrid)
+        public ObservableCollection<string> Formats
         {
-            this.BasicUIGrid = BasicUIGrid;
+            get => _formats;
+            set
+            {
+                _formats = value;
+                _formats.CollectionChanged += (o, e) => this.RaisePropertyChanged(nameof(Formats));
+                this.RaisePropertyChanged(nameof(Formats));
+            }
         }
 
-        private PluginUI.UIType uiType;
+        public ObservableCollection<ObservableCollection<object>> Items
+        {
+            get => _items;
+            set
+            {
+                void raiseItemChanged(object o, NotifyCollectionChangedEventArgs e) { this.RaisePropertyChanged(nameof(Items)); }
+
+                _items = value;
+                _items.CollectionChanged += raiseItemChanged;
+                this.RaisePropertyChanged(nameof(Items));
+                foreach (var itemColumn in value)
+                {
+                    itemColumn.CollectionChanged += raiseItemChanged;
+                }
+            }
+        }
+
+
+        public BasicUIViewModel(ObservableCollection<string> headers, ObservableCollection<string> formats)
+        {
+            Headers = headers;
+            Formats = formats;
+        }
+
+        private PluginUI.UIType _uiType;
 
         public PluginUI.UIType UIType
         {
-            get => uiType;
+            get => _uiType;
             set
             {
-                uiType = value;
+                _uiType = value;
                 this.RaisePropertyChanged(nameof(UIType));
             }
         }
