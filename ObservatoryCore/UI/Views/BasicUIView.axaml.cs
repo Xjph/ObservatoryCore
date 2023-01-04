@@ -15,6 +15,7 @@ using Avalonia.Media;
 using Avalonia.Controls.ApplicationLifetimes;
 using System.Runtime.InteropServices;
 using System.IO;
+using Avalonia.Platform.Storage;
 
 namespace Observatory.UI.Views
 {
@@ -71,6 +72,7 @@ namespace Observatory.UI.Views
             e.Column.CanUserResize = true;
             e.Column.CanUserSort = true;
         }
+
         private void UITypeChange()
         {
             var uiPanel = this.Find<Panel>("UIPanel");
@@ -83,10 +85,9 @@ namespace Observatory.UI.Views
                 case PluginUI.UIType.Basic:
                     dataGrid = new()
                     {
-                        [!DataGrid.ItemsProperty] = new Binding("BasicUIGrid"),
+                        [!DataGrid.ItemsProperty] = new Binding("Items"),
                         SelectionMode = DataGridSelectionMode.Extended,
                         GridLinesVisibility = DataGridGridLinesVisibility.Vertical,
-                        AutoGenerateColumns = true,
                         IsReadOnly = true
                     };
                     dataGrid.AutoGeneratingColumn += ColumnGeneration;
@@ -1028,21 +1029,33 @@ namespace Observatory.UI.Views
 
                             settingBrowse.Click += (object source, RoutedEventArgs e) =>
                             {
-                                OpenFileDialog openFileDialog = new()
+                                var currentFolder = new Avalonia.Platform.Storage.FileIO.BclStorageFolder(fileSetting.DirectoryName);
+                                var fileOptions = new FilePickerOpenOptions()
                                 {
-                                    Directory = fileSetting.DirectoryName,
-                                    AllowMultiple = false
+                                    AllowMultiple = false,
+                                    SuggestedStartLocation = currentFolder
                                 };
-                                var browseTask = openFileDialog.ShowAsync((Window)((Button)source).GetVisualRoot());
+
+                                var browseTask = ((Window)settingBrowse.FindAncestorOfType<Window>()).StorageProvider.OpenFilePickerAsync(fileOptions);
+                                
+                                //OpenFileDialog openFileDialog = new()
+                                //{
+                                //    Directory = fileSetting.DirectoryName,
+                                //    AllowMultiple = false
+                                //};
+                                
+                                // = openFileDialog.ShowAsync((Window)((Button)source).GetVisualRoot());
+                                
                                 browseTask.ContinueWith((task) => 
                                 {
                                     if (task.Result?.Count() > 0)
                                     {
-                                        string path = browseTask.Result[0];
-                                        Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { settingPath.Text = path; });
-                                        setting.Key.SetValue(plugin.Settings, new FileInfo(path));
-                                        PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
-
+                                        if (browseTask.Result[0].TryGetUri(out Uri path))
+                                        {
+                                            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { settingPath.Text = path.AbsolutePath; });
+                                            setting.Key.SetValue(plugin.Settings, new FileInfo(path.AbsolutePath));
+                                            PluginManagement.PluginManager.GetInstance.SaveSettings(plugin, plugin.Settings);
+                                        }
                                     }
                                 });
                                 

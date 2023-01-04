@@ -23,10 +23,25 @@ namespace Observatory.Framework
         public object UI;
 
         /// <summary>
-        /// <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
+        /// <para>Collection bound to DataGrid used by plugins with UIType.Basic.</para>
         /// <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
         /// </summary>
         public ObservableCollection<object> DataGrid;
+
+        /// <summary>
+        /// <para>Collection bound to DataGrid headers used by plugins with UIType.Basic.</para>
+        /// </summary>
+        public ObservableCollection<string> Headers;
+
+        /// <summary>
+        /// <para>Collection used to specify formatting of items in respective columns.</para>
+        /// </summary>
+        public ObservableCollection<string> Formats;
+
+        /// <summary>
+        /// <para>Two-dimensional collection of items to display in UI grid.</para>
+        /// </summary>
+        public ObservableCollection<ObservableCollection<object>> Items;
 
         /// <summary>
         /// Instantiate PluginUI of UIType.Basic.

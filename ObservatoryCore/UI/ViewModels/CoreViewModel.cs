@@ -47,8 +47,8 @@ namespace Observatory.UI.ViewModels
 
             foreach(var notifier in notifiers.Select(p => p.plugin))
             {
-                Panel notifierPanel = new Panel();
-                TextBlock notifierTextBlock = new TextBlock();
+                Panel notifierPanel = new();
+                TextBlock notifierTextBlock = new();
                 notifierTextBlock.Text = notifier.Name;
                 notifierPanel.Children.Add(notifierTextBlock);
                 //tabs.Add(new CoreModel() { Name = notifier.ShortName, UI = (ViewModelBase)notifier.UI });
@@ -65,7 +65,7 @@ namespace Observatory.UI.ViewModels
 
         }
 
-        public void ReadAll()
+        public static void ReadAll()
         {
             LogMonitor.GetInstance.ReadAllJournals();
         }
@@ -86,21 +86,21 @@ namespace Observatory.UI.ViewModels
             }
         }
 
-        public void OpenGithub()
+        public static void OpenGithub()
         {
             ProcessStartInfo githubOpen = new("https://github.com/Xjph/ObservatoryCore");
             githubOpen.UseShellExecute = true;
             Process.Start(githubOpen);
         }
 
-        public void OpenDonate()
+        public static void OpenDonate()
         {
             ProcessStartInfo donateOpen = new("https://paypal.me/eliteobservatory");
             donateOpen.UseShellExecute = true;
             Process.Start(donateOpen);
         }
 
-        public void GetUpdate()
+        public static void GetUpdate()
         {
             ProcessStartInfo githubOpen = new("https://github.com/Xjph/ObservatoryCore/releases");
             githubOpen.UseShellExecute = true;
