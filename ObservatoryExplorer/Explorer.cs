@@ -67,10 +67,36 @@ namespace Observatory.Explorer
             }
         }
 
+        private static string IncrementOrdinal(string ordinal)
+        {
+            char ordChar = ordinal.ToCharArray().Last();
+
+            if (new char[] {'Z', '9'}.Contains(ordChar))
+            {
+                ordinal = IncrementOrdinal(ordinal.Length == 1 ? " " : String.Empty + ordinal[..^1]);
+                ordChar = (char)(ordChar - 10);
+            }
+
+            return ordinal[..^1] + (char)(ordChar + 1);
+        }
+
+        private static string DecrementOrdinal(string ordinal)
+        {
+            char ordChar = ordinal.ToCharArray().Last();
+
+            if (new char[] { 'A', '0' }.Contains(ordChar))
+            {
+                ordinal = DecrementOrdinal(ordinal[..^1]);
+                ordChar = (char)(ordChar + 10);
+            }
+
+            return ordinal[..^1] + (char)(ordChar - 1);
+        }
+
         public Scan ConvertBarycentre(ScanBaryCentre barycentre, Scan childScan)
         {
             string childAffix = childScan.BodyName
-                .Replace(childScan.StarSystem, string.Empty);
+                .Replace(childScan.StarSystem, string.Empty).Trim();
 
             string baryName;
 
@@ -82,20 +108,18 @@ namespace Observatory.Explorer
                 bool lowChild = childScan.BodyID - barycentre.BodyID == 1;
 
                 string baryAffix;
-
+                
                 // Barycentre ordinal always labelled as low before high, e.g. "AB"
                 if (lowChild)
                 {
-                    baryAffix = new string(new char[] { childOrdinal, (char)(childOrdinal + 1) });
+                    baryAffix = childAffix + "-" + IncrementOrdinal(childAffix);
                 }
                 else
                 {
-                    baryAffix = new string(new char[] { (char)(childOrdinal - 1), childOrdinal });
+                    baryAffix = DecrementOrdinal(childAffix) + "-" + childAffix;
                 }
 
-                baryAffix = childAffix.Replace(childOrdinal.ToString(), baryAffix);
-
-                baryName = barycentre.StarSystem + baryAffix;
+                baryName = barycentre.StarSystem + " " + baryAffix;
             }
             else
             {
