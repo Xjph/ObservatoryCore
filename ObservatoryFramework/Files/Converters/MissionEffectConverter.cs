@@ -19,6 +19,8 @@ namespace Observatory.Framework.Files.Converters
                 case "++":
                     effect = "Med";
                     break;
+                case "+++":
+                case "++++":
                 case "+++++":
                     effect = "High";
                     break;
