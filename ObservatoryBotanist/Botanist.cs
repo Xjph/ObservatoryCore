@@ -175,7 +175,7 @@ namespace Observatory.Botanist
         private object GetColonyDistance(ScanOrganic scan)
         {
             // Try find a genus name.
-            string genusName = null;
+            string genusName = String.Empty;
             if (scan.Genus_Localised != null)
             {
                 genusName = scan.Genus_Localised;
