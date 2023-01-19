@@ -86,7 +86,7 @@ namespace Observatory.Explorer
 
             if (new char[] { 'A', '0' }.Contains(ordChar))
             {
-                ordinal = DecrementOrdinal(ordinal[..^1]);
+                ordinal = DecrementOrdinal(ordinal.Length == 1 ? " " : String.Empty + ordinal[..^1]);
                 ordChar = (char)(ordChar + 10);
             }
 
