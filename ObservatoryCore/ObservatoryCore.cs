@@ -23,7 +23,14 @@ namespace Observatory
             {
                 if (Properties.Core.Default.CoreVersion != version)
                 {
-                    if (Properties.Core.Default.CoreVersion != string.Empty) Properties.Core.Default.Upgrade();
+                    try
+                    {
+                        Properties.Core.Default.Upgrade();
+                    }
+                    catch 
+                    {
+                        // Silently ignore properties upgrade failure.
+                    }
                     Properties.Core.Default.CoreVersion = version;
                     Properties.Core.Default.Save();
                 }
