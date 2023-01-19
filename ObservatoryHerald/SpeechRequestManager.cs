@@ -77,7 +77,14 @@ namespace Observatory.Herald
                     }
                 };
                 
-                using var response = await httpClient.PostAsync(ApiEndpoint + "/Speak", request);
+                var requestTask = httpClient.PostAsync(ApiEndpoint + "/Speak", request);
+
+                requestTask.Wait(5000);
+
+                if (requestTask.IsFaulted) 
+                    throw new PluginException("Herald", "Error retrieving voice audio.", requestTask.Exception);
+
+                using var response = await requestTask;
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -140,9 +147,16 @@ namespace Observatory.Herald
                     { "obs-plugin", "herald" },
                     { "api-key", ApiKey }
                 }
-            };            
+            };
 
-            var response = httpClient.SendAsync(request).Result;
+            var requestTask = httpClient.SendAsync(request);
+
+            requestTask.Wait(1000);
+
+            if (requestTask.IsFaulted) 
+                throw new PluginException("Herald", "Unable to retrieve available voices.", requestTask.Exception);
+
+            var response = requestTask.Result;
 
             if (response.IsSuccessStatusCode)
             {
