@@ -36,7 +36,7 @@ namespace Observatory.UI.ViewModels
                 {
                     CoreModel coreModel = new();
                     coreModel.Name = worker.ShortName;
-                    coreModel.UI = new BasicUIViewModel(worker.PluginUI.DataGrid)
+                    coreModel.UI = new BasicUIViewModel(worker.PluginUI.BasicGrid)
                     {
                         UIType = worker.PluginUI.PluginUIType
                     };
@@ -55,7 +55,7 @@ namespace Observatory.UI.ViewModels
             }
 
             
-            tabs.Add(new CoreModel() { Name = "Core", UI = new BasicUIViewModel(new ObservableCollection<object>()) { UIType = Framework.PluginUI.UIType.Core } });
+            tabs.Add(new CoreModel() { Name = "Core", UI = new BasicUIViewModel(new Framework.BasicGrid()) { UIType = Framework.PluginUI.UIType.Core } });
 
             if (Properties.Core.Default.StartMonitor)
                 ToggleMonitor();
@@ -112,67 +112,95 @@ namespace Observatory.UI.ViewModels
             try
             {
                 var exportFolder = Properties.Core.Default.ExportFolder;
-                if (string.IsNullOrEmpty(exportFolder) || !Directory.Exists(exportFolder))
+
+                if (string.IsNullOrEmpty(exportFolder))
                 {
                     exportFolder = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-                    OpenFolderDialog openFolderDialog = new()
-                    {
-                        Directory = exportFolder
-                    };
-
-                    var application = (IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime;
-
-                    var selectedFolder = await openFolderDialog.ShowAsync(application.MainWindow);
-
-                    if (!string.IsNullOrEmpty(selectedFolder))
-                    {
-                        Properties.Core.Default.ExportFolder = selectedFolder;
-                        Properties.Core.Default.Save();
-                        exportFolder = selectedFolder;
-                    }
                 }
 
-                var exportStyle = Properties.Core.Default.ExportStyle;
-                if (string.IsNullOrEmpty(exportStyle))
+                OpenFolderDialog openFolderDialog = new()
                 {
-                    exportStyle = "Fixed width";
-                    Properties.Core.Default.ExportStyle = exportStyle;
+                    Directory = exportFolder
+                };
+
+                var application = (IClassicDesktopStyleApplicationLifetime)Avalonia.Application.Current.ApplicationLifetime;
+
+                var selectedFolder = await openFolderDialog.ShowAsync(application.MainWindow);
+
+                if (!string.IsNullOrEmpty(selectedFolder))
+                {
+                    Properties.Core.Default.ExportFolder = selectedFolder;
                     Properties.Core.Default.Save();
-                }
+                    exportFolder = selectedFolder;
 
-                foreach (var tab in tabs.Where(t => t.Name != "Core"))
-                {
-                    var ui = (BasicUIViewModel)tab.UI;
-                    List<object> selectedData;
-                    bool specificallySelected = ui.SelectedItems?.Count > 1;
-
-                    if (specificallySelected)
+                    foreach (var tab in tabs.Where(t => t.Name != "Core"))
                     {
-                        selectedData = new();
+                        var ui = (BasicUIViewModel)tab.UI;
+                        List<object> selectedData;
+                        bool specificallySelected = ui.SelectedItems?.Count > 1;
 
-                        foreach (var item in ui.SelectedItems)
-                            selectedData.Add(item);
+                        if (specificallySelected)
+                        {
+                            selectedData = new();
+
+                            foreach (var item in ui.SelectedItems)
+                                selectedData.Add(item);
+                        }
+                        else
+                        {
+                            selectedData = new(); // TODO: Make this work in new UI
+                        }
+
+                        var columns = selectedData[0].GetType().GetProperties();
+                        Dictionary<string, int> colSize = new();
+                        Dictionary<string, List<string>> colContent = new();
+
+                        foreach (var column in columns)
+                        {
+                            colSize.Add(column.Name, 0);
+                            colContent.Add(column.Name, new());
+                        }
+
+                        foreach (var line in selectedData)
+                        {
+                            var lineType = line.GetType(); // some plugins have different line types, so don't move this out of loop
+                            foreach (var column in colContent)
+                            {
+                                var cellValue = lineType.GetProperty(column.Key)?.GetValue(line)?.ToString() ?? string.Empty;
+                                column.Value.Add(cellValue);
+                                if (colSize[column.Key] < cellValue.Length)
+                                    colSize[column.Key] = cellValue.Length;
+                            }
+                        }
+
+                        System.Text.StringBuilder exportData = new();
+
+
+                        foreach (var colTitle in colContent.Keys)
+                        {
+                            if (colSize[colTitle] < colTitle.Length)
+                                colSize[colTitle] = colTitle.Length;
+
+                            exportData.Append(colTitle.PadRight(colSize[colTitle]) + "  ");
+                        }
+                        exportData.AppendLine();
+
+                        for (int i = 0; i < colContent.First().Value.Count; i++)
+                        {
+                            foreach (var column in colContent)
+                            {
+                                if (column.Value[i].Length > 0 && !char.IsNumber(column.Value[i][0]) && column.Value[i].Count(char.IsLetter) / (float)column.Value[i].Length > 0.25)
+                                    exportData.Append(column.Value[i].PadRight(colSize[column.Key]) + "  ");
+                                else
+                                    exportData.Append(column.Value[i].PadLeft(colSize[column.Key]) + "  ");
+                            }
+                            exportData.AppendLine();
+                        }
+
+                        string exportPath = $"{exportFolder}{System.IO.Path.DirectorySeparatorChar}Observatory Export - {DateTime.UtcNow:yyyyMMdd-HHmmss} - {tab.Name}.txt";
+
+                        System.IO.File.WriteAllText(exportPath, exportData.ToString());
                     }
-                    else
-                    {
-                        selectedData = ui.BasicUIGrid.ToList();
-                    }
-
-                    System.Text.StringBuilder exportData;
-                    switch (exportStyle)
-                    {
-                        case "Tab separated":
-                            exportData = ExportTabSeparated(selectedData);
-                            break;
-                        default: // Fixed width.
-                            exportData = ExportFixedWidth(selectedData);
-                            break;
-                    }
-
-                    string exportPath = $"{exportFolder}{System.IO.Path.DirectorySeparatorChar}Observatory Export - {DateTime.UtcNow:yyyyMMdd-HHmmss} - {tab.Name}.txt";
-
-                    System.IO.File.WriteAllText(exportPath, exportData.ToString());
                 }
             }
             catch (Exception e)
@@ -182,78 +210,6 @@ namespace Observatory.UI.ViewModels
                     new List<(string, string)> { ("An error occurred while exporting; output may be missing or incomplete." + Environment.NewLine +
                     "Please check the error log (found in your Documents folder) for more details and visit our discord to report it.", e.Message) });
             }
-
-            static System.Text.StringBuilder ExportTabSeparated(List<object> selectedData)
-            {
-                System.Text.StringBuilder exportData = new();
-
-                var columnNames = selectedData[0].GetType().GetProperties().Select(c => c.Name).ToList();
-                exportData.AppendJoin('\t', columnNames).AppendLine();
-
-                var lastColumn = columnNames.Last();
-                foreach (var line in selectedData)
-                {
-                    var lineType = line.GetType(); // some plugins have different line types, so don't move this out of loop
-                    foreach (var columnName in columnNames)
-                    {
-                        var cellValue = lineType.GetProperty(columnName)?.GetValue(line)?.ToString() ?? string.Empty;
-                        exportData.Append(cellValue).Append('\t');
-                    }
-                    exportData.AppendLine();
-                }
-                return exportData;
-            }
-
-            static System.Text.StringBuilder ExportFixedWidth(List<object> selectedData)
-            {
-                Dictionary<string, int> colSize = new();
-                Dictionary<string, List<string>> colContent = new();
-
-                var columns = selectedData[0].GetType().GetProperties();
-                foreach (var column in columns)
-                {
-                    colSize.Add(column.Name, column.Name.Length);
-                    colContent.Add(column.Name, new());
-                }
-
-                foreach (var line in selectedData)
-                {
-                    var lineType = line.GetType(); // some plugins have different line types, so don't move this out of loop
-                    foreach (var column in colContent)
-                    {
-                        var cellValue = lineType.GetProperty(column.Key)?.GetValue(line)?.ToString() ?? string.Empty;
-                        column.Value.Add(cellValue);
-                        if (colSize[column.Key] < cellValue.Length)
-                            colSize[column.Key] = cellValue.Length;
-                    }
-                }
-
-                System.Text.StringBuilder exportData = new();
-
-
-                foreach (var colTitle in colContent.Keys)
-                {
-                    if (colSize[colTitle] < colTitle.Length)
-                        colSize[colTitle] = colTitle.Length;
-
-                    exportData.Append(colTitle.PadRight(colSize[colTitle]) + "  ");
-                }
-                exportData.AppendLine();
-
-                for (int i = 0; i < colContent.First().Value.Count; i++)
-                {
-                    foreach (var column in colContent)
-                    {
-                        if (column.Value[i].Length > 0 && !char.IsNumber(column.Value[i][0]) && column.Value[i].Count(char.IsLetter) / (float)column.Value[i].Length > 0.25)
-                            exportData.Append(column.Value[i].PadRight(colSize[column.Key]) + "  ");
-                        else
-                            exportData.Append(column.Value[i].PadLeft(colSize[column.Key]) + "  ");
-                    }
-                    exportData.AppendLine();
-                }
-
-                return exportData;
-            }
         }
 
         public void ClearGrid()
@@ -262,15 +218,7 @@ namespace Observatory.UI.ViewModels
             {
                 var ui = (BasicUIViewModel)tab.UI;
 
-                var rowTemplate = ui.BasicUIGrid.First();
-
-                foreach (var property in rowTemplate.GetType().GetProperties())
-                {
-                    property.SetValue(rowTemplate, null);
-                }
-
-                ui.BasicUIGrid.Clear();
-                ui.BasicUIGrid.Add(rowTemplate);
+                ui.Items.Clear();
 
                 // For some reason UIType's change event will properly
                 // redraw the grid, not BasicUIGrid's.

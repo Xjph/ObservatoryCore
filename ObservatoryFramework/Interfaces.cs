@@ -154,7 +154,7 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
         /// <param name="item">Grid item to be added. Object type should match original template item used to create the grid.</param>
-        public void AddGridItem(IObservatoryWorker worker, object item);
+        public void AddGridItem(IObservatoryWorker worker, List<object> item);
 
         /// <summary>
         /// Add multiple items to the bottom of the basic UI grid.
@@ -167,8 +167,7 @@ namespace Observatory.Framework.Interfaces
         /// Clears basic UI grid, removing all items.
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
-        /// <param name="templateItem">Template item used to re-initialise the grid.</param>
-        public void ClearGrid(IObservatoryWorker worker, object templateItem);
+        public void ClearGrid(IObservatoryWorker worker);
 
         /// <summary>
         /// Requests current Elite Dangerous status.json content.

@@ -3,6 +3,7 @@ using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using Observatory.NativeNotification;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace Observatory.PluginManagement
@@ -96,47 +97,39 @@ namespace Observatory.PluginManagement
         /// </summary>
         /// <param name="worker"></param>
         /// <param name="item"></param>
-        public void AddGridItem(IObservatoryWorker worker, object item)
+        public void AddGridItem(IObservatoryWorker worker, List<object> item)
         {
             Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
             {
-                worker.PluginUI.DataGrid.Add(item);
+                ObservableCollection<object> newRow = new(item);
+                worker.PluginUI.BasicGrid.Items.Add(newRow);
 
                 //Hacky removal of original empty object if one was used to populate columns
-                if (worker.PluginUI.DataGrid.Count == 2)
+                if (worker.PluginUI.BasicGrid.Items.Count == 2)
                 {
-                    if (FirstRowIsAllNull(worker))
-                        worker.PluginUI.DataGrid.RemoveAt(0);
+                    bool allNull = true;
+                    
+                    foreach (var cell in worker.PluginUI.BasicGrid.Items[0])
+                    {
+                        if (cell != null)
+                        {
+                            allNull = false;
+                            break;
+                        }
+                    }
+
+                    if (allNull)
+                        worker.PluginUI.BasicGrid.Items.RemoveAt(0);
                 }
+
             });
         }
 
-        /// <summary>
-        /// Adds multiple items to the datagrid on UI thread to ensure visual update.
-        /// </summary>
-        /// <param name="worker"></param>
-        /// <param name="items"></param>
-        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
+        public void ClearGrid(IObservatoryWorker worker)
         {
             Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
             {
-                var cleanEmptyRow = worker.PluginUI.DataGrid.Count == 1 && FirstRowIsAllNull(worker) && items.Count() > 0;
-                foreach (var item in items)
-                {
-                    worker.PluginUI.DataGrid.Add(item);
-                }
-                if (cleanEmptyRow)
-                    worker.PluginUI.DataGrid.RemoveAt(0);
-            });
-        }
-
-        public void ClearGrid(IObservatoryWorker worker, object templateItem)
-        {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                worker.PluginUI.DataGrid.Add(templateItem);
-                while (worker.PluginUI.DataGrid.Count > 1)
-                    worker.PluginUI.DataGrid.RemoveAt(0);
+                worker.PluginUI.BasicGrid.Items.Clear();
             });
         }
 
