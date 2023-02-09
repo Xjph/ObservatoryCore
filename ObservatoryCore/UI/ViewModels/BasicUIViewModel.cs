@@ -61,11 +61,11 @@ namespace Observatory.UI.ViewModels
             }
         }
 
-
-        public BasicUIViewModel(ObservableCollection<string> headers, ObservableCollection<string> formats)
+        public BasicUIViewModel(BasicGrid basicGrid)
         {
-            Headers = headers;
-            Formats = formats;
+            Headers = basicGrid.Headers;
+            Formats = basicGrid.Formats;
+            Items = basicGrid.Items;
         }
 
         private PluginUI.UIType _uiType;
