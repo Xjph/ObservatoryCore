@@ -647,9 +647,112 @@ namespace Observatory.UI.Views
                 voiceExpander.Content = voiceGrid;
 
                 gridManager.AddSetting(voiceExpander);
-
-
             }
+            #endregion
+
+            #region Export options
+
+            Expander exportExpander = new()
+            {
+                Header = "Export Options",
+                DataContext = Properties.Core.Default,
+                Margin = new Thickness(0, 0)
+            };
+
+            Grid exportGrid = new() { Margin = new Thickness(10, 10) };
+            SettingGridManager exportGridManager = new(exportGrid);
+
+            exportGrid.ColumnDefinitions = new()
+            {
+                new ColumnDefinition() { Width = new GridLength(0, GridUnitType.Star) },
+                new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) },
+                new ColumnDefinition() { Width = new GridLength(3, GridUnitType.Star) }
+            };
+
+            TextBlock exportStyleLabel = new()
+            {
+                Text = "Export style: ",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+            ComboBox exportStyleDropDown = new()
+            {
+                MinWidth = 200
+            };
+
+            exportStyleDropDown.Items = new List<string>() {
+                    "Fixed width",
+                    "Tab separated",
+                };
+
+            if (Properties.Core.Default.ExportStyle.Length > 0)
+            {
+                exportStyleDropDown.SelectedItem = Properties.Core.Default.ExportStyle;
+            }
+
+            exportStyleDropDown.SelectionChanged += (object sender, SelectionChangedEventArgs e) =>
+            {
+                var comboBox = (ComboBox)sender;
+                Properties.Core.Default.ExportStyle = comboBox.SelectedItem.ToString();
+                Properties.Core.Default.Save();
+            };
+
+            TextBlock exportPathLabel = new()
+            {
+                Text = "Export Path: ",
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center
+            };
+
+            TextBox exportPath = new()
+            {
+                Text = Properties.Core.Default.ExportFolder
+            };
+
+            Button exportBrowse = new()
+            {
+                Content = "Browse",
+                Height = 30,
+                Width = 100,
+                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                HorizontalContentAlignment = Avalonia.Layout.HorizontalAlignment.Center
+            };
+
+            exportBrowse.Click += (object source, RoutedEventArgs e) =>
+            {
+                OpenFolderDialog openFolderDialog = new()
+                {
+                    Directory = exportPath.Text
+                };
+                var browseTask = openFolderDialog.ShowAsync((Window)((Button)source).GetVisualRoot());
+                browseTask.ContinueWith((task) =>
+                {
+                    string path = task.Result;
+                    if (path != string.Empty)
+                    {
+                        Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => { exportPath.Text = path; });
+                        Properties.Core.Default.ExportFolder = path;
+                        Properties.Core.Default.Save();
+                    }
+                });
+            };
+
+            exportPath.LostFocus += (object sender, RoutedEventArgs e) =>
+            {
+                if (System.IO.Directory.Exists(exportPath.Text))
+                {
+                    Properties.Core.Default.ExportFolder = exportPath.Text;
+                    Properties.Core.Default.Save();
+                }
+            };
+
+            exportGridManager.AddSettingWithLabel(exportStyleLabel, exportStyleDropDown);
+            exportGridManager.AddSettingWithLabel(exportPathLabel, exportPath);
+            exportGridManager.AddSetting(exportBrowse);
+
+            exportExpander.Content = exportGrid;
+
+            gridManager.AddSetting(exportExpander);
             #endregion
 
             #region System Context Priming setting
