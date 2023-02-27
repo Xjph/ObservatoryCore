@@ -22,6 +22,11 @@ namespace Observatory.PluginManagement
             this.observatoryNotifiers = observatoryNotifiers;
             errorList = new();
 
+            InitializeTimer();
+        }
+
+        private void InitializeTimer()
+        {
             // Use a timer to delay error reporting until incoming errors are "quiet" for one full second.
             // Should resolve issue where repeated plugin errors open hundreds of error windows.
             timer = new();
@@ -107,7 +112,17 @@ namespace Observatory.PluginManagement
         private void ResetTimer()
         {
             timer.Stop();
-            timer.Start();
+            try
+            {
+                timer.Start();
+            }
+            catch (ObjectDisposedException ode)
+            {
+                // Not sure why this happens, but I've reproduced it twice in a row after hitting
+                // read-all while also playing (ie. generating journals).
+                InitializeTimer();
+                timer.Start();
+            }
         }
 
         private void RecordError(PluginException ex)
