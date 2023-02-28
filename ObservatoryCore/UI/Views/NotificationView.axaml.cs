@@ -28,7 +28,7 @@ namespace Observatory.UI.Views
             SystemDecorations = SystemDecorations.None;
             ShowActivated = false;
             ShowInTaskbar = false;
-            MakeClickThrough(); //Platform specific, currently windows only.
+            MakeClickThrough(); //Platform specific, currently windows and Linux (X11) only.
 
             this.DataContextChanged += NotificationView_DataContextChanged;
             scale = Properties.Core.Default.NativeNotifyScale / 100.0;
