@@ -105,21 +105,28 @@ namespace Observatory.PluginManagement
                 //Hacky removal of original empty object if one was used to populate columns
                 if (worker.PluginUI.DataGrid.Count == 2)
                 {
-                    bool allNull = true;
-                    Type itemType = worker.PluginUI.DataGrid[0].GetType();
-                    foreach (var property in itemType.GetProperties())
-                    {
-                        if (property.GetValue(worker.PluginUI.DataGrid[0], null) != null)
-                        {
-                            allNull = false;
-                            break;
-                        }
-                    }
-
-                    if (allNull)
+                    if (FirstRowIsAllNull(worker))
                         worker.PluginUI.DataGrid.RemoveAt(0);
                 }
+            });
+        }
 
+        /// <summary>
+        /// Adds multiple items to the datagrid on UI thread to ensure visual update.
+        /// </summary>
+        /// <param name="worker"></param>
+        /// <param name="items"></param>
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
+        {
+            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                var cleanEmptyRow = worker.PluginUI.DataGrid.Count == 1 && FirstRowIsAllNull(worker) && items.Count() > 0;
+                foreach (var item in items)
+                {
+                    worker.PluginUI.DataGrid.Add(item);
+                }
+                if (cleanEmptyRow)
+                    worker.PluginUI.DataGrid.RemoveAt(0);
             });
         }
 
@@ -174,6 +181,22 @@ namespace Observatory.PluginManagement
         internal void Shutdown()
         {
             NativePopup.CloseAll();
+        }
+
+        private static bool FirstRowIsAllNull(IObservatoryWorker worker)
+        {
+            bool allNull = true;
+            Type itemType = worker.PluginUI.DataGrid[0].GetType();
+            foreach (var property in itemType.GetProperties())
+            {
+                if (property.GetValue(worker.PluginUI.DataGrid[0], null) != null)
+                {
+                    allNull = false;
+                    break;
+                }
+            }
+
+            return allNull;
         }
     }
 }
