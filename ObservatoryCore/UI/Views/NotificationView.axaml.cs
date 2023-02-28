@@ -192,7 +192,7 @@ namespace Observatory.UI.Views
                 //PlatformImpl not part of formal Avalonia API and may not be available in future versions.
                 SetWindowLong(this.PlatformImpl.Handle.Handle, GWL_EXSTYLE, style | WS_EX_LAYERED | WS_EX_TRANSPARENT);
                 SetLayeredWindowAttributes(this.PlatformImpl.Handle.Handle, 0, 255, LWA_ALPHA);
-            }            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            } else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 // X11 stuff is not part of official API, we'll have to deal with reflection
                 // This solution currently only supports the X11 window system which is used on most systems
