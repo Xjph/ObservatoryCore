@@ -116,7 +116,7 @@ namespace Observatory.PluginManagement
             {
                 timer.Start();
             }
-            catch (ObjectDisposedException ode)
+            catch
             {
                 // Not sure why this happens, but I've reproduced it twice in a row after hitting
                 // read-all while also playing (ie. generating journals).

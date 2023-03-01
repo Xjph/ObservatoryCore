@@ -232,7 +232,7 @@ namespace Observatory.UI.Views
                     // Cleanup
                     XFixesDestroyRegion((IntPtr)display, region);
                 }
-                catch (DllNotFoundException ignored)
+                catch
                 {
                     // libXfixes is not installed for some reason
                 }
