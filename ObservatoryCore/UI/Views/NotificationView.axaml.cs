@@ -71,6 +71,18 @@ namespace Observatory.UI.Views
             }
         }
 
+        public override void Show()
+        {
+            base.Show();
+
+            // Refresh the position when the window is opened (required
+            // on Linux to show the notification in the right position)
+            if (DataContext is NotificationViewModel nvm)
+            {
+                AdjustPosition(nvm.Notification.XPos / 100, nvm.Notification.YPos / 100);
+            }
+        }
+
         private void NotificationView_DataContextChanged(object sender, EventArgs e)
         {
             var notification = ((NotificationViewModel)DataContext).Notification;
