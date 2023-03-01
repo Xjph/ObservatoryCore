@@ -1,13 +1,16 @@
 # Elite Observatory *Core*
-Tool for reading/monitoring Elite Dangerous journals for interesting objects. Successor to the original Elite Observatory, rewritten from scratch using .NET 5.0 and AvaloniaUI.
+Tool for reading/monitoring Elite Dangerous journals for interesting objects. Successor to the original Elite Observatory, rewritten from scratch using .NET 6.0 and AvaloniaUI.
 
 ## *IMPORTANT*
-Observatory Core and it's associated plugins are currently in an alpha state and are neither feature-complete nor using a finalised UI. Over the coming weeks I will outline in detail what functionality is missing *but still planned*, and begin work on getting it to feature parity with the original Elite Observatory.
+Observatory Core and it's associated plugins are currently in an alpha state and are neither feature-complete nor using a finalised UI. A major update to the UI is expected soon, which will likely break compatibility with all current plugins.
 
 Omissions to current functionality include:
 * Integration with Frontier's Companion API
 * Data submission to IGAU
-* More that I'm just not thinking of right now
+* Sortable columns in plugin data grids
+* Non-grid plugin UI options
+* Light mode
+* *And more...*
 
 ## How To Use
 Observatory Core differs from the original Elite Observatory in that it is a fully generic reader for the Elite Dangerous journal files, passing those events along to plugins to do the actual work.
@@ -29,7 +32,8 @@ If you want to chat or collaborate with other users of Observatory you can find 
 For information on how to create a plugin, refer to this article about [ObservatoryFramework](https://github.com/Xjph/ObservatoryCore/wiki/Framework).
 
 ## Prerequisites for use
-.NET 5, and by extension one of its [supported OSes](https://github.com/dotnet/core/blob/main/release-notes/5.0/5.0-supported-os.md).
+.NET 6, and by extension one of its [supported OSes](https://github.com/dotnet/core/blob/main/release-notes/6.0/supported-os.md).
+(This will be installed automatically by the Observatory Core installer.)
 
 ## Prerequisites for building
-C# 9.0, .NET 5.0, [AvaloniaUI 0.10.3](https://github.com/AvaloniaUI/Avalonia), and of course [ObservatoryFramework](https://github.com/Xjph/ObservatoryFramework).
+C# 9.0, .NET 6.0, [AvaloniaUI ~~0.10.3~~](https://github.com/AvaloniaUI/Avalonia) (specific version in flux during UI rewrite), and of course [ObservatoryFramework](https://github.com/Xjph/ObservatoryFramework).
