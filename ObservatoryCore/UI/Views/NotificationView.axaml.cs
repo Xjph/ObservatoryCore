@@ -4,6 +4,7 @@ using Avalonia.Layout;
 using Avalonia.Markup.Xaml;
 using Observatory.UI.ViewModels;
 using System;
+using System.Reflection;
 using System.Timers;
 using System.Runtime.InteropServices;
 
@@ -27,7 +28,7 @@ namespace Observatory.UI.Views
             SystemDecorations = SystemDecorations.None;
             ShowActivated = false;
             ShowInTaskbar = false;
-            MakeClickThrough(); //Platform specific, currently windows only.
+            MakeClickThrough(); //Platform specific, currently windows and Linux (X11) only.
 
             this.DataContextChanged += NotificationView_DataContextChanged;
             scale = Properties.Core.Default.NativeNotifyScale / 100.0;
@@ -191,6 +192,38 @@ namespace Observatory.UI.Views
                 //PlatformImpl not part of formal Avalonia API and may not be available in future versions.
                 SetWindowLong(this.PlatformImpl.Handle.Handle, GWL_EXSTYLE, style | WS_EX_LAYERED | WS_EX_TRANSPARENT);
                 SetLayeredWindowAttributes(this.PlatformImpl.Handle.Handle, 0, 255, LWA_ALPHA);
+            } 
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                // X11 stuff is not part of official API, we'll have to deal with reflection
+                // This solution currently only supports the X11 window system which is used on most systems
+                var type = this.PlatformImpl.GetType();
+                if (type.FullName is not "Avalonia.X11.X11Window") return;
+                
+                // Get the pointer to the X11 window
+                var handlePropInfo = type.GetField("_handle", BindingFlags.NonPublic | BindingFlags.Instance);
+                var handle = handlePropInfo?.GetValue(this.PlatformImpl);
+                // Get the X11Info instance
+                var x11PropInfo = type.GetField("_x11", BindingFlags.NonPublic | BindingFlags.Instance);
+                var x11Info = x11PropInfo?.GetValue(this.PlatformImpl);
+                // Get the pointer to the X11 display
+                var displayPropInfo = x11Info?.GetType().GetProperty("Display");
+                var display = displayPropInfo?.GetValue(x11Info);
+
+                if (display == null || handle == null) return;
+                try
+                {
+                    // Create a very tiny region
+                    var region = XFixesCreateRegion((IntPtr)display, IntPtr.Zero, 0);
+                    // Set the input shape of the window to our region
+                    XFixesSetWindowShapeRegion((IntPtr)display, (IntPtr)handle, ShapeInput, 0, 0, region);
+                    // Cleanup
+                    XFixesDestroyRegion((IntPtr)display, region);
+                }
+                catch (DllNotFoundException ignored)
+                {
+                    // libXfixes is not installed for some reason
+                }
             }
         }
 
@@ -207,5 +240,16 @@ namespace Observatory.UI.Views
         internal const int WS_EX_LAYERED = 0x80000;
         internal const int LWA_ALPHA = 0x2;
         internal const int WS_EX_TRANSPARENT = 0x00000020;
+        
+        [DllImport("libXfixes.so")]
+        static extern IntPtr XFixesCreateRegion(IntPtr dpy, IntPtr rectangles, int nrectangles);
+
+        [DllImport("libXfixes.so")]
+        static extern IntPtr XFixesSetWindowShapeRegion(IntPtr dpy, IntPtr win, int shape_kind, int x_off, int y_off, IntPtr region);
+
+        [DllImport("libXfixes.so")]
+        static extern IntPtr XFixesDestroyRegion(IntPtr dpy, IntPtr region);
+        
+        internal const int ShapeInput = 2;
     }
 }
