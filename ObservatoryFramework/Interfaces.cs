@@ -157,6 +157,13 @@ namespace Observatory.Framework.Interfaces
         public void AddGridItem(IObservatoryWorker worker, object item);
 
         /// <summary>
+        /// Add multiple items to the bottom of the basic UI grid.
+        /// </summary>
+        /// <param name="worker">Reference to the calling plugin's worker interface.</param>
+        /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items);
+
+        /// <summary>
         /// Clears basic UI grid, removing all items.
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
