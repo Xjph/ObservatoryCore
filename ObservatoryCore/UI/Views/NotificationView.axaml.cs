@@ -7,6 +7,7 @@ using System;
 using System.Reflection;
 using System.Timers;
 using System.Runtime.InteropServices;
+using Observatory.X11;
 
 namespace Observatory.UI.Views
 {
@@ -226,11 +227,11 @@ namespace Observatory.UI.Views
                 try
                 {
                     // Create a very tiny region
-                    var region = XFixesCreateRegion((IntPtr)display, IntPtr.Zero, 0);
+                    var region = XLib.XFixesCreateRegion((IntPtr)display, IntPtr.Zero, 0);
                     // Set the input shape of the window to our region
-                    XFixesSetWindowShapeRegion((IntPtr)display, (IntPtr)handle, ShapeInput, 0, 0, region);
+                    XLib.XFixesSetWindowShapeRegion((IntPtr)display, (IntPtr)handle, XLib.ShapeInput, 0, 0, region);
                     // Cleanup
-                    XFixesDestroyRegion((IntPtr)display, region);
+                    XLib.XFixesDestroyRegion((IntPtr)display, region);
                 }
                 catch
                 {
@@ -252,16 +253,5 @@ namespace Observatory.UI.Views
         internal const int WS_EX_LAYERED = 0x80000;
         internal const int LWA_ALPHA = 0x2;
         internal const int WS_EX_TRANSPARENT = 0x00000020;
-        
-        [DllImport("libXfixes.so")]
-        static extern IntPtr XFixesCreateRegion(IntPtr dpy, IntPtr rectangles, int nrectangles);
-
-        [DllImport("libXfixes.so")]
-        static extern IntPtr XFixesSetWindowShapeRegion(IntPtr dpy, IntPtr win, int shape_kind, int x_off, int y_off, IntPtr region);
-
-        [DllImport("libXfixes.so")]
-        static extern IntPtr XFixesDestroyRegion(IntPtr dpy, IntPtr region);
-        
-        internal const int ShapeInput = 2;
     }
 }
