@@ -11,10 +11,14 @@ using Avalonia.VisualTree;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing.Text;
 using Avalonia.Media;
 using Avalonia.Controls.ApplicationLifetimes;
 using System.Runtime.InteropServices;
 using System.IO;
+using Observatory.Util;
+using Observatory.X11;
 
 namespace Observatory.UI.Views
 {
@@ -305,7 +309,20 @@ namespace Observatory.UI.Views
                 MinWidth = 200
             };
 
-            notifyFontDropDown.Items = new System.Drawing.Text.InstalledFontCollection().Families.Select(font => font.Name);
+            try
+            {
+                // Attempt to get a list of installed fonts using System.Drawing
+                notifyFontDropDown.Items = new InstalledFontCollection().Families.Select(font => font.Name);
+            }
+            catch (PlatformNotSupportedException)
+            {
+                // System.Drawing is not supported on some Linux distributions. Try to get the font list from X11 instead
+                // https://learn.microsoft.com/en-us/dotnet/core/compatibility/core-libraries/6.0/system-drawing-common-windows-only
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                { 
+                    notifyFontDropDown.Items = FontConfigUtil.GetInstalledFontNames();
+                }
+            }
 
             if (Properties.Core.Default.NativeNotifyFont.Length > 0)
             {
