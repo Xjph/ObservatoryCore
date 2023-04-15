@@ -112,7 +112,7 @@ namespace Observatory.UI.ViewModels
             try
             {
                 var exportFolder = Properties.Core.Default.ExportFolder;
-                if (string.IsNullOrEmpty(exportFolder))
+                if (string.IsNullOrEmpty(exportFolder) || !Directory.Exists(exportFolder))
                 {
                     exportFolder = System.Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 

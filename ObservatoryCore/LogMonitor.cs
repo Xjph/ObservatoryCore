@@ -420,12 +420,19 @@ namespace Observatory
         private List<string> ReadAllLines(string path)
         {
             var lines = new List<string>();
-            using (StreamReader file = new StreamReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+            try
             {
-                while (!file.EndOfStream)
+                using (StreamReader file = new StreamReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
                 {
-                    lines.Add(file.ReadLine());
+                    while (!file.EndOfStream)
+                    {
+                        lines.Add(file.ReadLine());
+                    }
                 }
+            }
+            catch (IOException ioEx)
+            {
+                ReportErrors(new List<(Exception, string, string)>() { (ioEx, path, "<reading all lines>") });
             }
             return lines;
         }
