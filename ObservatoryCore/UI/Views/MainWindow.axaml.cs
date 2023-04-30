@@ -15,6 +15,7 @@ namespace Observatory.UI.Views
 #endif
             Height = Properties.Core.Default.MainWindowSize.Height;
             Width = Properties.Core.Default.MainWindowSize.Width;
+            WindowState = (Avalonia.Controls.WindowState)Properties.Core.Default.MainWindowState;
             
             var savedPosition = new System.Drawing.Point(Properties.Core.Default.MainWindowPosition.X, Properties.Core.Default.MainWindowPosition.Y);
             if (PointWithinDesktopWorkingArea(savedPosition))
@@ -28,6 +29,8 @@ namespace Observatory.UI.Views
                 var position = new System.Drawing.Point(Position.X, Position.Y);
                 if (PointWithinDesktopWorkingArea(position))
                     Properties.Core.Default.MainWindowPosition = position;
+
+                Properties.Core.Default.MainWindowState = (int)WindowState;
 
                 Properties.Core.Default.Save();
             };
