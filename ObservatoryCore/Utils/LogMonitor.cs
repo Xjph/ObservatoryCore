@@ -8,7 +8,7 @@ using System.Text.RegularExpressions;
 using Observatory.Framework;
 using Observatory.Framework.Files;
 
-namespace Observatory
+namespace Observatory.Utils
 {
     class LogMonitor
     {
@@ -120,12 +120,12 @@ namespace Observatory
 
             DirectoryInfo logDirectory = GetJournalFolder(Properties.Core.Default.JournalFolder);
             var files = GetJournalFilesOrdered(logDirectory);
-            
+
             // Read at most the last two files (in case we were launched after the game and the latest
             // journal is mostly empty) but keeping only the lines since the last FSDJump.
-            List<String> lastSystemLines = new();
-            List<String> lastFileLines = new();
-            string lastLoadGame = String.Empty;
+            List<string> lastSystemLines = new();
+            List<string> lastFileLines = new();
+            string lastLoadGame = string.Empty;
             bool sawFSDJump = false;
             foreach (var file in files.Skip(Math.Max(files.Count() - 2, 0)))
             {
@@ -133,7 +133,7 @@ namespace Observatory
                 foreach (var line in lines)
                 {
                     var eventType = JournalUtilities.GetEventType(line);
-                    if (eventType.Equals("FSDJump") || (eventType.Equals("CarrierJump") && line.Contains("\"Docked\":true")))
+                    if (eventType.Equals("FSDJump") || eventType.Equals("CarrierJump") && line.Contains("\"Docked\":true"))
                     {
                         // Reset, start collecting again.
                         lastSystemLines.Clear();
@@ -162,7 +162,7 @@ namespace Observatory
             {
                 // If we saw a LoadGame, insert it as well. This ensures odyssey biologicials are properly
                 // counted/presented.
-                if (!String.IsNullOrEmpty(lastLoadGame))
+                if (!string.IsNullOrEmpty(lastLoadGame))
                 {
                     lastSystemLines.Insert(0, lastLoadGame);
                 }
@@ -193,14 +193,14 @@ namespace Observatory
         private Dictionary<string, int> currentLine;
         private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
         private bool firstStartMonitor = true;
-        private string[] EventsWithAncillaryFile = new string[] 
-        { 
-            "Cargo", 
-            "NavRoute", 
-            "Market", 
-            "Outfitting", 
-            "Shipyard", 
-            "Backpack", 
+        private string[] EventsWithAncillaryFile = new string[]
+        {
+            "Cargo",
+            "NavRoute",
+            "Market",
+            "Outfitting",
+            "Shipyard",
+            "Backpack",
             "FCMaterials",
             "ModuleInfo",
             "ShipLocker"
@@ -218,7 +218,7 @@ namespace Observatory
             {
                 PreviousState = oldState,
                 NewState = newState
-            });;
+            }); ;
 
             System.Diagnostics.Debug.WriteLine("LogMonitor State change: {0} -> {1}", oldState, newState);
         }
@@ -267,7 +267,7 @@ namespace Observatory
             else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 string defaultJournalPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile) 
+                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
                     + "/.steam/debian-installation/steamapps/compatdata/359320/pfx/drive_c/users/steamuser/Saved Games/Frontier Developments/Elite Dangerous"
                     : GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous";
 
@@ -290,7 +290,7 @@ namespace Observatory
             return logDirectory;
         }
 
-        private List<(Exception ex, string file, string line)> ProcessLines(List<String> lines, string file)
+        private List<(Exception ex, string file, string line)> ProcessLines(List<string> lines, string file)
         {
             var readErrors = new List<(Exception ex, string file, string line)>();
             foreach (var line in lines)
@@ -309,7 +309,7 @@ namespace Observatory
 
         private JournalEventArgs DeserializeToEventArgs(string eventType, string line)
         {
-            
+
             var eventClass = journalTypes[eventType];
             MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
             MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
@@ -326,7 +326,7 @@ namespace Observatory
             }
 
             var journalEvent = DeserializeToEventArgs(eventType, line);
-            
+
             JournalEntry?.Invoke(this, journalEvent);
 
             // Files are only valid if realtime, otherwise they will be stale or empty.
@@ -345,16 +345,16 @@ namespace Observatory
             // I have no idea what order Elite writes these files or if they're already written
             // by the time the journal updates.
             // Brief sleep to ensure the content is updated before we read it.
-            
+
             // Some files are still locked by another process after 50ms.
             // Retry every 50ms for 0.5 seconds before giving up.
 
             string fileContent = null;
             int retryCount = 0;
-            
+
             while (fileContent == null && retryCount < 10)
             {
-                System.Threading.Thread.Sleep(50);
+                Thread.Sleep(50);
                 try
                 {
                     using var fileStream = File.Open(journalWatcher.Path + Path.DirectorySeparatorChar + filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -389,7 +389,7 @@ namespace Observatory
                 });
 
                 ErrorReporter.ShowErrorPopup($"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}", errorList.ToList());
-                
+
             }
         }
 
@@ -462,8 +462,8 @@ namespace Observatory
         {
             var journalFolder = GetJournalFolder();
 
-            await System.Threading.Tasks.Task.Run(() => 
-            { 
+            await Task.Run(() =>
+            {
                 while (IsMonitoring())
                 {
                     var journals = GetJournalFilesOrdered(journalFolder);
@@ -475,7 +475,7 @@ namespace Observatory
                         using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                         stream.Close();
                     }
-                    System.Threading.Thread.Sleep(250);
+                    Thread.Sleep(250);
                 }
             });
         }

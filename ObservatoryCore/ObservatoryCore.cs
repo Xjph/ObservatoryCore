@@ -1,24 +1,26 @@
-﻿using System;
-using Avalonia;
-using Avalonia.ReactiveUI;
+using Observatory.PluginManagement;
+using System.Reflection.PortableExecutable;
 
 namespace Observatory
 {
-    class ObservatoryCore
+    internal static class ObservatoryCore
     {
+        /// <summary>
+        ///  The main entry point for the application.
+        /// </summary>
         [STAThread]
         static void Main(string[] args)
         {
-            if (args.Length > 0 && System.IO.File.Exists(args[0]))
+            if (args.Length > 0 && File.Exists(args[0]))
             {
-                var fileInfo = new System.IO.FileInfo(args[0]);
+                var fileInfo = new FileInfo(args[0]);
                 if (fileInfo.Extension == ".eop" || fileInfo.Extension == ".zip")
-                    System.IO.File.Copy(
+                    File.Copy(
                         fileInfo.FullName,
-                         $"{AppDomain.CurrentDomain.BaseDirectory}{System.IO.Path.DirectorySeparatorChar}plugins{System.IO.Path.DirectorySeparatorChar}{fileInfo.Name}");
+                         $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{fileInfo.Name}");
             }
 
-            string version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+            string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
             try
             {
                 if (Properties.Core.Default.CoreVersion != version)
@@ -34,7 +36,14 @@ namespace Observatory
                     Properties.Core.Default.CoreVersion = version;
                     Properties.Core.Default.Save();
                 }
-                BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
+
+                
+
+                // To customize application configuration such as set high DPI settings or default font,
+                // see https://aka.ms/applicationconfiguration.
+                ApplicationConfiguration.Initialize();
+                Application.Run(new UI.CoreForm());
+                PluginManagement.PluginManager.GetInstance.Shutdown();
             }
             catch (Exception ex)
             {
@@ -63,16 +72,7 @@ namespace Observatory
                 .AppendLine(ex.StackTrace);
             if (ex.InnerException != null)
                 errorMessage.AppendLine(FormatExceptionMessage(ex.InnerException, true));
-            
             return errorMessage.ToString();
-        }
-
-        public static AppBuilder BuildAvaloniaApp()
-        {
-            return AppBuilder.Configure<UI.MainApplication>()
-                .UsePlatformDetect()
-                .LogToTrace()
-                .UseReactiveUI();
         }
     }
 }

@@ -2,6 +2,7 @@
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using Observatory.NativeNotification;
+using Observatory.Utils;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -20,7 +21,7 @@ namespace Observatory.PluginManagement
             NativePopup = new();
         }
 
-        public string Version => System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+        public string Version => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
 
         public Action<Exception, String> GetPluginErrorLogger(IObservatoryPlugin plugin)
         {
@@ -97,50 +98,29 @@ namespace Observatory.PluginManagement
         /// </summary>
         /// <param name="worker"></param>
         /// <param name="item"></param>
-        public void AddGridItem(IObservatoryWorker worker, List<object> item)
+        public void AddGridItem(IObservatoryWorker worker, object item)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                ObservableCollection<object> newRow = new(item);
-                worker.PluginUI.BasicGrid.Items.Add(newRow);
-
-                //Hacky removal of original empty object if one was used to populate columns
-                if (worker.PluginUI.BasicGrid.Items.Count == 2)
-                {
-                    bool allNull = true;
-                    
-                    foreach (var cell in worker.PluginUI.BasicGrid.Items[0])
-                    {
-                        if (cell != null)
-                        {
-                            allNull = false;
-                            break;
-                        }
-                    }
-
-                    if (allNull)
-                        worker.PluginUI.BasicGrid.Items.RemoveAt(0);
-                }
-
-            });
+            worker.PluginUI.DataGrid.Add(item);
         }
 
-        public void ClearGrid(IObservatoryWorker worker)
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                worker.PluginUI.BasicGrid.Items.Clear();
-            });
+            //TODO: Add to winform list
+        }
+
+        public void ClearGrid(IObservatoryWorker worker, object templateItem)
+        {
+            //TODO: Clear winform list
         }
 
         public void ExecuteOnUIThread(Action action)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(action);
+            //TODO: Execute action
         }
 
         public System.Net.Http.HttpClient HttpClient
         {
-            get => Observatory.HttpClient.Client;
+            get => Utils.HttpClient.Client;
         }
 
         public LogMonitorState CurrentLogMonitorState
@@ -162,7 +142,7 @@ namespace Observatory.PluginManagement
                 var context = new System.Diagnostics.StackFrame(1).GetMethod();
 
                 string folderLocation = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-                    + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}{context.DeclaringType.Assembly.GetName().Name}{Path.DirectorySeparatorChar}";
+                    + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}{Path.DirectorySeparatorChar}";
 
                 if (!Directory.Exists(folderLocation))
                     Directory.CreateDirectory(folderLocation);

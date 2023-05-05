@@ -6,7 +6,7 @@ using System.Text.Json;
 using System.Linq;
 using System.Reflection;
 
-namespace Observatory
+namespace Observatory.Utils
 {
     public class JournalReader
     {
@@ -26,7 +26,7 @@ namespace Observatory
                     while ((eventType == string.Empty || timestamp == string.Empty) && reader.Read())
                     {
                         if (reader.TokenType == JsonTokenType.PropertyName)
-                        { 
+                        {
                             if (reader.GetString() == "event")
                             {
                                 reader.Read();
@@ -58,7 +58,7 @@ namespace Observatory
                 }
 
                 deserialized = (TJournal)Convert.ChangeType(invalidJson, typeof(TJournal));
-                
+
             }
             //Journal potentially had invalid JSON for a brief period in 2017, check for it and remove.
             //TODO: Check if this gets handled by InvalidJson now.

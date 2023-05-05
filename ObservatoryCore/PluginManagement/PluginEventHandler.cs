@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Observatory.Framework.Files.Journal;
 using System.Timers;
+using Observatory.Utils;
 
 namespace Observatory.PluginManagement
 {
