@@ -135,7 +135,7 @@ namespace Observatory.Framework.Interfaces
         /// <param name="notificationEventArgs">NotificationArgs object specifying notification content and behaviour.</param>
         /// <returns>Guid associated with the notification during its lifetime. Used as an argument with CancelNotification and UpdateNotification.</returns>
         public Guid SendNotification(NotificationArgs notificationEventArgs);
-        
+
         /// <summary>
         /// Cancel or close an active notification.
         /// </summary>
@@ -154,7 +154,14 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
         /// <param name="item">Grid item to be added. Object type should match original template item used to create the grid.</param>
-        public void AddGridItem(IObservatoryWorker worker, List<object> item);
+        public void AddGridItem(IObservatoryWorker worker, object item);
+
+        /// <summary>
+        /// Add multiple items to the bottom of the basic UI grid.
+        /// </summary>
+        /// <param name="worker">Reference to the calling plugin's worker interface.</param>
+        /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items);
 
         /// <summary>
         /// Add multiple items to the bottom of the basic UI grid.
@@ -167,7 +174,8 @@ namespace Observatory.Framework.Interfaces
         /// Clears basic UI grid, removing all items.
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
-        public void ClearGrid(IObservatoryWorker worker);
+        /// <param name="templateItem">Template item used to re-initialise the grid.</param>
+        public void ClearGrid(IObservatoryWorker worker, object templateItem);
 
         /// <summary>
         /// Requests current Elite Dangerous status.json content.
@@ -185,7 +193,7 @@ namespace Observatory.Framework.Interfaces
         /// or pass it along to its collaborators.
         /// </summary>
         /// <param name="plugin">The calling plugin</param>
-        public Action<Exception, String> GetPluginErrorLogger (IObservatoryPlugin plugin);
+        public Action<Exception, String> GetPluginErrorLogger(IObservatoryPlugin plugin);
 
         /// <summary>
         /// Perform an action on the current Avalonia UI thread.

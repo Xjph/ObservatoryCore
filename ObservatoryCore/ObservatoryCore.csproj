@@ -1,77 +1,68 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-	<TargetFramework>net6.0</TargetFramework>
+	<PropertyGroup>
+	<OutputType>WinExe</OutputType>
+	<TargetFramework>net6.0-windows</TargetFramework>
+	<Nullable>enable</Nullable>
+	<UseWindowsForms>true</UseWindowsForms>
 	<ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>Observatory</RootNamespace>
-    <SignAssembly>false</SignAssembly>
-    <DelaySign>false</DelaySign>
-    <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
-    <!--<PublishTrimmed>true</PublishTrimmed>-->
-    <TrimMode>Link</TrimMode>
-    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
-  </PropertyGroup>
+	<RootNamespace>Observatory</RootNamespace>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <VersionSuffix>0.2.$([System.DateTime]::UtcNow.Year.ToString().Substring(2))$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, "0")).$([System.DateTime]::UtcNow.ToString(HHmm))</VersionSuffix>
-    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
-    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
-    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
-    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
-    <ApplicationIcon>Assets\EOCIcon-Presized.ico</ApplicationIcon>
-  </PropertyGroup>
-  
-  <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Diagnostics" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Themes.Simple" Version="11.0.0-preview4" />
-    <PackageReference Include="Egorozh.ColorPicker.Avalonia.Dialog" Version="11.0.0-preview1" />
-    <PackageReference Include="MessageBox.Avalonia" Version="2.3.1-prev2" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
-    <PackageReference Include="System.Speech" Version="7.0.0" />
-  </ItemGroup>
+    <PropertyGroup>
+	    <VersionSuffix>0.2.$([System.DateTime]::UtcNow.Year.ToString().Substring(2))$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, "0")).$([System.DateTime]::UtcNow.ToString(HHmm))</VersionSuffix>
+	    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
+	    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
+	    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
+	    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
+	    <ApplicationIcon>Assets\EOCIcon-Presized.ico</ApplicationIcon>
+	    <StartupObject>Observatory.ObservatoryCore</StartupObject>
+	    <SignAssembly>False</SignAssembly>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <AvaloniaResource Include="Assets\**" />
-  </ItemGroup>
-  
-  <ItemGroup>
-    <Reference Include="ObservatoryFramework">
-      <HintPath>..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+    <ItemGroup>
+      <PackageReference Include="Microsoft.Security.Extensions" Version="1.2.0" />
+      <PackageReference Include="System.Speech" Version="7.0.0" />
+    </ItemGroup>
+	
+	<ItemGroup>
+	<Reference Include="ObservatoryFramework">
+		<HintPath>..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll</HintPath>
+	</Reference>
+	</ItemGroup>
+	
+	<ItemGroup>
+	<Compile Update="Properties\Core.Designer.cs">
+		<DesignTimeSharedInput>True</DesignTimeSharedInput>
+		<AutoGen>True</AutoGen>
+		<DependentUpon>Core.settings</DependentUpon>
+	</Compile>
+	<Compile Update="Properties\Resources.Designer.cs">
+	  <DesignTime>True</DesignTime>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Resources.resx</DependentUpon>
+	</Compile>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <EmbeddedResource Update="Properties\Resources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
+	</ItemGroup>
+	
+	<ItemGroup>
+		<None Update="Properties\Core.settings">
+			<Generator>SettingsSingleFileGenerator</Generator>
+			<LastGenOutput>Core.Designer.cs</LastGenOutput>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <Compile Update="Properties\Core.Designer.cs">
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Core.settings</DependentUpon>
-    </Compile>
-    <Compile Update="UI\Views\CoreView.axaml.cs">
-      <DependentUpon>CoreView.axaml</DependentUpon>
-    </Compile>
-    <Compile Update="UI\Views\NotificationView.axaml.cs">
-      <DependentUpon>NotificationView.axaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Properties\Core.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Core.Designer.cs</LastGenOutput>
-    </None>
-  </ItemGroup>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Condition=" '$(OS)' == 'Windows_NT'" Command="if not exist &quot;$(ProjectDir)..\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryFramework\ObservatoryFramework.csproj&quot; -c Release" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT'" Command="if not exist &quot;$(OutDir)plugins\ObservatoryExplorer.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryExplorer\ObservatoryExplorer.csproj&quot; -c $(ConfigurationName)" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT'" Command="[ ! -e &quot;$(ProjectDir)../ObservatoryFramework/bin/Release/net5.0/ObservatoryFramework.dll&quot; ] &amp;&amp; dotnet build &quot;$(ProjectDir)../ObservatoryFramework/ObservatoryFramework.csproj&quot; -c Release || echo No build necessary" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT'" Command="[ ! -e &quot;$(ProjectDir)$(OutDir)plugins/ObservatoryExplorer.dll&quot; ] &amp;&amp; dotnet build &quot;$(ProjectDir)../ObservatoryExplorer/ObservatoryExplorer.csproj&quot; -c $(ConfigurationName) || echo No build necessary" />
-  </Target>
-
+	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+		<Exec Condition=" '$(OS)' == 'Windows_NT'" Command="if not exist &quot;$(ProjectDir)..\ObservatoryFramework\bin\Release\net5.0\ObservatoryFramework.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryFramework\ObservatoryFramework.csproj&quot; -c Release" />
+		<Exec Condition=" '$(OS)' == 'Windows_NT'" Command="if not exist &quot;$(OutDir)plugins\ObservatoryExplorer.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryExplorer\ObservatoryExplorer.csproj&quot; -c $(ConfigurationName)" />
+		<Exec Condition=" '$(OS)' != 'Windows_NT'" Command="[ ! -e &quot;$(ProjectDir)../ObservatoryFramework/bin/Release/net5.0/ObservatoryFramework.dll&quot; ] &amp;&amp; dotnet build &quot;$(ProjectDir)../ObservatoryFramework/ObservatoryFramework.csproj&quot; -c Release || echo No build necessary" />
+		<Exec Condition=" '$(OS)' != 'Windows_NT'" Command="[ ! -e &quot;$(ProjectDir)$(OutDir)plugins/ObservatoryExplorer.dll&quot; ] &amp;&amp; dotnet build &quot;$(ProjectDir)../ObservatoryExplorer/ObservatoryExplorer.csproj&quot; -c $(ConfigurationName) || echo No build necessary" />
+	</Target>
+	
 </Project>

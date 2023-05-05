@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 
-namespace Observatory
+namespace Observatory.Utils
 {
     public sealed class HttpClient
     {
@@ -28,7 +28,7 @@ namespace Observatory
             return lazy.Value.SendAsync(request).Result;
         }
 
-        public static System.Threading.Tasks.Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
+        public static Task<HttpResponseMessage> SendRequestAsync(HttpRequestMessage request)
         {
             return lazy.Value.SendAsync(request);
         }

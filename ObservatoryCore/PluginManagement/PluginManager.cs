@@ -1,5 +1,4 @@
-﻿using Avalonia.Controls;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +7,8 @@ using Observatory.Framework.Interfaces;
 using System.IO;
 using Observatory.Framework;
 using System.Text.Json;
+using Observatory.Utils;
+using Microsoft.Security.Extensions;
 
 namespace Observatory.PluginManagement
 {
@@ -191,59 +192,109 @@ namespace Observatory.PluginManagement
 
             string pluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
 
+            string ownExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            FileSignatureInfo ownSig;
+
+            using (var stream = File.OpenRead(ownExe))
+                ownSig = FileSignatureInfo.GetFromFileStream(stream);
+            
+
             if (Directory.Exists(pluginPath))
             {
                 ExtractPlugins(pluginPath);
 
-                //Temporarily skipping signature checks. Need to do this the right way later.
                 var pluginLibraries = Directory.GetFiles($"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins", "*.dll");
-                //var coreToken = Assembly.GetExecutingAssembly().GetName().GetPublicKeyToken();
                 foreach (var dll in pluginLibraries)
                 {
                     try
                     {
-                        //var pluginToken = AssemblyName.GetAssemblyName(dll).GetPublicKeyToken();
-                        //PluginStatus signed;
+                        PluginStatus pluginStatus = PluginStatus.SigCheckDisabled;
+                        bool loadOkay = true;
 
-                        //if (pluginToken.Length == 0)
-                        //{
-                        //    errorList.Add($"Warning: {dll} not signed.");
-                        //    signed = PluginStatus.Unsigned;
-                        //}
-                        //else if (!coreToken.SequenceEqual(pluginToken))
-                        //{
-                        //    errorList.Add($"Warning: {dll} signature does not match.");
-                        //    signed = PluginStatus.InvalidSignature;
-                        //}
-                        //else
-                        //{
-                        //    errorList.Add($"OK: {dll} signed.");
-                        //    signed = PluginStatus.Signed;
-                        //}
+                        if (!Properties.Core.Default.AllowUnsigned)
+                        {
+                            if (ownSig.Kind == SignatureKind.Embedded)
+                            {
+                                FileSignatureInfo pluginSig;
+                                using (var stream = File.OpenRead(dll))
+                                    pluginSig = FileSignatureInfo.GetFromFileStream(stream);
 
-                        //if (signed == PluginStatus.Signed || Properties.Core.Default.AllowUnsigned)
-                        //{
-                            string error = LoadPluginAssembly(dll, observatoryWorkers, observatoryNotifiers);
+                                if (pluginSig.Kind == SignatureKind.Embedded)
+                                {
+                                    if (pluginSig.SigningCertificate.Thumbprint == ownSig.SigningCertificate.Thumbprint)
+                                    {
+                                        pluginStatus = PluginStatus.Signed;
+                                    }
+                                    else
+                                    {
+                                        pluginStatus = PluginStatus.InvalidSignature;
+                                    }
+                                }
+                                else
+                                {
+                                    pluginStatus = PluginStatus.Unsigned;
+                                }
+                            }
+                            else
+                            {
+                                pluginStatus = PluginStatus.NoCert;
+                            }
+
+                            if (pluginStatus != PluginStatus.Signed && pluginStatus != PluginStatus.NoCert)
+                            {
+                                string pluginHash = ComputeSha512Hash(dll);
+
+                                if (Properties.Core.Default.UnsignedAllowed == null)
+                                    Properties.Core.Default.UnsignedAllowed = new();
+
+                                if (!Properties.Core.Default.UnsignedAllowed.Contains(pluginHash))
+                                {
+                                    string warning;
+                                    warning = $"Unable to confirm signature of plugin library {dll}.\r\n\r\n";
+                                    warning += "Please ensure that you trust the source of this plugin before loading it.\r\n\r\n";
+                                    warning += "Do you wish to continue loading the plugin? If you load this plugin you will not be asked again for this file.";
+
+                                    var response = MessageBox.Show(warning, "Plugin Signature Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+                                    if (response == DialogResult.OK)
+                                    {
+                                        Properties.Core.Default.UnsignedAllowed.Add(pluginHash);
+                                        Properties.Core.Default.Save();
+                                    }
+                                    else
+                                    {
+                                        loadOkay = false;
+                                    }
+                                }
+                            }
+                        }
+
+                        if (loadOkay)
+                        {
+                            string error = LoadPluginAssembly(dll, observatoryWorkers, observatoryNotifiers, pluginStatus);
                             if (!string.IsNullOrWhiteSpace(error))
                             {
                                 errorList.Add((error, string.Empty));
                             }
-                        //}
-                        //else
-                        //{
-                        //    LoadPlaceholderPlugin(dll, signed, observatoryNotifiers);
-                        //}
-                        
-
+                        }
                     }
                     catch (Exception ex)
                     {
-                        errorList.Add(($"ERROR: {new FileInfo(dll).Name}, {ex.Message}", ex.StackTrace));
+                        errorList.Add(($"ERROR: {new FileInfo(dll).Name}, {ex.Message}", ex.StackTrace ?? String.Empty));
                         LoadPlaceholderPlugin(dll, PluginStatus.InvalidLibrary, observatoryNotifiers);
                     }
                 }
             }
             return errorList;
+        }
+
+        private static string ComputeSha512Hash(string filePath)
+        {
+            using (var SHA512 = System.Security.Cryptography.SHA512.Create())
+            {
+                using (FileStream fileStream = File.OpenRead(filePath))
+                    return BitConverter.ToString(SHA512.ComputeHash(fileStream)).Replace("-", "").ToLowerInvariant();
+            }
         }
 
         private static void ExtractPlugins(string pluginFolder)
@@ -265,9 +316,8 @@ namespace Observatory.PluginManagement
             }
         }
 
-        private static string LoadPluginAssembly(string dllPath, List<(IObservatoryWorker plugin, PluginStatus signed)> workers, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers)
+        private static string LoadPluginAssembly(string dllPath, List<(IObservatoryWorker plugin, PluginStatus signed)> workers, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers, PluginStatus pluginStatus)
         {
-
             string recursionGuard = string.Empty;
 
             System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (context, name) => {
@@ -293,14 +343,12 @@ namespace Observatory.PluginManagement
                 if (name.Name != recursionGuard)
                 {
                     recursionGuard = name.Name;
-
                     return context.LoadFromAssemblyName(name);
                 }
                 else
                 {
                     throw new Exception("Unable to load assembly " + name.Name);
                 }
-    
             };
 
             var pluginAssembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(new FileInfo(dllPath).FullName);
@@ -325,12 +373,12 @@ namespace Observatory.PluginManagement
             {
                 ConstructorInfo constructor = worker.GetConstructor(Array.Empty<Type>());
                 object instance = constructor.Invoke(Array.Empty<object>());
-                workers.Add((instance as IObservatoryWorker, PluginStatus.Signed));
+                workers.Add((instance as IObservatoryWorker, pluginStatus));
                 if (instance is IObservatoryNotifier)
                 {
                     // This is also a notifier; add to the notifier list as well, so the work and notifier are
                     // the same instance and can share state.
-                    notifiers.Add((instance as IObservatoryNotifier, PluginStatus.Signed));
+                    notifiers.Add((instance as IObservatoryNotifier, pluginStatus));
                 }
                 pluginCount++;
             }
@@ -366,13 +414,39 @@ namespace Observatory.PluginManagement
             notifiers.Add((placeholder, pluginStatus));
         }
 
+        /// <summary>
+        /// Possible plugin load results and signature statuses.
+        /// </summary>
         public enum PluginStatus
         {
+            /// <summary>
+            /// Plugin valid and signed with matching certificate.
+            /// </summary>
             Signed,
+            /// <summary>
+            /// Plugin valid but not signed with any certificate.
+            /// </summary>
             Unsigned,
+            /// <summary>
+            /// Plugin valid but not signed with valid certificate.
+            /// </summary>
             InvalidSignature,
+            /// <summary>
+            /// Plugin invalid and cannot be loaded. Possible version mismatch.
+            /// </summary>
             InvalidPlugin,
-            InvalidLibrary
+            /// <summary>
+            /// Plugin not a CLR library.
+            /// </summary>
+            InvalidLibrary,
+            /// <summary>
+            /// Plugin valid but executing assembly has no certificate to match against.
+            /// </summary>
+            NoCert,
+            /// <summary>
+            /// Plugin signature checks disabled.
+            /// </summary>
+            SigCheckDisabled
         }
     }
 }

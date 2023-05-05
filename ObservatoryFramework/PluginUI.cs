@@ -23,9 +23,10 @@ namespace Observatory.Framework
         public object UI;
 
         /// <summary>
-        /// <para>>Two-dimensional collection of items to display in UI grid for UIType.Basic</para>
+        /// <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
+        /// <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
         /// </summary>
-        public BasicGrid BasicGrid;
+        public ObservableCollection<object> DataGrid;
 
         /// <summary>
         /// Instantiate PluginUI of UIType.Basic.
@@ -34,10 +35,10 @@ namespace Observatory.Framework
         /// <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
         /// <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
         /// </param>
-        public PluginUI(BasicGrid basicGrid)
+        public PluginUI(ObservableCollection<object> DataGrid)
         {
             PluginUIType = UIType.Basic;
-            BasicGrid = basicGrid;
+            this.DataGrid = DataGrid;
         }
 
         /// <summary>
@@ -62,13 +63,13 @@ namespace Observatory.Framework
             /// </summary>
             None = 0,
             /// <summary>
-            /// Simple DataGrid, to which items can be added or removed.
+            /// Simple listview, to which items can be added or removed.
             /// </summary>
             Basic = 1,
             /// <summary>
-            /// AvaloniaUI control which is placed in plugin tab.
+            /// Panel control which is placed in plugin tab.
             /// </summary>
-            Avalonia = 2,
+            Panel = 2,
             /// <summary>
             /// UI used by Observatory Core settings tab.<br/>
             /// Not intended for use by plugins.

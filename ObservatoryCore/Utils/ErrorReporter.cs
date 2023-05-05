@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Observatory
+namespace Observatory.Utils
 {
     public static class ErrorReporter
     {
@@ -18,20 +18,7 @@ namespace Observatory
             displayMessage.AppendLine();
             displayMessage.Append("Full error details logged to ObservatoryErrorLog file in your documents folder.");
 
-            if (Avalonia.Application.Current.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    var errorMessage = MessageBox.Avalonia.MessageBoxManager
-                    .GetMessageBoxStandardWindow(new MessageBox.Avalonia.DTO.MessageBoxStandardParams
-                    {
-                        ContentTitle = title,
-                        ContentMessage = displayMessage.ToString(),
-                        Topmost = true
-                    });
-                    errorMessage.Show();
-                });
-            }
+            //TODO: Winform error popup
 
             // Log entirety of errors out to file.
             var timestamp = DateTime.Now.ToString("G");
@@ -43,8 +30,8 @@ namespace Observatory
                 errorLog.AppendLine();
             }
 
-            var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
-            System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorLog.ToString());
+            var docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            File.AppendAllText(docPath + Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorLog.ToString());
 
             errorList.Clear();
         }

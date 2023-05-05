@@ -1,14 +1,11 @@
 ﻿using Observatory.Framework;
-using System;
-using System.Collections.Generic;
-using Observatory.UI.Views;
-using Observatory.UI.ViewModels;
+using Observatory.UI;
 
 namespace Observatory.NativeNotification
 {
     public class NativePopup
     {
-        private Dictionary<Guid, NotificationView> notifications;
+        private Dictionary<Guid, NotificationForm> notifications;
 
         public NativePopup()
         {
@@ -18,26 +15,21 @@ namespace Observatory.NativeNotification
         public Guid InvokeNativeNotification(NotificationArgs notificationArgs)
         {
             var notificationGuid = Guid.NewGuid();
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            var notification = new NotificationForm()
             {
-                var notifyWindow = new NotificationView(notificationGuid) { DataContext = new NotificationViewModel(notificationArgs) };
-                notifyWindow.Closed += NotifyWindow_Closed;
-
-                foreach (var notification in notifications)
-                {
-                    notification.Value.AdjustOffset(true);
-                }
-
-                notifications.Add(notificationGuid, notifyWindow);
-                notifyWindow.Show();
-            });
+                Guid = notificationGuid
+            };
+            notification.Show();
+            notifications.Add(notificationGuid, notification);
+            
+            //TODO: Implement winform notification
 
             return notificationGuid;
         }
 
         private void NotifyWindow_Closed(object sender, EventArgs e)
         {
-            var currentNotification = (NotificationView)sender;
+            var currentNotification = (NotificationForm)sender;
 
             if (notifications.ContainsKey(currentNotification.Guid))
             {
@@ -49,10 +41,7 @@ namespace Observatory.NativeNotification
         {
             if (notifications.ContainsKey(guid))
             {
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    notifications[guid].Close();
-                });
+                notifications[guid].Close();
             }
         }
 
@@ -60,10 +49,8 @@ namespace Observatory.NativeNotification
         {
             if (notifications.ContainsKey(guid))
             {
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    notifications[guid].DataContext = new NotificationViewModel(notificationArgs);
-                });
+                //TODO: Update notification content
+                // notifications[guid].DataContext = new NotificationViewModel(notificationArgs);
             }
         }
 
