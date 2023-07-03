@@ -82,7 +82,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         onFoot_failureToSubmitToPolice,
         onfoot_dataTransfer,
         onFoot_carryingStolenGoods,
-        onFoot_eBreachUse
+        onFoot_eBreachUse,
+        collidedWithDamage //seen by FireyToad on 03/07/2023 on Discord, not present in the journal documentation 
     }
 
     public enum LimpetDrone
