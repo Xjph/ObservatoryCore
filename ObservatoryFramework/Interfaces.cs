@@ -1,7 +1,6 @@
-﻿using System;
-using System.Net.Http;
-using Observatory.Framework.Files;
+﻿using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
+using System.Xml.XPath;
 
 namespace Observatory.Framework.Interfaces
 {
@@ -49,6 +48,13 @@ namespace Observatory.Framework.Interfaces
         /// If a public property is necessary but not required to be user accessible the [SettingIgnore] property will suppress display.</para>
         /// </summary>
         public object Settings { get; set; }
+
+        /// <summary>
+        /// <para>Plugin-specific object implementing the IComparer interface which is used to sort columns in the basic UI datagrid.</para>
+        /// <para>If omitted a basic numeric compare sorter is used.</para>
+        /// </summary>
+        public IObservatoryComparer ColumnSorter
+        { get => null; }
 
     }
 
@@ -164,13 +170,6 @@ namespace Observatory.Framework.Interfaces
         public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items);
 
         /// <summary>
-        /// Add multiple items to the bottom of the basic UI grid.
-        /// </summary>
-        /// <param name="worker">Reference to the calling plugin's worker interface.</param>
-        /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
-        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items);
-
-        /// <summary>
         /// Clears basic UI grid, removing all items.
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
@@ -221,4 +220,21 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         public string PluginStorageFolder { get; }
     }
+
+    /// <summary>
+    /// Extends the base IComparer interface with exposed values for the column ID and sort order to use.
+    /// </summary>
+    public interface IObservatoryComparer : System.Collections.IComparer
+    {
+        /// <summary>
+        /// Column ID to be currently sorted by.
+        /// </summary>
+        public int SortColumn { get; set; }
+
+        /// <summary>
+        /// Current order of sorting. Ascending = 1, Descending = -1, No sorting = 0.
+        /// </summary>
+        public int Order { get; set; }
+    }
+
 }

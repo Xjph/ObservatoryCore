@@ -16,6 +16,10 @@ namespace Observatory.Explorer
 
             bool isRing = scan.BodyName.Contains("Ring");
 
+#if DEBUG
+            // results.Add("Test Scan Event", "Test Detail");
+#endif
+
             #region Landable Checks
             if (scan.Landable)
             {

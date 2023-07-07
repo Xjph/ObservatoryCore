@@ -4,6 +4,7 @@
 	<TargetFramework>net6.0</TargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Observatory.Framework</RootNamespace>
+    <Configurations>Debug;Release;Portable</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -15,6 +16,10 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>ObservatoryFramework.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Portable|AnyCPU'">
     <DocumentationFile>ObservatoryFramework.xml</DocumentationFile>
   </PropertyGroup>
   

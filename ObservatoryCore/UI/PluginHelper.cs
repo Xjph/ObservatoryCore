@@ -1,11 +1,7 @@
 ﻿using Observatory.Framework.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Speech.Synthesis;
-using System.Text;
-using System.Threading.Tasks;
+using System.Collections;
+using Observatory.PluginManagement;
+using Observatory.Utils;
 
 namespace Observatory.UI
 {
@@ -47,12 +43,20 @@ namespace Observatory.UI
 
             if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic)
                 uiPanels.Add(newItem, CreateBasicUI(plugin));
+            else if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Panel)
+                uiPanels.Add(newItem, (Panel)plugin.PluginUI.UI);
         }
 
         private static Panel CreateBasicUI(IObservatoryPlugin plugin)
         {
             Panel panel = new();
-            var columnSorter = new DefaultSorter();
+
+            IObservatoryComparer columnSorter;
+            if (plugin.ColumnSorter != null)
+                columnSorter = plugin.ColumnSorter;
+            else
+                columnSorter = new DefaultSorter();
+
             ListView listView = new()
             {
                 View = View.Details,
@@ -62,7 +66,8 @@ namespace Observatory.UI
                 BackColor = Color.FromArgb(64, 64, 64),
                 ForeColor = Color.LightGray,
                 GridLines = true,
-                ListViewItemSorter = columnSorter
+                ListViewItemSorter = columnSorter,
+                Font = new Font(new FontFamily("Segoe UI"), 10, FontStyle.Regular)
             };
 
             foreach (var property in plugin.PluginUI.DataGrid.First().GetType().GetProperties())
@@ -75,20 +80,20 @@ namespace Observatory.UI
                 if (e.Column == columnSorter.SortColumn)
                 {
                     // Reverse the current sort direction for this column.
-                    if (columnSorter.Order == SortOrder.Ascending)
+                    if (columnSorter.Order == 1)
                     {
-                        columnSorter.Order = SortOrder.Descending;
+                        columnSorter.Order = -1;
                     }
                     else
                     {
-                        columnSorter.Order = SortOrder.Ascending;
+                        columnSorter.Order = 1;
                     }
                 }
                 else
                 {
                     // Set the column number that is to be sorted; default to ascending.
                     columnSorter.SortColumn = e.Column;
-                    columnSorter.Order = SortOrder.Ascending;
+                    columnSorter.Order = 1;
                 }
                 listView.Sort();
             };
@@ -97,20 +102,58 @@ namespace Observatory.UI
             
             plugin.PluginUI.DataGrid.CollectionChanged += (sender, e) =>
             {
-                if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add &&
-                e.NewItems != null)
+                listView.Invoke(() =>
                 {
-                    foreach (var newItem in e.NewItems)
+                    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add &&
+                e.NewItems != null)
                     {
-                        ListViewItem newListItem = new();
-                        foreach (var property in newItem.GetType().GetProperties())
+                        foreach (var newItem in e.NewItems)
                         {
-                            newListItem.SubItems.Add(property.GetValue(newItem)?.ToString());
+                            ListViewItem newListItem = new();
+                            foreach (var property in newItem.GetType().GetProperties())
+                            {
+                                newListItem.SubItems.Add(property.GetValue(newItem)?.ToString());
+                            }
+                            newListItem.SubItems.RemoveAt(0);
+                            listView.Items.Add(newListItem);
                         }
-                        newListItem.SubItems.RemoveAt(0);
-                        listView.Items.Add(newListItem);
                     }
-                }
+
+                    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove &&
+                    e.OldItems != null)
+                    {
+                        foreach (var oldItem in e.OldItems)
+                        {
+                            ListViewItem oldListItem = new();
+                            foreach (var property in oldItem.GetType().GetProperties())
+                            {
+                                oldListItem.SubItems.Add(property.GetValue(oldItem)?.ToString());
+                            }
+                            oldListItem.SubItems.RemoveAt(0);
+
+                            var itemToRemove = listView.Items.Cast<ListViewItem>().Where(i => i.SubItems.Cast<string>().SequenceEqual(oldListItem.SubItems.Cast<string>())).First();
+                            if (itemToRemove != null)
+                            {
+                                listView.Items.Remove(itemToRemove);
+                            }
+                        }
+                    }
+
+                    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+                    {
+                        listView.Items.Clear();
+                        foreach (var item in plugin.PluginUI.DataGrid)
+                        {
+                            ListViewItem listItem = new();
+                            foreach (var property in item.GetType().GetProperties())
+                            {
+                                listItem.SubItems.Add(property.GetValue(item)?.ToString());
+                            }
+                            listItem.SubItems.RemoveAt(0);
+                            listView.Items.Add(listItem);
+                        }
+                    }
+                });
             };
             
             return panel;

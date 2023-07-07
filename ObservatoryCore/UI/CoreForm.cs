@@ -1,6 +1,9 @@
-﻿using Observatory.Framework.Interfaces;
+﻿using Observatory.Framework;
+using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
+using System.Text;
+using System.Windows.Forms;
 
 namespace Observatory.UI
 {
@@ -37,40 +40,6 @@ namespace Observatory.UI
             AdjustPanelsBelow(PopupSettingsPanel, AdjustmentDirection.Up);
         }
 
-        private void PopulateDropdownOptions()
-        {
-            var fonts = new System.Drawing.Text.InstalledFontCollection().Families;
-            FontDropdown.Items.AddRange(fonts.Select(f => f.Name).ToArray());
-
-            DisplayDropdown.Items.Add("Primary");
-            if (Screen.AllScreens.Length > 1)
-                for (int i = 0; i < Screen.AllScreens.Length; i++)
-                    DisplayDropdown.Items.Add((i + 1).ToString());
-
-            var voices = new System.Speech.Synthesis.SpeechSynthesizer().GetInstalledVoices();
-            foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
-                VoiceDropdown.Items.Add(voice);
-            
-        }
-
-        private void PopulateNativeSettings()
-        {
-            var settings = Properties.Core.Default;
-
-            DisplayDropdown.SelectedIndex = settings.NativeNotifyScreen + 1;
-            CornerDropdown.SelectedIndex = settings.NativeNotifyCorner;
-            FontDropdown.SelectedItem = settings.NativeNotifyFont;
-            ScaleSpinner.Value = settings.NativeNotifyScale;
-            DurationSpinner.Value = settings.NativeNotifyTimeout;
-            ColourButton.BackColor = Color.FromArgb((int)settings.NativeNotifyColour);
-            PopupCheckbox.Checked = settings.NativeNotify;
-            VoiceVolumeSlider.Value = settings.VoiceVolume;
-            VoiceSpeedSlider.Value = settings.VoiceRate;
-            VoiceDropdown.SelectedItem = settings.VoiceSelected;
-            VoiceCheckbox.Checked = settings.VoiceNotify;
-        }
-
-
         private void CoreMenu_SizeChanged(object? sender, EventArgs e)
         {
             CorePanel.Location = new Point(12 + CoreMenu.Width, 12);
@@ -80,95 +49,27 @@ namespace Observatory.UI
 
         private Dictionary<string, ToolStripMenuItem> pluginList;
 
-        private void CreatePluginTabs()
+        private static void DuplicateControlVisuals(Control source, Control target, bool applyHeight = true)
         {
-            var uiPlugins = PluginManager.GetInstance.workerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None);
-
-            PluginHelper.CreatePluginTabs(CoreMenu, uiPlugins, uiPanels);
-
-            foreach(ToolStripMenuItem item in CoreMenu.Items)
-            {
-                pluginList.Add(item.Text, item);
-            }
+            if (applyHeight) target.Height = source.Height;
+            target.Width = source.Width;
+            target.Font = source.Font;
+            target.ForeColor = source.ForeColor;
+            target.BackColor = source.BackColor;
+            target.Anchor = source.Anchor;
         }
 
-        private void CreatePluginSettings()
+        private void ToggleMonitorButton_Click(object sender, EventArgs e)
         {
-            foreach (var plugin in PluginManager.GetInstance.workerPlugins)
+            if ((LogMonitor.GetInstance.CurrentState & Framework.LogMonitorState.Realtime) == Framework.LogMonitorState.Realtime)
             {
-                var pluginSettingsPanel = new SettingsPanel(plugin.plugin, AdjustPanelsBelow);
-                AddSettingsPanel(pluginSettingsPanel);
+                LogMonitor.GetInstance.Stop();
+                ToggleMonitorButton.Text = "Start Monitor";
             }
-            foreach (var plugin in PluginManager.GetInstance.notifyPlugins)
+            else
             {
-                var pluginSettingsPanel = new SettingsPanel(plugin.plugin, AdjustPanelsBelow);
-                AddSettingsPanel(pluginSettingsPanel);
-            }
-        }
-
-        private void AddSettingsPanel(SettingsPanel panel)
-        {
-            int lowestPoint = 0;
-            foreach (Control control in CorePanel.Controls)
-            {
-                if (control.Location.Y + control.Height > lowestPoint)
-                    lowestPoint = control.Location.Y + control.Height;
-            }
-            panel.Header.Location = new Point(PopupNotificationLabel.Location.X, lowestPoint);
-            panel.Header.Width = PopupNotificationLabel.Width;
-            panel.Header.Font = PopupNotificationLabel.Font;
-            panel.Header.ForeColor = PopupNotificationLabel.ForeColor;
-            panel.Header.BackColor = PopupNotificationLabel.BackColor;
-            panel.Header.TextAlign = PopupNotificationLabel.TextAlign;
-            panel.Location = new Point(PopupNotificationLabel.Location.X, lowestPoint + panel.Header.Height);
-            panel.Width = PopupSettingsPanel.Width;
-            CorePanel.Controls.Add(panel.Header);
-            CorePanel.Controls.Add(panel);
-        }
-
-        private void PopulatePluginList()
-        {
-            List<IObservatoryPlugin> uniquePlugins = new();
-
-            
-            foreach (var (plugin, signed) in PluginManager.GetInstance.workerPlugins)
-            {
-                if (!uniquePlugins.Contains(plugin))
-                {
-                    uniquePlugins.Add(plugin);
-                    ListViewItem item = new ListViewItem(new[] { plugin.Name, "Worker", plugin.Version, PluginStatusString(signed) });
-                    PluginList.Items.Add(item);
-                }
-            }
-        }
-
-        private static string PluginStatusString(PluginManager.PluginStatus status)
-        {
-            switch (status)
-            {
-                case PluginManager.PluginStatus.Signed:
-                    return "Signed";
-                    
-                case PluginManager.PluginStatus.Unsigned:
-                    return "Unsigned";
-                    
-                case PluginManager.PluginStatus.InvalidSignature:
-                    return "Invalid Signature";
-                    
-                case PluginManager.PluginStatus.InvalidPlugin:
-                    return "Invalid Plugin";
-                    
-                case PluginManager.PluginStatus.InvalidLibrary:
-                    return "Invalid File";
-                    
-                case PluginManager.PluginStatus.NoCert:
-                    return "Unsigned Observatory (Debug build)";
-                    
-                case PluginManager.PluginStatus.SigCheckDisabled:
-                    return "Signature Checks Disabled";
-                    
-                default:
-                    return string.Empty;
+                LogMonitor.GetInstance.Start();
+                ToggleMonitorButton.Text = "Stop Monitor";
             }
         }
 
@@ -337,82 +238,16 @@ namespace Observatory.UI
             Up, Down
         }
 
-        #region Settings Changes
-
-        private void ColourButton_Click(object _, EventArgs e)
+        private void TestButton_Click(object sender, EventArgs e)
         {
-            var selectionResult = PopupColour.ShowDialog();
-            if (selectionResult == DialogResult.OK)
+            NotificationArgs args = new()
             {
-                ColourButton.BackColor = PopupColour.Color;
-                Properties.Core.Default.NativeNotifyColour = (uint)PopupColour.Color.ToArgb();
-                Properties.Core.Default.Save();
-            }
+                Title = "Test Notification",
+                Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at elit maximus, ornare dui nec, accumsan velit. Vestibulum fringilla elit."
+            };
+            var testNotify = new NotificationForm(new Guid(), args);
+            testNotify.Show();
+
         }
-
-        private void PopupCheckbox_CheckedChanged(object _, EventArgs e)
-        {
-            Properties.Core.Default.NativeNotify = PopupCheckbox.Checked;
-            Properties.Core.Default.Save();
-        }
-
-        private void DurationSpinner_ValueChanged(object _, EventArgs e)
-        {
-            Properties.Core.Default.NativeNotifyTimeout = (int)DurationSpinner.Value;
-            Properties.Core.Default.Save();
-        }
-
-        private void ScaleSpinner_ValueChanged(object _, EventArgs e)
-        {
-            Properties.Core.Default.NativeNotifyScale = (int)ScaleSpinner.Value;
-            Properties.Core.Default.Save();
-        }
-
-        private void FontDropdown_SelectedIndexChanged(object _, EventArgs e)
-        {
-            Properties.Core.Default.NativeNotifyFont = FontDropdown.SelectedItem.ToString();
-            Properties.Core.Default.Save();
-        }
-
-        private void CornerDropdown_SelectedIndexChanged(object _, EventArgs e)
-        {
-            Properties.Core.Default.NativeNotifyCorner = CornerDropdown.SelectedIndex;
-            Properties.Core.Default.Save();
-        }
-
-        private void DisplayDropdown_SelectedIndexChanged(object _, EventArgs e)
-        {
-            Properties.Core.Default.NativeNotifyScreen = DisplayDropdown.SelectedIndex - 1;
-            Properties.Core.Default.Save();
-        }
-
-        private void VoiceVolumeSlider_Scroll(object _, EventArgs e)
-        {
-            Properties.Core.Default.VoiceVolume = VoiceVolumeSlider.Value;
-            Properties.Core.Default.Save();
-        }
-
-        private void VoiceSpeedSlider_Scroll(object _, EventArgs e)
-        {
-            Properties.Core.Default.VoiceRate = VoiceSpeedSlider.Value;
-            Properties.Core.Default.Save();
-        }
-
-        private void VoiceCheckbox_CheckedChanged(object _, EventArgs e)
-        {
-            Properties.Core.Default.VoiceNotify = VoiceCheckbox.Checked;
-            Properties.Core.Default.Save();
-        }
-
-        private void VoiceDropdown_SelectedIndexChanged(object _, EventArgs e)
-        {
-            Properties.Core.Default.VoiceSelected = VoiceDropdown.SelectedItem.ToString();
-            Properties.Core.Default.Save();
-        }
-
-
-        #endregion
-
-
     }
 }

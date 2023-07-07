@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,13 +18,12 @@ namespace Observatory.Framework
         public readonly UIType PluginUIType;
 
         /// <summary>
-        /// <para>UI object used by plugins with UIType.Avalonia.</para>
-        /// <para>(Untested/not implemented)</para>
+        /// <para>UI object used by plugins with UIType.Panel.</para>
         /// </summary>
         public object UI;
 
         /// <summary>
-        /// <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
+        /// <para>Collection bound to DataGrid used by plugins with UIType.Basic.</para>
         /// <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
         /// </summary>
         public ObservableCollection<object> DataGrid;
@@ -32,7 +32,7 @@ namespace Observatory.Framework
         /// Instantiate PluginUI of UIType.Basic.
         /// </summary>
         /// <param name="DataGrid">
-        /// <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
+        /// <para>Collection bound to DataGrid used by plugins with UIType.Basic.</para>
         /// <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
         /// </param>
         public PluginUI(ObservableCollection<object> DataGrid)

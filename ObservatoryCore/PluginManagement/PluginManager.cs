@@ -30,7 +30,7 @@ namespace Observatory.PluginManagement
         }
 
 
-        public readonly List<(string error, string detail)> errorList;
+        public readonly List<(string error, string? detail)> errorList;
         public readonly List<Panel> pluginPanels;
         public readonly List<DataTable> pluginTables;
         public readonly List<(IObservatoryWorker plugin, PluginStatus signed)> workerPlugins;
@@ -181,21 +181,22 @@ namespace Observatory.PluginManagement
             });
 
             Properties.Core.Default.PluginSettings = newSettings;
-            Properties.Core.Default.Save();
+            SettingsManager.Save();
         }
 
-        private static List<(string, string)> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
+        private static List<(string, string?)> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
         {
             observatoryWorkers = new();
             observatoryNotifiers = new();
-            var errorList = new List<(string, string)>();
+            var errorList = new List<(string, string?)>();
 
             string pluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
-
-            string ownExe = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            
+            string? ownExe = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
             FileSignatureInfo ownSig;
 
-            using (var stream = File.OpenRead(ownExe))
+            // This will throw if ownExe is null, but that's an error condition regardless.
+            using (var stream = File.OpenRead(ownExe ?? String.Empty)) 
                 ownSig = FileSignatureInfo.GetFromFileStream(stream);
             
 
@@ -259,7 +260,7 @@ namespace Observatory.PluginManagement
                                     if (response == DialogResult.OK)
                                     {
                                         Properties.Core.Default.UnsignedAllowed.Add(pluginHash);
-                                        Properties.Core.Default.Save();
+                                        SettingsManager.Save();
                                     }
                                     else
                                     {
@@ -322,16 +323,16 @@ namespace Observatory.PluginManagement
 
             System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (context, name) => {
             
-                if (name.Name.EndsWith("resources"))
+                if ((name?.Name?.EndsWith("resources")).GetValueOrDefault(false))
                 {
                     return null;
                 }
 
                 // Importing Observatory.Framework in the Explorer Lua scripts causes an attempt to reload
                 // the assembly, just hand it back the one we already have.
-                if (name.Name.StartsWith("Observatory.Framework") || name.Name == "ObservatoryFramework")
+                if ((name?.Name?.StartsWith("Observatory.Framework")).GetValueOrDefault(false) || name?.Name == "ObservatoryFramework")
                 {
-                    return context.Assemblies.Where(a => a.FullName.Contains("ObservatoryFramework")).First();
+                    return context.Assemblies.Where(a => (a.FullName?.Contains("ObservatoryFramework")).GetValueOrDefault(false)).First();
                 }
 
                 var foundDlls = Directory.GetFileSystemEntries(new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}deps").FullName, name.Name + ".dll", SearchOption.TopDirectoryOnly);
@@ -340,7 +341,7 @@ namespace Observatory.PluginManagement
                     return context.LoadFromAssemblyPath(foundDlls[0]);
                 }
 
-                if (name.Name != recursionGuard)
+                if (name.Name != recursionGuard && name.Name != null)
                 {
                     recursionGuard = name.Name;
                     return context.LoadFromAssemblyName(name);
@@ -361,37 +362,43 @@ namespace Observatory.PluginManagement
             }
             catch (ReflectionTypeLoadException ex)
             {
-                types = ex.Types.Where(t => t != null).ToArray();
+                types = ex.Types.OfType<Type>().ToArray();
             }
             catch
             {
                 types = Array.Empty<Type>();
             }
 
-            var workerTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryWorker)));
-            foreach (var worker in workerTypes)
+            IEnumerable<Type> workerTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryWorker)));
+            foreach (Type worker in workerTypes)
             {
-                ConstructorInfo constructor = worker.GetConstructor(Array.Empty<Type>());
-                object instance = constructor.Invoke(Array.Empty<object>());
-                workers.Add((instance as IObservatoryWorker, pluginStatus));
-                if (instance is IObservatoryNotifier)
+                ConstructorInfo? constructor = worker.GetConstructor(Array.Empty<Type>());
+                if (constructor != null)
                 {
-                    // This is also a notifier; add to the notifier list as well, so the work and notifier are
-                    // the same instance and can share state.
-                    notifiers.Add((instance as IObservatoryNotifier, pluginStatus));
+                    object instance = constructor.Invoke(Array.Empty<object>());
+                    workers.Add(((instance as IObservatoryWorker)!, pluginStatus));
+                    if (instance is IObservatoryNotifier)
+                    {
+                        // This is also a notifier; add to the notifier list as well, so the work and notifier are
+                        // the same instance and can share state.
+                        notifiers.Add(((instance as IObservatoryNotifier)!, pluginStatus));
+                    }
+                    pluginCount++;
                 }
-                pluginCount++;
             }
 
             // Filter out items which are also workers as we've already created them above.
             var notifyTypes = types.Where(t =>
                     t.IsAssignableTo(typeof(IObservatoryNotifier)) && !t.IsAssignableTo(typeof(IObservatoryWorker)));
-            foreach (var notifier in notifyTypes)
+            foreach (Type notifier in notifyTypes)
             {
-                ConstructorInfo constructor = notifier.GetConstructor(Array.Empty<Type>());
-                object instance = constructor.Invoke(Array.Empty<object>());
-                notifiers.Add((instance as IObservatoryNotifier, PluginStatus.Signed));
-                pluginCount++;
+                ConstructorInfo? constructor = notifier.GetConstructor(Array.Empty<Type>());
+                if (constructor != null)
+                {
+                    object instance = constructor.Invoke(Array.Empty<object>());
+                    notifiers.Add(((instance as IObservatoryNotifier)!, PluginStatus.Signed));
+                    pluginCount++;
+                }
             }
 
             if (pluginCount == 0)

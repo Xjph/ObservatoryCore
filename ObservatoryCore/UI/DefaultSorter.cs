@@ -3,10 +3,11 @@ using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Observatory.Framework.Interfaces;
 
 namespace Observatory.UI
 {
-    internal class DefaultSorter : IComparer
+    internal class DefaultSorter : IObservatoryComparer
     {
         /// <summary>
         /// Specifies the column to be sorted
@@ -15,7 +16,7 @@ namespace Observatory.UI
         /// <summary>
         /// Specifies the order in which to sort (i.e. 'Ascending').
         /// </summary>
-        private SortOrder OrderOfSort;
+        private int OrderOfSort;
         /// <summary>
         /// Case insensitive comparer object
         /// </summary>
@@ -30,7 +31,7 @@ namespace Observatory.UI
             ColumnToSort = 0;
 
             // Initialize the sort order to 'none'
-            OrderOfSort = SortOrder.None;
+            OrderOfSort = 0;
 
             // Initialize the CaseInsensitiveComparer object
             ObjectCompare = new CaseInsensitiveComparer();
@@ -49,25 +50,68 @@ namespace Observatory.UI
             ListViewItem? listviewX = (ListViewItem?)x;
             ListViewItem? listviewY = (ListViewItem?)y;
                                     
+            if (OrderOfSort == 0)
+                return 0;
+
             // Compare the two items
-            compareResult = ObjectCompare.Compare(listviewX?.SubItems[ColumnToSort].Text, listviewY?.SubItems[ColumnToSort].Text);
+            compareResult = NaturalCompare(listviewX?.SubItems[ColumnToSort].Text, listviewY?.SubItems[ColumnToSort].Text);
 
             // Calculate correct return value based on object comparison
-            if (OrderOfSort == SortOrder.Ascending)
+            if (OrderOfSort == 1)
             {
                 // Ascending sort is selected, return normal result of compare operation
                 return compareResult;
             }
-            else if (OrderOfSort == SortOrder.Descending)
+            else 
             {
                 // Descending sort is selected, return negative result of compare operation
                 return (-compareResult);
             }
-            else
+        }
+
+        private static int NaturalCompare(string? x, string? y)
+        {
+            for (int i = 0; i <= x?.Length && i <= y?.Length; i++)
             {
-                // Return '0' to indicate they are equal
-                return 0;
+                // If we've reached the end of the string without finding a difference
+                // the longer string is "greater".
+                if (i == x.Length || i == y.Length)
+                    return x.Length > y.Length ? 1 : y.Length > x.Length ? -1 : 0;
+
+                // We've found a number in the same place in both strings.
+                if (Char.IsDigit(x[i]) && Char.IsDigit(y[i]))
+                {
+                    // Walk ahead and get the full numbers.
+                    string xNum = new(x[i..].TakeWhile(c => Char.IsDigit(c)).ToArray());
+                    string yNum = new(y[i..].TakeWhile(c => Char.IsDigit(c)).ToArray());
+
+                    // Pad with zeroes to equal lengths.
+                    int numLength = Math.Max(xNum.Length, yNum.Length);
+                    string xNumPadded = xNum.PadLeft(numLength, '0');
+                    string yNumPadded = yNum.PadLeft(numLength, '0');
+
+                    // Now that they're the same length a direct compare works.
+                    int result = xNumPadded.CompareTo(yNumPadded);
+                    if (result != 0)
+                    {
+                        return result;
+                    }
+                    else
+                    {
+                        // The numbers are identical, skip them and keep moving.
+                        i += numLength - 1;
+                    }
+                }
+                // Check if we have unequal letters.
+                else if (x[i] != y[i])
+                {
+                    // Straight compare and return.
+                    return x[i] > y[i] ? 1 : -1;
+                }
             }
+
+            // If we somehow make it here, return equal result.
+            return 0;
         }
 
         /// <summary>
@@ -88,7 +132,7 @@ namespace Observatory.UI
         /// <summary>
         /// Gets or sets the order of sorting to apply (for example, 'Ascending' or 'Descending').
         /// </summary>
-        public SortOrder Order
+        public int Order
         {
             set
             {
