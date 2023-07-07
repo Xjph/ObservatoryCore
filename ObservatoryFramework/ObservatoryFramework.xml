@@ -1350,6 +1350,12 @@
             If a public property is necessary but not required to be user accessible the [SettingIgnore] property will suppress display.</para>
             </summary>
         </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.ColumnSorter">
+            <summary>
+            Plugin-specific object implementing the IComparer interface which is used to sort columns in the basic UI datagrid.
+            If omitted a basic string compare sorter is used.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
             <para>Interface for worker plugins which process journal data to update their UI or send notifications.</para>
@@ -1504,6 +1510,21 @@
             Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.Interfaces.IObservatoryComparer">
+            <summary>
+            Extends the base IComparer interface with exposed values for the column ID and sort order to use.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryComparer.SortColumn">
+            <summary>
+            Column ID to be currently sorted by.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryComparer.Order">
+            <summary>
+            Current order of sorting. Ascending = 1, Descending = -1, No sorting = 0.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.PluginUI">
             <summary>
             Class permitting plugins to provide their UI, if any, to Observatory Core.
@@ -1516,13 +1537,12 @@
         </member>
         <member name="F:Observatory.Framework.PluginUI.UI">
             <summary>
-            <para>UI object used by plugins with UIType.Avalonia.</para>
-            <para>(Untested/not implemented)</para>
+            <para>UI object used by plugins with UIType.Panel.</para>
             </summary>
         </member>
         <member name="F:Observatory.Framework.PluginUI.DataGrid">
             <summary>
-            <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
+            <para>Collection bound to DataGrid used by plugins with UIType.Basic.</para>
             <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
             </summary>
         </member>
@@ -1531,7 +1551,7 @@
             Instantiate PluginUI of UIType.Basic.
             </summary>
             <param name="DataGrid">
-            <para>Collection bound to DataGrid used byu plugins with UIType.Basic.</para>
+            <para>Collection bound to DataGrid used by plugins with UIType.Basic.</para>
             <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
             </param>
         </member>

@@ -15,25 +15,29 @@ namespace Observatory.NativeNotification
         public Guid InvokeNativeNotification(NotificationArgs notificationArgs)
         {
             var notificationGuid = Guid.NewGuid();
-            var notification = new NotificationForm()
+            Application.OpenForms[0].Invoke(() =>
             {
-                Guid = notificationGuid
-            };
-            notification.Show();
-            notifications.Add(notificationGuid, notification);
-            
-            //TODO: Implement winform notification
+                var notification = new NotificationForm(notificationGuid, notificationArgs);
 
+                notification.FormClosed += NotifyWindow_Closed;
+
+                notifications.Add(notificationGuid, notification);
+                notification.Show();
+            });
+            
             return notificationGuid;
         }
 
-        private void NotifyWindow_Closed(object sender, EventArgs e)
+        private void NotifyWindow_Closed(object? sender, EventArgs e)
         {
-            var currentNotification = (NotificationForm)sender;
-
-            if (notifications.ContainsKey(currentNotification.Guid))
+            if (sender != null)
             {
-                notifications.Remove(currentNotification.Guid);
+                var currentNotification = (NotificationForm)sender;
+
+                if (notifications.ContainsKey(currentNotification.Guid))
+                {
+                    notifications.Remove(currentNotification.Guid);
+                }
             }
         }
 
@@ -49,8 +53,7 @@ namespace Observatory.NativeNotification
         {
             if (notifications.ContainsKey(guid))
             {
-                //TODO: Update notification content
-                // notifications[guid].DataContext = new NotificationViewModel(notificationArgs);
+                notifications[guid].Update(notificationArgs);
             }
         }
 

@@ -360,6 +360,7 @@
             this.TestButton.TabIndex = 12;
             this.TestButton.Text = "Test";
             this.TestButton.UseVisualStyleBackColor = false;
+            this.TestButton.Click += new System.EventHandler(this.TestButton_Click);
             // 
             // ColourButton
             // 
@@ -569,6 +570,7 @@
             this.ToggleMonitorButton.TabIndex = 3;
             this.ToggleMonitorButton.Text = "Start Monitor";
             this.ToggleMonitorButton.UseVisualStyleBackColor = false;
+            this.ToggleMonitorButton.Click += new System.EventHandler(this.ToggleMonitorButton_Click);
             // 
             // ClearButton
             // 

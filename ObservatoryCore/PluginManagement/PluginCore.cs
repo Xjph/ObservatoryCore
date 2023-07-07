@@ -105,17 +105,22 @@ namespace Observatory.PluginManagement
 
         public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
         {
-            //TODO: Add to winform list
+            //TODO: Use better bulk handling here.
+            foreach (var item in items)
+            {
+                worker.PluginUI.DataGrid.Add(item);
+            }
         }
 
         public void ClearGrid(IObservatoryWorker worker, object templateItem)
         {
-            //TODO: Clear winform list
+            worker.PluginUI.DataGrid.Clear();
         }
 
         public void ExecuteOnUIThread(Action action)
         {
-            //TODO: Execute action
+            if (Application.OpenForms.Count > 0)
+                Application.OpenForms[0].Invoke(action);
         }
 
         public System.Net.Http.HttpClient HttpClient
@@ -140,7 +145,7 @@ namespace Observatory.PluginManagement
             get
             {
                 var context = new System.Diagnostics.StackFrame(1).GetMethod();
-
+#if DEBUG || RELEASE
                 string folderLocation = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
                     + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}{Path.DirectorySeparatorChar}";
 
@@ -148,6 +153,11 @@ namespace Observatory.PluginManagement
                     Directory.CreateDirectory(folderLocation);
 
                 return folderLocation;
+#elif PORTABLE
+                string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
+                var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
+                return $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}-Data{Path.DirectorySeparatorChar}";
+#endif
             }
         }
 

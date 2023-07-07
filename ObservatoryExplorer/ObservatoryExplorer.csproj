@@ -5,6 +5,7 @@
 	<ImplicitUsings>enable</ImplicitUsings>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
+    <Configurations>Debug;Release;Portable</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -20,10 +21,10 @@
   </PropertyGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)NLua.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)KeraLua.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)runtimes\win-x64\native\lua54.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)plugins\deps\&quot; /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net6.0-windows\plugins\&quot; /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)NLua.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net6.0-windows\plugins\deps\&quot; /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)KeraLua.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net6.0-windows\plugins\deps\&quot; /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)runtimes\win-x64\native\lua54.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net6.0-windows\plugins\deps\&quot; /y" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="[ ! -d &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps&quot; ] &amp;&amp; mkdir -p &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps&quot; || echo Directory already exists" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetPath)&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/&quot; -f" />
     <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)NLua.dll&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/&quot; -f" />

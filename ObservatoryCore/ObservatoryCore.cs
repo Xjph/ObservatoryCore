@@ -1,4 +1,5 @@
 using Observatory.PluginManagement;
+using Observatory.Utils;
 using System.Reflection.PortableExecutable;
 
 namespace Observatory
@@ -11,6 +12,8 @@ namespace Observatory
         [STAThread]
         static void Main(string[] args)
         {
+            SettingsManager.Load();
+
             if (args.Length > 0 && File.Exists(args[0]))
             {
                 var fileInfo = new FileInfo(args[0]);
@@ -27,14 +30,14 @@ namespace Observatory
                 {
                     try
                     {
-                        Properties.Core.Default.Upgrade();
+                        // Properties.Core.Default.Upgrade();
                     }
                     catch 
                     {
                         // Silently ignore properties upgrade failure.
                     }
                     Properties.Core.Default.CoreVersion = version;
-                    Properties.Core.Default.Save();
+                    SettingsManager.Save();
                 }
 
                 

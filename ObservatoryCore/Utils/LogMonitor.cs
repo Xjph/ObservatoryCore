@@ -284,7 +284,7 @@ namespace Observatory.Utils
             if (Properties.Core.Default.JournalFolder != path)
             {
                 Properties.Core.Default.JournalFolder = path;
-                Properties.Core.Default.Save();
+                SettingsManager.Save();
             }
 
             return logDirectory;
