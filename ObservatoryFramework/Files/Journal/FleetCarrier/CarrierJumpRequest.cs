@@ -1,4 +1,6 @@
-﻿namespace Observatory.Framework.Files.Journal
+﻿using System.Text.Json.Serialization;
+
+namespace Observatory.Framework.Files.Journal
 {
     public class CarrierJumpRequest : JournalBase
     {
@@ -9,5 +11,10 @@
         public string SystemName { get; init; }
         public ulong SystemID { get; init; }
         public string DepartureTime { get; init; }
+
+        [JsonIgnore]
+        public DateTime DepartureTimeDateTime {
+            get => ParseDateTime(DepartureTime);
+        }
     }
 }

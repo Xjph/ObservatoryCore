@@ -12,10 +12,7 @@ namespace Observatory.Framework.Files.Journal
         [JsonIgnore]
         public DateTime TimestampDateTime
         {
-            get
-            {
-                return DateTime.ParseExact(Timestamp, "yyyy-MM-ddTHH:mm:ssZ", null, System.Globalization.DateTimeStyles.AssumeUniversal);
-            }
+            get => ParseDateTime(Timestamp);
         }
 
         [JsonPropertyName("event")]
@@ -43,5 +40,17 @@ namespace Observatory.Framework.Files.Journal
 
         private string json;
 
+        // For use by Journal object classes for .*DateTime properties, like TimestampeDateTime, above.
+        internal static DateTime ParseDateTime(string value)
+        {
+            if (DateTime.TryParseExact(value, "yyyy-MM-ddTHH:mm:ssZ", null, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTime dateTimeValue))
+            {
+                return dateTimeValue;
+            }
+            else
+            {
+                return new DateTime();
+            }
+        }
     }
 }
