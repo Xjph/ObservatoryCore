@@ -50,7 +50,10 @@ namespace Observatory.PluginManagement
             logMonitor.StatusUpdate += pluginHandler.OnStatusUpdate;
             logMonitor.LogMonitorStateChanged += pluginHandler.OnLogMonitorStateChanged;
 
-            core = new PluginCore();
+            var ovPopup = notifyPlugins.Any(n => n.plugin.OverridePopupNotifications);
+            var ovAudio = notifyPlugins.Any(n => n.plugin.OverrideAudioNotifications);
+
+            core = new PluginCore(ovPopup, ovAudio);
 
             List<IObservatoryPlugin> errorPlugins = new();
             
@@ -97,6 +100,7 @@ namespace Observatory.PluginManagement
             notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
 
             core.Notification += pluginHandler.OnNotificationEvent;
+            core.PluginMessage += pluginHandler.OnPluginMessageEvent;
 
             if (errorList.Any())
                 ErrorReporter.ShowErrorPopup("Plugin Load Error" + (errorList.Count > 1 ? "s" : String.Empty), errorList);
@@ -114,7 +118,15 @@ namespace Observatory.PluginManagement
 
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
-                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings);
+                var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings);
+                if (settings != null)
+                {
+                    pluginSettings = settings;
+                }
+                else
+                {
+                    pluginSettings = new();
+                }
             }
             else
             {
@@ -138,7 +150,7 @@ namespace Observatory.PluginManagement
                 var properties = settings.GetType().GetProperties();
                 foreach (var property in properties)
                 {
-                    var attrib = property.GetCustomAttribute<Framework.SettingDisplayName>();
+                    var attrib = property.GetCustomAttribute<SettingDisplayName>();
                     if (attrib == null)
                     {
                         settingNames.Add(property, property.Name);
@@ -396,7 +408,7 @@ namespace Observatory.PluginManagement
                 if (constructor != null)
                 {
                     object instance = constructor.Invoke(Array.Empty<object>());
-                    notifiers.Add(((instance as IObservatoryNotifier)!, PluginStatus.Signed));
+                    notifiers.Add(((instance as IObservatoryNotifier)!, pluginStatus));
                     pluginCount++;
                 }
             }

@@ -110,6 +110,14 @@ namespace Observatory.PluginManagement
             }
         }
 
+        public void OnPluginMessageEvent(object _, PluginMessageArgs messageArgs)
+        {
+            foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Concat(observatoryWorkers))
+            {
+                plugin.HandlePluginMessage(messageArgs.SourceName, messageArgs.SourceVersion, messageArgs.Message);
+            }
+        }
+
         private void ResetTimer()
         {
             timer.Stop();
@@ -144,6 +152,20 @@ namespace Observatory.PluginManagement
                 
                 timer.Stop();
             }
+        }
+    }
+
+    internal class PluginMessageArgs
+    {
+        internal string SourceName;
+        internal string SourceVersion;
+        internal object Message;
+
+        internal PluginMessageArgs(string sourceName, string sourceVersion, object message)
+        {
+            SourceName = sourceName;
+            SourceVersion = sourceVersion;
+            Message = message;
         }
     }
 }

@@ -1,31 +1,34 @@
 using Observatory.PluginManagement;
 using Observatory.Framework.Interfaces;
+using System.Linq;
 
 namespace Observatory.UI
 {
     partial class CoreForm
     {
+        private Dictionary<ListViewItem, IObservatoryPlugin>? ListedPlugins;
 
         private void PopulatePluginList()
         {
-            List<IObservatoryPlugin> uniquePlugins = new();
+            ListedPlugins = new();
                         
             foreach (var (plugin, signed) in PluginManager.GetInstance.workerPlugins)
             {
-                if (!uniquePlugins.Contains(plugin))
+                if (!ListedPlugins.ContainsValue(plugin))
                 {
-                    uniquePlugins.Add(plugin);
+                    
                     ListViewItem item = new ListViewItem(new[] { plugin.Name, "Worker", plugin.Version, PluginStatusString(signed) });
+                    ListedPlugins.Add(item, plugin);
                     PluginList.Items.Add(item);
                 }
             }
 
             foreach (var (plugin, signed) in PluginManager.GetInstance.notifyPlugins)
             {
-                if (!uniquePlugins.Contains(plugin))
+                if (!ListedPlugins.ContainsValue(plugin))
                 {
-                    uniquePlugins.Add(plugin);
                     ListViewItem item = new ListViewItem(new[] { plugin.Name, "Notifier", plugin.Version, PluginStatusString(signed) });
+                    ListedPlugins.Add(item, plugin);
                     PluginList.Items.Add(item);
                 }
             }
@@ -71,39 +74,87 @@ namespace Observatory.UI
             {
                 pluginList.Add(item.Text, item);
             }
+
+            CoreMenu.Width = GetExpandedMenuWidth();
         }
 
-        private void CreatePluginSettings()
+        private void DisableOverriddenNotification()
         {
-            foreach (var plugin in PluginManager.GetInstance.workerPlugins)
+            var notifyPlugins = PluginManager.GetInstance.notifyPlugins;
+
+            var ovPopupPlugins = notifyPlugins.Where(n => n.plugin.OverridePopupNotifications);
+
+            if (ovPopupPlugins.Any())
             {
-                var pluginSettingsPanel = new SettingsPanel(plugin.plugin, AdjustPanelsBelow);
-                AddSettingsPanel(pluginSettingsPanel);
+                PopupCheckbox.Checked = false;
+                PopupCheckbox.Enabled = false;
+                DisplayDropdown.Enabled = false;
+                CornerDropdown.Enabled = false;
+                FontDropdown.Enabled = false;
+                ScaleSpinner.Enabled = false;
+                DurationSpinner.Enabled = false;
+                ColourButton.Enabled = false;
+                TestButton.Enabled = false;
+
+                var pluginNames = string.Join(", ", ovPopupPlugins.Select(o => o.plugin.ShortName));
+
+                PopupSettingsPanel.MouseMove += (_, _) =>
+                {
+                    OverrideTooltip.SetToolTip(PopupSettingsPanel, "Disabled by plugin: " + pluginNames);
+                };
             }
-            foreach (var plugin in PluginManager.GetInstance.notifyPlugins)
+
+            var ovAudioPlugins = notifyPlugins.Where(n => n.plugin.OverrideAudioNotifications);
+
+            if (ovAudioPlugins.Any())
             {
-                var pluginSettingsPanel = new SettingsPanel(plugin.plugin, AdjustPanelsBelow);
-                AddSettingsPanel(pluginSettingsPanel);
+                VoiceCheckbox.Checked = false;
+                VoiceCheckbox.Enabled = false;
+                VoiceVolumeSlider.Enabled = false;
+                VoiceSpeedSlider.Enabled = false;
+                VoiceDropdown.Enabled = false;
+                VoiceTestButton.Enabled = false;
+
+                var pluginNames = string.Join(", ", ovAudioPlugins.Select(o => o.plugin.ShortName));
+
+                VoiceSettingsPanel.MouseMove += (_, _) =>
+                {
+                    OverrideTooltip.SetToolTip(VoiceSettingsPanel, "Disabled by plugin: " + pluginNames);
+                };
             }
         }
 
-        private void AddSettingsPanel(SettingsPanel panel)
+        private int GetExpandedMenuWidth()
         {
-            int lowestPoint = 0;
-            foreach (Control control in CorePanel.Controls)
+            int maxWidth = 0;
+            foreach (ToolStripMenuItem item in CoreMenu.Items)
             {
-                if (control.Location.Y + control.Height > lowestPoint)
-                    lowestPoint = control.Location.Y + control.Height;
+                var itemWidth = TextRenderer.MeasureText(item.Text, item.Font);
+                maxWidth = itemWidth.Width > maxWidth ? itemWidth.Width : maxWidth;
             }
-            DuplicateControlVisuals(PopupNotificationLabel, panel.Header);
-            panel.Header.TextAlign = PopupNotificationLabel.TextAlign;
-            panel.Header.Location = new Point(PopupNotificationLabel.Location.X, lowestPoint);
 
-            DuplicateControlVisuals(PopupSettingsPanel, panel, false);
-            panel.Location = new Point(PopupSettingsPanel.Location.X, lowestPoint + panel.Header.Height);
-            panel.Visible = false;
-            CorePanel.Controls.Add(panel.Header);
-            CorePanel.Controls.Add(panel);
+            return maxWidth + 5;
         }
+
+        private void PluginSettingsButton_Click(object sender, EventArgs e)
+        {
+            if (ListedPlugins != null && PluginList.SelectedItems.Count != 0)
+            {
+                var plugin = ListedPlugins[PluginList.SelectedItems[0]];
+                if (SettingsForms.ContainsKey(plugin))
+                {
+                    SettingsForms[plugin].Activate();
+                }
+                else
+                {
+                    SettingsForm settingsForm = new(plugin);
+                    SettingsForms.Add(plugin, settingsForm);
+                    settingsForm.FormClosed += (_, _) => SettingsForms.Remove(plugin);
+                    settingsForm.Show();
+                }
+            }
+        }
+
+        private Dictionary<IObservatoryPlugin, SettingsForm> SettingsForms = new();
     }
 }

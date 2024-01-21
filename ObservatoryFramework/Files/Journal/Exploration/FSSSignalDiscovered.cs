@@ -14,6 +14,10 @@
         /// </summary>
         public string SignalName_Localised { get; init; }
         /// <summary>
+        /// Type of signal location.
+        /// </summary>
+        public string SignalType { get; init; }
+        /// <summary>
         /// Faction state or circumstance that caused this signal to appear.
         /// </summary>
         public string SpawningState { get; init; }

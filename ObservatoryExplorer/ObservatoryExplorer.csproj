@@ -33,7 +33,7 @@
   </Target>
   
   <ItemGroup>
-    <PackageReference Include="NLua" Version="1.6.0" />
+    <PackageReference Include="NLua" Version="1.6.3" />
   </ItemGroup>
 
   <ItemGroup>

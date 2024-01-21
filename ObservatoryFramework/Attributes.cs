@@ -34,6 +34,20 @@ namespace Observatory.Framework
     }
 
     /// <summary>
+    /// Suggests default column width when building basic UI
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    public class ColumnSuggestedWidth : Attribute
+    { 
+        public ColumnSuggestedWidth(int width)
+        {
+            Width = width;
+        }
+
+        public int Width { get; } 
+    }
+
+    /// <summary>
     /// Indicates that the property should not be displayed to the user in the UI.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]

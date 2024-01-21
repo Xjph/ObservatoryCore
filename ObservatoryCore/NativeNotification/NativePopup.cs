@@ -1,5 +1,6 @@
 ﻿using Observatory.Framework;
 using Observatory.UI;
+using System;
 
 namespace Observatory.NativeNotification
 {
@@ -21,6 +22,11 @@ namespace Observatory.NativeNotification
 
                 notification.FormClosed += NotifyWindow_Closed;
 
+                foreach(var notificationForm in notifications)
+                {
+                    notificationForm.Value.AdjustOffset(true);
+                }
+
                 notifications.Add(notificationGuid, notification);
                 notification.Show();
             });
@@ -33,6 +39,11 @@ namespace Observatory.NativeNotification
             if (sender != null)
             {
                 var currentNotification = (NotificationForm)sender;
+
+                foreach (var notification in notifications.Where(n => n.Value.CreationTime < currentNotification.CreationTime))
+                {
+                    notification.Value.AdjustOffset(false);
+                }
 
                 if (notifications.ContainsKey(currentNotification.Guid))
                 {

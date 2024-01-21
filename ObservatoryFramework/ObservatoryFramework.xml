@@ -20,6 +20,11 @@
             Accessor to get/set displayed name.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.ColumnSuggestedWidth">
+            <summary>
+            Suggests default column width when building basic UI
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.SettingIgnore">
             <summary>
             Indicates that the property should not be displayed to the user in the UI.
@@ -487,6 +492,11 @@
         <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SignalName_Localised">
             <summary>
             Localised name of the signal type.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SignalType">
+            <summary>
+            Type of signal location.
             </summary>
         </member>
         <member name="P:Observatory.Framework.Files.Journal.FSSSignalDiscovered.SpawningState">
@@ -1005,6 +1015,61 @@
             Total amount made from selling data.
             </summary>
         </member>
+        <member name="P:Observatory.Framework.Files.Journal.CarrierJump.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Disembark.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Market.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Outfitting.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Shipyard.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.StoredModules.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.StoredShips.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Docked.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.DockingRequested.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Location.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Undocked.StationName">
+            <summary>
+            Name of the station at which this event occurred.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Files.CargoFile">
             <summary>
             Elite Dangerous cargo.json file. Describes the current cargo carried above the player's ship.
@@ -1352,8 +1417,13 @@
         </member>
         <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.ColumnSorter">
             <summary>
-            Plugin-specific object implementing the IComparer interface which is used to sort columns in the basic UI datagrid.
-            If omitted a basic string compare sorter is used.
+            <para>Plugin-specific object implementing the IComparer interface which is used to sort columns in the basic UI datagrid.</para>
+            <para>If omitted a natural sort order is used.</para>
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.HandlePluginMessage(System.String,System.String,System.Object)">
+            <summary>
+            Receives data sent by other plugins.
             </summary>
         </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
@@ -1411,6 +1481,18 @@
             Method called when other plugins send notification events to Observatory Core.
             </summary>
             <param name="notificationEventArgs">Details of the notification as sent from the originating worker plugin.</param>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryNotifier.OverrideAudioNotifications">
+            <summary>
+            Property set by notification plugins to indicate to Core 
+            that native audio notifications should be disabled/suppressed.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryNotifier.OverridePopupNotifications">
+            <summary>
+            Property set by notification plugins to indicate to Core 
+            that native popup notifications should be disabled/suppressed.
+            </summary>
         </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryCore">
             <summary>
@@ -1508,6 +1590,17 @@
         <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.PluginStorageFolder">
             <summary>
             Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.PlayAudioFile(System.String)">
+            <summary>
+            Plays audio file using default audio device.
+            </summary>
+            <param name="filePath">Absolute path to audio file.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendPluginMessage(Observatory.Framework.Interfaces.IObservatoryPlugin,System.Object)">
+            <summary>
+            Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
             </summary>
         </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryComparer">

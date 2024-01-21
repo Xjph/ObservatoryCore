@@ -22,8 +22,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.Security.Extensions" Version="1.2.0" />
-      <PackageReference Include="System.Speech" Version="7.0.0" />
+      <PackageReference Include="Microsoft.Security.Extensions" Version="1.3.0" />
+      <PackageReference Include="NAudio" Version="2.2.1" />
+      <PackageReference Include="System.Speech" Version="8.0.0" />
     </ItemGroup>
 	
 	<ItemGroup>
@@ -33,6 +34,11 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	<Compile Update="Assets\Resources.Designer.cs">
+	  <DesignTime>True</DesignTime>
+	  <AutoGen>True</AutoGen>
+	  <DependentUpon>Resources.resx</DependentUpon>
+	</Compile>
 	<Compile Update="Properties\Core.Designer.cs">
 		<DesignTimeSharedInput>True</DesignTimeSharedInput>
 		<AutoGen>True</AutoGen>
@@ -46,6 +52,10 @@
 	</ItemGroup>
 	
 	<ItemGroup>
+	  <EmbeddedResource Update="Assets\Resources.resx">
+	    <Generator>ResXFileCodeGenerator</Generator>
+	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+	  </EmbeddedResource>
 	  <EmbeddedResource Update="Properties\Resources.resx">
 	    <Generator>ResXFileCodeGenerator</Generator>
 	    <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -57,6 +67,10 @@
 			<Generator>SettingsSingleFileGenerator</Generator>
 			<LastGenOutput>Core.Designer.cs</LastGenOutput>
 		</None>
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Folder Include="Resources\" />
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">

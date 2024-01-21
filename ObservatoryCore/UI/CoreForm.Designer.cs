@@ -28,634 +28,577 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CoreForm));
-            this.CoreMenu = new System.Windows.Forms.MenuStrip();
-            this.coreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.CorePanel = new System.Windows.Forms.Panel();
-            this.VoiceSettingsPanel = new System.Windows.Forms.Panel();
-            this.VoiceSpeedSlider = new System.Windows.Forms.TrackBar();
-            this.VoiceVolumeSlider = new System.Windows.Forms.TrackBar();
-            this.VoiceTestButton = new System.Windows.Forms.Button();
-            this.VoiceCheckbox = new System.Windows.Forms.CheckBox();
-            this.VoiceDropdown = new System.Windows.Forms.ComboBox();
-            this.VoiceLabel = new System.Windows.Forms.Label();
-            this.VoiceSpeedLabel = new System.Windows.Forms.Label();
-            this.VoiceVolumeLabel = new System.Windows.Forms.Label();
-            this.VoiceNotificationLabel = new System.Windows.Forms.Label();
-            this.PopupSettingsPanel = new System.Windows.Forms.Panel();
-            this.DurationSpinner = new System.Windows.Forms.NumericUpDown();
-            this.ScaleSpinner = new System.Windows.Forms.NumericUpDown();
-            this.LabelColour = new System.Windows.Forms.Label();
-            this.TestButton = new System.Windows.Forms.Button();
-            this.ColourButton = new System.Windows.Forms.Button();
-            this.PopupCheckbox = new System.Windows.Forms.CheckBox();
-            this.LabelDuration = new System.Windows.Forms.Label();
-            this.LabelScale = new System.Windows.Forms.Label();
-            this.FontDropdown = new System.Windows.Forms.ComboBox();
-            this.LabelFont = new System.Windows.Forms.Label();
-            this.CornerDropdown = new System.Windows.Forms.ComboBox();
-            this.DisplayDropdown = new System.Windows.Forms.ComboBox();
-            this.CornerLabel = new System.Windows.Forms.Label();
-            this.DisplayLabel = new System.Windows.Forms.Label();
-            this.PopupNotificationLabel = new System.Windows.Forms.Label();
-            this.PluginFolderButton = new System.Windows.Forms.Button();
-            this.PluginList = new System.Windows.Forms.ListView();
-            this.NameColumn = new System.Windows.Forms.ColumnHeader();
-            this.TypeColumn = new System.Windows.Forms.ColumnHeader();
-            this.VersionColumn = new System.Windows.Forms.ColumnHeader();
-            this.StatusColumn = new System.Windows.Forms.ColumnHeader();
-            this.ReadAllButton = new System.Windows.Forms.Button();
-            this.ToggleMonitorButton = new System.Windows.Forms.Button();
-            this.ClearButton = new System.Windows.Forms.Button();
-            this.ExportButton = new System.Windows.Forms.Button();
-            this.GithubLink = new System.Windows.Forms.LinkLabel();
-            this.DonateLink = new System.Windows.Forms.LinkLabel();
-            this.PopupColour = new System.Windows.Forms.ColorDialog();
-            this.CoreMenu.SuspendLayout();
-            this.CorePanel.SuspendLayout();
-            this.VoiceSettingsPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.VoiceSpeedSlider)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.VoiceVolumeSlider)).BeginInit();
-            this.PopupSettingsPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.DurationSpinner)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ScaleSpinner)).BeginInit();
-            this.SuspendLayout();
+            CoreMenu = new MenuStrip();
+            coreToolStripMenuItem = new ToolStripMenuItem();
+            toolStripMenuItem1 = new ToolStripMenuItem();
+            CorePanel = new Panel();
+            ThemeLabel = new Label();
+            PluginSettingsButton = new Button();
+            VoiceSettingsPanel = new Panel();
+            VoiceSpeedSlider = new TrackBar();
+            VoiceVolumeSlider = new TrackBar();
+            VoiceTestButton = new Button();
+            VoiceCheckbox = new CheckBox();
+            VoiceDropdown = new ComboBox();
+            VoiceLabel = new Label();
+            VoiceSpeedLabel = new Label();
+            VoiceVolumeLabel = new Label();
+            VoiceNotificationLabel = new Label();
+            PopupSettingsPanel = new Panel();
+            DurationSpinner = new NumericUpDown();
+            ScaleSpinner = new NumericUpDown();
+            LabelColour = new Label();
+            TestButton = new Button();
+            ColourButton = new Button();
+            PopupCheckbox = new CheckBox();
+            LabelDuration = new Label();
+            LabelScale = new Label();
+            FontDropdown = new ComboBox();
+            LabelFont = new Label();
+            CornerDropdown = new ComboBox();
+            DisplayDropdown = new ComboBox();
+            CornerLabel = new Label();
+            DisplayLabel = new Label();
+            PopupNotificationLabel = new Label();
+            PluginFolderButton = new Button();
+            PluginList = new ListView();
+            NameColumn = new ColumnHeader();
+            TypeColumn = new ColumnHeader();
+            VersionColumn = new ColumnHeader();
+            StatusColumn = new ColumnHeader();
+            ReadAllButton = new Button();
+            ToggleMonitorButton = new Button();
+            ClearButton = new Button();
+            ExportButton = new Button();
+            GithubLink = new LinkLabel();
+            DonateLink = new LinkLabel();
+            PopupColour = new ColorDialog();
+            OverrideTooltip = new ToolTip(components);
+            CoreMenu.SuspendLayout();
+            CorePanel.SuspendLayout();
+            VoiceSettingsPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)VoiceVolumeSlider).BeginInit();
+            PopupSettingsPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)DurationSpinner).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)ScaleSpinner).BeginInit();
+            SuspendLayout();
             // 
             // CoreMenu
             // 
-            this.CoreMenu.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left)));
-            this.CoreMenu.AutoSize = false;
-            this.CoreMenu.BackColor = System.Drawing.Color.Black;
-            this.CoreMenu.Dock = System.Windows.Forms.DockStyle.None;
-            this.CoreMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.coreToolStripMenuItem,
-            this.toolStripMenuItem1});
-            this.CoreMenu.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.VerticalStackWithOverflow;
-            this.CoreMenu.Location = new System.Drawing.Point(0, 0);
-            this.CoreMenu.Name = "CoreMenu";
-            this.CoreMenu.Size = new System.Drawing.Size(120, 691);
-            this.CoreMenu.TabIndex = 0;
+            CoreMenu.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            CoreMenu.AutoSize = false;
+            CoreMenu.Dock = DockStyle.None;
+            CoreMenu.Items.AddRange(new ToolStripItem[] { coreToolStripMenuItem, toolStripMenuItem1 });
+            CoreMenu.LayoutStyle = ToolStripLayoutStyle.VerticalStackWithOverflow;
+            CoreMenu.Location = new Point(0, 0);
+            CoreMenu.Name = "CoreMenu";
+            CoreMenu.Size = new Size(120, 691);
+            CoreMenu.TabIndex = 0;
             // 
             // coreToolStripMenuItem
             // 
-            this.coreToolStripMenuItem.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.coreToolStripMenuItem.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.coreToolStripMenuItem.Name = "coreToolStripMenuItem";
-            this.coreToolStripMenuItem.Size = new System.Drawing.Size(113, 36);
-            this.coreToolStripMenuItem.Text = "Core";
-            this.coreToolStripMenuItem.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            coreToolStripMenuItem.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
+            coreToolStripMenuItem.Name = "coreToolStripMenuItem";
+            coreToolStripMenuItem.Size = new Size(113, 36);
+            coreToolStripMenuItem.Text = "Core";
+            coreToolStripMenuItem.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // toolStripMenuItem1
             // 
-            this.toolStripMenuItem1.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripMenuItem1.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.toolStripMenuItem1.ForeColor = System.Drawing.Color.Gainsboro;
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(113, 36);
-            this.toolStripMenuItem1.Text = "<";
-            this.toolStripMenuItem1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            toolStripMenuItem1.Alignment = ToolStripItemAlignment.Right;
+            toolStripMenuItem1.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
+            toolStripMenuItem1.Name = "toolStripMenuItem1";
+            toolStripMenuItem1.Size = new Size(113, 36);
+            toolStripMenuItem1.Text = "<";
+            toolStripMenuItem1.TextAlign = ContentAlignment.MiddleLeft;
             // 
             // CorePanel
             // 
-            this.CorePanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.CorePanel.AutoScroll = true;
-            this.CorePanel.Controls.Add(this.VoiceSettingsPanel);
-            this.CorePanel.Controls.Add(this.VoiceNotificationLabel);
-            this.CorePanel.Controls.Add(this.PopupSettingsPanel);
-            this.CorePanel.Controls.Add(this.PopupNotificationLabel);
-            this.CorePanel.Controls.Add(this.PluginFolderButton);
-            this.CorePanel.Controls.Add(this.PluginList);
-            this.CorePanel.Location = new System.Drawing.Point(123, 12);
-            this.CorePanel.Name = "CorePanel";
-            this.CorePanel.Size = new System.Drawing.Size(665, 679);
-            this.CorePanel.TabIndex = 1;
+            CorePanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            CorePanel.AutoScroll = true;
+            CorePanel.Controls.Add(ThemeLabel);
+            CorePanel.Controls.Add(PluginSettingsButton);
+            CorePanel.Controls.Add(VoiceSettingsPanel);
+            CorePanel.Controls.Add(VoiceNotificationLabel);
+            CorePanel.Controls.Add(PopupSettingsPanel);
+            CorePanel.Controls.Add(PopupNotificationLabel);
+            CorePanel.Controls.Add(PluginFolderButton);
+            CorePanel.Controls.Add(PluginList);
+            CorePanel.Location = new Point(123, 12);
+            CorePanel.Name = "CorePanel";
+            CorePanel.Size = new Size(665, 679);
+            CorePanel.TabIndex = 1;
+            // 
+            // ThemeLabel
+            // 
+            ThemeLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            ThemeLabel.BorderStyle = BorderStyle.FixedSingle;
+            ThemeLabel.Location = new Point(3, 603);
+            ThemeLabel.Name = "ThemeLabel";
+            ThemeLabel.Size = new Size(659, 23);
+            ThemeLabel.TabIndex = 7;
+            ThemeLabel.Text = "❯ Theme";
+            ThemeLabel.TextAlign = ContentAlignment.MiddleLeft;
+            // 
+            // PluginSettingsButton
+            // 
+            PluginSettingsButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            PluginSettingsButton.FlatAppearance.BorderSize = 0;
+            PluginSettingsButton.FlatStyle = FlatStyle.Flat;
+            PluginSettingsButton.Location = new Point(396, 140);
+            PluginSettingsButton.Name = "PluginSettingsButton";
+            PluginSettingsButton.Size = new Size(130, 23);
+            PluginSettingsButton.TabIndex = 6;
+            PluginSettingsButton.Text = "Plugin Settings";
+            PluginSettingsButton.UseVisualStyleBackColor = false;
+            PluginSettingsButton.Click += PluginSettingsButton_Click;
             // 
             // VoiceSettingsPanel
             // 
-            this.VoiceSettingsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.VoiceSettingsPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.VoiceSettingsPanel.Controls.Add(this.VoiceSpeedSlider);
-            this.VoiceSettingsPanel.Controls.Add(this.VoiceVolumeSlider);
-            this.VoiceSettingsPanel.Controls.Add(this.VoiceTestButton);
-            this.VoiceSettingsPanel.Controls.Add(this.VoiceCheckbox);
-            this.VoiceSettingsPanel.Controls.Add(this.VoiceDropdown);
-            this.VoiceSettingsPanel.Controls.Add(this.VoiceLabel);
-            this.VoiceSettingsPanel.Controls.Add(this.VoiceSpeedLabel);
-            this.VoiceSettingsPanel.Controls.Add(this.VoiceVolumeLabel);
-            this.VoiceSettingsPanel.Location = new System.Drawing.Point(3, 426);
-            this.VoiceSettingsPanel.Name = "VoiceSettingsPanel";
-            this.VoiceSettingsPanel.Size = new System.Drawing.Size(659, 177);
-            this.VoiceSettingsPanel.TabIndex = 5;
-            this.VoiceSettingsPanel.Visible = false;
+            VoiceSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            VoiceSettingsPanel.Controls.Add(VoiceSpeedSlider);
+            VoiceSettingsPanel.Controls.Add(VoiceVolumeSlider);
+            VoiceSettingsPanel.Controls.Add(VoiceTestButton);
+            VoiceSettingsPanel.Controls.Add(VoiceCheckbox);
+            VoiceSettingsPanel.Controls.Add(VoiceDropdown);
+            VoiceSettingsPanel.Controls.Add(VoiceLabel);
+            VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
+            VoiceSettingsPanel.Controls.Add(VoiceVolumeLabel);
+            VoiceSettingsPanel.Location = new Point(3, 426);
+            VoiceSettingsPanel.Name = "VoiceSettingsPanel";
+            VoiceSettingsPanel.Size = new Size(659, 177);
+            VoiceSettingsPanel.TabIndex = 5;
+            VoiceSettingsPanel.Visible = false;
             // 
             // VoiceSpeedSlider
             // 
-            this.VoiceSpeedSlider.Location = new System.Drawing.Point(121, 51);
-            this.VoiceSpeedSlider.Maximum = 100;
-            this.VoiceSpeedSlider.Name = "VoiceSpeedSlider";
-            this.VoiceSpeedSlider.Size = new System.Drawing.Size(120, 45);
-            this.VoiceSpeedSlider.TabIndex = 15;
-            this.VoiceSpeedSlider.TickFrequency = 10;
-            this.VoiceSpeedSlider.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.VoiceSpeedSlider.Value = 50;
-            this.VoiceSpeedSlider.Scroll += new System.EventHandler(this.VoiceSpeedSlider_Scroll);
+            VoiceSpeedSlider.Location = new Point(121, 51);
+            VoiceSpeedSlider.Maximum = 100;
+            VoiceSpeedSlider.Name = "VoiceSpeedSlider";
+            VoiceSpeedSlider.Size = new Size(120, 45);
+            VoiceSpeedSlider.TabIndex = 15;
+            VoiceSpeedSlider.TickFrequency = 10;
+            VoiceSpeedSlider.TickStyle = TickStyle.Both;
+            VoiceSpeedSlider.Value = 50;
+            VoiceSpeedSlider.Scroll += VoiceSpeedSlider_Scroll;
             // 
             // VoiceVolumeSlider
             // 
-            this.VoiceVolumeSlider.LargeChange = 10;
-            this.VoiceVolumeSlider.Location = new System.Drawing.Point(120, 0);
-            this.VoiceVolumeSlider.Maximum = 100;
-            this.VoiceVolumeSlider.Name = "VoiceVolumeSlider";
-            this.VoiceVolumeSlider.Size = new System.Drawing.Size(121, 45);
-            this.VoiceVolumeSlider.TabIndex = 14;
-            this.VoiceVolumeSlider.TickFrequency = 10;
-            this.VoiceVolumeSlider.TickStyle = System.Windows.Forms.TickStyle.Both;
-            this.VoiceVolumeSlider.Value = 100;
-            this.VoiceVolumeSlider.Scroll += new System.EventHandler(this.VoiceVolumeSlider_Scroll);
+            VoiceVolumeSlider.LargeChange = 10;
+            VoiceVolumeSlider.Location = new Point(120, 0);
+            VoiceVolumeSlider.Maximum = 100;
+            VoiceVolumeSlider.Name = "VoiceVolumeSlider";
+            VoiceVolumeSlider.Size = new Size(121, 45);
+            VoiceVolumeSlider.TabIndex = 14;
+            VoiceVolumeSlider.TickFrequency = 10;
+            VoiceVolumeSlider.TickStyle = TickStyle.Both;
+            VoiceVolumeSlider.Value = 100;
+            VoiceVolumeSlider.Scroll += VoiceVolumeSlider_Scroll;
             // 
             // VoiceTestButton
             // 
-            this.VoiceTestButton.BackColor = System.Drawing.Color.DimGray;
-            this.VoiceTestButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.VoiceTestButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.VoiceTestButton.Location = new System.Drawing.Point(190, 131);
-            this.VoiceTestButton.Name = "VoiceTestButton";
-            this.VoiceTestButton.Size = new System.Drawing.Size(51, 23);
-            this.VoiceTestButton.TabIndex = 13;
-            this.VoiceTestButton.Text = "Test";
-            this.VoiceTestButton.UseVisualStyleBackColor = false;
+            VoiceTestButton.FlatStyle = FlatStyle.Flat;
+            VoiceTestButton.Location = new Point(190, 131);
+            VoiceTestButton.Name = "VoiceTestButton";
+            VoiceTestButton.Size = new Size(51, 23);
+            VoiceTestButton.TabIndex = 13;
+            VoiceTestButton.Text = "Test";
+            VoiceTestButton.UseVisualStyleBackColor = false;
             // 
             // VoiceCheckbox
             // 
-            this.VoiceCheckbox.AutoSize = true;
-            this.VoiceCheckbox.ForeColor = System.Drawing.Color.Gainsboro;
-            this.VoiceCheckbox.Location = new System.Drawing.Point(120, 134);
-            this.VoiceCheckbox.Name = "VoiceCheckbox";
-            this.VoiceCheckbox.Size = new System.Drawing.Size(68, 19);
-            this.VoiceCheckbox.TabIndex = 11;
-            this.VoiceCheckbox.Text = "Enabled";
-            this.VoiceCheckbox.UseVisualStyleBackColor = true;
-            this.VoiceCheckbox.CheckedChanged += new System.EventHandler(this.VoiceCheckbox_CheckedChanged);
+            VoiceCheckbox.AutoSize = true;
+            VoiceCheckbox.Location = new Point(120, 134);
+            VoiceCheckbox.Name = "VoiceCheckbox";
+            VoiceCheckbox.Size = new Size(68, 19);
+            VoiceCheckbox.TabIndex = 11;
+            VoiceCheckbox.Text = "Enabled";
+            VoiceCheckbox.UseVisualStyleBackColor = true;
+            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
             // 
             // VoiceDropdown
             // 
-            this.VoiceDropdown.FormattingEnabled = true;
-            this.VoiceDropdown.Location = new System.Drawing.Point(121, 102);
-            this.VoiceDropdown.Name = "VoiceDropdown";
-            this.VoiceDropdown.Size = new System.Drawing.Size(121, 23);
-            this.VoiceDropdown.TabIndex = 5;
-            this.VoiceDropdown.SelectedIndexChanged += new System.EventHandler(this.VoiceDropdown_SelectedIndexChanged);
+            VoiceDropdown.FormattingEnabled = true;
+            VoiceDropdown.Location = new Point(121, 102);
+            VoiceDropdown.Name = "VoiceDropdown";
+            VoiceDropdown.Size = new Size(121, 23);
+            VoiceDropdown.TabIndex = 5;
+            VoiceDropdown.SelectedIndexChanged += VoiceDropdown_SelectedIndexChanged;
             // 
             // VoiceLabel
             // 
-            this.VoiceLabel.AutoSize = true;
-            this.VoiceLabel.ForeColor = System.Drawing.Color.Gainsboro;
-            this.VoiceLabel.Location = new System.Drawing.Point(77, 105);
-            this.VoiceLabel.Name = "VoiceLabel";
-            this.VoiceLabel.Size = new System.Drawing.Size(38, 15);
-            this.VoiceLabel.TabIndex = 4;
-            this.VoiceLabel.Text = "Voice:";
-            this.VoiceLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            VoiceLabel.AutoSize = true;
+            VoiceLabel.Location = new Point(77, 105);
+            VoiceLabel.Name = "VoiceLabel";
+            VoiceLabel.Size = new Size(38, 15);
+            VoiceLabel.TabIndex = 4;
+            VoiceLabel.Text = "Voice:";
+            VoiceLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // VoiceSpeedLabel
             // 
-            this.VoiceSpeedLabel.AutoSize = true;
-            this.VoiceSpeedLabel.ForeColor = System.Drawing.Color.Gainsboro;
-            this.VoiceSpeedLabel.Location = new System.Drawing.Point(73, 63);
-            this.VoiceSpeedLabel.Name = "VoiceSpeedLabel";
-            this.VoiceSpeedLabel.Size = new System.Drawing.Size(42, 15);
-            this.VoiceSpeedLabel.TabIndex = 1;
-            this.VoiceSpeedLabel.Text = "Speed:";
-            this.VoiceSpeedLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            VoiceSpeedLabel.AutoSize = true;
+            VoiceSpeedLabel.Location = new Point(73, 63);
+            VoiceSpeedLabel.Name = "VoiceSpeedLabel";
+            VoiceSpeedLabel.Size = new Size(42, 15);
+            VoiceSpeedLabel.TabIndex = 1;
+            VoiceSpeedLabel.Text = "Speed:";
+            VoiceSpeedLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // VoiceVolumeLabel
             // 
-            this.VoiceVolumeLabel.AutoSize = true;
-            this.VoiceVolumeLabel.ForeColor = System.Drawing.Color.Gainsboro;
-            this.VoiceVolumeLabel.Location = new System.Drawing.Point(64, 12);
-            this.VoiceVolumeLabel.Name = "VoiceVolumeLabel";
-            this.VoiceVolumeLabel.Size = new System.Drawing.Size(50, 15);
-            this.VoiceVolumeLabel.TabIndex = 0;
-            this.VoiceVolumeLabel.Text = "Volume:";
-            this.VoiceVolumeLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            VoiceVolumeLabel.AutoSize = true;
+            VoiceVolumeLabel.Location = new Point(64, 12);
+            VoiceVolumeLabel.Name = "VoiceVolumeLabel";
+            VoiceVolumeLabel.Size = new Size(50, 15);
+            VoiceVolumeLabel.TabIndex = 0;
+            VoiceVolumeLabel.Text = "Volume:";
+            VoiceVolumeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // VoiceNotificationLabel
             // 
-            this.VoiceNotificationLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.VoiceNotificationLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.VoiceNotificationLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.VoiceNotificationLabel.Location = new System.Drawing.Point(3, 403);
-            this.VoiceNotificationLabel.Name = "VoiceNotificationLabel";
-            this.VoiceNotificationLabel.Size = new System.Drawing.Size(659, 23);
-            this.VoiceNotificationLabel.TabIndex = 4;
-            this.VoiceNotificationLabel.Text = "❯ Voice Notifications";
-            this.VoiceNotificationLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.VoiceNotificationLabel.Click += new System.EventHandler(this.VoiceNotificationLabel_Click);
+            VoiceNotificationLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            VoiceNotificationLabel.BorderStyle = BorderStyle.FixedSingle;
+            VoiceNotificationLabel.Location = new Point(3, 403);
+            VoiceNotificationLabel.Name = "VoiceNotificationLabel";
+            VoiceNotificationLabel.Size = new Size(659, 23);
+            VoiceNotificationLabel.TabIndex = 4;
+            VoiceNotificationLabel.Text = "❯ Voice Notifications";
+            VoiceNotificationLabel.TextAlign = ContentAlignment.MiddleLeft;
+            VoiceNotificationLabel.Click += VoiceNotificationLabel_Click;
             // 
             // PopupSettingsPanel
             // 
-            this.PopupSettingsPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.PopupSettingsPanel.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.PopupSettingsPanel.Controls.Add(this.DurationSpinner);
-            this.PopupSettingsPanel.Controls.Add(this.ScaleSpinner);
-            this.PopupSettingsPanel.Controls.Add(this.LabelColour);
-            this.PopupSettingsPanel.Controls.Add(this.TestButton);
-            this.PopupSettingsPanel.Controls.Add(this.ColourButton);
-            this.PopupSettingsPanel.Controls.Add(this.PopupCheckbox);
-            this.PopupSettingsPanel.Controls.Add(this.LabelDuration);
-            this.PopupSettingsPanel.Controls.Add(this.LabelScale);
-            this.PopupSettingsPanel.Controls.Add(this.FontDropdown);
-            this.PopupSettingsPanel.Controls.Add(this.LabelFont);
-            this.PopupSettingsPanel.Controls.Add(this.CornerDropdown);
-            this.PopupSettingsPanel.Controls.Add(this.DisplayDropdown);
-            this.PopupSettingsPanel.Controls.Add(this.CornerLabel);
-            this.PopupSettingsPanel.Controls.Add(this.DisplayLabel);
-            this.PopupSettingsPanel.Location = new System.Drawing.Point(3, 195);
-            this.PopupSettingsPanel.Name = "PopupSettingsPanel";
-            this.PopupSettingsPanel.Size = new System.Drawing.Size(659, 208);
-            this.PopupSettingsPanel.TabIndex = 3;
-            this.PopupSettingsPanel.Visible = false;
+            PopupSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PopupSettingsPanel.Controls.Add(DurationSpinner);
+            PopupSettingsPanel.Controls.Add(ScaleSpinner);
+            PopupSettingsPanel.Controls.Add(LabelColour);
+            PopupSettingsPanel.Controls.Add(TestButton);
+            PopupSettingsPanel.Controls.Add(ColourButton);
+            PopupSettingsPanel.Controls.Add(PopupCheckbox);
+            PopupSettingsPanel.Controls.Add(LabelDuration);
+            PopupSettingsPanel.Controls.Add(LabelScale);
+            PopupSettingsPanel.Controls.Add(FontDropdown);
+            PopupSettingsPanel.Controls.Add(LabelFont);
+            PopupSettingsPanel.Controls.Add(CornerDropdown);
+            PopupSettingsPanel.Controls.Add(DisplayDropdown);
+            PopupSettingsPanel.Controls.Add(CornerLabel);
+            PopupSettingsPanel.Controls.Add(DisplayLabel);
+            PopupSettingsPanel.Location = new Point(3, 195);
+            PopupSettingsPanel.Name = "PopupSettingsPanel";
+            PopupSettingsPanel.Size = new Size(659, 208);
+            PopupSettingsPanel.TabIndex = 3;
+            PopupSettingsPanel.Visible = false;
             // 
             // DurationSpinner
             // 
-            this.DurationSpinner.BackColor = System.Drawing.Color.DimGray;
-            this.DurationSpinner.ForeColor = System.Drawing.Color.Gainsboro;
-            this.DurationSpinner.Increment = new decimal(new int[] {
-            25,
-            0,
-            0,
-            0});
-            this.DurationSpinner.Location = new System.Drawing.Point(121, 119);
-            this.DurationSpinner.Maximum = new decimal(new int[] {
-            60000,
-            0,
-            0,
-            0});
-            this.DurationSpinner.Minimum = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.DurationSpinner.Name = "DurationSpinner";
-            this.DurationSpinner.Size = new System.Drawing.Size(120, 23);
-            this.DurationSpinner.TabIndex = 15;
-            this.DurationSpinner.Value = new decimal(new int[] {
-            8000,
-            0,
-            0,
-            0});
-            this.DurationSpinner.ValueChanged += new System.EventHandler(this.DurationSpinner_ValueChanged);
+            DurationSpinner.Increment = new decimal(new int[] { 25, 0, 0, 0 });
+            DurationSpinner.Location = new Point(121, 119);
+            DurationSpinner.Maximum = new decimal(new int[] { 60000, 0, 0, 0 });
+            DurationSpinner.Minimum = new decimal(new int[] { 100, 0, 0, 0 });
+            DurationSpinner.Name = "DurationSpinner";
+            DurationSpinner.Size = new Size(120, 23);
+            DurationSpinner.TabIndex = 15;
+            DurationSpinner.Value = new decimal(new int[] { 8000, 0, 0, 0 });
+            DurationSpinner.ValueChanged += DurationSpinner_ValueChanged;
             // 
             // ScaleSpinner
             // 
-            this.ScaleSpinner.BackColor = System.Drawing.Color.DimGray;
-            this.ScaleSpinner.ForeColor = System.Drawing.Color.Gainsboro;
-            this.ScaleSpinner.Location = new System.Drawing.Point(121, 90);
-            this.ScaleSpinner.Maximum = new decimal(new int[] {
-            500,
-            0,
-            0,
-            0});
-            this.ScaleSpinner.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.ScaleSpinner.Name = "ScaleSpinner";
-            this.ScaleSpinner.Size = new System.Drawing.Size(120, 23);
-            this.ScaleSpinner.TabIndex = 14;
-            this.ScaleSpinner.Value = new decimal(new int[] {
-            100,
-            0,
-            0,
-            0});
-            this.ScaleSpinner.ValueChanged += new System.EventHandler(this.ScaleSpinner_ValueChanged);
+            ScaleSpinner.Location = new Point(121, 90);
+            ScaleSpinner.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
+            ScaleSpinner.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            ScaleSpinner.Name = "ScaleSpinner";
+            ScaleSpinner.Size = new Size(120, 23);
+            ScaleSpinner.TabIndex = 14;
+            ScaleSpinner.Value = new decimal(new int[] { 100, 0, 0, 0 });
+            ScaleSpinner.ValueChanged += ScaleSpinner_ValueChanged;
             // 
             // LabelColour
             // 
-            this.LabelColour.AutoSize = true;
-            this.LabelColour.ForeColor = System.Drawing.Color.Gainsboro;
-            this.LabelColour.Location = new System.Drawing.Point(68, 152);
-            this.LabelColour.Name = "LabelColour";
-            this.LabelColour.Size = new System.Drawing.Size(46, 15);
-            this.LabelColour.TabIndex = 13;
-            this.LabelColour.Text = "Colour:";
-            this.LabelColour.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            LabelColour.AutoSize = true;
+            LabelColour.Location = new Point(68, 152);
+            LabelColour.Name = "LabelColour";
+            LabelColour.Size = new Size(46, 15);
+            LabelColour.TabIndex = 13;
+            LabelColour.Text = "Colour:";
+            LabelColour.TextAlign = ContentAlignment.MiddleRight;
             // 
             // TestButton
             // 
-            this.TestButton.BackColor = System.Drawing.Color.DimGray;
-            this.TestButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.TestButton.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.TestButton.Location = new System.Drawing.Point(190, 148);
-            this.TestButton.Name = "TestButton";
-            this.TestButton.Size = new System.Drawing.Size(51, 23);
-            this.TestButton.TabIndex = 12;
-            this.TestButton.Text = "Test";
-            this.TestButton.UseVisualStyleBackColor = false;
-            this.TestButton.Click += new System.EventHandler(this.TestButton_Click);
+            TestButton.FlatStyle = FlatStyle.Flat;
+            TestButton.Location = new Point(190, 148);
+            TestButton.Name = "TestButton";
+            TestButton.Size = new Size(51, 23);
+            TestButton.TabIndex = 12;
+            TestButton.Text = "Test";
+            TestButton.UseVisualStyleBackColor = false;
+            TestButton.Click += TestButton_Click;
             // 
             // ColourButton
             // 
-            this.ColourButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.ColourButton.Location = new System.Drawing.Point(121, 148);
-            this.ColourButton.Name = "ColourButton";
-            this.ColourButton.Size = new System.Drawing.Size(51, 23);
-            this.ColourButton.TabIndex = 11;
-            this.ColourButton.UseVisualStyleBackColor = true;
-            this.ColourButton.Click += new System.EventHandler(this.ColourButton_Click);
+            ColourButton.FlatStyle = FlatStyle.Flat;
+            ColourButton.Location = new Point(121, 148);
+            ColourButton.Name = "ColourButton";
+            ColourButton.Size = new Size(51, 23);
+            ColourButton.TabIndex = 11;
+            ColourButton.UseVisualStyleBackColor = true;
+            ColourButton.Click += ColourButton_Click;
             // 
             // PopupCheckbox
             // 
-            this.PopupCheckbox.AutoSize = true;
-            this.PopupCheckbox.ForeColor = System.Drawing.Color.Gainsboro;
-            this.PopupCheckbox.Location = new System.Drawing.Point(120, 177);
-            this.PopupCheckbox.Name = "PopupCheckbox";
-            this.PopupCheckbox.Size = new System.Drawing.Size(68, 19);
-            this.PopupCheckbox.TabIndex = 10;
-            this.PopupCheckbox.Text = "Enabled";
-            this.PopupCheckbox.UseVisualStyleBackColor = true;
-            this.PopupCheckbox.CheckedChanged += new System.EventHandler(this.PopupCheckbox_CheckedChanged);
+            PopupCheckbox.AutoSize = true;
+            PopupCheckbox.Location = new Point(120, 177);
+            PopupCheckbox.Name = "PopupCheckbox";
+            PopupCheckbox.Size = new Size(68, 19);
+            PopupCheckbox.TabIndex = 10;
+            PopupCheckbox.Text = "Enabled";
+            PopupCheckbox.UseVisualStyleBackColor = true;
+            PopupCheckbox.CheckedChanged += PopupCheckbox_CheckedChanged;
             // 
             // LabelDuration
             // 
-            this.LabelDuration.AutoSize = true;
-            this.LabelDuration.ForeColor = System.Drawing.Color.Gainsboro;
-            this.LabelDuration.Location = new System.Drawing.Point(32, 121);
-            this.LabelDuration.Name = "LabelDuration";
-            this.LabelDuration.Size = new System.Drawing.Size(83, 15);
-            this.LabelDuration.TabIndex = 9;
-            this.LabelDuration.Text = "Duration (ms):";
-            this.LabelDuration.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            LabelDuration.AutoSize = true;
+            LabelDuration.Location = new Point(32, 121);
+            LabelDuration.Name = "LabelDuration";
+            LabelDuration.Size = new Size(83, 15);
+            LabelDuration.TabIndex = 9;
+            LabelDuration.Text = "Duration (ms):";
+            LabelDuration.TextAlign = ContentAlignment.MiddleRight;
             // 
             // LabelScale
             // 
-            this.LabelScale.AutoSize = true;
-            this.LabelScale.ForeColor = System.Drawing.Color.Gainsboro;
-            this.LabelScale.Location = new System.Drawing.Point(57, 92);
-            this.LabelScale.Name = "LabelScale";
-            this.LabelScale.Size = new System.Drawing.Size(58, 15);
-            this.LabelScale.TabIndex = 7;
-            this.LabelScale.Text = "Scale (%):";
-            this.LabelScale.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            LabelScale.AutoSize = true;
+            LabelScale.Location = new Point(57, 92);
+            LabelScale.Name = "LabelScale";
+            LabelScale.Size = new Size(58, 15);
+            LabelScale.TabIndex = 7;
+            LabelScale.Text = "Scale (%):";
+            LabelScale.TextAlign = ContentAlignment.MiddleRight;
             // 
             // FontDropdown
             // 
-            this.FontDropdown.FormattingEnabled = true;
-            this.FontDropdown.Location = new System.Drawing.Point(120, 61);
-            this.FontDropdown.Name = "FontDropdown";
-            this.FontDropdown.Size = new System.Drawing.Size(121, 23);
-            this.FontDropdown.TabIndex = 5;
-            this.FontDropdown.SelectedIndexChanged += new System.EventHandler(this.FontDropdown_SelectedIndexChanged);
+            FontDropdown.FormattingEnabled = true;
+            FontDropdown.Location = new Point(120, 61);
+            FontDropdown.Name = "FontDropdown";
+            FontDropdown.Size = new Size(121, 23);
+            FontDropdown.TabIndex = 5;
+            FontDropdown.SelectedIndexChanged += FontDropdown_SelectedIndexChanged;
             // 
             // LabelFont
             // 
-            this.LabelFont.AutoSize = true;
-            this.LabelFont.ForeColor = System.Drawing.Color.Gainsboro;
-            this.LabelFont.Location = new System.Drawing.Point(80, 64);
-            this.LabelFont.Name = "LabelFont";
-            this.LabelFont.Size = new System.Drawing.Size(34, 15);
-            this.LabelFont.TabIndex = 4;
-            this.LabelFont.Text = "Font:";
-            this.LabelFont.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            LabelFont.AutoSize = true;
+            LabelFont.Location = new Point(80, 64);
+            LabelFont.Name = "LabelFont";
+            LabelFont.Size = new Size(34, 15);
+            LabelFont.TabIndex = 4;
+            LabelFont.Text = "Font:";
+            LabelFont.TextAlign = ContentAlignment.MiddleRight;
             // 
             // CornerDropdown
             // 
-            this.CornerDropdown.FormattingEnabled = true;
-            this.CornerDropdown.Items.AddRange(new object[] {
-            "Bottom-Right",
-            "Bottom-Left",
-            "Top-Right",
-            "Top-Left"});
-            this.CornerDropdown.Location = new System.Drawing.Point(120, 32);
-            this.CornerDropdown.Name = "CornerDropdown";
-            this.CornerDropdown.Size = new System.Drawing.Size(121, 23);
-            this.CornerDropdown.TabIndex = 3;
-            this.CornerDropdown.SelectedIndexChanged += new System.EventHandler(this.CornerDropdown_SelectedIndexChanged);
+            CornerDropdown.FormattingEnabled = true;
+            CornerDropdown.Items.AddRange(new object[] { "Bottom-Right", "Bottom-Left", "Top-Right", "Top-Left" });
+            CornerDropdown.Location = new Point(120, 32);
+            CornerDropdown.Name = "CornerDropdown";
+            CornerDropdown.Size = new Size(121, 23);
+            CornerDropdown.TabIndex = 3;
+            CornerDropdown.SelectedIndexChanged += CornerDropdown_SelectedIndexChanged;
             // 
             // DisplayDropdown
             // 
-            this.DisplayDropdown.FormattingEnabled = true;
-            this.DisplayDropdown.Location = new System.Drawing.Point(120, 3);
-            this.DisplayDropdown.Name = "DisplayDropdown";
-            this.DisplayDropdown.Size = new System.Drawing.Size(121, 23);
-            this.DisplayDropdown.TabIndex = 2;
-            this.DisplayDropdown.SelectedIndexChanged += new System.EventHandler(this.DisplayDropdown_SelectedIndexChanged);
+            DisplayDropdown.FormattingEnabled = true;
+            DisplayDropdown.Location = new Point(120, 3);
+            DisplayDropdown.Name = "DisplayDropdown";
+            DisplayDropdown.Size = new Size(121, 23);
+            DisplayDropdown.TabIndex = 2;
+            DisplayDropdown.SelectedIndexChanged += DisplayDropdown_SelectedIndexChanged;
             // 
             // CornerLabel
             // 
-            this.CornerLabel.AutoSize = true;
-            this.CornerLabel.ForeColor = System.Drawing.Color.Gainsboro;
-            this.CornerLabel.Location = new System.Drawing.Point(68, 35);
-            this.CornerLabel.Name = "CornerLabel";
-            this.CornerLabel.Size = new System.Drawing.Size(46, 15);
-            this.CornerLabel.TabIndex = 1;
-            this.CornerLabel.Text = "Corner:";
-            this.CornerLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            CornerLabel.AutoSize = true;
+            CornerLabel.Location = new Point(68, 35);
+            CornerLabel.Name = "CornerLabel";
+            CornerLabel.Size = new Size(46, 15);
+            CornerLabel.TabIndex = 1;
+            CornerLabel.Text = "Corner:";
+            CornerLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // DisplayLabel
             // 
-            this.DisplayLabel.AutoSize = true;
-            this.DisplayLabel.ForeColor = System.Drawing.Color.Gainsboro;
-            this.DisplayLabel.Location = new System.Drawing.Point(66, 6);
-            this.DisplayLabel.Name = "DisplayLabel";
-            this.DisplayLabel.Size = new System.Drawing.Size(48, 15);
-            this.DisplayLabel.TabIndex = 0;
-            this.DisplayLabel.Text = "Display:";
-            this.DisplayLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            DisplayLabel.AutoSize = true;
+            DisplayLabel.Location = new Point(66, 6);
+            DisplayLabel.Name = "DisplayLabel";
+            DisplayLabel.Size = new Size(48, 15);
+            DisplayLabel.TabIndex = 0;
+            DisplayLabel.Text = "Display:";
+            DisplayLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // PopupNotificationLabel
             // 
-            this.PopupNotificationLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.PopupNotificationLabel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.PopupNotificationLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.PopupNotificationLabel.Location = new System.Drawing.Point(3, 172);
-            this.PopupNotificationLabel.Name = "PopupNotificationLabel";
-            this.PopupNotificationLabel.Size = new System.Drawing.Size(659, 23);
-            this.PopupNotificationLabel.TabIndex = 2;
-            this.PopupNotificationLabel.Text = "❯ Popup Notifications";
-            this.PopupNotificationLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.PopupNotificationLabel.Click += new System.EventHandler(this.PopupNotificationLabel_Click);
+            PopupNotificationLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PopupNotificationLabel.BorderStyle = BorderStyle.FixedSingle;
+            PopupNotificationLabel.Location = new Point(3, 172);
+            PopupNotificationLabel.Name = "PopupNotificationLabel";
+            PopupNotificationLabel.Size = new Size(659, 23);
+            PopupNotificationLabel.TabIndex = 2;
+            PopupNotificationLabel.Text = "❯ Popup Notifications";
+            PopupNotificationLabel.TextAlign = ContentAlignment.MiddleLeft;
+            PopupNotificationLabel.Click += PopupNotificationLabel_Click;
             // 
             // PluginFolderButton
             // 
-            this.PluginFolderButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.PluginFolderButton.BackColor = System.Drawing.Color.DimGray;
-            this.PluginFolderButton.FlatAppearance.BorderSize = 0;
-            this.PluginFolderButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.PluginFolderButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.PluginFolderButton.Location = new System.Drawing.Point(532, 140);
-            this.PluginFolderButton.Name = "PluginFolderButton";
-            this.PluginFolderButton.Size = new System.Drawing.Size(130, 23);
-            this.PluginFolderButton.TabIndex = 1;
-            this.PluginFolderButton.Text = "Open Plugin Folder";
-            this.PluginFolderButton.UseVisualStyleBackColor = false;
+            PluginFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            PluginFolderButton.FlatAppearance.BorderSize = 0;
+            PluginFolderButton.FlatStyle = FlatStyle.Flat;
+            PluginFolderButton.Location = new Point(532, 140);
+            PluginFolderButton.Name = "PluginFolderButton";
+            PluginFolderButton.Size = new Size(130, 23);
+            PluginFolderButton.TabIndex = 1;
+            PluginFolderButton.Text = "Open Plugin Folder";
+            PluginFolderButton.UseVisualStyleBackColor = false;
             // 
             // PluginList
             // 
-            this.PluginList.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.PluginList.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.PluginList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.PluginList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
-            this.NameColumn,
-            this.TypeColumn,
-            this.VersionColumn,
-            this.StatusColumn});
-            this.PluginList.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.PluginList.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
-            this.PluginList.Location = new System.Drawing.Point(3, 3);
-            this.PluginList.MultiSelect = false;
-            this.PluginList.Name = "PluginList";
-            this.PluginList.OwnerDraw = true;
-            this.PluginList.Scrollable = false;
-            this.PluginList.Size = new System.Drawing.Size(659, 137);
-            this.PluginList.TabIndex = 0;
-            this.PluginList.UseCompatibleStateImageBehavior = false;
-            this.PluginList.View = System.Windows.Forms.View.Details;
-            this.PluginList.Resize += new System.EventHandler(this.PluginList_Resize);
+            PluginList.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PluginList.BorderStyle = BorderStyle.None;
+            PluginList.Columns.AddRange(new ColumnHeader[] { NameColumn, TypeColumn, VersionColumn, StatusColumn });
+            PluginList.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+            PluginList.ImeMode = ImeMode.NoControl;
+            PluginList.Location = new Point(3, 3);
+            PluginList.MultiSelect = false;
+            PluginList.Name = "PluginList";
+            PluginList.OwnerDraw = true;
+            PluginList.Scrollable = false;
+            PluginList.Size = new Size(659, 137);
+            PluginList.TabIndex = 0;
+            PluginList.UseCompatibleStateImageBehavior = false;
+            PluginList.View = View.Details;
+            PluginList.Resize += PluginList_Resize;
             // 
             // NameColumn
             // 
-            this.NameColumn.Text = "Plugin";
-            this.NameColumn.Width = 180;
+            NameColumn.Text = "Plugin";
+            NameColumn.Width = 180;
             // 
             // TypeColumn
             // 
-            this.TypeColumn.Text = "Type";
-            this.TypeColumn.Width = 120;
+            TypeColumn.Text = "Type";
+            TypeColumn.Width = 120;
             // 
             // VersionColumn
             // 
-            this.VersionColumn.Text = "Version";
-            this.VersionColumn.Width = 120;
+            VersionColumn.Text = "Version";
+            VersionColumn.Width = 120;
             // 
             // StatusColumn
             // 
-            this.StatusColumn.Text = "Status";
+            StatusColumn.Text = "Status";
             // 
             // ReadAllButton
             // 
-            this.ReadAllButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ReadAllButton.BackColor = System.Drawing.Color.DimGray;
-            this.ReadAllButton.FlatAppearance.BorderSize = 0;
-            this.ReadAllButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.ReadAllButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.ReadAllButton.Location = new System.Drawing.Point(713, 698);
-            this.ReadAllButton.Name = "ReadAllButton";
-            this.ReadAllButton.Size = new System.Drawing.Size(75, 23);
-            this.ReadAllButton.TabIndex = 2;
-            this.ReadAllButton.Text = "Read All";
-            this.ReadAllButton.UseVisualStyleBackColor = false;
-            this.ReadAllButton.Click += new System.EventHandler(this.ReadAllButton_Click);
+            ReadAllButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            ReadAllButton.FlatAppearance.BorderSize = 0;
+            ReadAllButton.FlatStyle = FlatStyle.Flat;
+            ReadAllButton.Location = new Point(713, 698);
+            ReadAllButton.Name = "ReadAllButton";
+            ReadAllButton.Size = new Size(75, 23);
+            ReadAllButton.TabIndex = 2;
+            ReadAllButton.Text = "Read All";
+            ReadAllButton.UseVisualStyleBackColor = false;
+            ReadAllButton.Click += ReadAllButton_Click;
             // 
             // ToggleMonitorButton
             // 
-            this.ToggleMonitorButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ToggleMonitorButton.BackColor = System.Drawing.Color.DimGray;
-            this.ToggleMonitorButton.FlatAppearance.BorderSize = 0;
-            this.ToggleMonitorButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.ToggleMonitorButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.ToggleMonitorButton.Location = new System.Drawing.Point(610, 698);
-            this.ToggleMonitorButton.Name = "ToggleMonitorButton";
-            this.ToggleMonitorButton.Size = new System.Drawing.Size(97, 23);
-            this.ToggleMonitorButton.TabIndex = 3;
-            this.ToggleMonitorButton.Text = "Start Monitor";
-            this.ToggleMonitorButton.UseVisualStyleBackColor = false;
-            this.ToggleMonitorButton.Click += new System.EventHandler(this.ToggleMonitorButton_Click);
+            ToggleMonitorButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            ToggleMonitorButton.FlatAppearance.BorderSize = 0;
+            ToggleMonitorButton.FlatStyle = FlatStyle.Flat;
+            ToggleMonitorButton.Location = new Point(610, 698);
+            ToggleMonitorButton.Name = "ToggleMonitorButton";
+            ToggleMonitorButton.Size = new Size(97, 23);
+            ToggleMonitorButton.TabIndex = 3;
+            ToggleMonitorButton.Text = "Start Monitor";
+            ToggleMonitorButton.UseVisualStyleBackColor = false;
+            ToggleMonitorButton.Click += ToggleMonitorButton_Click;
             // 
             // ClearButton
             // 
-            this.ClearButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ClearButton.BackColor = System.Drawing.Color.DimGray;
-            this.ClearButton.FlatAppearance.BorderSize = 0;
-            this.ClearButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.ClearButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.ClearButton.Location = new System.Drawing.Point(529, 698);
-            this.ClearButton.Name = "ClearButton";
-            this.ClearButton.Size = new System.Drawing.Size(75, 23);
-            this.ClearButton.TabIndex = 4;
-            this.ClearButton.Text = "Clear";
-            this.ClearButton.UseVisualStyleBackColor = false;
+            ClearButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            ClearButton.FlatAppearance.BorderSize = 0;
+            ClearButton.FlatStyle = FlatStyle.Flat;
+            ClearButton.Location = new Point(529, 698);
+            ClearButton.Name = "ClearButton";
+            ClearButton.Size = new Size(75, 23);
+            ClearButton.TabIndex = 4;
+            ClearButton.Text = "Clear";
+            ClearButton.UseVisualStyleBackColor = false;
             // 
             // ExportButton
             // 
-            this.ExportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ExportButton.BackColor = System.Drawing.Color.DimGray;
-            this.ExportButton.FlatAppearance.BorderSize = 0;
-            this.ExportButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.ExportButton.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(224)))), ((int)(((byte)(224)))), ((int)(((byte)(224)))));
-            this.ExportButton.Location = new System.Drawing.Point(448, 698);
-            this.ExportButton.Name = "ExportButton";
-            this.ExportButton.Size = new System.Drawing.Size(75, 23);
-            this.ExportButton.TabIndex = 5;
-            this.ExportButton.Text = "Export";
-            this.ExportButton.UseVisualStyleBackColor = false;
+            ExportButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            ExportButton.FlatAppearance.BorderSize = 0;
+            ExportButton.FlatStyle = FlatStyle.Flat;
+            ExportButton.Location = new Point(448, 698);
+            ExportButton.Name = "ExportButton";
+            ExportButton.Size = new Size(75, 23);
+            ExportButton.TabIndex = 5;
+            ExportButton.Text = "Export";
+            ExportButton.UseVisualStyleBackColor = false;
             // 
             // GithubLink
             // 
-            this.GithubLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.GithubLink.AutoSize = true;
-            this.GithubLink.LinkColor = System.Drawing.Color.White;
-            this.GithubLink.Location = new System.Drawing.Point(12, 694);
-            this.GithubLink.Name = "GithubLink";
-            this.GithubLink.Size = new System.Drawing.Size(42, 15);
-            this.GithubLink.TabIndex = 6;
-            this.GithubLink.TabStop = true;
-            this.GithubLink.Text = "github";
+            GithubLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            GithubLink.AutoSize = true;
+            GithubLink.Location = new Point(12, 694);
+            GithubLink.Name = "GithubLink";
+            GithubLink.Size = new Size(42, 15);
+            GithubLink.TabIndex = 6;
+            GithubLink.TabStop = true;
+            GithubLink.Text = "github";
             // 
             // DonateLink
             // 
-            this.DonateLink.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.DonateLink.AutoSize = true;
-            this.DonateLink.LinkColor = System.Drawing.Color.White;
-            this.DonateLink.Location = new System.Drawing.Point(12, 709);
-            this.DonateLink.Name = "DonateLink";
-            this.DonateLink.Size = new System.Drawing.Size(45, 15);
-            this.DonateLink.TabIndex = 7;
-            this.DonateLink.TabStop = true;
-            this.DonateLink.Text = "Donate";
+            DonateLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            DonateLink.AutoSize = true;
+            DonateLink.Location = new Point(12, 709);
+            DonateLink.Name = "DonateLink";
+            DonateLink.Size = new Size(45, 15);
+            DonateLink.TabIndex = 7;
+            DonateLink.TabStop = true;
+            DonateLink.Text = "Donate";
             // 
             // CoreForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(800, 733);
-            this.Controls.Add(this.DonateLink);
-            this.Controls.Add(this.GithubLink);
-            this.Controls.Add(this.ExportButton);
-            this.Controls.Add(this.ClearButton);
-            this.Controls.Add(this.ToggleMonitorButton);
-            this.Controls.Add(this.ReadAllButton);
-            this.Controls.Add(this.CorePanel);
-            this.Controls.Add(this.CoreMenu);
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MainMenuStrip = this.CoreMenu;
-            this.Name = "CoreForm";
-            this.Text = "Elite Observatory Core";
-            this.CoreMenu.ResumeLayout(false);
-            this.CoreMenu.PerformLayout();
-            this.CorePanel.ResumeLayout(false);
-            this.VoiceSettingsPanel.ResumeLayout(false);
-            this.VoiceSettingsPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.VoiceSpeedSlider)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.VoiceVolumeSlider)).EndInit();
-            this.PopupSettingsPanel.ResumeLayout(false);
-            this.PopupSettingsPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.DurationSpinner)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.ScaleSpinner)).EndInit();
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(800, 733);
+            Controls.Add(DonateLink);
+            Controls.Add(GithubLink);
+            Controls.Add(ExportButton);
+            Controls.Add(ClearButton);
+            Controls.Add(ToggleMonitorButton);
+            Controls.Add(ReadAllButton);
+            Controls.Add(CorePanel);
+            Controls.Add(CoreMenu);
+            Icon = (Icon)resources.GetObject("$this.Icon");
+            MainMenuStrip = CoreMenu;
+            Name = "CoreForm";
+            Text = "Elite Observatory Core";
+            CoreMenu.ResumeLayout(false);
+            CoreMenu.PerformLayout();
+            CorePanel.ResumeLayout(false);
+            VoiceSettingsPanel.ResumeLayout(false);
+            VoiceSettingsPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).EndInit();
+            ((System.ComponentModel.ISupportInitialize)VoiceVolumeSlider).EndInit();
+            PopupSettingsPanel.ResumeLayout(false);
+            PopupSettingsPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)DurationSpinner).EndInit();
+            ((System.ComponentModel.ISupportInitialize)ScaleSpinner).EndInit();
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -703,5 +646,8 @@
         private Label VoiceSpeedLabel;
         private Label VoiceVolumeLabel;
         private Label VoiceNotificationLabel;
+        private Button PluginSettingsButton;
+        private Label ThemeLabel;
+        private ToolTip OverrideTooltip;
     }
 }

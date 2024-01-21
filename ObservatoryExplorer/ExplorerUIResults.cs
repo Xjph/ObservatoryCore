@@ -1,16 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Observatory.Framework;
 
 namespace Observatory.Explorer
 {
     public class ExplorerUIResults
     {
+        [ColumnSuggestedWidth(150)]
         public string Time { get; set; }
+
+        [ColumnSuggestedWidth(150)]
         public string BodyName { get; set; }
+
+        [ColumnSuggestedWidth(200)]
         public string Description { get; set; }
+
+        [ColumnSuggestedWidth(200)]
         public string Details { get; set; }
     }
 }

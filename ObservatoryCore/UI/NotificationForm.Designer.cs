@@ -28,55 +28,54 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.Title = new System.Windows.Forms.Label();
-            this.Body = new System.Windows.Forms.Label();
-            this.SuspendLayout();
+            Title = new Label();
+            Body = new Label();
+            SuspendLayout();
             // 
             // Title
             // 
-            this.Title.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.Title.ForeColor = System.Drawing.Color.OrangeRed;
-            this.Title.Location = new System.Drawing.Point(5, 5);
-            this.Title.MaximumSize = new System.Drawing.Size(355, 0);
-            this.Title.Name = "Title";
-            this.Title.Size = new System.Drawing.Size(338, 45);
-            this.Title.TabIndex = 0;
-            this.Title.Text = "Title";
+            Title.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
+            Title.ForeColor = Color.OrangeRed;
+            Title.Location = new Point(5, 5);
+            Title.MaximumSize = new Size(355, 0);
+            Title.Name = "Title";
+            Title.Size = new Size(338, 45);
+            Title.TabIndex = 0;
+            Title.Text = "Title";
             // 
             // Body
             // 
-            this.Body.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.Body.AutoSize = true;
-            this.Body.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
-            this.Body.ForeColor = System.Drawing.Color.OrangeRed;
-            this.Body.Location = new System.Drawing.Point(12, 45);
-            this.Body.MaximumSize = new System.Drawing.Size(320, 85);
-            this.Body.Name = "Body";
-            this.Body.Size = new System.Drawing.Size(51, 31);
-            this.Body.TabIndex = 1;
-            this.Body.Text = "Body";
-            this.Body.UseCompatibleTextRendering = true;
+            Body.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            Body.AutoSize = true;
+            Body.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
+            Body.ForeColor = Color.OrangeRed;
+            Body.Location = new Point(12, 45);
+            Body.MaximumSize = new Size(320, 85);
+            Body.Name = "Body";
+            Body.Size = new Size(51, 31);
+            Body.TabIndex = 1;
+            Body.Text = "Body";
+            Body.UseCompatibleTextRendering = true;
             // 
             // NotificationForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
-            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(64)))), ((int)(((byte)(64)))), ((int)(((byte)(64)))));
-            this.ClientSize = new System.Drawing.Size(355, 145);
-            this.ControlBox = false;
-            this.Controls.Add(this.Body);
-            this.Controls.Add(this.Title);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.MaximizeBox = false;
-            this.MinimizeBox = false;
-            this.Name = "NotificationForm";
-            this.ShowIcon = false;
-            this.ShowInTaskbar = false;
-            this.Text = "NotificationForm";
-            this.ResumeLayout(false);
-            this.PerformLayout();
-
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.FromArgb(64, 64, 64);
+            ClientSize = new Size(355, 145);
+            ControlBox = false;
+            Controls.Add(Body);
+            Controls.Add(Title);
+            Enabled = false;
+            FormBorderStyle = FormBorderStyle.None;
+            MaximizeBox = false;
+            MinimizeBox = false;
+            Name = "NotificationForm";
+            ShowIcon = false;
+            ShowInTaskbar = false;
+            Text = "NotificationForm";
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion

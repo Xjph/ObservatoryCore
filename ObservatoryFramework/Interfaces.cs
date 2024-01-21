@@ -1,6 +1,5 @@
 ﻿using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
-using System.Xml.XPath;
 
 namespace Observatory.Framework.Interfaces
 {
@@ -51,11 +50,16 @@ namespace Observatory.Framework.Interfaces
 
         /// <summary>
         /// <para>Plugin-specific object implementing the IComparer interface which is used to sort columns in the basic UI datagrid.</para>
-        /// <para>If omitted a basic numeric compare sorter is used.</para>
+        /// <para>If omitted a natural sort order is used.</para>
         /// </summary>
         public IObservatoryComparer ColumnSorter
         { get => null; }
 
+        /// <summary>
+        /// Receives data sent by other plugins.
+        /// </summary>
+        public void HandlePluginMessage(string sourceName, string sourceVersion, object messageArgs)
+        { }
     }
 
     /// <summary>
@@ -94,7 +98,7 @@ namespace Observatory.Framework.Interfaces
         /// Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
-        [Obsolete] // Replaced by LogMonitorStateChanged 
+        [Obsolete("Deprecated in favour of LogMonitorStateChanged")]
         public void ReadAllStarted()
         { }
 
@@ -103,7 +107,7 @@ namespace Observatory.Framework.Interfaces
         /// Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
-        [Obsolete] // Replaced by LogMonitorStateChanged
+        [Obsolete("Deprecated in favour of LogMonitorStateChanged")]
         public void ReadAllFinished()
         { }
     }
@@ -120,6 +124,20 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="notificationEventArgs">Details of the notification as sent from the originating worker plugin.</param>
         public void OnNotificationEvent(NotificationArgs notificationEventArgs);
+
+        /// <summary>
+        /// Property set by notification plugins to indicate to Core 
+        /// that native audio notifications should be disabled/suppressed.
+        /// </summary>
+        public bool OverrideAudioNotifications
+        { get => false; }
+
+        /// <summary>
+        /// Property set by notification plugins to indicate to Core 
+        /// that native popup notifications should be disabled/suppressed.
+        /// </summary>
+        public bool OverridePopupNotifications
+        { get => false; }
     }
 
     /// <summary>
@@ -219,6 +237,17 @@ namespace Observatory.Framework.Interfaces
         /// Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
         /// </summary>
         public string PluginStorageFolder { get; }
+
+        /// <summary>
+        /// Plays audio file using default audio device.
+        /// </summary>
+        /// <param name="filePath">Absolute path to audio file.</param>
+        public Task PlayAudioFile(string filePath);
+
+        /// <summary>
+        /// Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
+        /// </summary>
+        public void SendPluginMessage(IObservatoryPlugin plugin, object message);
     }
 
     /// <summary>

@@ -22,7 +22,7 @@ namespace Observatory.Utils
             }
         }
 
-        private static readonly Lazy<LogMonitor> _instance = new Lazy<LogMonitor>(NewLogMonitor);
+        private static readonly Lazy<LogMonitor> _instance = new(NewLogMonitor);
 
         private static LogMonitor NewLogMonitor()
         {
@@ -44,6 +44,9 @@ namespace Observatory.Utils
         {
             get => currentState;
         }
+
+        public Status Status { get; private set; }
+        
         #endregion
 
         #region Public Methods
@@ -87,28 +90,31 @@ namespace Observatory.Utils
             return LogMonitorStateChangedEventArgs.IsBatchRead(currentState);
         }
 
-        public void ReadAllJournals()
-        {
-            ReadAllJournals(string.Empty);
-        }
-
-        public void ReadAllJournals(string path)
+        public Func<IEnumerable<string>> ReadAllGenerator(out int fileCount)
         {
             // Prevent pre-reading when starting monitoring after reading all.
             firstStartMonitor = false;
             SetLogMonitorState(currentState | LogMonitorState.Batch);
 
-            DirectoryInfo logDirectory = GetJournalFolder(path);
+            DirectoryInfo logDirectory = GetJournalFolder();
             var files = GetJournalFilesOrdered(logDirectory);
-            var readErrors = new List<(Exception ex, string file, string line)>();
-            foreach (var file in files)
-            {
-                readErrors.AddRange(
-                    ProcessLines(ReadAllLines(file.FullName), file.Name));
-            }
+            fileCount = files.Count();
 
-            ReportErrors(readErrors);
-            SetLogMonitorState(currentState & ~LogMonitorState.Batch);
+            IEnumerable<string> ReadAllJournals()
+            {
+                var readErrors = new List<(Exception ex, string file, string line)>();
+                foreach (var file in files)
+                {
+                    yield return file.Name;
+                    readErrors.AddRange(
+                        ProcessLines(ReadAllLines(file.FullName), file.Name));
+                }
+
+                ReportErrors(readErrors);
+                SetLogMonitorState(currentState & ~LogMonitorState.Batch);
+            };
+
+            return ReadAllJournals;
         }
 
         public void PrereadJournals()
@@ -187,13 +193,13 @@ namespace Observatory.Utils
 
         #region Private Fields
 
-        private FileSystemWatcher journalWatcher;
-        private FileSystemWatcher statusWatcher;
-        private Dictionary<string, Type> journalTypes;
-        private Dictionary<string, int> currentLine;
+        private FileSystemWatcher? journalWatcher;
+        private FileSystemWatcher? statusWatcher;
+        private readonly Dictionary<string, Type> journalTypes;
+        private readonly Dictionary<string, int> currentLine;
         private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
         private bool firstStartMonitor = true;
-        private string[] EventsWithAncillaryFile = new string[]
+        private readonly string[] EventsWithAncillaryFile = new string[]
         {
             "Cargo",
             "NavRoute",
@@ -242,7 +248,7 @@ namespace Observatory.Utils
             statusWatcher.Changed += StatusUpdateEvent;
         }
 
-        private DirectoryInfo GetJournalFolder(string path = "")
+        private static DirectoryInfo GetJournalFolder(string path = "")
         {
             DirectoryInfo logDirectory;
 
@@ -370,7 +376,7 @@ namespace Observatory.Utils
             }
         }
 
-        private void ReportErrors(List<(Exception ex, string file, string line)> readErrors)
+        private static void ReportErrors(List<(Exception ex, string file, string line)> readErrors)
         {
             if (readErrors.Any())
             {
@@ -410,24 +416,22 @@ namespace Observatory.Utils
                 }
                 catch (Exception ex)
                 {
-                    ReportErrors(new List<(Exception ex, string file, string line)>() { (ex, eventArgs.Name, line) });
+                    ReportErrors(new List<(Exception ex, string file, string line)>() { (ex, eventArgs.Name ?? string.Empty, line) });
                 }
             }
 
             currentLine[eventArgs.FullPath] = fileContent.Count;
         }
 
-        private List<string> ReadAllLines(string path)
+        private static List<string> ReadAllLines(string path)
         {
             var lines = new List<string>();
             try
             {
-                using (StreamReader file = new StreamReader(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)))
+                using StreamReader file = new(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                while (!file.EndOfStream)
                 {
-                    while (!file.EndOfStream)
-                    {
-                        lines.Add(file.ReadLine());
-                    }
+                    lines.Add(file.ReadLine() ?? string.Empty);
                 }
             }
             catch (IOException ioEx)
@@ -450,6 +454,7 @@ namespace Observatory.Utils
             if (statusLines.Count > 0)
             {
                 var status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
+                Status = status;
                 handler?.Invoke(this, new JournalEventArgs() { journalType = typeof(Status), journalEvent = status });
             }
         }
@@ -486,9 +491,9 @@ namespace Observatory.Utils
             IntPtr pathPtr = IntPtr.Zero;
             try
             {
-                Guid FolderSavedGames = new Guid("4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4");
+                Guid FolderSavedGames = new ("4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4");
                 SHGetKnownFolderPath(ref FolderSavedGames, 0, IntPtr.Zero, out pathPtr);
-                return Marshal.PtrToStringUni(pathPtr);
+                return Marshal.PtrToStringUni(pathPtr) ?? string.Empty;
             }
             finally
             {
@@ -496,7 +501,7 @@ namespace Observatory.Utils
             }
         }
 
-        private IEnumerable<FileInfo> GetJournalFilesOrdered(DirectoryInfo journalFolder)
+        private static IEnumerable<FileInfo> GetJournalFilesOrdered(DirectoryInfo journalFolder)
         {
             return from file in journalFolder.GetFiles("Journal.*.??.log")
                    orderby file.LastWriteTime
