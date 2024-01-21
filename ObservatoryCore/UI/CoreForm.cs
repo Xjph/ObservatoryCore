@@ -2,6 +2,7 @@
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -9,10 +10,25 @@ namespace Observatory.UI
 {
     public partial class CoreForm : Form
     {
-        private Dictionary<object, Panel> uiPanels;
+        private readonly Dictionary<object, Panel> uiPanels;
+
+        [DllImport("user32.dll")]
+        private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
+        private const int WM_SETREDRAW = 11;
+        private static void SuspendDrawing(Control control)
+        {
+            SendMessage(control.Handle, WM_SETREDRAW, false, 0);
+        }
+
+        private static void ResumeDrawing(Control control)
+        {
+            SendMessage(control.Handle, WM_SETREDRAW, true, 0);
+            control.Refresh();
+        }
 
         public CoreForm()
         {
+            DoubleBuffered = true;
             InitializeComponent();
 
             PopulateDropdownOptions();
@@ -24,14 +40,20 @@ namespace Observatory.UI
             string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
             Text += $" - v{version}";
             CoreMenu.SizeChanged += CoreMenu_SizeChanged;
-            uiPanels = new();
-            uiPanels.Add(coreToolStripMenuItem, CorePanel);
+            uiPanels = new()
+            {
+                { coreToolStripMenuItem, CorePanel }
+            };
+
+            
             pluginList = new Dictionary<string, ToolStripMenuItem>();
             CreatePluginTabs();
-            CreatePluginSettings();
+            DisableOverriddenNotification();
             CoreMenu.ItemClicked += CoreMenu_ItemClicked;
 
             PreCollapsePanels();
+
+            ThemeManager.GetInstance.RegisterControl(this);
         }
 
         private void PreCollapsePanels()
@@ -47,17 +69,7 @@ namespace Observatory.UI
 
         }
 
-        private Dictionary<string, ToolStripMenuItem> pluginList;
-
-        private static void DuplicateControlVisuals(Control source, Control target, bool applyHeight = true)
-        {
-            if (applyHeight) target.Height = source.Height;
-            target.Width = source.Width;
-            target.Font = source.Font;
-            target.ForeColor = source.ForeColor;
-            target.BackColor = source.BackColor;
-            target.Anchor = source.Anchor;
-        }
+        private readonly Dictionary<string, ToolStripMenuItem> pluginList;
 
         private void ToggleMonitorButton_Click(object sender, EventArgs e)
         {
@@ -73,9 +85,25 @@ namespace Observatory.UI
             }
         }
 
-        private void CoreMenu_ItemClicked(object? _, ToolStripItemClickedEventArgs e)
+        private void ResizePanels(Point location, int widthChange)
         {
             
+            CorePanel.Location = location;
+            CorePanel.Width += widthChange;
+            foreach (var panel in uiPanels)
+            {
+                if (Controls.Contains(panel.Value))
+                {
+                    panel.Value.Location = CorePanel.Location;
+                    panel.Value.Size = CorePanel.Size;
+                }
+            }
+            
+        }
+
+        private void CoreMenu_ItemClicked(object? _, ToolStripItemClickedEventArgs e)
+        {
+            SuspendDrawing(this);
             if (e.ClickedItem.Text == "<")
             {
                 foreach (KeyValuePair<string, ToolStripMenuItem> menuItem in pluginList)
@@ -86,8 +114,7 @@ namespace Observatory.UI
                         menuItem.Value.Text = menuItem.Key[..1];
                 }
                 CoreMenu.Width = 40;
-                CorePanel.Location = new Point(43, 12);
-                // CorePanel.Width += 40;
+                ResizePanels(new Point(43, 12), 0);
             }
             else if (e.ClickedItem.Text == ">")
             {
@@ -98,9 +125,8 @@ namespace Observatory.UI
                     else
                         menuItem.Value.Text = menuItem.Key;
                 }
-                CoreMenu.Width = 120;
-                CorePanel.Location = new Point(123, 12);
-                // CorePanel.Width -= 40;
+                CoreMenu.Width = GetExpandedMenuWidth();
+                ResizePanels(new Point(CoreMenu.Width + 3, 12), 0);
             }
             else
             {
@@ -114,26 +140,38 @@ namespace Observatory.UI
                     uiPanels[e.ClickedItem].Location = CorePanel.Location;
                     uiPanels[e.ClickedItem].Size = CorePanel.Size;
                     uiPanels[e.ClickedItem].BackColor = CorePanel.BackColor;
+                    uiPanels[e.ClickedItem].Parent = CorePanel.Parent;
                     Controls.Add(uiPanels[e.ClickedItem]);
                 }
                 uiPanels[e.ClickedItem].Visible = true;
+
+                SetClickedItem(e.ClickedItem);
             }
-            
+            ResumeDrawing(this);
+        }
+
+        private void SetClickedItem(ToolStripItem item)
+        {
+            foreach (ToolStripItem menuItem in CoreMenu.Items) 
+            {
+                bool bold = menuItem == item;
+                menuItem.Font = new Font(menuItem.Font, bold ? FontStyle.Bold : FontStyle.Regular);
+            }
         }
 
         private static void ColourListHeader(ref ListView list, Color backColor, Color foreColor)
         {
             list.OwnerDraw = true;
-            
+
             list.DrawColumnHeader +=
                 new DrawListViewColumnHeaderEventHandler
                 (
-                    (sender, e) => headerDraw(sender, e, backColor, foreColor)
+                    (sender, e) => HeaderDraw(sender, e, backColor, foreColor)
                 );
-            list.DrawItem += new DrawListViewItemEventHandler(bodyDraw);
+            list.DrawItem += new DrawListViewItemEventHandler(BodyDraw);
         }
 
-        private static void headerDraw(object? _, DrawListViewColumnHeaderEventArgs e, Color backColor, Color foreColor)
+        private static void HeaderDraw(object? _, DrawListViewColumnHeaderEventArgs e, Color backColor, Color foreColor)
         {
             using (SolidBrush backBrush = new(backColor))
             {
@@ -149,17 +187,19 @@ namespace Observatory.UI
             if (e.Font != null && e.Header != null)
                 using (SolidBrush foreBrush = new(foreColor))
                 {
-                    var format = new StringFormat();
-                    format.Alignment = (StringAlignment)e.Header.TextAlign;
-                    format.LineAlignment = StringAlignment.Center;
-                    
+                    var format = new StringFormat
+                    {
+                        Alignment = (StringAlignment)e.Header.TextAlign,
+                        LineAlignment = StringAlignment.Center
+                    };
+
                     var paddedBounds = new Rectangle(e.Bounds.X + 2, e.Bounds.Y + 2, e.Bounds.Width - 4, e.Bounds.Height - 4);
 
                     e.Graphics.DrawString(e.Header?.Text, e.Font, foreBrush, paddedBounds, format);
                 }
         }
 
-        private static void bodyDraw(object? _, DrawListViewItemEventArgs e)
+        private static void BodyDraw(object? _, DrawListViewItemEventArgs e)
         {
             e.DrawDefault = true;
         }
@@ -180,7 +220,11 @@ namespace Observatory.UI
 
         private void ReadAllButton_Click(object sender, EventArgs e)
         {
-            LogMonitor.GetInstance.ReadAllJournals();
+            var readAllDialogue = new ReadAllForm();
+            ThemeManager.GetInstance.RegisterControl(readAllDialogue);
+            readAllDialogue.StartPosition = FormStartPosition.Manual;
+            readAllDialogue.Location = Point.Add(Location, new Size(100,100));
+            readAllDialogue.ShowDialog();
         }
 
         private void PopupNotificationLabel_Click(object _, EventArgs e)
@@ -238,6 +282,8 @@ namespace Observatory.UI
             Up, Down
         }
 
+        private Observatory.NativeNotification.NativePopup? nativePopup;
+
         private void TestButton_Click(object sender, EventArgs e)
         {
             NotificationArgs args = new()
@@ -245,9 +291,10 @@ namespace Observatory.UI
                 Title = "Test Notification",
                 Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at elit maximus, ornare dui nec, accumsan velit. Vestibulum fringilla elit."
             };
-            var testNotify = new NotificationForm(new Guid(), args);
-            testNotify.Show();
 
+            nativePopup ??= new Observatory.NativeNotification.NativePopup();
+
+            nativePopup.InvokeNativeNotification(args);
         }
     }
 }

@@ -28,6 +28,8 @@ namespace Observatory.Herald
 
         public string ShortName => "Herald";
 
+        public bool OverrideAudioNotifications => true;
+
         public string Version => typeof(HeraldNotifier).Assembly.GetName().Version.ToString();
 
         public PluginUI PluginUI => new (PluginUI.UIType.None, null);
@@ -55,7 +57,7 @@ namespace Observatory.Herald
         {
             var speechManager = new SpeechRequestManager(
                 heraldSettings, observatoryCore.HttpClient, observatoryCore.PluginStorageFolder, observatoryCore.GetPluginErrorLogger(this));
-            heraldSpeech = new HeraldQueue(speechManager, observatoryCore.GetPluginErrorLogger(this));
+            heraldSpeech = new HeraldQueue(speechManager, observatoryCore.GetPluginErrorLogger(this), observatoryCore);
             heraldSettings.Test = TestVoice;
         }
 

@@ -40,5 +40,26 @@ namespace Observatory.Framework.Files.ParameterTypes
 
         [JsonPropertyName("Efficient_Scans")]
         public int EfficientScans { get; init; }
+
+        [JsonPropertyName("First_Footfalls")]
+        public int FirstFootfalls { get; init; }
+
+        [JsonPropertyName("OnFoot_Distance_Travelled")]
+        public long OnFootDistanceTravelled { get; init; }
+
+        [JsonPropertyName("Planet_Footfalls")]
+        public int PlanetFootfalls { get; init; }
+
+        [JsonPropertyName("Settlements_Visited")]
+        public int SettlementsVisited { get; init; }
+
+        [JsonPropertyName("Shuttle_Distance_Travelled")]
+        public double ShuttleDistanceTravelled { get; init; }
+
+        [JsonPropertyName("Shuttle_Journeys")]
+        public int ShuttleJourneys { get; init; }
+
+        [JsonPropertyName("Spent_On_Shuttles")]
+        public long SpentOnShuttles { get; init; }
     }
 }

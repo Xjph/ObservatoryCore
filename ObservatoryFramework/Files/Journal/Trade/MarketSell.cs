@@ -2,7 +2,7 @@
 {
     public class MarketSell : JournalBase
     {
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         public string Type { get; init; }
         public string Type_Localised { get; init; }
         public int Count { get; init; }

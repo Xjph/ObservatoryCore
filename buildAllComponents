@@ -1,8 +1,0 @@
-#!/bin/bash
-dotnet build ./ObservatoryFramework/ObservatoryFramework.csproj "$@"
-dotnet build ./ObservatoryExplorer/ObservatoryExplorer.csproj "$@"
-dotnet build ./ObservatoryBotanist/ObservatoryBotanist.csproj "$@"
-if [ -f ../NetCoreAudio/NetCoreAudio/NetCoreAudio.csproj ]; then
-    dotnet build ../NetCoreAudio/NetCoreAudio/NetCoreAudio.csproj -c Release
-    dotnet build ./ObservatoryHerald/ObservatoryHerald.csproj "$@"
-fi

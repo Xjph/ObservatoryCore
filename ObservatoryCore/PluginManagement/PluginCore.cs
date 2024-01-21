@@ -14,11 +14,15 @@ namespace Observatory.PluginManagement
 
         private readonly NativeVoice NativeVoice;
         private readonly NativePopup NativePopup;
-
-        public PluginCore()
+        private bool OverridePopup;
+        private bool OverrideAudio;
+        
+        public PluginCore(bool OverridePopup = false, bool OverrideAudio = false)
         {
             NativeVoice = new();
             NativePopup = new();
+            this.OverridePopup = OverridePopup;
+            this.OverrideAudio = OverrideAudio;
         }
 
         public string Version => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
@@ -31,11 +35,8 @@ namespace Observatory.PluginManagement
             };
         }
 
-        public Status GetStatus()
-        {
-            throw new NotImplementedException();
-        }
-
+        public Status GetStatus() => LogMonitor.GetInstance.Status;
+        
         public Guid SendNotification(string title, string text)
         {
             return SendNotification(new NotificationArgs() { Title = title, Detail = text });
@@ -53,12 +54,12 @@ namespace Observatory.PluginManagement
                     handler?.Invoke(this, notificationArgs);
                 }
 
-                if (Properties.Core.Default.NativeNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
+                if (!OverridePopup && Properties.Core.Default.NativeNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
                 {
                     guid = NativePopup.InvokeNativeNotification(notificationArgs);
                 }
 
-                if (Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
+                if (!OverrideAudio && Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 {
                     NativeVoice.EnqueueAndAnnounce(notificationArgs);
                 }
@@ -69,14 +70,13 @@ namespace Observatory.PluginManagement
 
         public void CancelNotification(Guid id)
         {
-            NativePopup.CloseNotification(id);
+            ExecuteOnUIThread(() => NativePopup.CloseNotification(id));
         }
 
         public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
         {
             if (!IsLogMonitorBatchReading)
             {
-
                 if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
                 {
                     var handler = Notification;
@@ -140,6 +140,8 @@ namespace Observatory.PluginManagement
 
         public event EventHandler<NotificationArgs> Notification;
 
+        internal event EventHandler<PluginMessageArgs> PluginMessage;
+
         public string PluginStorageFolder
         {
             get
@@ -161,25 +163,19 @@ namespace Observatory.PluginManagement
             }
         }
 
+        public async Task PlayAudioFile(string filePath)
+        {
+            await AudioHandler.PlayFile(filePath);
+        }
+
+        public void SendPluginMessage(IObservatoryPlugin plugin, object message)
+        {
+            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, message));
+        }
+
         internal void Shutdown()
         {
             NativePopup.CloseAll();
-        }
-
-        private static bool FirstRowIsAllNull(IObservatoryWorker worker)
-        {
-            bool allNull = true;
-            Type itemType = worker.PluginUI.DataGrid[0].GetType();
-            foreach (var property in itemType.GetProperties())
-            {
-                if (property.GetValue(worker.PluginUI.DataGrid[0], null) != null)
-                {
-                    allNull = false;
-                    break;
-                }
-            }
-
-            return allNull;
         }
     }
 }

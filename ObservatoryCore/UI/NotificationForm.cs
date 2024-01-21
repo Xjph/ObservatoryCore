@@ -23,7 +23,7 @@ namespace Observatory.UI
 
         protected override bool ShowWithoutActivation => true;
         protected override CreateParams CreateParams
-        { 
+        {
             get
             {
                 CreateParams cp = base.CreateParams;
@@ -31,11 +31,12 @@ namespace Observatory.UI
                 return cp;
             }
         }
-          
+
         public NotificationForm(Guid guid, NotificationArgs args)
         {
             _guid = guid;
             _color = Color.FromArgb((int)Properties.Core.Default.NativeNotifyColour);
+            CreationTime = DateTime.Now;
             InitializeComponent();
 
             Title.Paint += DrawText;
@@ -65,8 +66,8 @@ namespace Observatory.UI
             Body.ForeColor = _color;
             Body.Text = args.Detail;
             Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14);
-            this.Paint += DrawBorder;
-
+            Paint += DrawBorder;
+            
             AdjustPosition(args.XPos / 100, args.YPos / 100);
 
             _timer = new();
@@ -78,10 +79,36 @@ namespace Observatory.UI
             }
         }
 
+        private void NotificationForm_FormClosed(object? sender, FormClosedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public DateTime CreationTime { get; private init; }
+
         public void Update(NotificationArgs notificationArgs)
         {
-            Title.Text = notificationArgs.Title;
-            Body.Text = notificationArgs.Detail;
+            // Catch Cross-thread access and invoke
+            try
+            {
+                Title.Text = notificationArgs.Title;
+                Body.Text = notificationArgs.Detail;
+            }
+            catch
+            {
+                try
+                {
+                    Invoke(() =>
+                    {
+                        Title.Text = notificationArgs.Title;
+                        Body.Text = notificationArgs.Detail;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Notification Update Failure, please inform Vithigar. Details: " + ex.Message);
+                }
+            }
         }
 
         private void AdjustPosition(double x = -1.0, double y = -1.0)
@@ -89,7 +116,6 @@ namespace Observatory.UI
             int screen = Properties.Core.Default.NativeNotifyScreen;
             int corner = Properties.Core.Default.NativeNotifyCorner;
             Rectangle screenBounds;
-
 
             if (screen == -1 || screen > Screen.AllScreens.Length)
                 if (Screen.AllScreens.Length == 1)
@@ -115,7 +141,7 @@ namespace Observatory.UI
                     case 0:
                         Location = Point.Add(
                             new Point(screenBounds.Right, screenBounds.Bottom),
-                            new Size(-(Width+50), -(Height+50)));
+                            new Size(-(Width + 50), -(Height + 50)));
                         break;
                     case 1:
                         Location = Point.Add(
@@ -151,7 +177,7 @@ namespace Observatory.UI
 
         protected override void WndProc(ref Message m)
         {
-            
+
             switch (m.Msg)
             {
                 case DwmHelper.WM_DWMCOMPOSITIONCHANGED:
@@ -190,13 +216,29 @@ namespace Observatory.UI
 
         public Guid Guid { get => _guid; }
 
-        private void AdjustText()
+        public void AdjustOffset(bool increase)
         {
+            if (_defaultPosition)
+            {
+                if (increase || Location != _originalLocation)
+                {
+                    var corner = Properties.Core.Default.NativeNotifyCorner;
 
+                    if ((corner >= 2 && increase) || (corner <= 1 && !increase))
+                    {
+                        Location = new Point(Location.X, Location.Y + Height);
+                    }
+                    else
+                    {
+                        Location = new Point(Location.X, Location.Y - Height);
+                    }
+                }
+            }
         }
 
         private void CloseNotification(object? sender, System.Timers.ElapsedEventArgs e)
         {
+            // Catch Cross-thread access and invoke
             try
             {
                 Close();
@@ -205,14 +247,14 @@ namespace Observatory.UI
             {
                 try
                 {
-                    this.Invoke(() => Close());
+                    Invoke(() => Close());
                 }
-                catch
+                catch (Exception ex)
                 {
-                    throw new Exception("blah");
+                    throw new Exception("Notification Close Failure, please inform Vithigar. Details: " + ex.Message);
                 }
             }
-            
+
             _timer.Stop();
             _timer.Dispose();
         }
