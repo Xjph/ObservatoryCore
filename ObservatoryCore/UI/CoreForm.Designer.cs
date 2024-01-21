@@ -557,6 +557,7 @@
             GithubLink.TabIndex = 6;
             GithubLink.TabStop = true;
             GithubLink.Text = "github";
+            GithubLink.LinkClicked += GithubLink_LinkClicked;
             // 
             // DonateLink
             // 
@@ -568,6 +569,7 @@
             DonateLink.TabIndex = 7;
             DonateLink.TabStop = true;
             DonateLink.Text = "Donate";
+            DonateLink.LinkClicked += DonateLink_LinkClicked;
             // 
             // CoreForm
             // 

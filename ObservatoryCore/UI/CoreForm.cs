@@ -2,6 +2,7 @@
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -45,7 +46,7 @@ namespace Observatory.UI
                 { coreToolStripMenuItem, CorePanel }
             };
 
-            
+
             pluginList = new Dictionary<string, ToolStripMenuItem>();
             CreatePluginTabs();
             DisableOverriddenNotification();
@@ -87,7 +88,7 @@ namespace Observatory.UI
 
         private void ResizePanels(Point location, int widthChange)
         {
-            
+
             CorePanel.Location = location;
             CorePanel.Width += widthChange;
             foreach (var panel in uiPanels)
@@ -98,7 +99,7 @@ namespace Observatory.UI
                     panel.Value.Size = CorePanel.Size;
                 }
             }
-            
+
         }
 
         private void CoreMenu_ItemClicked(object? _, ToolStripItemClickedEventArgs e)
@@ -152,7 +153,7 @@ namespace Observatory.UI
 
         private void SetClickedItem(ToolStripItem item)
         {
-            foreach (ToolStripItem menuItem in CoreMenu.Items) 
+            foreach (ToolStripItem menuItem in CoreMenu.Items)
             {
                 bool bold = menuItem == item;
                 menuItem.Font = new Font(menuItem.Font, bold ? FontStyle.Bold : FontStyle.Regular);
@@ -223,7 +224,7 @@ namespace Observatory.UI
             var readAllDialogue = new ReadAllForm();
             ThemeManager.GetInstance.RegisterControl(readAllDialogue);
             readAllDialogue.StartPosition = FormStartPosition.Manual;
-            readAllDialogue.Location = Point.Add(Location, new Size(100,100));
+            readAllDialogue.Location = Point.Add(Location, new Size(100, 100));
             readAllDialogue.ShowDialog();
         }
 
@@ -295,6 +296,21 @@ namespace Observatory.UI
             nativePopup ??= new Observatory.NativeNotification.NativePopup();
 
             nativePopup.InvokeNativeNotification(args);
+        }
+
+        private void GithubLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            OpenURL("https://github.com/Xjph/ObservatoryCore");
+        }
+
+        private void DonateLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            OpenURL("https://www.paypal.com/paypalme/eliteobservatory");
+        }
+
+        private void OpenURL(string url)
+        {
+            Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
     }
 }
