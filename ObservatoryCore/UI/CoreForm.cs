@@ -212,6 +212,12 @@ namespace Observatory.UI
 
         private void FitColumns()
         {
+            // This sizes to fit the column width to the text. However, when the listview is resized (by
+            // expanding setting sections below the list), it causes flashing/jank. Visually, it looks cleaner
+            // (because the default column sizes are too small) and helps avoid horizontal scrollbar.
+            //foreach (ColumnHeader col in PluginList.Columns)
+            //    col.Width = -2;
+
             int totalWidth = 0;
             foreach (ColumnHeader col in PluginList.Columns)
                 totalWidth += col.Width;
