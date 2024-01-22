@@ -471,7 +471,6 @@
             PluginList.MultiSelect = false;
             PluginList.Name = "PluginList";
             PluginList.OwnerDraw = true;
-            PluginList.Scrollable = false;
             PluginList.Size = new Size(659, 137);
             PluginList.TabIndex = 0;
             PluginList.UseCompatibleStateImageBehavior = false;

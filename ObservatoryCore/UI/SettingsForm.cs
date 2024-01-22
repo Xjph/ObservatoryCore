@@ -18,6 +18,7 @@ namespace Observatory.UI
     {
         private readonly IObservatoryPlugin _plugin;
         private readonly List<int> _colHeight = new List<int>();
+        private int _colWidth = 400;
 
         public SettingsForm(IObservatoryPlugin plugin)
         {
@@ -51,16 +52,18 @@ namespace Observatory.UI
             foreach (var setting in settings)
             {
                 // Reset the column tracking for checkboxes if this isn't a checkbox
+                int addedHeight = 35;
                 if (setting.Key.PropertyType.Name != "Boolean")
+                {
+                    if (recentHalfCol) _colHeight.Add(addedHeight);
                     recentHalfCol = false;
-
-                int addedHeight = 29;
+                }
 
                 switch (setting.Key.GetValue(_plugin.Settings))
                 {
                     case bool:
                         var checkBox = CreateBoolSetting(setting);
-                        addedHeight = recentHalfCol ? 0 : addedHeight;
+                        addedHeight = recentHalfCol ? addedHeight : 0;
                         checkBox.Location = GetSettingPosition(recentHalfCol);
 
                         recentHalfCol = !recentHalfCol;
@@ -111,7 +114,7 @@ namespace Observatory.UI
                         intLabel.Location = GetSettingPosition();
                         intControl.Location = GetSettingPosition(true);
 
-                        addedHeight = intControl.Height;
+                        addedHeight = intControl.Height + 2;
                         intLabel.Height = intControl.Height;
                         intLabel.TextAlign = ContentAlignment.MiddleRight;
 
@@ -125,6 +128,7 @@ namespace Observatory.UI
                         button.Location = GetSettingPosition();
 
                         Controls.Add(button);
+                        addedHeight = button.Height;
                         trackBottomEdge(button);
                         break;
                     case Dictionary<string, object> dictSetting:
@@ -142,12 +146,14 @@ namespace Observatory.UI
                 }
                 _colHeight.Add(addedHeight);
             }
-            Height = settingsHeight + 80;
+            Height = settingsHeight + 160;
+            Width = _colWidth * 2 + 80;
         }
 
         private Point GetSettingPosition(bool secondCol = false)
         {
-            return new Point(10 + (secondCol ? 200 : 0), -26 + _colHeight.Sum());
+            //return new Point(10 + (secondCol ? 200 : 0), -26 + _colHeight.Sum());
+            return new Point(10 + (secondCol ? _colWidth : 0), 15 + _colHeight.Sum());
         }
 
 
@@ -157,7 +163,7 @@ namespace Observatory.UI
             {
                 Text = settingName + ": ",
                 TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-                Width = 200,
+                Width = _colWidth,
                 ForeColor = Color.LightGray
             };
 
@@ -177,7 +183,7 @@ namespace Observatory.UI
 
             ComboBox comboBox = new()
             {
-                Width = 200,
+                Width = _colWidth,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
 
@@ -203,7 +209,9 @@ namespace Observatory.UI
         {
             Button button = new()
             {
-                Text = settingName
+                Text = settingName,
+                Width = Convert.ToInt32(_colWidth * 0.8),
+                Height = 35,
             };
 
             button.Click += (sender, e) =>
@@ -229,7 +237,7 @@ namespace Observatory.UI
                 Orientation = Orientation.Horizontal,
                 TickStyle = TickStyle.Both,
                 TickFrequency = tickFrequency,
-                Width = 200,
+                Width = _colWidth,
                 Minimum = minBound,
                 Maximum = maxBound,
             };
@@ -250,8 +258,7 @@ namespace Observatory.UI
             SettingNumericBounds? bounds = (SettingNumericBounds?)System.Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
             NumericUpDown numericUpDown = new()
             {
-
-                Width = 200,
+                Width = _colWidth,
                 Minimum = Convert.ToInt32(bounds?.Minimum ?? Int32.MinValue),
                 Maximum = Convert.ToInt32(bounds?.Maximum ?? Int32.MaxValue),
                 Increment = Convert.ToInt32(bounds?.Increment ?? 1)
@@ -275,7 +282,8 @@ namespace Observatory.UI
                 Text = setting.Value,
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
                 Checked = (bool?)setting.Key.GetValue(_plugin.Settings) ?? false,
-                Width = 200,
+                Height = 30,
+                Width = _colWidth,
                 ForeColor = Color.LightGray
             };
 
@@ -293,7 +301,7 @@ namespace Observatory.UI
             TextBox textBox = new()
             {
                 Text = (setting.GetValue(_plugin.Settings) ?? String.Empty).ToString(),
-                Width = 200
+                Width = _colWidth,
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -312,7 +320,7 @@ namespace Observatory.UI
             TextBox textBox = new()
             {
                 Text = fileInfo?.FullName ?? string.Empty,
-                Width = 200
+                Width = _colWidth,
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -328,7 +336,9 @@ namespace Observatory.UI
         {
             Button button = new()
             {
-                Text = "Browse"
+                Text = "Browse",
+                Height = 35,
+                Width = _colWidth / 2,
             };
 
             button.Click += (object? sender, EventArgs e) =>

@@ -1,4 +1,5 @@
 ﻿using Microsoft.VisualBasic.CompilerServices;
+using Observatory.Framework.Files.Journal;
 using System;
 using System.Numerics;
 
@@ -13,17 +14,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         public string Expiry { get; init; }
         public DateTime ExpiryDateTime
         {
-            get
-            {
-                if (DateTime.TryParseExact(Expiry, "yyyy-MM-ddTHH:mm:ssZ", null, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTime expiryDateTime))
-                {
-                    return expiryDateTime;
-                }
-                else
-                {
-                    return new DateTime();
-                }
-            }
+            get => JournalBase.ParseDateTime(Expiry);
         }
         public bool IsComplete { get; init; }
         public long CurrentTotal { get; init; }
