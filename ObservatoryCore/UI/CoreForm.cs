@@ -231,7 +231,9 @@ namespace Observatory.UI
             ThemeManager.GetInstance.RegisterControl(readAllDialogue);
             readAllDialogue.StartPosition = FormStartPosition.Manual;
             readAllDialogue.Location = Point.Add(Location, new Size(100, 100));
+            SuspendDrawing(this);
             readAllDialogue.ShowDialog();
+            ResumeDrawing(this);
         }
 
         private void PopupNotificationLabel_Click(object _, EventArgs e)
