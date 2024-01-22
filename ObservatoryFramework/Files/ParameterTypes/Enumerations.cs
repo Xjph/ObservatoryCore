@@ -83,6 +83,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         onfoot_dataTransfer,
         onFoot_carryingStolenGoods,
         onFoot_eBreachUse,
+        onFoot_breakingAndEntering,
+        shuttleDestruction,
         collidedWithDamage
     }
 
