@@ -1,4 +1,4 @@
-﻿namespace Observatory.UI
+namespace Observatory.UI
 {
     partial class SettingsForm
     {
@@ -50,6 +50,7 @@
             Controls.Add(PluginSettingsCloseButton);
             FormBorderStyle = FormBorderStyle.FixedSingle;
             Name = "SettingsForm";
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "SettingsForm";
             ResumeLayout(false);
         }
