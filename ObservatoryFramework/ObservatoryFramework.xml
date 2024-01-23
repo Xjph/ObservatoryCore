@@ -148,6 +148,21 @@
             Specifies if some part of the notification should be suppressed. Not supported by all notifiers. Defaults to <see cref="F:Observatory.Framework.NotificationSuppression.None"/>.
             </summary>
         </member>
+        <member name="F:Observatory.Framework.NotificationArgs.Sender">
+            <summary>
+            The plugin sending this notification.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.ExtendedDetails">
+            <summary>
+            Additional notification detailed (generally not rendered by voice or popup; potentially used by aggregating/logging plugins).
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.NotificationArgs.CoalescingId">
+            <summary>
+            A value which allows grouping of notifications together. For example, values &gt;= 0 &lt;= 1000 could be system body IDs, -1 is the system, anything else is arbitrary.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.NotificationSuppression">
             <summary>
             Defines constants for suppression of title or detail announcement in a notification.

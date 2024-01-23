@@ -240,6 +240,7 @@ namespace Observatory.Explorer
             if (results.Count > 0)
             {
                 StringBuilder notificationDetail = new();
+                StringBuilder notificationExtendedDetail = new();
                 foreach (var result in results)
                 {
                     var scanResult = new ExplorerUIResults()
@@ -251,6 +252,7 @@ namespace Observatory.Explorer
                     };
                     ObservatoryCore.AddGridItem(ExplorerWorker, scanResult);
                     notificationDetail.AppendLine(result.Description);
+                    notificationExtendedDetail.AppendLine(result.Detail);
                 }
 
                 string bodyAffix;
@@ -293,7 +295,10 @@ namespace Observatory.Explorer
                 {
                     Title = bodyLabel + bodyAffix,
                     TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
-                    Detail = notificationDetail.ToString()
+                    Detail = notificationDetail.ToString(),
+                    Sender = ExplorerWorker.ShortName,
+                    ExtendedDetails = notificationExtendedDetail.ToString(),
+                    CoalescingId = scanEvent.BodyID,
                 };
 
                 ObservatoryCore.SendNotification(args);
