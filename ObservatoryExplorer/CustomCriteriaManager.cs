@@ -189,11 +189,10 @@ namespace Observatory.Explorer
             {
                 for (int i = 0; i < criteria.Length; i++)
                 {
-                    bool isDisabled = criteria[i].Trim().ToLower().StartsWith("::--");
                     if (criteria[i].Trim().StartsWith("::"))
                     {
                         string scriptDescription = criteria[i].Trim().Replace("::", string.Empty);
-                        if (scriptDescription.ToLower() == "criteria" || scriptDescription.ToLower().StartsWith("criteria=") || scriptDescription.ToLower().StartsWith("--criteria"))
+                        if (scriptDescription.ToLower() == "criteria" || scriptDescription.ToLower().StartsWith("criteria="))
                         {
                             string functionName = $"Criteria{i}";
                             script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
@@ -208,11 +207,8 @@ namespace Observatory.Explorer
                             } while (!criteria[i].Trim().ToLower().StartsWith("::end::"));
                             script.AppendLine("end");
 
-                            if (!isDisabled)
-                            {
-                                LuaState.DoString(script.ToString());
-                                CriteriaFunctions.Add(GetUniqueDescription(functionName, scriptDescription), LuaState[functionName] as LuaFunction);
-                            }
+                            LuaState.DoString(script.ToString());
+                            CriteriaFunctions.Add(GetUniqueDescription(functionName, scriptDescription), LuaState[functionName] as LuaFunction);
                             script.Clear();
                         }
                         else if (scriptDescription.ToLower() == "global")
