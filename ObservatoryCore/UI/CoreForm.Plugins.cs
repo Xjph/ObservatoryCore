@@ -32,6 +32,9 @@ namespace Observatory.UI
                     PluginList.Items.Add(item);
                 }
             }
+
+            PluginList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+            PluginList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
         }
 
         private static string PluginStatusString(PluginManager.PluginStatus status)
