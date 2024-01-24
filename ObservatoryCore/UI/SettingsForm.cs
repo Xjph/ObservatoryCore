@@ -246,7 +246,7 @@ namespace Observatory.UI
 
             trackBar.ValueChanged += (sender, e) =>
             {
-                setting.SetValue(_plugin.Settings, trackBar.Value);
+                setting.SetValue(_plugin.Settings, Convert.ToInt32(trackBar.Value));
                 SaveSettings();
             };
 
@@ -268,7 +268,7 @@ namespace Observatory.UI
 
             numericUpDown.ValueChanged += (sender, e) =>
             {
-                setting.SetValue(_plugin.Settings, numericUpDown.Value);
+                setting.SetValue(_plugin.Settings, Convert.ToInt32(numericUpDown.Value));
                 SaveSettings();
             };
 
