@@ -62,6 +62,18 @@ namespace Observatory.Framework
         /// Specifies if some part of the notification should be suppressed. Not supported by all notifiers. Defaults to <see cref="NotificationSuppression.None"/>.
         /// </summary>
         public NotificationSuppression Suppression = NotificationSuppression.None;
+        /// <summary>
+        /// The plugin sending this notification.
+        /// </summary>
+        public string Sender = "";
+        /// <summary>
+        /// Additional notification detailed (generally not rendered by voice or popup; potentially used by aggregating/logging plugins).
+        /// </summary>
+        public string ExtendedDetails;
+        /// <summary>
+        /// A value which allows grouping of notifications together. For example, values &gt;= 0 &lt;= 1000 could be system body IDs, -1 is the system, anything else is arbitrary.
+        /// </summary>
+        public int CoalescingId;
     }
 
     /// <summary>
