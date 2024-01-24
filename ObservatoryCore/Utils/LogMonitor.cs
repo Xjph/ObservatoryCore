@@ -131,7 +131,7 @@ namespace Observatory.Utils
             // journal is mostly empty) but keeping only the lines since the last FSDJump.
             List<string> lastSystemLines = new();
             List<string> lastFileLines = new();
-            string lastLoadGame = string.Empty;
+            List<String> fileHeaderLines = new();
             bool sawFSDJump = false;
             foreach (var file in files.Skip(Math.Max(files.Count() - 2, 0)))
             {
@@ -139,7 +139,7 @@ namespace Observatory.Utils
                 foreach (var line in lines)
                 {
                     var eventType = JournalUtilities.GetEventType(line);
-                    if (eventType.Equals("FSDJump") || eventType.Equals("CarrierJump") && line.Contains("\"Docked\":true"))
+                    if (eventType.Equals("FSDJump") || (eventType.Equals("CarrierJump") && (line.Contains("\"Docked\":true") || line.Contains("\"OnFoot\":true"))))
                     {
                         // Reset, start collecting again.
                         lastSystemLines.Clear();
@@ -148,10 +148,13 @@ namespace Observatory.Utils
                     else if (eventType.Equals("Fileheader"))
                     {
                         lastFileLines.Clear();
+                        fileHeaderLines.Clear();
+                        fileHeaderLines.Add(line);
                     }
-                    else if (eventType.Equals("LoadGame"))
+                    else if (eventType.Equals("LoadGame") || eventType.Equals("Statistics"))
                     {
-                        lastLoadGame = line;
+                        // A few header lines to collect.
+                        fileHeaderLines.Add(line);
                     }
                     lastSystemLines.Add(line);
                     lastFileLines.Add(line);
@@ -166,11 +169,11 @@ namespace Observatory.Utils
             List<string> linesToRead = lastFileLines;
             if (sawFSDJump)
             {
-                // If we saw a LoadGame, insert it as well. This ensures odyssey biologicials are properly
-                // counted/presented.
-                if (!string.IsNullOrEmpty(lastLoadGame))
+                // If we saw any relevant header lines, insert them as well. This ensures odyssey biologicials are properly
+                // counted/presented, current Commander name is present, etc.
+                if (fileHeaderLines.Count > 0)
                 {
-                    lastSystemLines.Insert(0, lastLoadGame);
+                    lastSystemLines.InsertRange(0, fileHeaderLines);
                 }
                 linesToRead = lastSystemLines;
             }
