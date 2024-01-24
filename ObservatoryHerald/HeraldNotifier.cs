@@ -77,7 +77,7 @@ namespace Observatory.Herald
 
         public void OnNotificationEvent(NotificationArgs notificationEventArgs)
         {
-            if (heraldSettings.Enabled)
+            if (heraldSettings.Enabled && notificationEventArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 heraldSpeech.Enqueue(
                     notificationEventArgs, 
                     GetAzureNameFromSetting(heraldSettings.SelectedVoice),
