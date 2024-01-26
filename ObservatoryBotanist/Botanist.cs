@@ -1,4 +1,4 @@
-﻿using Observatory.Framework;
+using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Interfaces;
@@ -163,6 +163,7 @@ namespace Observatory.Botanist
                                             Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance} m",
                                             Rendering = NotificationRendering.NativeVisual,
                                             Timeout = (botanistSettings.OverlayIsSticky ? 0 : -1),
+                                            Sender = ShortName,
                                         };
                                         if (samplerStatusNotification == null)
                                         {
@@ -338,10 +339,15 @@ namespace Observatory.Botanist
 
     public class BotanistGrid
     {
+        [ColumnSuggestedWidth(300)]
         public string Body { get; set; }
+        [ColumnSuggestedWidth(100)]
         public string BioTotal { get; set; }
+        [ColumnSuggestedWidth(300)]
         public string Species { get; set; }
+        [ColumnSuggestedWidth(100)]
         public string Analysed { get; set; }
+        [ColumnSuggestedWidth(100)]
         public string ColonyDistance { get; set; }
     }
 }
