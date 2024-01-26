@@ -12,6 +12,7 @@ namespace Observatory.Explorer
     {
         private Lua LuaState;
         private Dictionary<String,LuaFunction> CriteriaFunctions;
+        private Dictionary<string, string> CriteriaWithErrors = new();
         Action<Exception, String> ErrorLogger;
         private uint ScanCount;
 
@@ -180,6 +181,7 @@ namespace Observatory.Explorer
             #endregion
 
             CriteriaFunctions.Clear();
+            CriteriaWithErrors.Clear();
             var criteria = File.Exists(criteriaPath) ? File.ReadAllLines(criteriaPath) : Array.Empty<string>();
             StringBuilder script = new();
 
@@ -260,8 +262,8 @@ namespace Observatory.Explorer
                 StringBuilder errorDetail = new();
                 errorDetail.AppendLine("Error Reading Custom Criteria File:")
                     .AppendLine(originalScript)
-                    .AppendLine("NOTE: Custom criteria processing has been disabled to prevent further errors.");
-                ErrorLogger(e, errorDetail.ToString());
+                    .AppendLine("To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded."); ErrorLogger(e, errorDetail.ToString());
+                CriteriaFunctions.Clear(); // Don't use partial parse.
                 throw new CriteriaLoadException(e.Message, originalScript);
             }
         }
@@ -273,6 +275,9 @@ namespace Observatory.Explorer
 
             foreach (var criteriaFunction in CriteriaFunctions)
             {
+                // Skip criteria which have previously thrown an error. We can't remove them from the dictionary while iterating it. 
+                if (CriteriaWithErrors.ContainsKey(criteriaFunction.Key)) continue;
+
                 var scanList = scanHistory[scan.SystemAddress].Values.ToList();
 
                 int bioSignals;
@@ -326,15 +331,23 @@ namespace Observatory.Explorer
                 }
                 catch (NLua.Exceptions.LuaScriptException e)
                 {
-                    settings.EnableCustomCriteria = false;
                     results.Add((e.Message, scan.Json, false));
 
                     StringBuilder errorDetail = new();
                     errorDetail.AppendLine($"while processing custom criteria '{criteriaFunction.Key}' on scan:")
                         .AppendLine(scan.Json)
-                        .AppendLine("NOTE: Custom criteria processing has been disabled to prevent further errors.");
+                        .AppendLine("To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded.");
                     ErrorLogger(e, errorDetail.ToString());
-                    break;
+                    CriteriaWithErrors.Add(criteriaFunction.Key, e.Message + Environment.NewLine + errorDetail.ToString());
+                }
+            }
+
+            // Remove any erroring criteria. They will be repopulated next time the file is parsed.
+            if (CriteriaWithErrors.Count > 0)
+            {
+                foreach (var criteriaKey in CriteriaWithErrors.Keys)
+                {
+                    if (CriteriaFunctions.ContainsKey(criteriaKey)) CriteriaFunctions.Remove(criteriaKey);
                 }
             }
 

@@ -188,7 +188,6 @@ namespace Observatory.Explorer
                                 Details = e.OriginalScript
                             };
                             ObservatoryCore.AddGridItem(ExplorerWorker, exceptionResult);
-                            ExplorerWorker.settings.EnableCustomCriteria = false;
                         }
                         
                         CriteriaLastModified = fileModified;
