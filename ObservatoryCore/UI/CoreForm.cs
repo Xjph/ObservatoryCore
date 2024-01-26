@@ -226,8 +226,39 @@ namespace Observatory.UI
             readAllDialogue.StartPosition = FormStartPosition.Manual;
             readAllDialogue.Location = Point.Add(Location, new Size(100, 100));
             SuspendDrawing(this);
+            SuspendSorting();
             readAllDialogue.ShowDialog();
+            ResumeSorting();
             ResumeDrawing(this);
+        }
+
+        private Dictionary<PluginListView, object> PluginComparer;
+
+        private void SuspendSorting()
+        {
+            PluginComparer = new();
+            foreach (var panel in uiPanels.Values)
+            {
+                foreach (var control in panel.Controls)
+                {
+                    if (control?.GetType() == typeof(PluginListView))
+                    {
+                        var listView = (PluginListView)control;
+                        PluginComparer.Add(listView, listView.ListViewItemSorter);
+                        listView.ListViewItemSorter = null;
+                    }
+                }
+            }
+        }
+
+        private void ResumeSorting()
+        {
+            if (PluginComparer?.Any() ?? false)
+                foreach (var panel in PluginComparer.Keys)
+                {
+                    panel.ListViewItemSorter = (IObservatoryComparer)PluginComparer[panel];
+                }
+            PluginComparer?.Clear();
         }
 
         private void PopupNotificationLabel_Click(object _, EventArgs e)
