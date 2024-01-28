@@ -6,6 +6,8 @@ namespace Observatory.Herald
 {
     public class HeraldNotifier : IObservatoryNotifier
     {
+        private IObservatoryCore Core;
+
         public HeraldNotifier()
         {
             heraldSettings = DefaultSettings;
@@ -53,8 +55,10 @@ namespace Observatory.Herald
                 }
             }
         }
+
         public void Load(IObservatoryCore observatoryCore)
         {
+            Core = observatoryCore;
             var speechManager = new SpeechRequestManager(
                 heraldSettings, observatoryCore.HttpClient, observatoryCore.PluginStorageFolder, observatoryCore.GetPluginErrorLogger(this));
             heraldSpeech = new HeraldQueue(speechManager, observatoryCore.GetPluginErrorLogger(this), observatoryCore);
@@ -77,6 +81,8 @@ namespace Observatory.Herald
 
         public void OnNotificationEvent(NotificationArgs notificationEventArgs)
         {
+            if (Core.IsLogMonitorBatchReading) return;
+
             if (heraldSettings.Enabled && notificationEventArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 heraldSpeech.Enqueue(
                     notificationEventArgs, 

@@ -46,13 +46,22 @@ namespace Observatory.PluginManagement
         {
             var guid = Guid.Empty;
 
+#if DEBUG // For exercising testing notifier plugins in read-all
+            if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
+            {
+                var handler = Notification;
+                handler?.Invoke(this, notificationArgs);
+            }
+#endif
             if (!IsLogMonitorBatchReading)
             {
+#if !DEBUG
                 if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
                 {
                     var handler = Notification;
                     handler?.Invoke(this, notificationArgs);
                 }
+#endif
 
                 if (!OverridePopup && Properties.Core.Default.NativeNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
                 {
