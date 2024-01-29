@@ -279,7 +279,7 @@ namespace Observatory.UI
 
         private TrackBar CreateSettingTrackbar(PropertyInfo setting)
         {
-            SettingNumericBounds? bounds = (SettingNumericBounds?)System.Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
+            SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
 
             var minBound = Convert.ToInt32(bounds?.Minimum ?? 0);
             var maxBound = Convert.ToInt32(bounds?.Maximum ?? 100);
@@ -330,7 +330,7 @@ namespace Observatory.UI
 
         private NumericUpDown CreateSettingNumericUpDownForDouble(PropertyInfo setting)
         {
-            SettingNumericBounds? bounds = (SettingNumericBounds?)System.Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
+            SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
             NumericUpDown numericUpDown = new()
             {
                 Width = _colWidth,
