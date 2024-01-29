@@ -4,6 +4,22 @@
         <name>ObservatoryFramework</name>
     </assembly>
     <members>
+        <member name="T:Observatory.Framework.SettingSuggestedColumnWidth">
+            <summary>
+            Specifies the width of a settings column in the settings view. There are two columns.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.SettingSuggestedColumnWidth.#ctor(System.Int32)">
+            <summary>
+            Specifies the width of a settings column in the settings view. There are two columns.
+            </summary>
+            <param name="width">Provides a hint of the width of a settings column.</param>
+        </member>
+        <member name="P:Observatory.Framework.SettingSuggestedColumnWidth.Width">
+            <summary>
+            Provides a hint of the width of a settings column.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.SettingDisplayName">
             <summary>
             Specifies text to display as the name of the setting in the UI instead of the property name.
@@ -20,9 +36,20 @@
             Accessor to get/set displayed name.
             </summary>
         </member>
-        <member name="T:Observatory.Framework.ColumnSuggestedWidth">
+        <member name="T:Observatory.Framework.SettingNewGroup">
             <summary>
-            Suggests default column width when building basic UI
+            Starts a new visual group of settings beginning with the current setting with an optional label.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.SettingNewGroup.#ctor(System.String)">
+            <summary>
+            Starts a new visual group of settings beginning with the current setting with an optional label.
+            </summary>
+            <param name="label">An optional label describing the group.</param>
+        </member>
+        <member name="P:Observatory.Framework.SettingNewGroup.Label">
+            <summary>
+            An optional label describing the group.
             </summary>
         </member>
         <member name="T:Observatory.Framework.SettingIgnore">
@@ -56,13 +83,14 @@
             Specify bounds for numeric inputs.
             </summary>
         </member>
-        <member name="M:Observatory.Framework.SettingNumericBounds.#ctor(System.Double,System.Double,System.Double)">
+        <member name="M:Observatory.Framework.SettingNumericBounds.#ctor(System.Double,System.Double,System.Double,System.Int32)">
             <summary>
             Specify bounds for numeric inputs.
             </summary>
             <param name="minimum">Minimum allowed value.</param>
             <param name="maximum">Maximum allowed value.</param>
             <param name="increment">Increment between allowed values in slider/roller inputs.</param>
+            <param name="precision">The number of digits to display for non integer values.</param>
         </member>
         <member name="P:Observatory.Framework.SettingNumericBounds.Minimum">
             <summary>
@@ -71,12 +99,33 @@
         </member>
         <member name="P:Observatory.Framework.SettingNumericBounds.Maximum">
             <summary>
-            Maxunyn allowed value.
+            Maximum allowed value.
             </summary>
         </member>
         <member name="P:Observatory.Framework.SettingNumericBounds.Increment">
             <summary>
             Increment between allowed values in slider/roller inputs.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.SettingNumericBounds.Precision">
+            <summary>
+            The number of digits to display for non integer values.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.ColumnSuggestedWidth">
+            <summary>
+            Suggests default column width when building basic plugin grid UI.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.ColumnSuggestedWidth.#ctor(System.Int32)">
+            <summary>
+            Suggests default column width when building basic plugin grid UI.
+            </summary>
+            <param name="width">The suggested width of the annotated column.</param>
+        </member>
+        <member name="P:Observatory.Framework.ColumnSuggestedWidth.Width">
+            <summary>
+            The suggested width of the annotated column.
             </summary>
         </member>
         <member name="T:Observatory.Framework.JournalEventArgs">

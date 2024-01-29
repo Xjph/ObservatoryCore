@@ -7,11 +7,12 @@ using System.Threading.Tasks;
 
 namespace Observatory.Botanist
 {
+    [SettingSuggestedColumnWidth(450)]
     class BotanistSettings
     {
         [SettingDisplayName("Enable Sampler Status Overlay")]
         public bool OverlayEnabled { get; set; }
-        [SettingDisplayName("Sampler Status Overlay is sticky until sampling complete (if enabled)")]
+        [SettingDisplayName("Status Overlay is sticky until sampling is complete")]
         public bool OverlayIsSticky { get; set; }
     }
 }
