@@ -1,12 +1,14 @@
 using Observatory.PluginManagement;
 using Observatory.Framework.Interfaces;
 using System.Linq;
+using System.Text.Json;
 
 namespace Observatory.UI
 {
     partial class CoreForm
     {
         private Dictionary<ListViewItem, IObservatoryPlugin>? ListedPlugins;
+        private bool loading = true; // Suppress settings updates due to initializing the listview.
 
         private void PopulatePluginList()
         {
@@ -19,7 +21,8 @@ namespace Observatory.UI
                     
                     ListViewItem item = new ListViewItem(new[] { plugin.Name, "Worker", plugin.Version, PluginStatusString(signed) });
                     ListedPlugins.Add(item, plugin);
-                    PluginList.Items.Add(item);
+                    var lvItem = PluginList.Items.Add(item);
+                    lvItem.Checked = true; // Start with enabled, let settings disable things.
                 }
             }
 
@@ -29,12 +32,17 @@ namespace Observatory.UI
                 {
                     ListViewItem item = new ListViewItem(new[] { plugin.Name, "Notifier", plugin.Version, PluginStatusString(signed) });
                     ListedPlugins.Add(item, plugin);
-                    PluginList.Items.Add(item);
+                    var lvItem = PluginList.Items.Add(item);
+                    lvItem.Checked = true; // Start with enabled, let settings disable things.
                 }
             }
 
+            PluginsEnabledStateFromSettings();
+
             PluginList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
             PluginList.AutoResizeColumns(ColumnHeaderAutoResizeStyle.HeaderSize);
+
+            loading = false;
         }
 
         private static string PluginStatusString(PluginManager.PluginStatus status)
@@ -136,7 +144,7 @@ namespace Observatory.UI
                 maxWidth = itemWidth.Width > maxWidth ? itemWidth.Width : maxWidth;
             }
 
-            return maxWidth + 5;
+            return maxWidth + 25;
         }
 
         private void PluginSettingsButton_Click(object sender, EventArgs e)
@@ -155,6 +163,56 @@ namespace Observatory.UI
                     settingsForm.FormClosed += (_, _) => SettingsForms.Remove(plugin);
                     settingsForm.Show();
                 }
+            }
+        }
+
+        private void PluginsEnabledStateFromSettings()
+        {
+            if (ListedPlugins == null) return;
+
+            string pluginsEnabledStr = Properties.Core.Default.PluginsEnabled;
+            Dictionary<string, bool>? pluginsEnabled = null;
+            if (!string.IsNullOrWhiteSpace(pluginsEnabledStr))
+            {
+                try
+                {
+                    pluginsEnabled = JsonSerializer.Deserialize<Dictionary<string, bool>>(pluginsEnabledStr);
+                }
+                catch
+                {
+                    // Failed deserialization means bad value, blow it away.
+                    Properties.Core.Default.PluginsEnabled = string.Empty;
+                    Properties.Core.Default.Save();
+                }
+            }
+
+            if (pluginsEnabled == null) return;
+
+            foreach (var p in ListedPlugins)
+            {
+                if (pluginsEnabled.ContainsKey(p.Value.Name) && !pluginsEnabled[p.Value.Name])
+                {
+                    // Plugin is disabled.
+                    p.Key.Checked = false; // This triggers the listview ItemChecked event.
+                }
+            }
+        }
+
+        private void PluginList_ItemChecked(object sender, ItemCheckedEventArgs e)
+        {
+            if (ListedPlugins == null) return;
+
+            var plugin = ListedPlugins[e.Item];
+            var enabled = e.Item.Checked;
+
+            PluginManager.GetInstance.SetPluginEnabled(plugin, enabled);
+
+            if (!loading)
+            {
+                Dictionary<string, bool> pluginsEnabled = ListedPlugins.ToDictionary(e => e.Value.Name, e => e.Key.Checked);
+
+                Properties.Core.Default.PluginsEnabled = JsonSerializer.Serialize(pluginsEnabled);
+                Properties.Core.Default.Save();
             }
         }
 

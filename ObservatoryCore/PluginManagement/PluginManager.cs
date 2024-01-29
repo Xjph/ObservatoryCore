@@ -36,12 +36,13 @@ namespace Observatory.PluginManagement
         public readonly List<(IObservatoryWorker plugin, PluginStatus signed)> workerPlugins;
         public readonly List<(IObservatoryNotifier plugin, PluginStatus signed)> notifyPlugins;
         private readonly PluginCore core;
+        private readonly PluginEventHandler pluginHandler;
         
         private PluginManager()
         {
             errorList = LoadPlugins(out workerPlugins, out notifyPlugins);
 
-            var pluginHandler = new PluginEventHandler(workerPlugins.Select(p => p.plugin), notifyPlugins.Select(p => p.plugin));
+            pluginHandler = new PluginEventHandler(workerPlugins.Select(p => p.plugin), notifyPlugins.Select(p => p.plugin));
             var logMonitor = LogMonitor.GetInstance;
             pluginPanels = new();
             pluginTables = new();
@@ -194,6 +195,11 @@ namespace Observatory.PluginManagement
 
             Properties.Core.Default.PluginSettings = newSettings;
             SettingsManager.Save();
+        }
+
+        public void SetPluginEnabled(IObservatoryPlugin plugin, bool enabled)
+        {
+            pluginHandler.SetPluginEnabled(plugin, enabled);
         }
 
         private static List<(string, string?)> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
