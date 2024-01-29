@@ -309,5 +309,17 @@ namespace Observatory.Properties {
                 this["ColumnSizing"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PluginsEnabled {
+            get {
+                return ((string)(this["PluginsEnabled"]));
+            }
+            set {
+                this["PluginsEnabled"] = value;
+            }
+        }
     }
 }

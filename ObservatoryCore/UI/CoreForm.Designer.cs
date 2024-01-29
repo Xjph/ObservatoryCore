@@ -136,7 +136,7 @@
             // 
             ThemeLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             ThemeLabel.BorderStyle = BorderStyle.FixedSingle;
-            ThemeLabel.Location = new Point(3, 603);
+            ThemeLabel.Location = new Point(3, 656);
             ThemeLabel.Name = "ThemeLabel";
             ThemeLabel.Size = new Size(659, 23);
             ThemeLabel.TabIndex = 7;
@@ -148,7 +148,7 @@
             PluginSettingsButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginSettingsButton.FlatAppearance.BorderSize = 0;
             PluginSettingsButton.FlatStyle = FlatStyle.Flat;
-            PluginSettingsButton.Location = new Point(396, 140);
+            PluginSettingsButton.Location = new Point(396, 193);
             PluginSettingsButton.Name = "PluginSettingsButton";
             PluginSettingsButton.Size = new Size(130, 23);
             PluginSettingsButton.TabIndex = 6;
@@ -167,7 +167,7 @@
             VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
             VoiceSettingsPanel.Controls.Add(VoiceVolumeLabel);
-            VoiceSettingsPanel.Location = new Point(3, 426);
+            VoiceSettingsPanel.Location = new Point(3, 479);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
             VoiceSettingsPanel.Size = new Size(659, 177);
             VoiceSettingsPanel.TabIndex = 5;
@@ -262,7 +262,7 @@
             // 
             VoiceNotificationLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             VoiceNotificationLabel.BorderStyle = BorderStyle.FixedSingle;
-            VoiceNotificationLabel.Location = new Point(3, 403);
+            VoiceNotificationLabel.Location = new Point(3, 456);
             VoiceNotificationLabel.Name = "VoiceNotificationLabel";
             VoiceNotificationLabel.Size = new Size(659, 23);
             VoiceNotificationLabel.TabIndex = 4;
@@ -287,7 +287,7 @@
             PopupSettingsPanel.Controls.Add(DisplayDropdown);
             PopupSettingsPanel.Controls.Add(CornerLabel);
             PopupSettingsPanel.Controls.Add(DisplayLabel);
-            PopupSettingsPanel.Location = new Point(3, 195);
+            PopupSettingsPanel.Location = new Point(3, 248);
             PopupSettingsPanel.Name = "PopupSettingsPanel";
             PopupSettingsPanel.Size = new Size(659, 208);
             PopupSettingsPanel.TabIndex = 3;
@@ -440,7 +440,7 @@
             // 
             PopupNotificationLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             PopupNotificationLabel.BorderStyle = BorderStyle.FixedSingle;
-            PopupNotificationLabel.Location = new Point(3, 172);
+            PopupNotificationLabel.Location = new Point(3, 225);
             PopupNotificationLabel.Name = "PopupNotificationLabel";
             PopupNotificationLabel.Size = new Size(659, 23);
             PopupNotificationLabel.TabIndex = 2;
@@ -453,7 +453,7 @@
             PluginFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginFolderButton.FlatAppearance.BorderSize = 0;
             PluginFolderButton.FlatStyle = FlatStyle.Flat;
-            PluginFolderButton.Location = new Point(532, 140);
+            PluginFolderButton.Location = new Point(532, 193);
             PluginFolderButton.Name = "PluginFolderButton";
             PluginFolderButton.Size = new Size(130, 23);
             PluginFolderButton.TabIndex = 1;
@@ -464,17 +464,20 @@
             // 
             PluginList.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             PluginList.BorderStyle = BorderStyle.None;
+            PluginList.CheckBoxes = true;
             PluginList.Columns.AddRange(new ColumnHeader[] { NameColumn, TypeColumn, VersionColumn, StatusColumn });
+            PluginList.FullRowSelect = true;
             PluginList.HeaderStyle = ColumnHeaderStyle.Nonclickable;
             PluginList.ImeMode = ImeMode.NoControl;
             PluginList.Location = new Point(3, 3);
             PluginList.MultiSelect = false;
             PluginList.Name = "PluginList";
             PluginList.OwnerDraw = true;
-            PluginList.Size = new Size(659, 137);
+            PluginList.Size = new Size(659, 184);
             PluginList.TabIndex = 0;
             PluginList.UseCompatibleStateImageBehavior = false;
             PluginList.View = View.Details;
+            PluginList.ItemChecked += PluginList_ItemChecked;
             PluginList.Resize += PluginList_Resize;
             // 
             // NameColumn

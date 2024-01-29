@@ -17,7 +17,7 @@ namespace Observatory.UI
         internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryWorker plugin, PluginManagement.PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
         {
             List<string> pluginList = new List<string>();
-            foreach (var plugin in plugins)
+            foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
             {
                 AddPlugin(menu, plugin.plugin, plugin.signed, uiPanels);
                 pluginList.Add(plugin.plugin.ShortName);
@@ -28,7 +28,7 @@ namespace Observatory.UI
         internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryNotifier plugin, PluginManagement.PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
         {
             List<string> pluginList = new List<string>();
-            foreach (var plugin in plugins)
+            foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
             {
                 AddPlugin(menu, plugin.plugin, plugin.signed, uiPanels);
                 pluginList.Add(plugin.plugin.ShortName);
@@ -73,12 +73,13 @@ namespace Observatory.UI
                 View = View.Details,
                 Location = new Point(0, 0),
                 Size = panel.Size,
-                Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Top,
+                Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(64, 64, 64),
                 ForeColor = Color.LightGray,
                 ListViewItemSorter = columnSorter,
                 Font = new Font(new FontFamily("Segoe UI"), 10, FontStyle.Regular)
             };
+            panel.Controls.Add(listView);
 
             string colSize = Properties.Core.Default.ColumnSizing;
             List<ColumnSizing>? columnSizing = null;
@@ -212,8 +213,6 @@ namespace Observatory.UI
                 }
                 listView.Sort();
             };
-
-            panel.Controls.Add(listView);
 
             plugin.PluginUI.DataGrid.CollectionChanged += (sender, e) =>
             {

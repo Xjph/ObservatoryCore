@@ -112,10 +112,10 @@ namespace Observatory.UI
                     if (menuItem.Value.Text == "<")
                         menuItem.Value.Text = ">";
                     else
-                        menuItem.Value.Text = menuItem.Key[..1];
+                        menuItem.Value.Text = menuItem.Key[..3];
                 }
-                CoreMenu.Width = 40;
-                ResizePanels(new Point(43, 12), 0);
+                CoreMenu.Width = 110;
+                ResizePanels(new Point(CoreMenu.Width + 3, 12), 0);
             }
             else if (e.ClickedItem.Text == ">")
             {
