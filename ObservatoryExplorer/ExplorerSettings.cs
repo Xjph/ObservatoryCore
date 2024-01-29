@@ -1,12 +1,14 @@
 ﻿using Observatory.Framework;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Observatory.Explorer
 {
+    [SettingSuggestedColumnWidth(300)]
     public class ExplorerSettings
     {
         public ExplorerSettings()
@@ -14,6 +16,12 @@ namespace Observatory.Explorer
             CustomCriteriaFile = $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}{System.IO.Path.DirectorySeparatorChar}ObservatoryCriteria.lua";
         }
 
+        [SettingNewGroup("Display")]
+        [SettingDisplayName("Only Show Current System")]
+        public bool OnlyShowCurrentSystem { get; set; }
+
+
+        [SettingNewGroup("Built-in Criteria")]
         [SettingDisplayName("Landable & Terraformable")]
         public bool LandableTerraformable { get; set; }
 
@@ -83,12 +91,9 @@ namespace Observatory.Explorer
         [SettingDisplayName("High-Value Body")]
         public bool HighValueMappable { get; set; }
 
+        [SettingNewGroup("Custom Criteria")]
         [SettingDisplayName("Enable Custom Criteria")]
         public bool EnableCustomCriteria { get; set; }
-
-        [SettingDisplayName("Only Show Current System")]
-        public bool OnlyShowCurrentSystem { get; set; }
-
         [SettingDisplayName("Custom Criteria File")]
         [System.Text.Json.Serialization.JsonIgnore]
         public System.IO.FileInfo CustomCriteria {get => new System.IO.FileInfo(CustomCriteriaFile); set => CustomCriteriaFile = value.FullName;}
