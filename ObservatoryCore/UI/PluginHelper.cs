@@ -61,6 +61,7 @@ namespace Observatory.UI
             {
                 Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom | AnchorStyles.Top
             };
+            plugin.PluginUI.UI = panel;
 
             IObservatoryComparer columnSorter;
             if (plugin.ColumnSorter != null)

@@ -2,6 +2,7 @@
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using Observatory.NativeNotification;
+using Observatory.UI;
 using Observatory.Utils;
 using System;
 using System.Collections.ObjectModel;
@@ -114,11 +115,27 @@ namespace Observatory.PluginManagement
 
         public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
         {
-            //TODO: Use better bulk handling here.
+            BeginBulkUpdate(worker);
+
             foreach (var item in items)
             {
                 worker.PluginUI.DataGrid.Add(item);
             }
+
+            EndBulkUpdate(worker);
+        }
+
+        public void SetGridItems(IObservatoryWorker worker, IEnumerable<object> items)
+        {
+            BeginBulkUpdate(worker);
+
+            worker.PluginUI.DataGrid.Clear();
+            foreach (var item in items)
+            {
+                worker.PluginUI.DataGrid.Add(item);
+            }
+
+            EndBulkUpdate(worker);
         }
 
         public void ClearGrid(IObservatoryWorker worker, object templateItem)
@@ -185,6 +202,41 @@ namespace Observatory.PluginManagement
         internal void Shutdown()
         {
             NativePopup.CloseAll();
+        }
+
+        private void BeginBulkUpdate(IObservatoryWorker worker)
+        {
+            PluginListView? listView = FindPluginListView(worker);
+            if (listView == null) return;
+
+            ExecuteOnUIThread(() => { listView.SuspendDrawing(); });
+        }
+
+        private void EndBulkUpdate(IObservatoryWorker worker)
+        {
+            PluginListView? listView = FindPluginListView(worker);
+            if (listView == null) return;
+
+            ExecuteOnUIThread(() => { listView.ResumeDrawing(); });
+        }
+
+        private PluginListView? FindPluginListView(IObservatoryWorker worker)
+        {
+            if (worker.PluginUI.PluginUIType != PluginUI.UIType.Basic
+                || !(worker.PluginUI.UI is Panel)) return null;
+
+            PluginListView? listView = null;
+            Panel panel = worker.PluginUI.UI as Panel;
+
+            foreach (var control in panel.Controls)
+            {
+                if (control?.GetType() == typeof(PluginListView))
+                {
+                    listView = (PluginListView)control;
+                    return listView;
+                }
+            }
+            return null;
         }
     }
 }

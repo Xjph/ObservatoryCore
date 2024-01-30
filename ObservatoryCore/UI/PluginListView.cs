@@ -1,20 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Observatory.UI
 {
     internal class PluginListView : ListView
     {
-        [DllImport("user32.dll")]
-        private static extern int SendMessage(IntPtr hWnd, int wMsg, bool wParam, int lParam);
-        
-        private const int WM_SETREDRAW = 11;
-
         public PluginListView()
         {
             OwnerDraw = true;
@@ -26,6 +23,25 @@ namespace Observatory.UI
             
             DoubleBuffered = true;
             base.GridLines = false;//We should prevent the default drawing of gridlines.
+        }
+
+        // Stash for performance when doing large UI updates.
+        private IComparer? comparer = null;
+
+        public void SuspendDrawing()
+        {
+            BeginUpdate();
+            comparer = ListViewItemSorter;
+        }
+
+        public void ResumeDrawing()
+        {
+            if (comparer != null)
+            {
+                ListViewItemSorter = comparer;
+                comparer = null;
+            }
+            EndUpdate();
         }
 
         private static void DrawBorder(Graphics graphics, Pen pen, Rectangle bounds, bool header = false)
