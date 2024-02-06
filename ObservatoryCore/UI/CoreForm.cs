@@ -12,6 +12,7 @@ namespace Observatory.UI
     public partial class CoreForm : Form
     {
         private readonly Dictionary<object, Panel> uiPanels;
+        private ThemeManager themeManager;
 
         [DllImport("user32.dll")]
         private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
@@ -52,22 +53,20 @@ namespace Observatory.UI
             DisableOverriddenNotification();
             CoreMenu.ItemClicked += CoreMenu_ItemClicked;
 
-            PreCollapsePanels();
+            themeManager = ThemeManager.GetInstance;
+            themeManager.RegisterControl(this);
 
-            ThemeManager.GetInstance.RegisterControl(this);
-        }
-
-        private void PreCollapsePanels()
-        {
-            AdjustPanelsBelow(VoiceSettingsPanel, AdjustmentDirection.Up);
-            AdjustPanelsBelow(PopupSettingsPanel, AdjustmentDirection.Up);
+            foreach (var theme in themeManager.GetThemes)
+            {
+                ThemeDropdown.Items.Add(theme);
+            }
+            ThemeDropdown.SelectedItem = themeManager.CurrentTheme;
         }
 
         private void CoreMenu_SizeChanged(object? sender, EventArgs e)
         {
             CorePanel.Location = new Point(12 + CoreMenu.Width, 12);
             CorePanel.Width = Width - CoreMenu.Width - 40;
-
         }
 
         private readonly Dictionary<string, ToolStripMenuItem> pluginList;
@@ -88,7 +87,6 @@ namespace Observatory.UI
 
         private void ResizePanels(Point location, int widthChange)
         {
-
             CorePanel.Location = location;
             CorePanel.Width += widthChange;
             foreach (var panel in uiPanels)
@@ -99,7 +97,6 @@ namespace Observatory.UI
                     panel.Value.Size = CorePanel.Size;
                 }
             }
-
         }
 
         private void CoreMenu_ItemClicked(object? _, ToolStripItemClickedEventArgs e)
@@ -261,61 +258,6 @@ namespace Observatory.UI
             PluginComparer?.Clear();
         }
 
-        private void PopupNotificationLabel_Click(object _, EventArgs e)
-        {
-            CorePanel.SuspendLayout();
-            if (PopupNotificationLabel.Text[0] == '❯')
-            {
-                PopupNotificationLabel.Text = PopupNotificationLabel.Text.Replace('❯', '⌵');
-                PopupSettingsPanel.Visible = true;
-                AdjustPanelsBelow(PopupSettingsPanel, AdjustmentDirection.Down);
-            }
-            else
-            {
-                PopupNotificationLabel.Text = PopupNotificationLabel.Text.Replace('⌵', '❯');
-                PopupSettingsPanel.Visible = false;
-                AdjustPanelsBelow(PopupSettingsPanel, AdjustmentDirection.Up);
-            }
-            CorePanel.ResumeLayout();
-        }
-
-        private void VoiceNotificationLabel_Click(object sender, EventArgs e)
-        {
-            CorePanel.SuspendLayout();
-            if (VoiceNotificationLabel.Text[0] == '❯')
-            {
-                VoiceNotificationLabel.Text = VoiceNotificationLabel.Text.Replace('❯', '⌵');
-                VoiceSettingsPanel.Visible = true;
-                AdjustPanelsBelow(VoiceSettingsPanel, AdjustmentDirection.Down);
-            }
-            else
-            {
-                VoiceNotificationLabel.Text = VoiceNotificationLabel.Text.Replace('⌵', '❯');
-                VoiceSettingsPanel.Visible = false;
-                AdjustPanelsBelow(VoiceSettingsPanel, AdjustmentDirection.Up);
-            }
-            CorePanel.ResumeLayout();
-        }
-
-        private void AdjustPanelsBelow(Control toggledControl, AdjustmentDirection adjustmentDirection)
-        {
-            var distance = adjustmentDirection == AdjustmentDirection.Down ? toggledControl.Height : -toggledControl.Height;
-            foreach (Control control in CorePanel.Controls)
-            {
-                var loc = control.Location;
-                if (loc.Y >= toggledControl.Location.Y && control != toggledControl)
-                {
-                    loc.Y = control.Location.Y + distance;
-                    control.Location = loc;
-                }
-            }
-        }
-
-        internal enum AdjustmentDirection
-        {
-            Up, Down
-        }
-
         private Observatory.NativeNotification.NativePopup? nativePopup;
 
         private void TestButton_Click(object sender, EventArgs e)
@@ -344,6 +286,11 @@ namespace Observatory.UI
         private void OpenURL(string url)
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
+        }
+
+        private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            themeManager.CurrentTheme = ThemeDropdown.SelectedItem.ToString() ?? themeManager.CurrentTheme;
         }
     }
 }

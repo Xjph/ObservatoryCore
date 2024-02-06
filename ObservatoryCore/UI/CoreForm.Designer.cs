@@ -34,7 +34,10 @@
             coreToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripMenuItem();
             CorePanel = new Panel();
+            ThemeDropdown = new ComboBox();
             ThemeLabel = new Label();
+            AudioLabel = new Label();
+            PopupLabel = new Label();
             PluginSettingsButton = new Button();
             VoiceSettingsPanel = new Panel();
             VoiceSpeedSlider = new TrackBar();
@@ -45,7 +48,6 @@
             VoiceLabel = new Label();
             VoiceSpeedLabel = new Label();
             VoiceVolumeLabel = new Label();
-            VoiceNotificationLabel = new Label();
             PopupSettingsPanel = new Panel();
             DurationSpinner = new NumericUpDown();
             ScaleSpinner = new NumericUpDown();
@@ -61,7 +63,6 @@
             DisplayDropdown = new ComboBox();
             CornerLabel = new Label();
             DisplayLabel = new Label();
-            PopupNotificationLabel = new Label();
             PluginFolderButton = new Button();
             PluginList = new ListView();
             NameColumn = new ColumnHeader();
@@ -119,12 +120,13 @@
             // 
             CorePanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             CorePanel.AutoScroll = true;
+            CorePanel.Controls.Add(ThemeDropdown);
             CorePanel.Controls.Add(ThemeLabel);
+            CorePanel.Controls.Add(AudioLabel);
+            CorePanel.Controls.Add(PopupLabel);
             CorePanel.Controls.Add(PluginSettingsButton);
             CorePanel.Controls.Add(VoiceSettingsPanel);
-            CorePanel.Controls.Add(VoiceNotificationLabel);
             CorePanel.Controls.Add(PopupSettingsPanel);
-            CorePanel.Controls.Add(PopupNotificationLabel);
             CorePanel.Controls.Add(PluginFolderButton);
             CorePanel.Controls.Add(PluginList);
             CorePanel.Location = new Point(123, 12);
@@ -132,16 +134,43 @@
             CorePanel.Size = new Size(665, 679);
             CorePanel.TabIndex = 1;
             // 
+            // ThemeDropdown
+            // 
+            ThemeDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
+            ThemeDropdown.FormattingEnabled = true;
+            ThemeDropdown.Location = new Point(124, 620);
+            ThemeDropdown.Name = "ThemeDropdown";
+            ThemeDropdown.Size = new Size(121, 23);
+            ThemeDropdown.TabIndex = 10;
+            ThemeDropdown.SelectedIndexChanged += ThemeDropdown_SelectedIndexChanged;
+            // 
             // ThemeLabel
             // 
-            ThemeLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            ThemeLabel.BorderStyle = BorderStyle.FixedSingle;
-            ThemeLabel.Location = new Point(3, 656);
+            ThemeLabel.AutoSize = true;
+            ThemeLabel.Location = new Point(72, 623);
             ThemeLabel.Name = "ThemeLabel";
-            ThemeLabel.Size = new Size(659, 23);
-            ThemeLabel.TabIndex = 7;
-            ThemeLabel.Text = "❯ Theme";
-            ThemeLabel.TextAlign = ContentAlignment.MiddleLeft;
+            ThemeLabel.Size = new Size(46, 15);
+            ThemeLabel.TabIndex = 9;
+            ThemeLabel.Text = "Theme:";
+            ThemeLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // AudioLabel
+            // 
+            AudioLabel.AutoSize = true;
+            AudioLabel.Location = new Point(5, 435);
+            AudioLabel.Name = "AudioLabel";
+            AudioLabel.Size = new Size(106, 15);
+            AudioLabel.TabIndex = 8;
+            AudioLabel.Text = "Voice Notifications";
+            // 
+            // PopupLabel
+            // 
+            PopupLabel.AutoSize = true;
+            PopupLabel.Location = new Point(5, 218);
+            PopupLabel.Name = "PopupLabel";
+            PopupLabel.Size = new Size(113, 15);
+            PopupLabel.TabIndex = 7;
+            PopupLabel.Text = "Popup Notifications";
             // 
             // PluginSettingsButton
             // 
@@ -159,6 +188,7 @@
             // VoiceSettingsPanel
             // 
             VoiceSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            VoiceSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
             VoiceSettingsPanel.Controls.Add(VoiceSpeedSlider);
             VoiceSettingsPanel.Controls.Add(VoiceVolumeSlider);
             VoiceSettingsPanel.Controls.Add(VoiceTestButton);
@@ -167,11 +197,10 @@
             VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
             VoiceSettingsPanel.Controls.Add(VoiceVolumeLabel);
-            VoiceSettingsPanel.Location = new Point(3, 479);
+            VoiceSettingsPanel.Location = new Point(3, 444);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
-            VoiceSettingsPanel.Size = new Size(659, 177);
+            VoiceSettingsPanel.Size = new Size(659, 170);
             VoiceSettingsPanel.TabIndex = 5;
-            VoiceSettingsPanel.Visible = false;
             // 
             // VoiceSpeedSlider
             // 
@@ -221,6 +250,7 @@
             // 
             // VoiceDropdown
             // 
+            VoiceDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             VoiceDropdown.FormattingEnabled = true;
             VoiceDropdown.Location = new Point(121, 102);
             VoiceDropdown.Name = "VoiceDropdown";
@@ -258,21 +288,10 @@
             VoiceVolumeLabel.Text = "Volume:";
             VoiceVolumeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // VoiceNotificationLabel
-            // 
-            VoiceNotificationLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            VoiceNotificationLabel.BorderStyle = BorderStyle.FixedSingle;
-            VoiceNotificationLabel.Location = new Point(3, 456);
-            VoiceNotificationLabel.Name = "VoiceNotificationLabel";
-            VoiceNotificationLabel.Size = new Size(659, 23);
-            VoiceNotificationLabel.TabIndex = 4;
-            VoiceNotificationLabel.Text = "❯ Voice Notifications";
-            VoiceNotificationLabel.TextAlign = ContentAlignment.MiddleLeft;
-            VoiceNotificationLabel.Click += VoiceNotificationLabel_Click;
-            // 
             // PopupSettingsPanel
             // 
             PopupSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PopupSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
             PopupSettingsPanel.Controls.Add(DurationSpinner);
             PopupSettingsPanel.Controls.Add(ScaleSpinner);
             PopupSettingsPanel.Controls.Add(LabelColour);
@@ -287,16 +306,15 @@
             PopupSettingsPanel.Controls.Add(DisplayDropdown);
             PopupSettingsPanel.Controls.Add(CornerLabel);
             PopupSettingsPanel.Controls.Add(DisplayLabel);
-            PopupSettingsPanel.Location = new Point(3, 248);
+            PopupSettingsPanel.Location = new Point(3, 227);
             PopupSettingsPanel.Name = "PopupSettingsPanel";
-            PopupSettingsPanel.Size = new Size(659, 208);
+            PopupSettingsPanel.Size = new Size(659, 207);
             PopupSettingsPanel.TabIndex = 3;
-            PopupSettingsPanel.Visible = false;
             // 
             // DurationSpinner
             // 
             DurationSpinner.Increment = new decimal(new int[] { 25, 0, 0, 0 });
-            DurationSpinner.Location = new Point(121, 119);
+            DurationSpinner.Location = new Point(121, 123);
             DurationSpinner.Maximum = new decimal(new int[] { 60000, 0, 0, 0 });
             DurationSpinner.Minimum = new decimal(new int[] { 100, 0, 0, 0 });
             DurationSpinner.Name = "DurationSpinner";
@@ -307,7 +325,7 @@
             // 
             // ScaleSpinner
             // 
-            ScaleSpinner.Location = new Point(121, 90);
+            ScaleSpinner.Location = new Point(121, 94);
             ScaleSpinner.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
             ScaleSpinner.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             ScaleSpinner.Name = "ScaleSpinner";
@@ -319,7 +337,7 @@
             // LabelColour
             // 
             LabelColour.AutoSize = true;
-            LabelColour.Location = new Point(68, 152);
+            LabelColour.Location = new Point(68, 156);
             LabelColour.Name = "LabelColour";
             LabelColour.Size = new Size(46, 15);
             LabelColour.TabIndex = 13;
@@ -329,7 +347,7 @@
             // TestButton
             // 
             TestButton.FlatStyle = FlatStyle.Flat;
-            TestButton.Location = new Point(190, 148);
+            TestButton.Location = new Point(190, 152);
             TestButton.Name = "TestButton";
             TestButton.Size = new Size(51, 23);
             TestButton.TabIndex = 12;
@@ -340,7 +358,7 @@
             // ColourButton
             // 
             ColourButton.FlatStyle = FlatStyle.Flat;
-            ColourButton.Location = new Point(121, 148);
+            ColourButton.Location = new Point(121, 152);
             ColourButton.Name = "ColourButton";
             ColourButton.Size = new Size(51, 23);
             ColourButton.TabIndex = 11;
@@ -350,7 +368,7 @@
             // PopupCheckbox
             // 
             PopupCheckbox.AutoSize = true;
-            PopupCheckbox.Location = new Point(120, 177);
+            PopupCheckbox.Location = new Point(120, 181);
             PopupCheckbox.Name = "PopupCheckbox";
             PopupCheckbox.Size = new Size(68, 19);
             PopupCheckbox.TabIndex = 10;
@@ -361,7 +379,7 @@
             // LabelDuration
             // 
             LabelDuration.AutoSize = true;
-            LabelDuration.Location = new Point(32, 121);
+            LabelDuration.Location = new Point(32, 125);
             LabelDuration.Name = "LabelDuration";
             LabelDuration.Size = new Size(83, 15);
             LabelDuration.TabIndex = 9;
@@ -371,7 +389,7 @@
             // LabelScale
             // 
             LabelScale.AutoSize = true;
-            LabelScale.Location = new Point(57, 92);
+            LabelScale.Location = new Point(57, 96);
             LabelScale.Name = "LabelScale";
             LabelScale.Size = new Size(58, 15);
             LabelScale.TabIndex = 7;
@@ -380,8 +398,9 @@
             // 
             // FontDropdown
             // 
+            FontDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             FontDropdown.FormattingEnabled = true;
-            FontDropdown.Location = new Point(120, 61);
+            FontDropdown.Location = new Point(120, 65);
             FontDropdown.Name = "FontDropdown";
             FontDropdown.Size = new Size(121, 23);
             FontDropdown.TabIndex = 5;
@@ -390,7 +409,7 @@
             // LabelFont
             // 
             LabelFont.AutoSize = true;
-            LabelFont.Location = new Point(80, 64);
+            LabelFont.Location = new Point(80, 68);
             LabelFont.Name = "LabelFont";
             LabelFont.Size = new Size(34, 15);
             LabelFont.TabIndex = 4;
@@ -399,9 +418,10 @@
             // 
             // CornerDropdown
             // 
+            CornerDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             CornerDropdown.FormattingEnabled = true;
             CornerDropdown.Items.AddRange(new object[] { "Bottom-Right", "Bottom-Left", "Top-Right", "Top-Left" });
-            CornerDropdown.Location = new Point(120, 32);
+            CornerDropdown.Location = new Point(120, 36);
             CornerDropdown.Name = "CornerDropdown";
             CornerDropdown.Size = new Size(121, 23);
             CornerDropdown.TabIndex = 3;
@@ -409,8 +429,9 @@
             // 
             // DisplayDropdown
             // 
+            DisplayDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             DisplayDropdown.FormattingEnabled = true;
-            DisplayDropdown.Location = new Point(120, 3);
+            DisplayDropdown.Location = new Point(120, 7);
             DisplayDropdown.Name = "DisplayDropdown";
             DisplayDropdown.Size = new Size(121, 23);
             DisplayDropdown.TabIndex = 2;
@@ -419,7 +440,7 @@
             // CornerLabel
             // 
             CornerLabel.AutoSize = true;
-            CornerLabel.Location = new Point(68, 35);
+            CornerLabel.Location = new Point(68, 39);
             CornerLabel.Name = "CornerLabel";
             CornerLabel.Size = new Size(46, 15);
             CornerLabel.TabIndex = 1;
@@ -429,24 +450,12 @@
             // DisplayLabel
             // 
             DisplayLabel.AutoSize = true;
-            DisplayLabel.Location = new Point(66, 6);
+            DisplayLabel.Location = new Point(66, 10);
             DisplayLabel.Name = "DisplayLabel";
             DisplayLabel.Size = new Size(48, 15);
             DisplayLabel.TabIndex = 0;
             DisplayLabel.Text = "Display:";
             DisplayLabel.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // PopupNotificationLabel
-            // 
-            PopupNotificationLabel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            PopupNotificationLabel.BorderStyle = BorderStyle.FixedSingle;
-            PopupNotificationLabel.Location = new Point(3, 225);
-            PopupNotificationLabel.Name = "PopupNotificationLabel";
-            PopupNotificationLabel.Size = new Size(659, 23);
-            PopupNotificationLabel.TabIndex = 2;
-            PopupNotificationLabel.Text = "❯ Popup Notifications";
-            PopupNotificationLabel.TextAlign = ContentAlignment.MiddleLeft;
-            PopupNotificationLabel.Click += PopupNotificationLabel_Click;
             // 
             // PluginFolderButton
             // 
@@ -593,6 +602,7 @@
             CoreMenu.ResumeLayout(false);
             CoreMenu.PerformLayout();
             CorePanel.ResumeLayout(false);
+            CorePanel.PerformLayout();
             VoiceSettingsPanel.ResumeLayout(false);
             VoiceSettingsPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).EndInit();
@@ -627,7 +637,6 @@
         private ComboBox DisplayDropdown;
         private Label CornerLabel;
         private Label DisplayLabel;
-        private Label PopupNotificationLabel;
         private NumericUpDown DurationSpinner;
         private NumericUpDown ScaleSpinner;
         private Label LabelColour;
@@ -649,9 +658,11 @@
         private Label VoiceLabel;
         private Label VoiceSpeedLabel;
         private Label VoiceVolumeLabel;
-        private Label VoiceNotificationLabel;
         private Button PluginSettingsButton;
-        private Label ThemeLabel;
         private ToolTip OverrideTooltip;
+        private Label AudioLabel;
+        private Label PopupLabel;
+        private Label ThemeLabel;
+        private ComboBox ThemeDropdown;
     }
 }

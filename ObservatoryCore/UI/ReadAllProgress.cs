@@ -1,13 +1,5 @@
 ﻿using Observatory.Utils;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Observatory.UI
 {
@@ -15,10 +7,23 @@ namespace Observatory.UI
     {
         private CancellationTokenSource ReadAllCancel;
 
+        private byte[] eggBytes = 
+        { 
+            0x52, 0x65, 0x74, 0x69, 
+            0x63, 0x75, 0x6C, 0x61, 
+            0x74, 0x69, 0x6E, 0x67, 
+            0x20, 0x53, 0x70, 0x6C, 
+            0x69, 0x6E, 0x65, 0x73, 
+            0x2E, 0x2E, 0x2E 
+        };
+
         public ReadAllForm()
         {
             InitializeComponent();
-            
+
+            if (new Random().Next(1, 20) == 20)
+                Text = Encoding.UTF8.GetString(eggBytes);
+
             var ReadAllJournals = LogMonitor.GetInstance.ReadAllGenerator(out int fileCount);
             int progressCount = 0;
             ReadAllCancel = new CancellationTokenSource();
@@ -41,7 +46,6 @@ namespace Observatory.UI
                 }
                 Invoke(()=>Close());
             });
-            
         }
 
         private void CancelButton_Click(object sender, EventArgs e)
