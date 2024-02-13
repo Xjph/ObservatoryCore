@@ -4,7 +4,7 @@
     {
         public string Type { get; init; }
         public int Count { get; init; }
-        public int SellPrice { get; init; }
+        public uint SellPrice { get; init; }
         public int TotalSale { get; init; }
     }
 }
