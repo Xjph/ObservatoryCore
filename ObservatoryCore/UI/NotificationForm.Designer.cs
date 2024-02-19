@@ -1,4 +1,4 @@
-﻿namespace Observatory.UI
+namespace Observatory.UI
 {
     partial class NotificationForm
     {
@@ -37,11 +37,12 @@
             Title.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
             Title.ForeColor = Color.OrangeRed;
             Title.Location = new Point(5, 5);
-            Title.MaximumSize = new Size(355, 0);
+            Title.MaximumSize = new Size(345, 45);
             Title.Name = "Title";
             Title.Size = new Size(338, 45);
             Title.TabIndex = 0;
             Title.Text = "Title";
+            Title.UseCompatibleTextRendering = true;
             // 
             // Body
             // 
@@ -74,6 +75,7 @@
             ShowIcon = false;
             ShowInTaskbar = false;
             Text = "NotificationForm";
+            TransparencyKey = Color.FromArgb(64, 64, 64);
             ResumeLayout(false);
             PerformLayout();
         }

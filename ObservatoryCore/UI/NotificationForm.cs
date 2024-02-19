@@ -203,7 +203,7 @@ namespace Observatory.UI
             if (sender != null)
             {
                 var label = (Label)sender;
-                e.Graphics.Clear(Color.Transparent);
+                e.Graphics.Clear(Color.FromArgb(64, 64, 64));
                 using (var sf = new StringFormat())
                 using (var brush = new SolidBrush(label.ForeColor))
                 {
