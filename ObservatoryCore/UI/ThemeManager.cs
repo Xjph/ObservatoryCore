@@ -16,6 +16,10 @@ namespace Observatory.UI
                 return _instance.Value;
             }
         }
+        private static HashSet<string> _excludedControlNames = new()
+        {
+            "ColourButton",
+        };
         private static readonly Lazy<ThemeManager> _instance = new(() => new ThemeManager());
         private bool _init;
 
@@ -70,6 +74,7 @@ namespace Observatory.UI
             if (control.HasChildren)
                 foreach (Control child in control.Controls)
                 {
+                    if (_excludedControlNames.Contains(child.Name)) continue;
                     RegisterControl(child);
                 }
         }
