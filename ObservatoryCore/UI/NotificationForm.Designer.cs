@@ -34,7 +34,7 @@ namespace Observatory.UI
             // 
             // Title
             // 
-            Title.Font = new Font("Segoe UI", 24F, FontStyle.Regular, GraphicsUnit.Point);
+            Title.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
             Title.ForeColor = Color.OrangeRed;
             Title.Location = new Point(5, 5);
             Title.MaximumSize = new Size(345, 45);
@@ -50,7 +50,7 @@ namespace Observatory.UI
             Body.AutoSize = true;
             Body.Font = new Font("Segoe UI", 14.25F, FontStyle.Regular, GraphicsUnit.Point);
             Body.ForeColor = Color.OrangeRed;
-            Body.Location = new Point(12, 45);
+            Body.Location = new Point(12, 40);
             Body.MaximumSize = new Size(320, 85);
             Body.Name = "Body";
             Body.Size = new Size(51, 31);
