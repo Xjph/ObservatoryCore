@@ -62,7 +62,7 @@ namespace Observatory.UI
 
             Title.ForeColor = _color;
             Title.Text = args.Title;
-            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 20);
+            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 18);
             Body.ForeColor = _color;
             Body.Text = args.Detail;
             Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14);

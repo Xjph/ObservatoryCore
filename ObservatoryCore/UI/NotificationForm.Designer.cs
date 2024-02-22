@@ -34,12 +34,12 @@ namespace Observatory.UI
             // 
             // Title
             // 
-            Title.Font = new Font("Segoe UI", 20F, FontStyle.Regular, GraphicsUnit.Point);
+            Title.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
             Title.ForeColor = Color.OrangeRed;
             Title.Location = new Point(5, 5);
             Title.MaximumSize = new Size(345, 45);
             Title.Name = "Title";
-            Title.Size = new Size(338, 45);
+            Title.Size = new Size(338, 35);
             Title.TabIndex = 0;
             Title.Text = "Title";
             Title.UseCompatibleTextRendering = true;
