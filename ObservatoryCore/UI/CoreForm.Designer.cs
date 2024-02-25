@@ -402,7 +402,7 @@
             FontDropdown.FormattingEnabled = true;
             FontDropdown.Location = new Point(120, 65);
             FontDropdown.Name = "FontDropdown";
-            FontDropdown.Size = new Size(121, 23);
+            FontDropdown.Size = new Size(242, 23);
             FontDropdown.TabIndex = 5;
             FontDropdown.SelectedIndexChanged += FontDropdown_SelectedIndexChanged;
             // 
