@@ -264,7 +264,7 @@ namespace Observatory.UI
         {
             NotificationArgs args = new()
             {
-                Title = "Test Notification",
+                Title = "Test Popup Notification",
                 Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at elit maximus, ornare dui nec, accumsan velit. Vestibulum fringilla elit."
             };
 

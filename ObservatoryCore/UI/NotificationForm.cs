@@ -62,7 +62,7 @@ namespace Observatory.UI
 
             Title.ForeColor = _color;
             Title.Text = args.Title;
-            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 24);
+            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 18);
             Body.ForeColor = _color;
             Body.Text = args.Detail;
             Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14);
@@ -203,7 +203,7 @@ namespace Observatory.UI
             if (sender != null)
             {
                 var label = (Label)sender;
-                e.Graphics.Clear(Color.Transparent);
+                e.Graphics.Clear(Color.FromArgb(64, 64, 64));
                 using (var sf = new StringFormat())
                 using (var brush = new SolidBrush(label.ForeColor))
                 {
