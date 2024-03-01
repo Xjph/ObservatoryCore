@@ -149,6 +149,8 @@ namespace Observatory.Botanist
                         {
                             var bioPlanet = BioPlanets[systemBodyId];
                             
+                            // If this is null don't bother.
+                            if (scanOrganic.Species_Localised != null)
                             switch (scanOrganic.ScanType)
                             {
                                 case ScanOrganicType.Log:
