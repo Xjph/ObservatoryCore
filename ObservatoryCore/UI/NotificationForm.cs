@@ -129,7 +129,7 @@ namespace Observatory.UI
             {
                 _defaultPosition = false;
                 int xLocation = Convert.ToInt32(screenBounds.Width * x);
-                int yLocation = Convert.ToInt32(screenBounds.Height * x);
+                int yLocation = Convert.ToInt32(screenBounds.Height * y);
                 Location = Point.Add(screenBounds.Location, new Size(xLocation, yLocation));
             }
             else
