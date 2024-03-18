@@ -7,12 +7,14 @@ namespace Observatory.Framework.Files.Journal
 {
     public class Docked : JournalBase
     {
-
+        /// <summary>
+        /// Name of the station at which this event occurred.
+        /// </summary>
         public string StationName { get; init; }
         public string StationType { get; init; }
         public string StarSystem { get; init; }
         public ulong SystemAddress { get; init; }
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
 
         [JsonConverter(typeof(Converters.LegacyFactionConverter<Faction>))]
         public Faction StationFaction { get; init; }

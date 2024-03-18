@@ -49,5 +49,6 @@ namespace Observatory.Framework.Files.Journal
         public string PowerplayState { get; init; }
         public bool Taxi { get; init; }
         public bool Multicrew { get; init; }
+        public ThargoidWar ThargoidWar { get; init; }
     }
 }

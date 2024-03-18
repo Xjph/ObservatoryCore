@@ -16,8 +16,35 @@ namespace Observatory.Botanist
         private bool OdysseyLoaded = false;
         private Dictionary<BodyAddress, BioPlanetDetail> BioPlanets;
 
-        // Note: This only explicitly contains Odyssey bios. Everything else is assumed to be 100.
-        // (This is partly because names for the genus for legacy/Horizons bios are somewhat inconsistent.)
+        // To make this journal locale agnostic, use the genus identifier and map to English names used in notifications.
+        // Note: Values here are also used in the lookup for colony distance, so we also use this to resolve misspellings and Frontier bugs.
+        private readonly Dictionary<String, String> EnglishGenusByIdentifier = new() {
+            { "$Codex_Ent_Aleoids_Genus_Name;", "Aleoida" },
+            { "$Codex_Ent_Bacterial_Genus_Name;", "Bacterium" },
+            { "$Codex_Ent_Cactoid_Genus_Name;", "Cactoida" },
+            { "$Codex_Ent_Clepeus_Genus_Name;;", "Clypeus" }, // Fun misspelling of the identifier discovered in the journals
+            { "$Codex_Ent_Clypeus_Genus_Name;", "Clypeus" },
+            { "$Codex_Ent_Conchas_Genus_Name;", "Concha" },
+            { "$Codex_Ent_Electricae_Genus_Name;", "Electricae" },
+            { "$Codex_Ent_Fonticulus_Genus_Name;", "Fonticulua" },
+            { "$Codex_Ent_Shrubs_Genus_Name;", "Frutexa" },
+            { "$Codex_Ent_Fumerolas_Genus_Name;", "Fumerola" },
+            { "$Codex_Ent_Fungoids_Genus_Name;", "Fungoida" },
+            { "$Codex_Ent_Osseus_Genus_Name;", "Osseus" },
+            { "$Codex_Ent_Recepta_Genus_Name;", "Recepta" },
+            { "$Codex_Ent_Stratum_Genus_Name;", "Stratum" },
+            { "$Codex_Ent_Tubus_Genus_Name;", "Tubus" },
+            { "$Codex_Ent_Tussocks_Genus_Name;", "Tussock" },
+            { "$Codex_Ent_Ground_Struct_Ice_Name;", "Crystalline Shards" },
+            { "$Codex_Ent_Brancae_Name;", "Brain Trees" },
+            { "$Codex_Ent_Seed_Name;", "Brain Tree" }, // Misspelling? :shrug: 'Seed' also seems to refer to peduncle things.
+            { "$Codex_Ent_Sphere_Name;", "Anemone" },
+            { "$Codex_Ent_Tube_Name;", "Sinuous Tubers" },
+            { "$Codex_Ent_Vents_Name;", "Amphora Plant" },
+            { "$Codex_Ent_Cone_Name;", "Bark Mounds" },
+        };
+
+        // Note: Some Horizons bios may be missing, but they'll get localized genus name and default colony distance
         private readonly Dictionary<String, int> ColonyDistancesByGenus = new() {
             { "Aleoida", 150 },
             { "Bacterium", 500 },
@@ -34,6 +61,12 @@ namespace Observatory.Botanist
             { "Stratum", 500 },
             { "Tubus", 800 },
             { "Tussock", 200 },
+            { "Crystalline Shards", DEFAULT_COLONY_DISTANCE },
+            { "Brain Tree", DEFAULT_COLONY_DISTANCE },
+            { "Anemone", DEFAULT_COLONY_DISTANCE },
+            { "Sinuous Tubers", DEFAULT_COLONY_DISTANCE },
+            { "Amphora Plant", DEFAULT_COLONY_DISTANCE },
+            { "Bark Mounds", DEFAULT_COLONY_DISTANCE },
         };
         private const int DEFAULT_COLONY_DISTANCE = 100;
 
@@ -43,6 +76,7 @@ namespace Observatory.Botanist
         private BotanistSettings botanistSettings = new()
         {
             OverlayEnabled = true,
+            OverlayIsSticky = true,
         };
         public string Name => "Observatory Botanist";
 
@@ -101,7 +135,7 @@ namespace Observatory.Botanist
                             Dictionary<string, BioSampleDetail> bioSampleDetails = new();
                             bioSampleDetails.Add(scanOrganic.Species_Localised, new()
                                 {
-                                    Genus = scanOrganic.Genus_Localised,
+                                    Genus = EnglishGenusByIdentifier.GetValueOrDefault(scanOrganic.Genus, scanOrganic.Genus_Localised),
                                     Analysed = false
                                 });
 
@@ -128,11 +162,14 @@ namespace Observatory.Botanist
                                             Title = scanOrganic.Species_Localised,
                                             Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance} m",
                                             Rendering = NotificationRendering.NativeVisual,
-                                            Timeout = 0,
+                                            Timeout = (botanistSettings.OverlayIsSticky ? 0 : -1),
+                                            Sender = ShortName,
                                         };
                                         if (samplerStatusNotification == null)
                                         {
-                                            samplerStatusNotification = Core.SendNotification(args);
+                                            var notificationId = Core.SendNotification(args);
+                                            if (botanistSettings.OverlayIsSticky)
+                                                samplerStatusNotification = notificationId;
                                         }
                                         else
                                         {
@@ -144,7 +181,7 @@ namespace Observatory.Botanist
                                     {
                                         bioPlanet.SpeciesFound.Add(scanOrganic.Species_Localised, new()
                                         {
-                                            Genus = scanOrganic.Genus_Localised,
+                                            Genus = EnglishGenusByIdentifier.GetValueOrDefault(scanOrganic.Genus, scanOrganic.Genus_Localised),
                                             Analysed = false
                                         });
                                     }
@@ -174,19 +211,8 @@ namespace Observatory.Botanist
 
         private object GetColonyDistance(ScanOrganic scan)
         {
-            // Try find a genus name.
-            string genusName = String.Empty;
-            if (scan.Genus_Localised != null)
-            {
-                genusName = scan.Genus_Localised;
-            }
-            else if (scan.Genus == "$Codex_Ent_Clepeus_Genus_Name;")
-            {
-                // Odyssey had a bug until Update 9 where Clypeus ScanOrganic entries were missing the Genus_Localised property.
-                genusName = "Clypeus";
-            }
-
-            return (genusName != null && ColonyDistancesByGenus.ContainsKey(genusName)) ? ColonyDistancesByGenus[genusName] : DEFAULT_COLONY_DISTANCE;
+            // Map the Genus to a Genus name then lookup colony distance.
+            return ColonyDistancesByGenus.GetValueOrDefault(EnglishGenusByIdentifier.GetValueOrDefault(scan.Genus, String.Empty), DEFAULT_COLONY_DISTANCE);
         }
 
         private void MaybeCloseSamplerStatusNotification()
@@ -250,11 +276,7 @@ namespace Observatory.Botanist
                 bool firstRow = true;
                 foreach (var entry in bioPlanet.SpeciesFound)
                 {
-                    int colonyDistance = DEFAULT_COLONY_DISTANCE;
-                    if (entry.Value.Genus != null && ColonyDistancesByGenus.ContainsKey(entry.Value.Genus))
-                    {
-                        colonyDistance = ColonyDistancesByGenus[entry.Value.Genus];
-                    }
+                    int colonyDistance = ColonyDistancesByGenus.GetValueOrDefault(entry.Value.Genus ?? "", DEFAULT_COLONY_DISTANCE);
                     var speciesRow = new BotanistGrid()
                     {
                         Body = firstRow ? bioPlanet.BodyName : string.Empty,
@@ -317,10 +339,15 @@ namespace Observatory.Botanist
 
     public class BotanistGrid
     {
+        [ColumnSuggestedWidth(300)]
         public string Body { get; set; }
+        [ColumnSuggestedWidth(100)]
         public string BioTotal { get; set; }
+        [ColumnSuggestedWidth(300)]
         public string Species { get; set; }
+        [ColumnSuggestedWidth(100)]
         public string Analysed { get; set; }
+        [ColumnSuggestedWidth(100)]
         public string ColonyDistance { get; set; }
     }
 }

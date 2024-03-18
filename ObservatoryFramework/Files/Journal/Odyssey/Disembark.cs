@@ -18,6 +18,9 @@ namespace Observatory.Framework.Files.Journal
         public int BodyID { get; init; }
         public bool OnStation { get; init; }
         public bool OnPlanet { get; init; }
+        /// <summary>
+        /// Name of the station at which this event occurred.
+        /// </summary>
         public string StationName { get; init; }
         public string StationType { get; init; }
         public ulong MarketID { get; init; }

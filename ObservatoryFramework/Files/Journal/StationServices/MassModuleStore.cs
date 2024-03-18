@@ -5,7 +5,7 @@ namespace Observatory.Framework.Files.Journal
 {
     public class MassModuleStore : JournalBase
     {
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         public string Ship { get; init; }
         public ulong ShipID { get; init; }
         public ImmutableList<Item> Items { get; init; }

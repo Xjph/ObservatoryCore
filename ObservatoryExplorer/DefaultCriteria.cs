@@ -16,6 +16,10 @@ namespace Observatory.Explorer
 
             bool isRing = scan.BodyName.Contains("Ring");
 
+#if DEBUG
+            // results.Add("Test Scan Event", "Test Detail");
+#endif
+
             #region Landable Checks
             if (scan.Landable)
             {
@@ -100,8 +104,9 @@ namespace Observatory.Explorer
                         if (separation < scan.Radius * 10)
                         {
                             var ringTypeName = ring.Name.Contains("Belt") ? "Belt" : "Ring";
+                            var isLandable = scan.Landable ? ", Landable" : "";
                             results.Add($"Close {ringTypeName} Proximity",
-                                $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Radius: {scan.Radius / 1000:N0}km, Distance from {ringTypeName.ToLower()}: {separation / 1000:N0}km");
+                                $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Radius: {scan.Radius / 1000:N0}km, Distance from {ringTypeName.ToLower()}: {separation / 1000:N0}km{isLandable}");
                         }
                     }
                 }
@@ -126,7 +131,8 @@ namespace Observatory.Explorer
                     var ringWidth = ring.OuterRad - ring.InnerRad;
                     if (ringWidth > scan.Radius * 5)
                     {
-                        results.Add("Wide Ring", $"Width: {ringWidth / 299792458:N2}Ls / {ringWidth / 1000:N0}km, Parent Radius: {scan.Radius / 1000:N0}km");
+                        var ringName = ring.Name.Replace(scan.BodyName, "").Trim();
+                        results.Add("Wide Ring", $"{ringName}: Width: {ringWidth / 299792458:N2}Ls / {ringWidth / 1000:N0}km, Parent Radius: {scan.Radius / 1000:N0}km");
                     }
                 }
             }

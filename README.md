@@ -1,13 +1,12 @@
 # Elite Observatory *Core*
-Tool for reading/monitoring Elite Dangerous journals for interesting objects. Successor to the original Elite Observatory, rewritten from scratch using .NET 6.0 and AvaloniaUI.
+Tool for reading/monitoring Elite Dangerous journals for interesting objects. Successor to the original Elite Observatory, rewritten from scratch using .NET 6.0.
 
 ## *IMPORTANT*
-Observatory Core and it's associated plugins are currently in an alpha state and are neither feature-complete nor using a finalised UI. A major update to the UI is expected soon, which will likely break compatibility with all current plugins.
+Observatory Core and it's associated plugins are currently in a state of ongoing development and are neither feature-complete nor using a finalised UI.
 
 Omissions to current functionality include:
 * Integration with Frontier's Companion API
 * Data submission to IGAU
-* Sortable columns in plugin data grids
 * Non-grid plugin UI options
 * Light mode
 * *And more...*
@@ -32,8 +31,9 @@ If you want to chat or collaborate with other users of Observatory you can find 
 For information on how to create a plugin, refer to this article about [ObservatoryFramework](https://github.com/Xjph/ObservatoryCore/wiki/Framework).
 
 ## Prerequisites for use
-.NET 6, and by extension one of its [supported OSes](https://github.com/dotnet/core/blob/main/release-notes/6.0/supported-os.md).
-(This will be installed automatically by the Observatory Core installer.)
+All you need is .NET 6, which should be installed automatically by the Observatory Core installer.
+
+The portable build has no prerequisites due to bundling the .NET runtime along with the program, though this does make the exe commensurately larger.
 
 ## Prerequisites for building
-C# 9.0, .NET 6.0, [AvaloniaUI ~~0.10.3~~](https://github.com/AvaloniaUI/Avalonia) (specific version in flux during UI rewrite), and of course [ObservatoryFramework](https://github.com/Xjph/ObservatoryFramework).
+C# 9.0, .NET 6.0, and [ObservatoryFramework](https://github.com/Xjph/ObservatoryFramework).

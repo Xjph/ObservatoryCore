@@ -6,6 +6,8 @@ namespace Observatory.Framework.Files.Journal
     public class Bounty : JournalBase
     {
         public ImmutableList<Rewards> Rewards { get; init; }
+        public string PilotName { get; set; }
+        public string PilotName_Localised { get; set; }
         public string Target { get; init; }
         public string Target_Localised { get; init; }
         public string Faction { get; init; }

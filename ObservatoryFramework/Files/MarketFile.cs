@@ -11,7 +11,7 @@ namespace Observatory.Framework.Files
         /// <summary>
         /// Unique ID of current market.
         /// </summary>
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
         /// <summary>
         /// Name of the station where the market is located.
         /// </summary>

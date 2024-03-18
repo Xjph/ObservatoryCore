@@ -24,11 +24,14 @@ namespace Observatory.Framework.Files.Journal
                 //Stale Data, discard
             }
         }
+        /// <summary>
+        /// Name of the station at which this event occurred.
+        /// </summary>
         public string StationName { get; init; }
         public string StationType { get; init; }
         public float Longitude { get; init; }
         public float Latitude { get; init; }
-        public long MarketID { get; init; }
+        public ulong MarketID { get; init; }
 
         [JsonConverter(typeof(LegacyFactionConverter<Faction>))]
         public Faction StationFaction { get; init; }
@@ -68,5 +71,6 @@ namespace Observatory.Framework.Files.Journal
         public bool Multicrew { get; init; }
         public bool OnFoot { get; init; }
         public bool InSRV { get; init; }
+        public ThargoidWar ThargoidWar { get; init; }
     }
 }

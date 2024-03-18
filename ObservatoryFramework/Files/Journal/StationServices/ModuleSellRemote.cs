@@ -6,7 +6,7 @@
         public string SellItem { get; init; }
         public string SellItem_Localised { get; init; }
         public ulong ServerId { get; init; }
-        public int SellPrice { get; init; }
+        public uint SellPrice { get; init; }
         public string Ship { get; init; }
         public ulong ShipID { get; init; }
     }

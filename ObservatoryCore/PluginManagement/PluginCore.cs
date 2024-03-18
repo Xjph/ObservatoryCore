@@ -2,7 +2,10 @@
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using Observatory.NativeNotification;
+using Observatory.UI;
+using Observatory.Utils;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
 
 namespace Observatory.PluginManagement
@@ -12,14 +15,18 @@ namespace Observatory.PluginManagement
 
         private readonly NativeVoice NativeVoice;
         private readonly NativePopup NativePopup;
-
-        public PluginCore()
+        private bool OverridePopup;
+        private bool OverrideAudio;
+        
+        public PluginCore(bool OverridePopup = false, bool OverrideAudio = false)
         {
             NativeVoice = new();
             NativePopup = new();
+            this.OverridePopup = OverridePopup;
+            this.OverrideAudio = OverrideAudio;
         }
 
-        public string Version => System.Reflection.Assembly.GetEntryAssembly().GetName().Version.ToString();
+        public string Version => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
 
         public Action<Exception, String> GetPluginErrorLogger(IObservatoryPlugin plugin)
         {
@@ -29,11 +36,8 @@ namespace Observatory.PluginManagement
             };
         }
 
-        public Status GetStatus()
-        {
-            throw new NotImplementedException();
-        }
-
+        public Status GetStatus() => LogMonitor.GetInstance.Status;
+        
         public Guid SendNotification(string title, string text)
         {
             return SendNotification(new NotificationArgs() { Title = title, Detail = text });
@@ -43,20 +47,29 @@ namespace Observatory.PluginManagement
         {
             var guid = Guid.Empty;
 
+#if DEBUG // For exercising testing notifier plugins in read-all
+            if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
+            {
+                var handler = Notification;
+                handler?.Invoke(this, notificationArgs);
+            }
+#endif
             if (!IsLogMonitorBatchReading)
             {
+#if !DEBUG
                 if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
                 {
                     var handler = Notification;
                     handler?.Invoke(this, notificationArgs);
                 }
+#endif
 
-                if (Properties.Core.Default.NativeNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
+                if (!OverridePopup && Properties.Core.Default.NativeNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
                 {
                     guid = NativePopup.InvokeNativeNotification(notificationArgs);
                 }
 
-                if (Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
+                if (!OverrideAudio && Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 {
                     NativeVoice.EnqueueAndAnnounce(notificationArgs);
                 }
@@ -67,14 +80,13 @@ namespace Observatory.PluginManagement
 
         public void CancelNotification(Guid id)
         {
-            NativePopup.CloseNotification(id);
+            ExecuteOnUIThread(() => NativePopup.CloseNotification(id));
         }
 
         public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
         {
             if (!IsLogMonitorBatchReading)
             {
-
                 if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
                 {
                     var handler = Notification;
@@ -98,56 +110,48 @@ namespace Observatory.PluginManagement
         /// <param name="item"></param>
         public void AddGridItem(IObservatoryWorker worker, object item)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                worker.PluginUI.DataGrid.Add(item);
-
-                //Hacky removal of original empty object if one was used to populate columns
-                if (worker.PluginUI.DataGrid.Count == 2)
-                {
-                    if (FirstRowIsAllNull(worker))
-                        worker.PluginUI.DataGrid.RemoveAt(0);
-                }
-            });
+            worker.PluginUI.DataGrid.Add(item);
         }
 
-        /// <summary>
-        /// Adds multiple items to the datagrid on UI thread to ensure visual update.
-        /// </summary>
-        /// <param name="worker"></param>
-        /// <param name="items"></param>
         public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            BeginBulkUpdate(worker);
+
+            foreach (var item in items)
             {
-                var cleanEmptyRow = worker.PluginUI.DataGrid.Count == 1 && FirstRowIsAllNull(worker) && items.Count() > 0;
-                foreach (var item in items)
-                {
-                    worker.PluginUI.DataGrid.Add(item);
-                }
-                if (cleanEmptyRow)
-                    worker.PluginUI.DataGrid.RemoveAt(0);
-            });
+                worker.PluginUI.DataGrid.Add(item);
+            }
+
+            EndBulkUpdate(worker);
+        }
+
+        public void SetGridItems(IObservatoryWorker worker, IEnumerable<object> items)
+        {
+            BeginBulkUpdate(worker);
+
+            worker.PluginUI.DataGrid.Clear();
+            foreach (var item in items)
+            {
+                worker.PluginUI.DataGrid.Add(item);
+            }
+
+            EndBulkUpdate(worker);
         }
 
         public void ClearGrid(IObservatoryWorker worker, object templateItem)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                worker.PluginUI.DataGrid.Add(templateItem);
-                while (worker.PluginUI.DataGrid.Count > 1)
-                    worker.PluginUI.DataGrid.RemoveAt(0);
-            });
+            worker.PluginUI.DataGrid.Clear();
         }
 
         public void ExecuteOnUIThread(Action action)
         {
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(action);
+            if (Application.OpenForms.Count > 0)
+                Application.OpenForms[0].Invoke(action);
         }
 
         public System.Net.Http.HttpClient HttpClient
         {
-            get => Observatory.HttpClient.Client;
+            get => Utils.HttpClient.Client;
         }
 
         public LogMonitorState CurrentLogMonitorState
@@ -162,20 +166,37 @@ namespace Observatory.PluginManagement
 
         public event EventHandler<NotificationArgs> Notification;
 
+        internal event EventHandler<PluginMessageArgs> PluginMessage;
+
         public string PluginStorageFolder
         {
             get
             {
                 var context = new System.Diagnostics.StackFrame(1).GetMethod();
-
+#if PORTABLE
+                string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
+                var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
+                return $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}-Data{Path.DirectorySeparatorChar}";
+#else
                 string folderLocation = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-                    + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}{context.DeclaringType.Assembly.GetName().Name}{Path.DirectorySeparatorChar}";
+                    + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}{Path.DirectorySeparatorChar}";
 
                 if (!Directory.Exists(folderLocation))
                     Directory.CreateDirectory(folderLocation);
 
                 return folderLocation;
+#endif
             }
+        }
+
+        public async Task PlayAudioFile(string filePath)
+        {
+            await AudioHandler.PlayFile(filePath);
+        }
+
+        public void SendPluginMessage(IObservatoryPlugin plugin, object message)
+        {
+            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, message));
         }
 
         internal void Shutdown()
@@ -183,20 +204,39 @@ namespace Observatory.PluginManagement
             NativePopup.CloseAll();
         }
 
-        private static bool FirstRowIsAllNull(IObservatoryWorker worker)
+        private void BeginBulkUpdate(IObservatoryWorker worker)
         {
-            bool allNull = true;
-            Type itemType = worker.PluginUI.DataGrid[0].GetType();
-            foreach (var property in itemType.GetProperties())
+            PluginListView? listView = FindPluginListView(worker);
+            if (listView == null) return;
+
+            ExecuteOnUIThread(() => { listView.SuspendDrawing(); });
+        }
+
+        private void EndBulkUpdate(IObservatoryWorker worker)
+        {
+            PluginListView? listView = FindPluginListView(worker);
+            if (listView == null) return;
+
+            ExecuteOnUIThread(() => { listView.ResumeDrawing(); });
+        }
+
+        private PluginListView? FindPluginListView(IObservatoryWorker worker)
+        {
+            if (worker.PluginUI.PluginUIType != PluginUI.UIType.Basic
+                || !(worker.PluginUI.UI is Panel)) return null;
+
+            PluginListView? listView = null;
+            Panel panel = worker.PluginUI.UI as Panel;
+
+            foreach (var control in panel.Controls)
             {
-                if (property.GetValue(worker.PluginUI.DataGrid[0], null) != null)
+                if (control?.GetType() == typeof(PluginListView))
                 {
-                    allNull = false;
-                    break;
+                    listView = (PluginListView)control;
+                    return listView;
                 }
             }
-
-            return allNull;
+            return null;
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Observatory.NativeNotification
 {
     public class NativeVoice
     {
-        private Queue<NotificationArgs> notificationEvents;
+        private readonly Queue<NotificationArgs> notificationEvents;
         private bool processing;
 
         public NativeVoice()
@@ -83,20 +83,24 @@ namespace Observatory.NativeNotification
             processing = false;
         }
 
-        private string AddVoiceToSsml(string ssml, string voiceName)
+        private static string AddVoiceToSsml(string ssml, string voiceName)
         {
             XmlDocument ssmlDoc = new();
             ssmlDoc.LoadXml(ssml);
 
-            var ssmlNamespace = ssmlDoc.DocumentElement.NamespaceURI;
+            var ssmlNamespace = ssmlDoc.DocumentElement?.NamespaceURI;
             XmlNamespaceManager ssmlNs = new(ssmlDoc.NameTable);
-            ssmlNs.AddNamespace("ssml", ssmlNamespace);
+            ssmlNs.AddNamespace("ssml", ssmlNamespace ?? string.Empty);
 
 
             var voiceNode = ssmlDoc.SelectSingleNode("/ssml:speak/ssml:voice", ssmlNs);
 
-            voiceNode.Attributes.GetNamedItem("name").Value = voiceName;
-
+            var voiceNameNode = voiceNode?.Attributes?.GetNamedItem("name");
+            if (voiceNameNode != null)
+            {
+                voiceNameNode.Value = voiceName;
+            }
+            
             return ssmlDoc.OuterXml;
         }
     }

@@ -6,5 +6,6 @@
         public ulong SystemAddress { get; init; }
         public bool Taxi { get; init; }
         public bool Multicrew { get; init; }
+        public bool? Wanted { get; init; }
     }
 }

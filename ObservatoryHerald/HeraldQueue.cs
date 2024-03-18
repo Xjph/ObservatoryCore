@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using NetCoreAudio;
 using System.Threading;
 using System;
 using System.Diagnostics;
+using Observatory.Framework.Interfaces;
 
 namespace Observatory.Herald
 {
@@ -18,15 +18,15 @@ namespace Observatory.Herald
         private string rate;
         private byte volume;
         private SpeechRequestManager speechManager;
-        private Player audioPlayer;
         private Action<Exception, String> ErrorLogger;
+        private IObservatoryCore core;
 
-        public HeraldQueue(SpeechRequestManager speechManager, Action<Exception, String> errorLogger)
+        public HeraldQueue(SpeechRequestManager speechManager, Action<Exception, String> errorLogger, IObservatoryCore core)
         {
             this.speechManager = speechManager;
+            this.core = core;
             processing = false;
             notifications = new();
-            audioPlayer = new();
             ErrorLogger = errorLogger;
         }
 
@@ -74,7 +74,7 @@ namespace Observatory.Herald
             {
                 while (notifications.Any())
                 {
-                    audioPlayer.SetVolume(volume).Wait();
+                    // audioPlayer.SetVolume(volume).Wait();
                     notification = notifications.Dequeue();
                     Debug.WriteLine("Processing notification: {0} - {1}", notification.Title, notification.Detail);
 
@@ -118,7 +118,7 @@ namespace Observatory.Herald
             return await speechManager.GetAudioFileFromSsml(ssml, voice, style, rate);
         }
 
-        private void PlayAudioRequestsSequentially(List<Task<string>> requestTasks)
+        private async void PlayAudioRequestsSequentially(List<Task<string>> requestTasks)
         {
             foreach (var request in requestTasks)
             {
@@ -126,19 +126,20 @@ namespace Observatory.Herald
                 try
                 {
                     Debug.WriteLine($"Playing audio file: {file}");
-                    audioPlayer.Play(file).Wait();
+                    await core.PlayAudioFile(file);
+                    // audioPlayer.Play(file).Wait();
                 } catch (Exception ex)
                 {
                     Debug.WriteLine($"Failed to play {file}: {ex.Message}");
                     ErrorLogger(ex, $"while playing: {file}");
                 }
 
-                while (audioPlayer.Playing)
-                    Thread.Sleep(50);
+                //while (audioPlayer.Playing)
+                //    Thread.Sleep(50);
 
-                // Explicit stop to ensure device is ready for next file.
-                // ...hopefully.
-                audioPlayer.Stop(true).Wait();
+                //// Explicit stop to ensure device is ready for next file.
+                //// ...hopefully.
+                //audioPlayer.Stop(true).Wait();
 
             }
             speechManager.CommitCache();

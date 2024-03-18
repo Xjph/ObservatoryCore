@@ -8,6 +8,10 @@ namespace Observatory.Framework.Files.Journal
     public class CarrierJump : FSDJump
     {
         public bool Docked { get; init; }
+        public bool OnFoot { get; init; }
+        /// <summary>
+        /// Name of the station at which this event occurred.
+        /// </summary>
         public string StationName { get; init; }
         public string StationType { get; init; }
         public ulong MarketID { get; init; }

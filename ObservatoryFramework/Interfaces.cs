@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net.Http;
-using Observatory.Framework.Files;
+﻿using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
 
 namespace Observatory.Framework.Interfaces
@@ -50,6 +48,18 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         public object Settings { get; set; }
 
+        /// <summary>
+        /// <para>Plugin-specific object implementing the IComparer interface which is used to sort columns in the basic UI datagrid.</para>
+        /// <para>If omitted a natural sort order is used.</para>
+        /// </summary>
+        public IObservatoryComparer ColumnSorter
+        { get => null; }
+
+        /// <summary>
+        /// Receives data sent by other plugins.
+        /// </summary>
+        public void HandlePluginMessage(string sourceName, string sourceVersion, object messageArgs)
+        { }
     }
 
     /// <summary>
@@ -88,7 +98,7 @@ namespace Observatory.Framework.Interfaces
         /// Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
-        [Obsolete] // Replaced by LogMonitorStateChanged 
+        [Obsolete("Deprecated in favour of LogMonitorStateChanged")]
         public void ReadAllStarted()
         { }
 
@@ -97,7 +107,7 @@ namespace Observatory.Framework.Interfaces
         /// Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
-        [Obsolete] // Replaced by LogMonitorStateChanged
+        [Obsolete("Deprecated in favour of LogMonitorStateChanged")]
         public void ReadAllFinished()
         { }
     }
@@ -114,6 +124,20 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="notificationEventArgs">Details of the notification as sent from the originating worker plugin.</param>
         public void OnNotificationEvent(NotificationArgs notificationEventArgs);
+
+        /// <summary>
+        /// Property set by notification plugins to indicate to Core 
+        /// that native audio notifications should be disabled/suppressed.
+        /// </summary>
+        public bool OverrideAudioNotifications
+        { get => false; }
+
+        /// <summary>
+        /// Property set by notification plugins to indicate to Core 
+        /// that native popup notifications should be disabled/suppressed.
+        /// </summary>
+        public bool OverridePopupNotifications
+        { get => false; }
     }
 
     /// <summary>
@@ -135,7 +159,7 @@ namespace Observatory.Framework.Interfaces
         /// <param name="notificationEventArgs">NotificationArgs object specifying notification content and behaviour.</param>
         /// <returns>Guid associated with the notification during its lifetime. Used as an argument with CancelNotification and UpdateNotification.</returns>
         public Guid SendNotification(NotificationArgs notificationEventArgs);
-        
+
         /// <summary>
         /// Cancel or close an active notification.
         /// </summary>
@@ -164,6 +188,13 @@ namespace Observatory.Framework.Interfaces
         public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items);
 
         /// <summary>
+        /// Replace the contents of the grid with the provided items.
+        /// </summary>
+        /// <param name="worker">Reference to the calling plugin's worker interface.</param>
+        /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+        public void SetGridItems(IObservatoryWorker worker, IEnumerable<object> items);
+
+        /// <summary>
         /// Clears basic UI grid, removing all items.
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
@@ -186,7 +217,7 @@ namespace Observatory.Framework.Interfaces
         /// or pass it along to its collaborators.
         /// </summary>
         /// <param name="plugin">The calling plugin</param>
-        public Action<Exception, String> GetPluginErrorLogger (IObservatoryPlugin plugin);
+        public Action<Exception, String> GetPluginErrorLogger(IObservatoryPlugin plugin);
 
         /// <summary>
         /// Perform an action on the current Avalonia UI thread.
@@ -213,5 +244,33 @@ namespace Observatory.Framework.Interfaces
         /// Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
         /// </summary>
         public string PluginStorageFolder { get; }
+
+        /// <summary>
+        /// Plays audio file using default audio device.
+        /// </summary>
+        /// <param name="filePath">Absolute path to audio file.</param>
+        public Task PlayAudioFile(string filePath);
+
+        /// <summary>
+        /// Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
+        /// </summary>
+        public void SendPluginMessage(IObservatoryPlugin plugin, object message);
     }
+
+    /// <summary>
+    /// Extends the base IComparer interface with exposed values for the column ID and sort order to use.
+    /// </summary>
+    public interface IObservatoryComparer : System.Collections.IComparer
+    {
+        /// <summary>
+        /// Column ID to be currently sorted by.
+        /// </summary>
+        public int SortColumn { get; set; }
+
+        /// <summary>
+        /// Current order of sorting. Ascending = 1, Descending = -1, No sorting = 0.
+        /// </summary>
+        public int Order { get; set; }
+    }
+
 }
