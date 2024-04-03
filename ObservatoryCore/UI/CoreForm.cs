@@ -60,7 +60,7 @@ namespace Observatory.UI
             {
                 ThemeDropdown.Items.Add(theme);
             }
-            ThemeDropdown.SelectedItem = themeManager.CurrentTheme;
+            ThemeDropdown.SelectedItem = "Dark"; // TODO: Set from settings.
         }
 
         private void CoreMenu_SizeChanged(object? sender, EventArgs e)
@@ -291,6 +291,7 @@ namespace Observatory.UI
         private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
             themeManager.CurrentTheme = ThemeDropdown.SelectedItem.ToString() ?? themeManager.CurrentTheme;
+            // TODO: Save as setting.
         }
     }
 }

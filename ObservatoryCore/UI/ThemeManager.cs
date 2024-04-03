@@ -1,5 +1,7 @@
-﻿using System;
+﻿using Observatory.Framework.Files.ParameterTypes;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,21 +23,21 @@ namespace Observatory.UI
             "ColourButton",
         };
         private static readonly Lazy<ThemeManager> _instance = new(() => new ThemeManager());
-        private bool _init;
 
         private ThemeManager()
         {
-            _init = true;
-            controls = new List<Control>();
+            controls = new();
+            menuItems = new();
             Themes = new()
             {
                 { "Dark", DarkTheme },
                 { "Light", LightTheme }
             };
-            SelectedTheme = "Dark";
+            SelectedTheme = "Light"; // Must be Light for initializing the Light theme.
         }
 
         private readonly List<Control> controls;
+        private readonly List<ToolStripMenuItem> menuItems;
 
         public List<string> GetThemes
         {
@@ -55,6 +57,10 @@ namespace Observatory.UI
                     {
                         ApplyTheme(control);
                     }
+                    foreach (var menuItem in menuItems)
+                    {
+                        ApplyTheme(menuItem);
+                    }
                 }
             }
         }
@@ -62,11 +68,10 @@ namespace Observatory.UI
         public void RegisterControl(Control control)
         {
             // First time registering a control, build the "light" theme based
-            // on defaults.
-            if (_init)
+            // on defaults of all root objects (ie. the ObsCore window and plugin panels).
+            if (control.Parent == null)
             {
                 SaveTheme(control, LightTheme);
-                _init = false;
             }
 
             controls.Add(control);
@@ -82,6 +87,11 @@ namespace Observatory.UI
         // This doesn't inherit from Control? Seriously?
         public void RegisterControl(ToolStripMenuItem toolStripMenuItem)
         {
+            if (menuItems.Count == 0)
+            {
+                SaveThemeControl(toolStripMenuItem, LightTheme);
+            }
+            menuItems.Add(toolStripMenuItem);
             ApplyTheme(toolStripMenuItem);
         }
 
@@ -94,10 +104,9 @@ namespace Observatory.UI
             }
 
             SaveThemeControl(rootControl, theme);
-            var themeJson = System.Text.Json.JsonSerializer.Serialize(DarkTheme);
         }
 
-        private void SaveThemeControl(Control control, Dictionary<string, Color> theme)
+        private void SaveThemeControl(Object control, Dictionary<string, Color> theme)
         {
             var properties = control.GetType().GetProperties();
             var colorProperties = properties.Where(p => p.PropertyType == typeof(Color));
@@ -111,9 +120,12 @@ namespace Observatory.UI
                 }
             }
 
-            foreach (Control child in control.Controls)
+            if (control is Control)
             {
-                SaveThemeControl(child, theme);
+                foreach (Control child in ((Control)control).Controls)
+                {
+                    SaveThemeControl(child, theme);
+                }
             }
         }
 

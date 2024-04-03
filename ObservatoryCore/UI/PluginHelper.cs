@@ -52,7 +52,10 @@ namespace Observatory.UI
             if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic)
                 uiPanels.Add(newItem, CreateBasicUI(plugin));
             else if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Panel)
+            {
                 uiPanels.Add(newItem, (Panel)plugin.PluginUI.UI);
+                ThemeManager.GetInstance.RegisterControl((Panel)plugin.PluginUI.UI);
+            }
         }
 
         private static Panel CreateBasicUI(IObservatoryPlugin plugin)
