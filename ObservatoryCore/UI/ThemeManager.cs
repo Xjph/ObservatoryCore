@@ -76,12 +76,12 @@ namespace Observatory.UI
 
             controls.Add(control);
             ApplyTheme(control);
-            if (control.HasChildren)
-                foreach (Control child in control.Controls)
-                {
-                    if (_excludedControlNames.Contains(child.Name)) continue;
-                    RegisterControl(child);
-                }
+            //if (control.HasChildren)
+            //    foreach (Control child in control.Controls)
+            //    {
+            //        if (_excludedControlNames.Contains(child.Name)) continue;
+            //        RegisterControl(child);
+            //    }
         }
 
         // This doesn't inherit from Control? Seriously?
@@ -131,11 +131,11 @@ namespace Observatory.UI
 
         public void DeRegisterControl(Control control)
         { 
-            if (control.HasChildren)
-                foreach (Control child in control.Controls)
-                {
-                    DeRegisterControl(child);
-                }
+            //if (control.HasChildren)
+            //    foreach (Control child in control.Controls)
+            //    {
+            //        DeRegisterControl(child);
+            //    }
             controls.Remove(control); 
         }
 
@@ -156,6 +156,14 @@ namespace Observatory.UI
                     property.SetValue(control, Themes[SelectedTheme][themeControl + "." + property.Name]);
             }
 
+            Control actualControl = control as Control;
+            if (actualControl != null && actualControl.HasChildren)
+            {
+                foreach (Control child in actualControl.Controls)
+                {
+                    ApplyTheme(child);
+                }
+            }
         }
 
         private Dictionary<string, Dictionary<string, Color>> Themes;
