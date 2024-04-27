@@ -2,6 +2,7 @@ using Observatory.PluginManagement;
 using Observatory.Framework.Interfaces;
 using System.Linq;
 using System.Text.Json;
+using Observatory.Framework;
 
 namespace Observatory.UI
 {
@@ -193,7 +194,8 @@ namespace Observatory.UI
                 if (pluginsEnabled.ContainsKey(p.Value.Name) && !pluginsEnabled[p.Value.Name])
                 {
                     // Plugin is disabled.
-                    p.Key.Checked = false; // This triggers the listview ItemChecked event.
+                    p.Key.Checked = false; // This may trigger the listview ItemChecked event.
+                    PluginManager.GetInstance.SetPluginEnabled(p.Value, false);
                 }
             }
         }
