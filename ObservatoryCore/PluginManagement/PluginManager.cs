@@ -165,14 +165,15 @@ namespace Observatory.PluginManagement
             return settingNames;
         }
 
-        public void SaveSettings(IObservatoryPlugin plugin, object settings)
+        public void SaveSettings(IObservatoryPlugin plugin)
         {
             string savedSettings = Properties.Core.Default.PluginSettings;
-            Dictionary<string, object> pluginSettings;
+            Dictionary<string, object>? pluginSettings;
 
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
                 pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings);
+                pluginSettings ??= new();
             }
             else
             {
@@ -181,11 +182,11 @@ namespace Observatory.PluginManagement
 
             if (pluginSettings.ContainsKey(plugin.Name))
             {
-                pluginSettings[plugin.Name] = settings;
+                pluginSettings[plugin.Name] = plugin.Settings;
             }
             else
             {
-                pluginSettings.Add(plugin.Name, settings);
+                pluginSettings.Add(plugin.Name, plugin.Settings);
             }
 
             string newSettings = JsonSerializer.Serialize(pluginSettings, new JsonSerializerOptions()

@@ -441,7 +441,7 @@ namespace Observatory.UI
 
         private void SaveSettings()
         {
-            PluginManagement.PluginManager.GetInstance.SaveSettings(_plugin, _plugin.Settings);
+            PluginManagement.PluginManager.GetInstance.SaveSettings(_plugin);
         }
 
         private void PluginSettingsCloseButton_Click(object sender, EventArgs e)

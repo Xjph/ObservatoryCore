@@ -1,14 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-
-namespace Observatory.UI
+﻿namespace Observatory.UI
 {
     internal class ThemeManager
     {
+        #region Constructor
+        private ThemeManager()
+        {
+            controls = new List<object>();
+            Themes = new()
+            {
+                { "Dark", DarkTheme },
+                { "Light", LightTheme }
+            };
+            LoadThemes();
+            SelectedTheme = string.IsNullOrWhiteSpace(Properties.Core.Default.Theme)
+                ? Properties.Core.Default.Theme : "Dark";
+        }
+        #endregion
+
+        #region Singleton Boilerplate
         public static ThemeManager GetInstance
         {
             get
@@ -21,21 +30,206 @@ namespace Observatory.UI
             "ColourButton",
         };
         private static readonly Lazy<ThemeManager> _instance = new(() => new ThemeManager());
-        private bool _init;
+        #endregion
 
-        private ThemeManager()
+        #region Private Fields/Properties
+
+        private Dictionary<string, Dictionary<string, Color>> Themes;
+
+        private string SelectedTheme;
+
+        private readonly List<object> controls;
+
+        #region Hardcoded Themes
+        static private Dictionary<string, Color> LightTheme = new Dictionary<string, Color>
         {
-            _init = true;
-            controls = new List<Control>();
-            Themes = new()
+            { "Default.ForeColor", SystemColors.ControlText },
+            { "Default.BackColor", SystemColors.Control },
+            { "ComboBox.BackColor", SystemColors.Window },
+            { "ComboBox.ForeColor", SystemColors.WindowText },
+            { "LinkLabel.ActiveLinkColor", Color.Red },
+            { "LinkLabel.DisabledLinkColor", Color.FromArgb(0x85, 0x85, 0x85) },
+            { "LinkLabel.LinkColor", Color.FromArgb(0, 0, 0xFF) },
+            { "LinkLabel.VisitedLinkColor", Color.FromArgb(0x80, 0, 0x80) },
+            { "ListView.ForeColor", SystemColors.WindowText },
+            { "ListView.BackColor", SystemColors.Window },
+            { "NumericUpDown.ForeColor", SystemColors.WindowText },
+            { "NumericUpDown.BackColor", SystemColors.Window },
+            { "TrackBar.ForeColor", SystemColors.WindowText },
+            { "UpDownButtons.BackColor", SystemColors.Window },
+            { "UpDownButtons.ForeColor", SystemColors.WindowText },
+            { "UpDownEdit.BackColor", SystemColors.Window },
+            { "UpDownEdit.ForeColor", SystemColors.WindowText }
+        };
+
+        static private Dictionary<string, Color> DarkTheme = new Dictionary<string, Color>
+        {
+            { "Default.ForeColor", Color.LightGray },
+            { "Default.BackColor", Color.Black },
+            { "Button.ForeColor", Color.LightGray },
+            { "Button.BackColor", Color.DimGray }
+        };
+        #endregion
+
+        #endregion
+
+        #region Private Methods
+
+        private Dictionary<string, Color> DeserializeTheme(ThemeSerializationContainer themeContainer)
+        {
+            Dictionary<string, Color> parsedTheme = new();
+            foreach (var value in themeContainer.Theme)
             {
-                { "Dark", DarkTheme },
-                { "Light", LightTheme }
-            };
-            SelectedTheme = "Dark";
+                var color = DeserializeColor(value.Value);
+                parsedTheme.Add(value.Key, color);
+            }
+            return parsedTheme;
         }
 
-        private readonly List<Control> controls;
+        private Color DeserializeColor(ColorSerializationContainer colorContainer)
+        {
+            Color color;
+            var nameOrRGB = colorContainer;
+            if (nameOrRGB.Name != null)
+            {
+                color = Color.FromName(nameOrRGB.Name);
+            }
+            else
+            {
+                color = Color.FromArgb(
+                    nameOrRGB.R ?? 0,
+                    nameOrRGB.G ?? 0,
+                    nameOrRGB.B ?? 0
+                    );
+            }
+            return color;
+        }
+
+        private void LoadThemes()
+        {
+            string savedThemes = Properties.Core.Default.SavedThemes;
+            List<ThemeSerializationContainer>? savedThemeContainers;
+            try
+            {
+                savedThemeContainers = System.Text.Json.JsonSerializer.Deserialize
+                    <List<ThemeSerializationContainer>>
+                    (savedThemes) ?? new();
+            }
+            catch
+            {
+                // If we get an error here just blow away saved themes and start fresh
+                savedThemeContainers = new();
+            }
+
+            foreach (var savedTheme in savedThemeContainers)
+            {
+                var theme = DeserializeTheme(savedTheme);
+                Themes.Add(savedTheme.Name ?? "", theme);
+            }
+        }
+
+        private void AddTheme(string themeName, Dictionary<string, Color> theme)
+        {
+            Themes.Add(themeName, theme);
+        }
+
+        private void SaveTheme(ThemeSerializationContainer theme)
+        {
+            string savedThemes = Properties.Core.Default.SavedThemes;
+            List<ThemeSerializationContainer>? savedThemeContainers;
+            try
+            {
+                if (!string.IsNullOrWhiteSpace(savedThemes))
+                {
+                    savedThemeContainers = System.Text.Json.JsonSerializer.Deserialize
+                        <List<ThemeSerializationContainer>>
+                        (savedThemes) ?? new();
+                }
+                else
+                {
+                    savedThemeContainers = new();
+                }
+            }
+            catch
+            {
+                // If we get an error here just blow away saved themes and start fresh
+                savedThemeContainers = new();
+            }
+
+            var existingTheme = savedThemeContainers.Where(saved => saved.Name == theme.Name);
+            if (existingTheme.Any())
+            {
+                existingTheme.First().Theme = theme.Theme;
+            }
+            else
+            {
+                savedThemeContainers.Add(theme);
+            }
+
+            Properties.Core.Default.SavedThemes = System.Text.Json.JsonSerializer.Serialize(savedThemeContainers);
+            Properties.Core.Default.Save();
+        }
+
+        private void ApplyTheme(object control)
+        {
+            var controlType = control.GetType();
+
+            var theme = Themes.ContainsKey(SelectedTheme)
+                ? Themes[SelectedTheme] : Themes["Light"];
+
+            if (controlType == typeof(MenuStrip))
+            {
+                var menuStrip = (MenuStrip)control;
+                foreach (ToolStripMenuItem item in menuStrip.Items)
+                {
+                    ApplyTheme(item);
+                }
+            }
+
+            foreach (var property in controlType.GetProperties().Where(p => p.PropertyType == typeof(Color)))
+            {
+                string themeControl = Themes[SelectedTheme].ContainsKey(controlType.Name + "." + property.Name)
+                    ? controlType.Name
+                    : "Default";
+
+                if (Themes[SelectedTheme].ContainsKey(themeControl + "." + property.Name))
+                    property.SetValue(control, Themes[SelectedTheme][themeControl + "." + property.Name]);
+            }
+
+            if (control.GetType().IsSubclassOf(typeof(Control)))
+            {
+                var typedControl = (Control)control;
+                if (typedControl.HasChildren)
+                    foreach (Control child in typedControl.Controls)
+                    {
+                        if (_excludedControlNames.Contains(child.Name)) continue;
+                        ApplyTheme(child);
+                    }
+            }
+
+        }
+
+        #endregion
+
+        #region Private Classes
+        // Used for System.Text.Json deserialization of loaded themes
+        private class ThemeSerializationContainer
+        {
+            public string? Name { get; set; }
+            public Dictionary<string, ColorSerializationContainer>? Theme { get; set; }
+        }
+
+        private class ColorSerializationContainer
+        {
+            public int? R { get; set; }
+            public int? G { get; set; }
+            public int? B { get; set; }
+            public string? Name { get; set; }
+        }
+
+        #endregion
+
+        #region Public Properties
 
         public List<string> GetThemes
         {
@@ -55,109 +249,62 @@ namespace Observatory.UI
                     {
                         ApplyTheme(control);
                     }
+                    Properties.Core.Default.Theme = value;
+                    Properties.Core.Default.Save();
                 }
             }
         }
 
-        public void RegisterControl(Control control)
+        public Dictionary<string, Color> CurrentThemeDetails
         {
-            // First time registering a control, build the "light" theme based
-            // on defaults.
-            if (_init)
-            {
-                SaveTheme(control, LightTheme);
-                _init = false;
-            }
+            get => Themes[SelectedTheme];
+        }
 
+        #endregion
+
+        #region Public Methods
+
+        public void RegisterControl(object control)
+        {
             controls.Add(control);
             ApplyTheme(control);
-            if (control.HasChildren)
-                foreach (Control child in control.Controls)
-                {
-                    if (_excludedControlNames.Contains(child.Name)) continue;
-                    RegisterControl(child);
-                }
         }
 
-        // This doesn't inherit from Control? Seriously?
-        public void RegisterControl(ToolStripMenuItem toolStripMenuItem)
+        public void UnregisterControl(object control)
         {
-            ApplyTheme(toolStripMenuItem);
+            controls.Remove(control);
         }
 
-        private void SaveTheme(Control control, Dictionary<string, Color> theme)
+        public string AddTheme(string themeJson)
         {
-            Control rootControl = control;
-            while (rootControl.Parent != null)
+            ThemeSerializationContainer? themeContainer;
+            try
             {
-                rootControl = rootControl.Parent;
+                themeContainer = System.Text.Json.JsonSerializer.Deserialize
+                    <ThemeSerializationContainer>
+                    (themeJson);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Theme file error:\r\n" + ex.Message);
             }
 
-            SaveThemeControl(rootControl, theme);
-            var themeJson = System.Text.Json.JsonSerializer.Serialize(DarkTheme);
+            if (themeContainer == null)
+                throw new Exception("File does not contain a theme.");
+            if (themeContainer.Name == null)
+                throw new Exception("Missing theme name.");
+            if (themeContainer.Theme == null)
+                throw new Exception("Missing theme content.");
+
+            SaveTheme(themeContainer);
+
+            var parsedTheme = DeserializeTheme(themeContainer);
+
+            AddTheme(themeContainer.Name, parsedTheme);
+
+            return themeContainer.Name;
         }
 
-        private void SaveThemeControl(Control control, Dictionary<string, Color> theme)
-        {
-            var properties = control.GetType().GetProperties();
-            var colorProperties = properties.Where(p => p.PropertyType == typeof(Color));
-
-            foreach (var colorProperty in colorProperties)
-            {
-                string controlKey = control.GetType().Name + "." + colorProperty.Name;
-                if (!theme.ContainsKey(controlKey))
-                {
-                    theme.Add(controlKey, (Color)colorProperty.GetValue(control)!);
-                }
-            }
-
-            foreach (Control child in control.Controls)
-            {
-                SaveThemeControl(child, theme);
-            }
-        }
-
-        public void DeRegisterControl(Control control)
-        { 
-            if (control.HasChildren)
-                foreach (Control child in control.Controls)
-                {
-                    DeRegisterControl(child);
-                }
-            controls.Remove(control); 
-        }
-
-        private void ApplyTheme(Object control)
-        {
-            var controlType = control.GetType();
-
-            var theme = Themes.ContainsKey(SelectedTheme)
-                ? Themes[SelectedTheme] : Themes["Light"];
-
-            foreach (var property in controlType.GetProperties().Where(p => p.PropertyType == typeof(Color)))
-            {
-                string themeControl = Themes[SelectedTheme].ContainsKey(controlType.Name + "." + property.Name)
-                    ? controlType.Name
-                    : "Default";
-
-                if (Themes[SelectedTheme].ContainsKey(themeControl + "." + property.Name))
-                    property.SetValue(control, Themes[SelectedTheme][themeControl + "." + property.Name]);
-            }
-
-        }
-
-        private Dictionary<string, Dictionary<string, Color>> Themes;
-
-        private string SelectedTheme;
-
-        private Dictionary<string, Color> LightTheme = new Dictionary<string, Color>();
-
-        static private Dictionary<string, Color> DarkTheme = new Dictionary<string, Color>
-        {
-            {"Default.ForeColor", Color.LightGray },
-            {"Default.BackColor", Color.Black },
-            {"Button.ForeColor", Color.LightGray },
-            {"Button.BackColor", Color.DimGray }
-        };
+        #endregion
     }
 }

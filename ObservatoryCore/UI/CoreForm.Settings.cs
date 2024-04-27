@@ -1,3 +1,4 @@
+using Observatory.Framework;
 using Observatory.Utils;
 
 namespace Observatory.UI
@@ -106,6 +107,50 @@ namespace Observatory.UI
             VoiceSpeedSlider.Value = settings.VoiceRate;
             VoiceDropdown.SelectedItem = settings.VoiceSelected;
             VoiceCheckbox.Checked = settings.VoiceNotify;
+        }
+
+        private void TestButton_Click(object sender, EventArgs e)
+        {
+            NotificationArgs args = new()
+            {
+                Title = "Test Popup Notification",
+                Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at elit maximus, ornare dui nec, accumsan velit. Vestibulum fringilla elit."
+            };
+
+            nativePopup ??= new Observatory.NativeNotification.NativePopup();
+
+            nativePopup.InvokeNativeNotification(args);
+        }
+
+        private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            themeManager.CurrentTheme = ThemeDropdown.SelectedItem.ToString() ?? themeManager.CurrentTheme;
+        }
+
+        private void ButtonAddTheme_Click(object sender, EventArgs e)
+        {
+            var fileBrowse = new OpenFileDialog()
+            {
+                Filter = "Elite Observatory Theme (*.eot)|*.eot|All files (*.*)|*.*"
+            };
+            var result = fileBrowse.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                try
+                {
+                    var fileContent = File.ReadAllText(fileBrowse.FileName);
+                    var themeName = themeManager.AddTheme(fileContent);
+                    ThemeDropdown.Items.Add(themeName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        ex.Message,
+                        "Error Reading Theme",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error);
+                }
+            }
         }
     }
 }

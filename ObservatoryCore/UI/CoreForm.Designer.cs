@@ -77,6 +77,7 @@
             DonateLink = new LinkLabel();
             PopupColour = new ColorDialog();
             OverrideTooltip = new ToolTip(components);
+            ButtonAddTheme = new Button();
             CoreMenu.SuspendLayout();
             CorePanel.SuspendLayout();
             VoiceSettingsPanel.SuspendLayout();
@@ -120,6 +121,7 @@
             // 
             CorePanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             CorePanel.AutoScroll = true;
+            CorePanel.Controls.Add(ButtonAddTheme);
             CorePanel.Controls.Add(ThemeDropdown);
             CorePanel.Controls.Add(ThemeLabel);
             CorePanel.Controls.Add(AudioLabel);
@@ -582,6 +584,16 @@
             DonateLink.Text = "Donate";
             DonateLink.LinkClicked += DonateLink_LinkClicked;
             // 
+            // ButtonAddTheme
+            // 
+            ButtonAddTheme.Location = new Point(251, 620);
+            ButtonAddTheme.Name = "ButtonAddTheme";
+            ButtonAddTheme.Size = new Size(88, 23);
+            ButtonAddTheme.TabIndex = 11;
+            ButtonAddTheme.Text = "Add Theme";
+            ButtonAddTheme.UseVisualStyleBackColor = true;
+            ButtonAddTheme.Click += ButtonAddTheme_Click;
+            // 
             // CoreForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -664,5 +676,6 @@
         private Label PopupLabel;
         private Label ThemeLabel;
         private ComboBox ThemeDropdown;
+        private Button ButtonAddTheme;
     }
 }

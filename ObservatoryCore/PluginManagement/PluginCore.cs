@@ -1,12 +1,10 @@
 ﻿using Observatory.Framework;
 using Observatory.Framework.Files;
+using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Interfaces;
 using Observatory.NativeNotification;
 using Observatory.UI;
 using Observatory.Utils;
-using System;
-using System.Collections.ObjectModel;
-using System.IO;
 
 namespace Observatory.PluginManagement
 {
@@ -17,7 +15,7 @@ namespace Observatory.PluginManagement
         private readonly NativePopup NativePopup;
         private bool OverridePopup;
         private bool OverrideAudio;
-        
+
         public PluginCore(bool OverridePopup = false, bool OverrideAudio = false)
         {
             NativeVoice = new();
@@ -37,7 +35,7 @@ namespace Observatory.PluginManagement
         }
 
         public Status GetStatus() => LogMonitor.GetInstance.Status;
-        
+
         public Guid SendNotification(string title, string text)
         {
             return SendNotification(new NotificationArgs() { Title = title, Detail = text });
@@ -199,6 +197,33 @@ namespace Observatory.PluginManagement
             PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, message));
         }
 
+        public void RegisterControl(object control)
+        {
+            ThemeManager.GetInstance.RegisterControl(control);
+        }
+
+        public void UnregisterControl(object control)
+        {
+            ThemeManager.GetInstance.UnregisterControl(control);
+        }
+
+        public string GetCurrentThemeName() =>
+            ThemeManager.GetInstance.CurrentTheme;
+        
+        public Dictionary<string, Color> GetCurrentThemeDetails() =>
+            ThemeManager.GetInstance.CurrentThemeDetails;
+
+        public void SaveSettings(IObservatoryPlugin plugin)
+        {
+            PluginManager.GetInstance.SaveSettings(plugin);
+        }
+
+        public JournalEventArgs DeserializeEvent(string json, bool replay = false)
+        {
+            var logMonitor = LogMonitor.GetInstance;
+            return logMonitor.DeserializeAndInvoke(json, replay);
+        }
+
         internal void Shutdown()
         {
             NativePopup.CloseAll();
@@ -226,8 +251,9 @@ namespace Observatory.PluginManagement
                 || !(worker.PluginUI.UI is Panel)) return null;
 
             PluginListView? listView = null;
-            Panel panel = worker.PluginUI.UI as Panel;
+            Panel? panel = worker.PluginUI.UI as Panel;
 
+            if (panel != null)
             foreach (var control in panel.Controls)
             {
                 if (control?.GetType() == typeof(PluginListView))

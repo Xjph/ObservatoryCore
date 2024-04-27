@@ -181,6 +181,30 @@ namespace Observatory.Utils
             SetLogMonitorState(currentState & ~LogMonitorState.PreRead);
         }
 
+        public JournalEventArgs DeserializeAndInvoke(string line, bool invoke = true)
+        {
+            var eventType = JournalUtilities.GetEventType(line);
+            if (!journalTypes.ContainsKey(eventType))
+            {
+                eventType = "JournalBase";
+            }
+
+            var journalEvent = DeserializeToEventArgs(eventType, line);
+
+            if (invoke)
+            {
+                JournalEntry?.Invoke(this, journalEvent);
+
+                // Files are only valid if realtime, otherwise they will be stale or empty.
+                if (!currentState.HasFlag(LogMonitorState.Batch) && EventsWithAncillaryFile.Contains(eventType))
+                {
+                    HandleAncillaryFile(eventType);
+                }
+            }
+
+            return journalEvent;
+        }
+
         #endregion
 
         #region Public Events
@@ -325,25 +349,6 @@ namespace Observatory.Utils
             return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
         }
 
-        private void DeserializeAndInvoke(string line)
-        {
-            var eventType = JournalUtilities.GetEventType(line);
-            if (!journalTypes.ContainsKey(eventType))
-            {
-                eventType = "JournalBase";
-            }
-
-            var journalEvent = DeserializeToEventArgs(eventType, line);
-
-            JournalEntry?.Invoke(this, journalEvent);
-
-            // Files are only valid if realtime, otherwise they will be stale or empty.
-            if (!currentState.HasFlag(LogMonitorState.Batch) && EventsWithAncillaryFile.Contains(eventType))
-            {
-                HandleAncillaryFile(eventType);
-            }
-        }
-
         private void HandleAncillaryFile(string eventType)
         {
             string filename = eventType == "ModuleInfo"
@@ -357,7 +362,7 @@ namespace Observatory.Utils
             // Some files are still locked by another process after 50ms.
             // Retry every 50ms for 0.5 seconds before giving up.
 
-            string fileContent = null;
+            string? fileContent = null;
             int retryCount = 0;
 
             while (fileContent == null && retryCount < 10)

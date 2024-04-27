@@ -49,7 +49,7 @@ namespace Observatory.UI
 
 
             pluginList = new Dictionary<string, ToolStripMenuItem>();
-            CreatePluginTabs();
+
             DisableOverriddenNotification();
             CoreMenu.ItemClicked += CoreMenu_ItemClicked;
 
@@ -61,6 +61,7 @@ namespace Observatory.UI
                 ThemeDropdown.Items.Add(theme);
             }
             ThemeDropdown.SelectedItem = themeManager.CurrentTheme;
+            CreatePluginTabs();
         }
 
         private void CoreMenu_SizeChanged(object? sender, EventArgs e)
@@ -111,7 +112,7 @@ namespace Observatory.UI
                     else
                         menuItem.Value.Text = menuItem.Key[..3];
                 }
-                CoreMenu.Width = 110;
+                CoreMenu.Width = 70;
                 ResizePanels(new Point(CoreMenu.Width + 3, 12), 0);
             }
             else if (e.ClickedItem.Text == ">")
@@ -213,7 +214,7 @@ namespace Observatory.UI
             foreach (ColumnHeader col in PluginList.Columns)
                 totalWidth += col.Width;
 
-            PluginList.Columns[3].Width += PluginList.Width - totalWidth - 1 - SystemInformation.VerticalScrollBarWidth;
+            PluginList.Columns[3].Width += PluginList.Width - totalWidth; // - SystemInformation.VerticalScrollBarWidth;
         }
 
         private void ReadAllButton_Click(object sender, EventArgs e)
@@ -260,18 +261,7 @@ namespace Observatory.UI
 
         private Observatory.NativeNotification.NativePopup? nativePopup;
 
-        private void TestButton_Click(object sender, EventArgs e)
-        {
-            NotificationArgs args = new()
-            {
-                Title = "Test Popup Notification",
-                Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at elit maximus, ornare dui nec, accumsan velit. Vestibulum fringilla elit."
-            };
 
-            nativePopup ??= new Observatory.NativeNotification.NativePopup();
-
-            nativePopup.InvokeNativeNotification(args);
-        }
 
         private void GithubLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
@@ -288,9 +278,6 @@ namespace Observatory.UI
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
 
-        private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            themeManager.CurrentTheme = ThemeDropdown.SelectedItem.ToString() ?? themeManager.CurrentTheme;
-        }
+
     }
 }

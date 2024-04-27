@@ -321,5 +321,17 @@ namespace Observatory.Properties {
                 this["PluginsEnabled"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SavedThemes {
+            get {
+                return ((string)(this["SavedThemes"]));
+            }
+            set {
+                this["SavedThemes"] = value;
+            }
+        }
     }
 }

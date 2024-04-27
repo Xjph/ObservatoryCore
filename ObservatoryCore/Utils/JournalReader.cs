@@ -20,8 +20,8 @@ namespace Observatory.Utils
                 try
                 {
                     var reader = new Utf8JsonReader(Encoding.UTF8.GetBytes(json));
-                    string eventType = string.Empty;
-                    string timestamp = string.Empty;
+                    string? eventType = string.Empty;
+                    string? timestamp = string.Empty;
 
                     while ((eventType == string.Empty || timestamp == string.Empty) && reader.Read())
                     {
@@ -80,10 +80,11 @@ namespace Observatory.Utils
         {
             var eventClasses = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
 
-            var allTypes = Assembly.GetAssembly(typeof(JournalBase)).GetTypes();
+            var allTypes = Assembly.GetAssembly(typeof(JournalBase))?.GetTypes();
 
-            var journalTypes = allTypes.Where(a => a.IsSubclassOf(typeof(JournalBase)));
+            var journalTypes = allTypes?.Where(a => a.IsSubclassOf(typeof(JournalBase)));
 
+            if (journalTypes != null)
             foreach (var journalType in journalTypes)
             {
                 eventClasses.Add(journalType.Name, journalType);

@@ -1,5 +1,6 @@
 ﻿using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
+using System.Drawing;
 
 namespace Observatory.Framework.Interfaces
 {
@@ -217,7 +218,7 @@ namespace Observatory.Framework.Interfaces
         /// or pass it along to its collaborators.
         /// </summary>
         /// <param name="plugin">The calling plugin</param>
-        public Action<Exception, String> GetPluginErrorLogger(IObservatoryPlugin plugin);
+        public Action<Exception, string> GetPluginErrorLogger(IObservatoryPlugin plugin);
 
         /// <summary>
         /// Perform an action on the current Avalonia UI thread.
@@ -255,6 +256,44 @@ namespace Observatory.Framework.Interfaces
         /// Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
         /// </summary>
         public void SendPluginMessage(IObservatoryPlugin plugin, object message);
+
+        /// <summary>
+        /// Register a UI control for themeing.
+        /// </summary>
+        /// <param name="control">UI Control object or ToolStripMenuItem</param>
+        public void RegisterControl(object control);
+
+        /// <summary>
+        /// Remove a UI control from themeing.
+        /// </summary>
+        /// <param name="control">UI Control object or ToolStripMenuItem</param>
+        public void UnregisterControl(object control);
+
+        /// <summary>
+        /// Retrieves the name of the currently selected UI theme.
+        /// </summary>
+        /// <returns>Name of the theme as a string.</returns>
+        public string GetCurrentThemeName();
+
+        /// <summary>
+        /// Retrieves the details of the currently selected UI theme.
+        /// </summary>
+        /// <returns>A dictionary keyed by the type of control as a string and the associated colour, e.g. { "Button.BackColor", Color.DimGrey } </returns>
+        public Dictionary<string, Color> GetCurrentThemeDetails();
+
+        /// <summary>
+        /// Request that Observatory save plugin settings to preserve changes made outside the settings UI.
+        /// </summary>
+        public void SaveSettings(IObservatoryPlugin plugin);
+
+        /// <summary>
+        /// Deserializes a journal event from JSON into a journal object.
+        /// </summary>
+        /// <param name="json">JSON string representing a journal event</param>
+        /// <param name="replay">(Optional) Replay this event as a current journal entry to all plugins</param>
+        /// <returns>Journal object of the json passed in</returns>
+        public JournalEventArgs DeserializeEvent(string json, bool replay = false);
+        
     }
 
     /// <summary>

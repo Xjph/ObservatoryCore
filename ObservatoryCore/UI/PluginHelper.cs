@@ -14,7 +14,7 @@ namespace Observatory.UI
 {
     internal class PluginHelper
     {
-        internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryWorker plugin, PluginManagement.PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
+        internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryWorker plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
         {
             List<string> pluginList = new List<string>();
             foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
@@ -25,7 +25,7 @@ namespace Observatory.UI
             return pluginList;
         }
 
-        internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryNotifier plugin, PluginManagement.PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
+        internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryNotifier plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
         {
             List<string> pluginList = new List<string>();
             foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
@@ -36,7 +36,7 @@ namespace Observatory.UI
             return pluginList;
         }
 
-        private static void AddPlugin(MenuStrip menu, IObservatoryPlugin plugin, PluginManagement.PluginManager.PluginStatus signed, Dictionary<object, Panel> uiPanels)
+        private static void AddPlugin(MenuStrip menu, IObservatoryPlugin plugin, PluginManager.PluginStatus signed, Dictionary<object, Panel> uiPanels)
         {
             var newItem = new ToolStripMenuItem()
             {
@@ -46,13 +46,21 @@ namespace Observatory.UI
                 Font = menu.Items[0].Font,
                 TextAlign = menu.Items[0].TextAlign
             };
-            ThemeManager.GetInstance.RegisterControl(newItem);
+            var themeManager = ThemeManager.GetInstance;
+            themeManager.RegisterControl(newItem);
             menu.Items.Add(newItem);
 
+            var addAndRegister = (Panel pluginPanel) =>
+            {
+                uiPanels.Add(newItem, pluginPanel);
+                themeManager.RegisterControl(pluginPanel);
+            };
+
             if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic)
-                uiPanels.Add(newItem, CreateBasicUI(plugin));
+                addAndRegister(CreateBasicUI(plugin));
             else if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Panel)
-                uiPanels.Add(newItem, (Panel)plugin.PluginUI.UI);
+                addAndRegister((Panel)plugin.PluginUI.UI);
+            
         }
 
         private static Panel CreateBasicUI(IObservatoryPlugin plugin)
