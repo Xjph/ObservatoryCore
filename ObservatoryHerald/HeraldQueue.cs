@@ -122,16 +122,26 @@ namespace Observatory.Herald
         {
             foreach (var request in requestTasks)
             {
-                string file = request.Result;
+                string file = null;
                 try
                 {
+                    file = request.Result;
                     Debug.WriteLine($"Playing audio file: {file}");
                     await core.PlayAudioFile(file);
                     // audioPlayer.Play(file).Wait();
-                } catch (Exception ex)
+                }
+                catch (Exception ex)
                 {
-                    Debug.WriteLine($"Failed to play {file}: {ex.Message}");
-                    ErrorLogger(ex, $"while playing: {file}");
+                    if (file != null)
+                    {
+                        Debug.WriteLine($"Failed to play {file}: {ex.Message}");
+                        ErrorLogger(ex, $"while playing: {file}");
+                    }
+                    else
+                    {
+                        Debug.WriteLine($"Failed to play audio file due to server error when retrieving file: {ex.Message}");
+                        ErrorLogger(ex, $"while retrieving audio file");
+                    }
                 }
 
                 //while (audioPlayer.Playing)
