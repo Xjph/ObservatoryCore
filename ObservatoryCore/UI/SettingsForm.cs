@@ -266,8 +266,10 @@ namespace Observatory.UI
                 Text = settingName,
                 Width = Convert.ToInt32(_colWidth * 0.8),
                 Height = 35,
+                FlatStyle = FlatStyle.Flat,
             };
 
+            button.FlatAppearance.BorderSize = 0;
             button.Click += (sender, e) =>
             {
                 action.Invoke();
@@ -414,8 +416,10 @@ namespace Observatory.UI
                 Text = "Browse",
                 Height = 35,
                 Width = _colWidth / 2,
+                FlatStyle = FlatStyle.Flat,
             };
 
+            button.FlatAppearance.BorderSize = 0;
             button.Click += (object? sender, EventArgs e) =>
             {
                 var currentDir = ((FileInfo?)setting.GetValue(_plugin.Settings))?.DirectoryName;
