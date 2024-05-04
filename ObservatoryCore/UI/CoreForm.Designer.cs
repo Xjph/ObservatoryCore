@@ -34,6 +34,7 @@
             coreToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripMenuItem();
             CorePanel = new Panel();
+            ButtonAddTheme = new Button();
             ThemeDropdown = new ComboBox();
             ThemeLabel = new Label();
             AudioLabel = new Label();
@@ -77,7 +78,6 @@
             DonateLink = new LinkLabel();
             PopupColour = new ColorDialog();
             OverrideTooltip = new ToolTip(components);
-            ButtonAddTheme = new Button();
             CoreMenu.SuspendLayout();
             CorePanel.SuspendLayout();
             VoiceSettingsPanel.SuspendLayout();
@@ -135,6 +135,18 @@
             CorePanel.Name = "CorePanel";
             CorePanel.Size = new Size(665, 679);
             CorePanel.TabIndex = 1;
+            // 
+            // ButtonAddTheme
+            // 
+            ButtonAddTheme.FlatAppearance.BorderSize = 0;
+            ButtonAddTheme.FlatStyle = FlatStyle.Flat;
+            ButtonAddTheme.Location = new Point(251, 620);
+            ButtonAddTheme.Name = "ButtonAddTheme";
+            ButtonAddTheme.Size = new Size(88, 23);
+            ButtonAddTheme.TabIndex = 11;
+            ButtonAddTheme.Text = "Add Theme";
+            ButtonAddTheme.UseVisualStyleBackColor = true;
+            ButtonAddTheme.Click += ButtonAddTheme_Click;
             // 
             // ThemeDropdown
             // 
@@ -231,6 +243,7 @@
             // 
             // VoiceTestButton
             // 
+            VoiceTestButton.FlatAppearance.BorderSize = 0;
             VoiceTestButton.FlatStyle = FlatStyle.Flat;
             VoiceTestButton.Location = new Point(190, 131);
             VoiceTestButton.Name = "VoiceTestButton";
@@ -348,6 +361,7 @@
             // 
             // TestButton
             // 
+            TestButton.FlatAppearance.BorderSize = 0;
             TestButton.FlatStyle = FlatStyle.Flat;
             TestButton.Location = new Point(190, 152);
             TestButton.Name = "TestButton";
@@ -583,16 +597,6 @@
             DonateLink.TabStop = true;
             DonateLink.Text = "Donate";
             DonateLink.LinkClicked += DonateLink_LinkClicked;
-            // 
-            // ButtonAddTheme
-            // 
-            ButtonAddTheme.Location = new Point(251, 620);
-            ButtonAddTheme.Name = "ButtonAddTheme";
-            ButtonAddTheme.Size = new Size(88, 23);
-            ButtonAddTheme.TabIndex = 11;
-            ButtonAddTheme.Text = "Add Theme";
-            ButtonAddTheme.UseVisualStyleBackColor = true;
-            ButtonAddTheme.Click += ButtonAddTheme_Click;
             // 
             // CoreForm
             // 

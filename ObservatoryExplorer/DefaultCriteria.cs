@@ -100,7 +100,7 @@ namespace Observatory.Explorer
                 {
                     foreach (var ring in parent.Rings)
                     {
-                        var separation = Math.Min(Math.Abs(scan.SemiMajorAxis - ring.OuterRad), Math.Abs(ring.InnerRad - scan.SemiMajorAxis));
+                        var separation = Math.Min(Math.Abs(scan.SemiMajorAxis - ring.OuterRad), Math.Abs(ring.InnerRad - scan.SemiMajorAxis)) - scan.Radius;
                         if (separation < scan.Radius * 10)
                         {
                             var ringTypeName = ring.Name.Contains("Belt") ? "Belt" : "Ring";

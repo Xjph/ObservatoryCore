@@ -34,6 +34,8 @@ namespace Observatory.UI
             // PluginSettingsCloseButton
             // 
             PluginSettingsCloseButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            PluginSettingsCloseButton.FlatAppearance.BorderSize = 0;
+            PluginSettingsCloseButton.FlatStyle = FlatStyle.Flat;
             PluginSettingsCloseButton.Location = new Point(339, 5);
             PluginSettingsCloseButton.Name = "PluginSettingsCloseButton";
             PluginSettingsCloseButton.Size = new Size(75, 23);
