@@ -270,7 +270,7 @@ namespace Observatory.UI
 
         private void DonateLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            OpenURL("https://www.paypal.com/paypalme/eliteobservatory");
+            OpenURL("https://www.paypal.com/donate/?hosted_button_id=XYQWYQ337TBP4");
         }
 
         private void OpenURL(string url)
