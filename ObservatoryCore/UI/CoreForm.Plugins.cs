@@ -148,22 +148,28 @@ namespace Observatory.UI
             return maxWidth + 25;
         }
 
+        // This is public as it is called by PluginCore on behalf of a plugin.
+        public void OpenSettings(IObservatoryPlugin plugin)
+        {
+            if (SettingsForms.ContainsKey(plugin))
+            {
+                SettingsForms[plugin].Activate();
+            }
+            else
+            {
+                SettingsForm settingsForm = new(plugin);
+                SettingsForms.Add(plugin, settingsForm);
+                settingsForm.FormClosed += (_, _) => SettingsForms.Remove(plugin);
+                settingsForm.Show();
+            }
+        }
+
         private void PluginSettingsButton_Click(object sender, EventArgs e)
         {
             if (ListedPlugins != null && PluginList.SelectedItems.Count != 0)
             {
                 var plugin = ListedPlugins[PluginList.SelectedItems[0]];
-                if (SettingsForms.ContainsKey(plugin))
-                {
-                    SettingsForms[plugin].Activate();
-                }
-                else
-                {
-                    SettingsForm settingsForm = new(plugin);
-                    SettingsForms.Add(plugin, settingsForm);
-                    settingsForm.FormClosed += (_, _) => SettingsForms.Remove(plugin);
-                    settingsForm.Show();
-                }
+                OpenSettings(plugin);
             }
         }
 
