@@ -205,6 +205,54 @@ namespace Observatory.Utils
             return journalEvent;
         }
 
+        public static DirectoryInfo GetJournalFolder(string path = "")
+        {
+            DirectoryInfo logDirectory;
+
+            if (path.Length == 0 && Properties.Core.Default.JournalFolder.Trim().Length > 0)
+            {
+                path = Properties.Core.Default.JournalFolder;
+            }
+
+            if (path.Length > 0)
+            {
+                if (Directory.Exists(path))
+                {
+                    logDirectory = new DirectoryInfo(path);
+                }
+                else
+                {
+                    //throw new DirectoryNotFoundException($"Directory '{path}' does not exist.");
+                    //Don't throw, not handling that right now. Just set to current folder.
+                    logDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+                }
+            }
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                string defaultJournalPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+                    + "/.steam/debian-installation/steamapps/compatdata/359320/pfx/drive_c/users/steamuser/Saved Games/Frontier Developments/Elite Dangerous"
+                    : GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous";
+
+                logDirectory =
+                    Directory.Exists(defaultJournalPath)
+                    ? new DirectoryInfo(defaultJournalPath)
+                    : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
+            }
+            else
+            {
+                throw new NotImplementedException("Current OS Platform Not Supported.");
+            }
+
+            if (Properties.Core.Default.JournalFolder != path)
+            {
+                Properties.Core.Default.JournalFolder = path;
+                SettingsManager.Save();
+            }
+
+            return logDirectory;
+        }
+
         #endregion
 
         #region Public Events
@@ -272,54 +320,6 @@ namespace Observatory.Utils
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size
             };
             statusWatcher.Changed += StatusUpdateEvent;
-        }
-
-        private static DirectoryInfo GetJournalFolder(string path = "")
-        {
-            DirectoryInfo logDirectory;
-
-            if (path.Length == 0 && Properties.Core.Default.JournalFolder.Trim().Length > 0)
-            {
-                path = Properties.Core.Default.JournalFolder;
-            }
-
-            if (path.Length > 0)
-            {
-                if (Directory.Exists(path))
-                {
-                    logDirectory = new DirectoryInfo(path);
-                }
-                else
-                {
-                    //throw new DirectoryNotFoundException($"Directory '{path}' does not exist.");
-                    //Don't throw, not handling that right now. Just set to current folder.
-                    logDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-                }
-            }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                string defaultJournalPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-                    + "/.steam/debian-installation/steamapps/compatdata/359320/pfx/drive_c/users/steamuser/Saved Games/Frontier Developments/Elite Dangerous"
-                    : GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous";
-
-                logDirectory =
-                    Directory.Exists(defaultJournalPath)
-                    ? new DirectoryInfo(defaultJournalPath)
-                    : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-            }
-            else
-            {
-                throw new NotImplementedException("Current OS Platform Not Supported.");
-            }
-
-            if (Properties.Core.Default.JournalFolder != path)
-            {
-                Properties.Core.Default.JournalFolder = path;
-                SettingsManager.Save();
-            }
-
-            return logDirectory;
         }
 
         private List<(Exception ex, string file, string line)> ProcessLines(List<string> lines, string file)

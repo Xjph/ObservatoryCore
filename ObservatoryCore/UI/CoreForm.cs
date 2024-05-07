@@ -305,7 +305,5 @@ namespace Observatory.UI
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
-
-
     }
 }

@@ -34,6 +34,8 @@
             coreToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripMenuItem();
             CorePanel = new Panel();
+            LabelJournalPath = new Label();
+            LabelJournal = new Label();
             ButtonAddTheme = new Button();
             ThemeDropdown = new ComboBox();
             ThemeLabel = new Label();
@@ -121,6 +123,8 @@
             // 
             CorePanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             CorePanel.AutoScroll = true;
+            CorePanel.Controls.Add(LabelJournalPath);
+            CorePanel.Controls.Add(LabelJournal);
             CorePanel.Controls.Add(ButtonAddTheme);
             CorePanel.Controls.Add(ThemeDropdown);
             CorePanel.Controls.Add(ThemeLabel);
@@ -135,6 +139,25 @@
             CorePanel.Name = "CorePanel";
             CorePanel.Size = new Size(665, 679);
             CorePanel.TabIndex = 1;
+            // 
+            // LabelJournalPath
+            // 
+            LabelJournalPath.Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
+            LabelJournalPath.Location = new Point(124, 198);
+            LabelJournalPath.Name = "LabelJournalPath";
+            LabelJournalPath.Size = new Size(266, 13);
+            LabelJournalPath.TabIndex = 13;
+            LabelJournalPath.Text = "X:\\Journal";
+            LabelJournalPath.DoubleClick += LabelJournalPath_DoubleClick;
+            // 
+            // LabelJournal
+            // 
+            LabelJournal.AutoSize = true;
+            LabelJournal.Location = new Point(34, 197);
+            LabelJournal.Name = "LabelJournal";
+            LabelJournal.Size = new Size(84, 15);
+            LabelJournal.TabIndex = 12;
+            LabelJournal.Text = "Journal Folder:";
             // 
             // ButtonAddTheme
             // 
@@ -191,9 +214,9 @@
             PluginSettingsButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginSettingsButton.FlatAppearance.BorderSize = 0;
             PluginSettingsButton.FlatStyle = FlatStyle.Flat;
-            PluginSettingsButton.Location = new Point(396, 193);
+            PluginSettingsButton.Location = new Point(406, 193);
             PluginSettingsButton.Name = "PluginSettingsButton";
-            PluginSettingsButton.Size = new Size(130, 23);
+            PluginSettingsButton.Size = new Size(120, 23);
             PluginSettingsButton.TabIndex = 6;
             PluginSettingsButton.Text = "Plugin Settings";
             PluginSettingsButton.UseVisualStyleBackColor = false;
@@ -681,5 +704,7 @@
         private Label ThemeLabel;
         private ComboBox ThemeDropdown;
         private Button ButtonAddTheme;
+        private Label LabelJournal;
+        private Label LabelJournalPath;
     }
 }

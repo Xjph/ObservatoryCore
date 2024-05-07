@@ -107,6 +107,7 @@ namespace Observatory.UI
             VoiceSpeedSlider.Value = settings.VoiceRate;
             VoiceDropdown.SelectedItem = settings.VoiceSelected;
             VoiceCheckbox.Checked = settings.VoiceNotify;
+            LabelJournalPath.Text = LogMonitor.GetJournalFolder().FullName;
         }
 
         private void TestButton_Click(object sender, EventArgs e)
@@ -151,6 +152,25 @@ namespace Observatory.UI
                         MessageBoxIcon.Error);
                 }
             }
+        }
+
+        private void LabelJournalPath_DoubleClick(object sender, EventArgs e)
+        {
+            var folderBrowse = new FolderBrowserDialog()
+            { 
+                Description = "Select Elite Dangerous Journal Location",
+                InitialDirectory = LogMonitor.GetJournalFolder().FullName,
+                UseDescriptionForTitle = true
+            };
+            var result = folderBrowse.ShowDialog(this);
+
+            Properties.Core.Default.JournalFolder =
+                result == DialogResult.OK
+                ? folderBrowse.SelectedPath
+                : string.Empty;
+
+            Properties.Core.Default.Save();
+            LabelJournalPath.Text = LogMonitor.GetJournalFolder().FullName;
         }
     }
 }
