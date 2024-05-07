@@ -21,7 +21,7 @@ namespace Observatory.UI
         {
             InitializeComponent();
 
-            if (new Random().Next(1, 20) == 20)
+            if (new Random().Next(20) == 0)
                 Text = Encoding.UTF8.GetString(eggBytes);
 
             var ReadAllJournals = LogMonitor.GetInstance.ReadAllGenerator(out int fileCount);
