@@ -287,13 +287,23 @@ namespace Observatory.Framework.Interfaces
         public void SaveSettings(IObservatoryPlugin plugin);
 
         /// <summary>
+        /// Request that Observatory open the setting form for the current plugin
+        /// </summary>
+        public void OpenSettings(IObservatoryPlugin plugin);
+
+        /// <summary>
         /// Deserializes a journal event from JSON into a journal object.
         /// </summary>
         /// <param name="json">JSON string representing a journal event</param>
         /// <param name="replay">(Optional) Replay this event as a current journal entry to all plugins</param>
         /// <returns>Journal object of the json passed in</returns>
         public JournalEventArgs DeserializeEvent(string json, bool replay = false);
-        
+
+        /// <summary>
+        /// Switches focus to the named plugin (if found).
+        /// </summary>
+        /// <param name="pluginName">The short name of the plugin which should be focused.</param>
+        public void FocusPlugin(string pluginName);
     }
 
     /// <summary>

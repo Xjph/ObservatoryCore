@@ -1703,6 +1703,11 @@
             Request that Observatory save plugin settings to preserve changes made outside the settings UI.
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.OpenSettings(Observatory.Framework.Interfaces.IObservatoryPlugin)">
+            <summary>
+            Request that Observatory open the setting form for the current plugin
+            </summary>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.DeserializeEvent(System.String,System.Boolean)">
             <summary>
             Deserializes a journal event from JSON into a journal object.
@@ -1710,6 +1715,12 @@
             <param name="json">JSON string representing a journal event</param>
             <param name="replay">(Optional) Replay this event as a current journal entry to all plugins</param>
             <returns>Journal object of the json passed in</returns>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.FocusPlugin(System.String)">
+            <summary>
+            Switches focus to the named plugin (if found).
+            </summary>
+            <param name="pluginName">The short name of the plugin which should be focused.</param>
         </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryComparer">
             <summary>

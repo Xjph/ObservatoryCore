@@ -64,6 +64,29 @@ namespace Observatory.UI
             CreatePluginTabs();
         }
 
+        public void FocusPlugin(string pluginShortName)
+        {
+            var pluginItem = FindMenuItemForPlugin(pluginShortName);
+            if (pluginItem != null)
+            {
+                SuspendDrawing(this);
+                ActivatePluginTab(pluginItem);
+                ResumeDrawing(this);
+            }
+        }
+
+        private ToolStripItem? FindMenuItemForPlugin(string pluginShortName)
+        {
+            foreach (ToolStripItem item in CoreMenu.Items)
+            {
+                if (item.Text == pluginShortName)
+                {
+                    return item;
+                }
+            }
+            return null;
+        }
+
         private void CoreMenu_SizeChanged(object? sender, EventArgs e)
         {
             CorePanel.Location = new Point(12 + CoreMenu.Width, 12);
@@ -129,24 +152,29 @@ namespace Observatory.UI
             }
             else
             {
-                foreach (var panel in uiPanels.Where(p => p.Key != e.ClickedItem))
-                {
-                    panel.Value.Visible = false;
-                }
-
-                if (!Controls.Contains(uiPanels[e.ClickedItem]))
-                {
-                    uiPanels[e.ClickedItem].Location = CorePanel.Location;
-                    uiPanels[e.ClickedItem].Size = CorePanel.Size;
-                    uiPanels[e.ClickedItem].BackColor = CorePanel.BackColor;
-                    uiPanels[e.ClickedItem].Parent = CorePanel.Parent;
-                    Controls.Add(uiPanels[e.ClickedItem]);
-                }
-                uiPanels[e.ClickedItem].Visible = true;
-
-                SetClickedItem(e.ClickedItem);
+                ActivatePluginTab(e.ClickedItem);
             }
             ResumeDrawing(this);
+        }
+
+        private void ActivatePluginTab(ToolStripItem item)
+        {
+            foreach (var panel in uiPanels.Where(p => p.Key != item))
+            {
+                panel.Value.Visible = false;
+            }
+
+            if (!Controls.Contains(uiPanels[item]))
+            {
+                uiPanels[item].Location = CorePanel.Location;
+                uiPanels[item].Size = CorePanel.Size;
+                uiPanels[item].BackColor = CorePanel.BackColor;
+                uiPanels[item].Parent = CorePanel.Parent;
+                Controls.Add(uiPanels[item]);
+            }
+            uiPanels[item].Visible = true;
+
+            SetClickedItem(item);
         }
 
         private void SetClickedItem(ToolStripItem item)

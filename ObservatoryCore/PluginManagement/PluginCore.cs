@@ -143,8 +143,7 @@ namespace Observatory.PluginManagement
 
         public void ExecuteOnUIThread(Action action)
         {
-            if (Application.OpenForms.Count > 0)
-                Application.OpenForms[0].Invoke(action);
+            FindCoreForm()?.Invoke(action);
         }
 
         public System.Net.Http.HttpClient HttpClient
@@ -209,7 +208,7 @@ namespace Observatory.PluginManagement
 
         public string GetCurrentThemeName() =>
             ThemeManager.GetInstance.CurrentTheme;
-        
+
         public Dictionary<string, Color> GetCurrentThemeDetails() =>
             ThemeManager.GetInstance.CurrentThemeDetails;
 
@@ -218,10 +217,26 @@ namespace Observatory.PluginManagement
             PluginManager.GetInstance.SaveSettings(plugin);
         }
 
+        public void OpenSettings(IObservatoryPlugin plugin)
+        {
+            ExecuteOnUIThread(() =>
+            {
+                FindCoreForm()?.OpenSettings(plugin);
+            });
+        }
+
         public JournalEventArgs DeserializeEvent(string json, bool replay = false)
         {
             var logMonitor = LogMonitor.GetInstance;
             return logMonitor.DeserializeAndInvoke(json, replay);
+        }
+
+        public void FocusPlugin(string pluginName)
+        {
+            ExecuteOnUIThread(() =>
+            {
+                FindCoreForm()?.FocusPlugin(pluginName);
+            });
         }
 
         internal void Shutdown()
@@ -260,6 +275,18 @@ namespace Observatory.PluginManagement
                 {
                     listView = (PluginListView)control;
                     return listView;
+                }
+            }
+            return null;
+        }
+
+        private CoreForm? FindCoreForm()
+        {
+            foreach (var f in Application.OpenForms)
+            {
+                if (f is CoreForm)
+                {
+                    return (CoreForm)f;
                 }
             }
             return null;
