@@ -59,23 +59,23 @@ namespace Observatory.Utils
                 firstStartMonitor = false;
                 PrereadJournals();
             }
-            journalWatcher.EnableRaisingEvents = true;
-            statusWatcher.EnableRaisingEvents = true;
+            journalWatcher!.EnableRaisingEvents = true;
+            statusWatcher!.EnableRaisingEvents = true;
             SetLogMonitorState(LogMonitorState.Realtime);
             JournalPoke();
         }
 
         public void Stop()
         {
-            journalWatcher.EnableRaisingEvents = false;
-            statusWatcher.EnableRaisingEvents = false;
+            journalWatcher!.EnableRaisingEvents = false;
+            statusWatcher!.EnableRaisingEvents = false;
             SetLogMonitorState(LogMonitorState.Idle);
         }
 
         public void ChangeWatchedDirectory(string path)
         {
-            journalWatcher.Dispose();
-            statusWatcher.Dispose();
+            journalWatcher?.Dispose();
+            statusWatcher?.Dispose();
             InitializeWatchers(path);
         }
 
