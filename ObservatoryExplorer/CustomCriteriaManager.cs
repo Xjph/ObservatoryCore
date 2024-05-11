@@ -187,12 +187,14 @@ namespace Observatory.Explorer
 
             try
             {
+                var IsEndAnnotation = (string line) => 
+                GetCriteriaAnnotation(line, out Annotation endAnnotation) && endAnnotation.type == AnnotationType.End;
+
                 for (int i = 0; i < criteria.Length; i++)
                 {
-                    if (criteria[i].Trim().StartsWith("::"))
+                    if (GetCriteriaAnnotation(criteria[i], out Annotation annotation))
                     {
-                        string scriptDescription = criteria[i].Trim().Replace("::", string.Empty);
-                        if (scriptDescription.ToLower() == "criteria" || scriptDescription.ToLower().StartsWith("criteria="))
+                        if (annotation.type == AnnotationType.Complex)
                         {
                             string functionName = $"Criteria{i}";
                             script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
@@ -204,21 +206,21 @@ namespace Observatory.Explorer
 
                                 script.AppendLine(criteria[i]);
                                 i++;
-                            } while (!criteria[i].Trim().ToLower().StartsWith("::end::"));
+                            } while (!IsEndAnnotation(criteria[i]));
                             script.AppendLine("end");
 
                             LuaState.DoString(script.ToString());
-                            CriteriaFunctions.Add(GetUniqueDescription(functionName, scriptDescription), LuaState[functionName] as LuaFunction);
+                            CriteriaFunctions.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
                             script.Clear();
                         }
-                        else if (scriptDescription.ToLower() == "global")
+                        else if (annotation.type == AnnotationType.Global)
                         {
                             i++;
                             do
                             {
                                 script.AppendLine(criteria[i]);
                                 i++;
-                            } while (!criteria[i].Trim().ToLower().StartsWith("::end::"));
+                            } while (!IsEndAnnotation(criteria[i]));
                             LuaState.DoString(script.ToString());
                             script.Clear();
                         }
@@ -232,7 +234,9 @@ namespace Observatory.Explorer
                             script.AppendLine($"    local result = {criteria[i]}");
                             script.AppendLine("    local detail = ''");
 
-                            if (criteria.Length > i + 1 && criteria[i + 1].Trim().ToLower() == "::detail::")
+                            if (criteria.Length > i + 1
+                                && GetCriteriaAnnotation(criteria[i + 1], out Annotation detailAnnotation) 
+                                && detailAnnotation.type == AnnotationType.Detail)
                             {
                                 i++; i++;
                                 // Gate detail evaluation on result to allow safe use of criteria-checked values in detail string.
@@ -241,11 +245,11 @@ namespace Observatory.Explorer
                                 script.AppendLine("    end");
                             }
 
-                            script.AppendLine($"    return result, '{scriptDescription}', detail");
+                            script.AppendLine($"    return result, '{annotation.value}', detail");
                             script.AppendLine("end");
 
                             LuaState.DoString(script.ToString());
-                            CriteriaFunctions.Add(GetUniqueDescription(functionName, scriptDescription), LuaState[functionName] as LuaFunction);
+                            CriteriaFunctions.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
                             script.Clear();
                         }
                     }
@@ -358,6 +362,77 @@ namespace Observatory.Explorer
             }
 
             return results;
+        }
+
+        private class Annotation
+        {
+            public AnnotationType type { get; init; }
+            public string value { get; init; }
+        }
+
+        private bool GetCriteriaAnnotation(string line, out Annotation annotation)
+        {
+            line = line.Trim();
+
+            if (line.StartsWith("::") || line.StartsWith("---@"))
+            {
+                string annotationRaw = line.Replace("::", string.Empty).Replace("---@", string.Empty);
+
+                switch (annotationRaw.Split(' ')[0].Split('=')[0].ToLower()) // Gross, but handles both formats
+                {
+                    case "end":
+                        annotation = new() { type = AnnotationType.End, value = string.Empty };
+                        return true;
+                    case "global":
+                        annotation = new() { type = AnnotationType.Global, value = string.Empty }; 
+                        return true;
+                    case "detail":
+                        annotation = new() { type = AnnotationType.Detail, value = string.Empty };
+                        return true;
+                    case "criteria":
+                    case "complex":
+                        string debugLabel;
+                        if (annotationRaw.Contains(' '))
+                        {
+                            debugLabel = string.Join(' ', annotationRaw.Split(' ')[1..]);
+                        }
+                        else if (annotationRaw.ToLower().StartsWith("criteria="))
+                        {
+                            debugLabel = annotationRaw[9..];
+                        }
+                        else
+                        {
+                            debugLabel = string.Empty;
+                        }
+                        annotation = new() { type = AnnotationType.Complex, value = debugLabel };
+                        return true;
+                    default:
+                        string simpleDescription;
+                        if (line.ToLower().StartsWith("---@simple "))
+                        {
+                            simpleDescription = annotationRaw[11..];
+                        }
+                        else
+                        {
+                            simpleDescription = annotationRaw;
+                        }
+                        annotation = new() { type = AnnotationType.Simple, value = simpleDescription };
+                        return true;
+                }
+            }
+
+            annotation = new() { type = AnnotationType.None, value = string.Empty };
+            return false;
+        }
+
+        private enum AnnotationType
+        {
+            Simple,
+            Complex,
+            Detail,
+            Global,
+            End,
+            None
         }
 
         private string GetUniqueDescription(string functionName, string scriptDescription)
