@@ -59,15 +59,17 @@ namespace Observatory.UI
                 // DwmHelper.WindowBorderlessDropShadow(Handle, 2);
             }
 
+            var scale = Properties.Core.Default.NativeNotifyScale / 100.0f;
+            Scale(new SizeF(scale, scale));
 
             Title.ForeColor = _color;
             Title.Text = args.Title;
-            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 18);
+            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 18 * scale);
             Body.ForeColor = _color;
             Body.Text = args.Detail;
-            Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14);
+            Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14 * scale);
             Paint += DrawBorder;
-            
+
             AdjustPosition(args.XPos / 100, args.YPos / 100);
 
             _timer = new();
