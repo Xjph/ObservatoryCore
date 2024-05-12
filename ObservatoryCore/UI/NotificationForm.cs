@@ -26,10 +26,37 @@ namespace Observatory.UI
         {
             get
             {
+                const int WS_EX_LAYERED = 0x80000;
+                const int WS_EX_TRANSPARENT = 0x20;
+                const int WS_EX_TOPMOST = 0x8;
                 CreateParams cp = base.CreateParams;
-                cp.ExStyle |= 0x00000008; // WS_EX_TOPMOST
+                cp.ExStyle |= WS_EX_LAYERED;
+                cp.ExStyle |= WS_EX_TRANSPARENT;
+                cp.ExStyle |= WS_EX_TOPMOST;
                 return cp;
             }
+        }
+        protected override void WndProc(ref Message m)
+        {
+
+            switch (m.Msg)
+            {
+                case DwmHelper.WM_DWMCOMPOSITIONCHANGED:
+                    if (System.Environment.OSVersion.Version.Major >= 6 && DwmHelper.IsCompositionEnabled())
+                    {
+                        var policy = DwmHelper.DWMNCRENDERINGPOLICY.Enabled;
+                        DwmHelper.WindowSetAttribute(Handle, DwmHelper.DWMWINDOWATTRIBUTE.NCRenderingPolicy, (int)policy);
+                        DwmHelper.WindowBorderlessDropShadow(Handle, 2);
+                        m.Result = IntPtr.Zero;
+                    }
+                    break;
+                case 0x0084:
+                    m.Result = (IntPtr)(-1);
+                    return;
+                default:
+                    break;
+            }
+            base.WndProc(ref m);
         }
 
         public NotificationForm(Guid guid, NotificationArgs args)
@@ -177,28 +204,7 @@ namespace Observatory.UI
             }
         }
 
-        protected override void WndProc(ref Message m)
-        {
 
-            switch (m.Msg)
-            {
-                case DwmHelper.WM_DWMCOMPOSITIONCHANGED:
-                    if (System.Environment.OSVersion.Version.Major >= 6 && DwmHelper.IsCompositionEnabled())
-                    {
-                        var policy = DwmHelper.DWMNCRENDERINGPOLICY.Enabled;
-                        DwmHelper.WindowSetAttribute(Handle, DwmHelper.DWMWINDOWATTRIBUTE.NCRenderingPolicy, (int)policy);
-                        DwmHelper.WindowBorderlessDropShadow(Handle, 2);
-                        m.Result = IntPtr.Zero;
-                    }
-                    break;
-                case 0x0084:
-                    m.Result = (IntPtr)(-1);
-                    return;
-                default:
-                    break;
-            }
-            base.WndProc(ref m);
-        }
 
         private void DrawText(object? sender, PaintEventArgs e)
         {
