@@ -143,9 +143,9 @@
             // LabelJournalPath
             // 
             LabelJournalPath.Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
-            LabelJournalPath.Location = new Point(124, 198);
+            LabelJournalPath.Location = new Point(124, 226);
             LabelJournalPath.Name = "LabelJournalPath";
-            LabelJournalPath.Size = new Size(266, 13);
+            LabelJournalPath.Size = new Size(526, 13);
             LabelJournalPath.TabIndex = 13;
             LabelJournalPath.Text = "X:\\Journal";
             LabelJournalPath.DoubleClick += LabelJournalPath_DoubleClick;
@@ -153,7 +153,7 @@
             // LabelJournal
             // 
             LabelJournal.AutoSize = true;
-            LabelJournal.Location = new Point(34, 197);
+            LabelJournal.Location = new Point(34, 225);
             LabelJournal.Name = "LabelJournal";
             LabelJournal.Size = new Size(84, 15);
             LabelJournal.TabIndex = 12;
@@ -163,7 +163,7 @@
             // 
             ButtonAddTheme.FlatAppearance.BorderSize = 0;
             ButtonAddTheme.FlatStyle = FlatStyle.Flat;
-            ButtonAddTheme.Location = new Point(251, 620);
+            ButtonAddTheme.Location = new Point(251, 648);
             ButtonAddTheme.Name = "ButtonAddTheme";
             ButtonAddTheme.Size = new Size(88, 23);
             ButtonAddTheme.TabIndex = 11;
@@ -175,7 +175,7 @@
             // 
             ThemeDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             ThemeDropdown.FormattingEnabled = true;
-            ThemeDropdown.Location = new Point(124, 620);
+            ThemeDropdown.Location = new Point(124, 648);
             ThemeDropdown.Name = "ThemeDropdown";
             ThemeDropdown.Size = new Size(121, 23);
             ThemeDropdown.TabIndex = 10;
@@ -184,7 +184,7 @@
             // ThemeLabel
             // 
             ThemeLabel.AutoSize = true;
-            ThemeLabel.Location = new Point(72, 623);
+            ThemeLabel.Location = new Point(72, 651);
             ThemeLabel.Name = "ThemeLabel";
             ThemeLabel.Size = new Size(46, 15);
             ThemeLabel.TabIndex = 9;
@@ -194,7 +194,7 @@
             // AudioLabel
             // 
             AudioLabel.AutoSize = true;
-            AudioLabel.Location = new Point(5, 435);
+            AudioLabel.Location = new Point(5, 463);
             AudioLabel.Name = "AudioLabel";
             AudioLabel.Size = new Size(106, 15);
             AudioLabel.TabIndex = 8;
@@ -203,7 +203,7 @@
             // PopupLabel
             // 
             PopupLabel.AutoSize = true;
-            PopupLabel.Location = new Point(5, 218);
+            PopupLabel.Location = new Point(5, 246);
             PopupLabel.Name = "PopupLabel";
             PopupLabel.Size = new Size(113, 15);
             PopupLabel.TabIndex = 7;
@@ -234,7 +234,7 @@
             VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
             VoiceSettingsPanel.Controls.Add(VoiceVolumeLabel);
-            VoiceSettingsPanel.Location = new Point(3, 444);
+            VoiceSettingsPanel.Location = new Point(3, 472);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
             VoiceSettingsPanel.Size = new Size(659, 170);
             VoiceSettingsPanel.TabIndex = 5;
@@ -344,7 +344,7 @@
             PopupSettingsPanel.Controls.Add(DisplayDropdown);
             PopupSettingsPanel.Controls.Add(CornerLabel);
             PopupSettingsPanel.Controls.Add(DisplayLabel);
-            PopupSettingsPanel.Location = new Point(3, 227);
+            PopupSettingsPanel.Location = new Point(3, 255);
             PopupSettingsPanel.Name = "PopupSettingsPanel";
             PopupSettingsPanel.Size = new Size(659, 207);
             PopupSettingsPanel.TabIndex = 3;
@@ -636,8 +636,10 @@
             Controls.Add(CoreMenu);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = CoreMenu;
+            MinimumSize = new Size(600, 600);
             Name = "CoreForm";
             Text = "Elite Observatory Core";
+            Resize += CoreForm_Resize;
             CoreMenu.ResumeLayout(false);
             CoreMenu.PerformLayout();
             CorePanel.ResumeLayout(false);

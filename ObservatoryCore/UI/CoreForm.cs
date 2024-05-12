@@ -305,5 +305,13 @@ namespace Observatory.UI
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
+
+        private void CoreForm_Resize(object sender, EventArgs e)
+        {
+            // Core panel is behaving weirdly on resize.
+            // "Anchor" property not working as expected?
+            CorePanel.Width = Width - 161;
+            CorePanel.Height = Height - 93;
+        }
     }
 }
