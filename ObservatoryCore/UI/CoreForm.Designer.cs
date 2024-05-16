@@ -143,7 +143,7 @@
             // LabelJournalPath
             // 
             LabelJournalPath.Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
-            LabelJournalPath.Location = new Point(124, 226);
+            LabelJournalPath.Location = new Point(124, 624);
             LabelJournalPath.Name = "LabelJournalPath";
             LabelJournalPath.Size = new Size(526, 13);
             LabelJournalPath.TabIndex = 13;
@@ -153,7 +153,7 @@
             // LabelJournal
             // 
             LabelJournal.AutoSize = true;
-            LabelJournal.Location = new Point(34, 225);
+            LabelJournal.Location = new Point(34, 623);
             LabelJournal.Name = "LabelJournal";
             LabelJournal.Size = new Size(84, 15);
             LabelJournal.TabIndex = 12;
@@ -194,7 +194,7 @@
             // AudioLabel
             // 
             AudioLabel.AutoSize = true;
-            AudioLabel.Location = new Point(5, 463);
+            AudioLabel.Location = new Point(5, 432);
             AudioLabel.Name = "AudioLabel";
             AudioLabel.Size = new Size(106, 15);
             AudioLabel.TabIndex = 8;
@@ -203,7 +203,7 @@
             // PopupLabel
             // 
             PopupLabel.AutoSize = true;
-            PopupLabel.Location = new Point(5, 246);
+            PopupLabel.Location = new Point(5, 215);
             PopupLabel.Name = "PopupLabel";
             PopupLabel.Size = new Size(113, 15);
             PopupLabel.TabIndex = 7;
@@ -234,7 +234,7 @@
             VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
             VoiceSettingsPanel.Controls.Add(VoiceVolumeLabel);
-            VoiceSettingsPanel.Location = new Point(3, 472);
+            VoiceSettingsPanel.Location = new Point(3, 441);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
             VoiceSettingsPanel.Size = new Size(659, 170);
             VoiceSettingsPanel.TabIndex = 5;
@@ -344,7 +344,7 @@
             PopupSettingsPanel.Controls.Add(DisplayDropdown);
             PopupSettingsPanel.Controls.Add(CornerLabel);
             PopupSettingsPanel.Controls.Add(DisplayLabel);
-            PopupSettingsPanel.Location = new Point(3, 255);
+            PopupSettingsPanel.Location = new Point(3, 224);
             PopupSettingsPanel.Name = "PopupSettingsPanel";
             PopupSettingsPanel.Size = new Size(659, 207);
             PopupSettingsPanel.TabIndex = 3;
