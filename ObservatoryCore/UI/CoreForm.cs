@@ -310,8 +310,8 @@ namespace Observatory.UI
         {
             // Core panel is behaving weirdly on resize.
             // "Anchor" property not working as expected?
-            CorePanel.Width = Width - 161;
-            CorePanel.Height = Height - 93;
+            CorePanel.Width = Width - CorePanel.Location.X - 30;
+            CorePanel.Height = Height - CorePanel.Location.Y - 80;
         }
     }
 }
