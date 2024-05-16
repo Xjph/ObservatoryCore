@@ -108,6 +108,7 @@
         private void LoadThemes()
         {
             string savedThemes = Properties.Core.Default.SavedThemes;
+            if (string.IsNullOrEmpty(savedThemes)) savedThemes = "[]";
             List<ThemeSerializationContainer>? savedThemeContainers;
             try
             {
