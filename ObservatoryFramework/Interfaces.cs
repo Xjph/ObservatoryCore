@@ -61,6 +61,18 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         public void HandlePluginMessage(string sourceName, string sourceVersion, object messageArgs)
         { }
+
+        /// <summary>
+        /// <para>Plugin specific data export implementation. Omit or return null to use Observatory's own export process.</para>
+        /// <para>While default behaviour is expected to be a delimited text file (i.e., .csv), a plugin may create a file in any format.</para>
+        /// </summary>
+        /// <param name="delimiter">Column delimiter for csv export.</param>
+        /// <param name="filetype">File extension to use for file. Change this when returning a file format other than delimited text.</param>
+        /// <returns>File content as a byte array.</returns>
+        public byte[] ExportContent(string delimiter, ref string filetype) 
+        {
+            return null;
+        }
     }
 
     /// <summary>
