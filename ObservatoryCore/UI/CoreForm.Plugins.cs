@@ -3,6 +3,7 @@ using Observatory.Framework.Interfaces;
 using System.Linq;
 using System.Text.Json;
 using Observatory.Framework;
+using System.Text;
 
 namespace Observatory.UI
 {
@@ -10,7 +11,7 @@ namespace Observatory.UI
     {
         private Dictionary<ListViewItem, IObservatoryPlugin>? ListedPlugins;
         private bool loading = true; // Suppress settings updates due to initializing the listview.
-
+        
         private void PopulatePluginList()
         {
             ListedPlugins = new();
@@ -148,8 +149,8 @@ namespace Observatory.UI
             return maxWidth + 25;
         }
 
-        // This is public as it is called by PluginCore on behalf of a plugin.
-        public void OpenSettings(IObservatoryPlugin plugin)
+        // Called from PluginManagement
+        internal void OpenSettings(IObservatoryPlugin plugin)
         {
             if (SettingsForms.ContainsKey(plugin))
             {
@@ -224,6 +225,67 @@ namespace Observatory.UI
             }
         }
 
-        private Dictionary<IObservatoryPlugin, SettingsForm> SettingsForms = new();
+        private Dictionary<IObservatoryPlugin, SettingsForm> SettingsForms = [];
+
+        private void PluginExport(string pluginShortName)
+        {
+            // TODO: Allow custom
+            string delimiter = "\t";
+
+            var plugin = ListedPlugins?.Where(list => list.Value.ShortName == pluginShortName).FirstOrDefault().Value;
+            if (plugin != null)
+            {
+                string filetype = "csv";
+                byte[] fileContent = plugin.ExportContent(delimiter, ref filetype);
+                if (fileContent == null)
+                {
+                    if (plugin.PluginUI.PluginUIType == PluginUI.UIType.Basic)
+                    {
+                        StringBuilder exportString = new();
+                        Panel pluginUI = (Panel)plugin.PluginUI.UI;
+                        ListView pluginGrid = (ListView)pluginUI.Controls[0];
+                        
+                        foreach (ColumnHeader column in pluginGrid.Columns)
+                        {
+                            exportString.Append(column.Text + delimiter);
+                        }
+                        exportString.AppendLine();
+
+                        foreach (ListViewItem row in pluginGrid.Items)
+                        {
+                            foreach (ListViewItem.ListViewSubItem item in row.SubItems)
+                            {
+                                exportString.Append(item.Text + delimiter);
+                            }
+                            exportString.AppendLine();
+                        }
+                        fileContent = Encoding.UTF8.GetBytes(exportString.ToString());
+                    }
+                    else
+                    {
+                        MessageBox.Show(
+                            $"Plugin {plugin.Name} does not use a basic data grid and does not provide an ExportContent method.",
+                            "Cannot Export",
+                            MessageBoxButtons.OK);
+                        return;
+                    }
+                }
+                SaveFileDialog saveAs = new()
+                {
+                    Title = plugin.Name + " Export",
+                    Filter = filetype == "csv"
+                    ? "Tab-separated values (*.csv)|*.csv"
+                    : $"Plugin-specified file type (*.{filetype})|*.{filetype}",
+                    DefaultExt = filetype,
+                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    FileName = $"Export-{plugin.ShortName}-{DateTime.Now:yyyy-MM-ddTHHmm}.{filetype}"
+                };
+                var result = saveAs.ShowDialog();
+                if (result == DialogResult.OK)
+                {
+                    File.WriteAllBytes(saveAs.FileName, fileContent);
+                }
+            }
+        }
     }
 }

@@ -104,7 +104,7 @@
             // 
             // coreToolStripMenuItem
             // 
-            coreToolStripMenuItem.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
+            coreToolStripMenuItem.Font = new Font("Segoe UI", 18F);
             coreToolStripMenuItem.Name = "coreToolStripMenuItem";
             coreToolStripMenuItem.Size = new Size(113, 36);
             coreToolStripMenuItem.Text = "Core";
@@ -113,7 +113,7 @@
             // toolStripMenuItem1
             // 
             toolStripMenuItem1.Alignment = ToolStripItemAlignment.Right;
-            toolStripMenuItem1.Font = new Font("Segoe UI", 18F, FontStyle.Regular, GraphicsUnit.Point);
+            toolStripMenuItem1.Font = new Font("Segoe UI", 18F);
             toolStripMenuItem1.Name = "toolStripMenuItem1";
             toolStripMenuItem1.Size = new Size(113, 36);
             toolStripMenuItem1.Text = "<";
@@ -142,7 +142,7 @@
             // 
             // LabelJournalPath
             // 
-            LabelJournalPath.Font = new Font("Segoe UI", 8.25F, FontStyle.Regular, GraphicsUnit.Point);
+            LabelJournalPath.Font = new Font("Segoe UI", 8.25F);
             LabelJournalPath.Location = new Point(124, 624);
             LabelJournalPath.Name = "LabelJournalPath";
             LabelJournalPath.Size = new Size(526, 13);
@@ -596,6 +596,7 @@
             ExportButton.TabIndex = 5;
             ExportButton.Text = "Export";
             ExportButton.UseVisualStyleBackColor = false;
+            ExportButton.Click += ExportButton_Click;
             // 
             // GithubLink
             // 

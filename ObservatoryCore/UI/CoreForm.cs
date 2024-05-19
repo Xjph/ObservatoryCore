@@ -126,7 +126,7 @@ namespace Observatory.UI
         private void CoreMenu_ItemClicked(object? _, ToolStripItemClickedEventArgs e)
         {
             SuspendDrawing(this);
-            if (e.ClickedItem.Text == "<")
+            if (e.ClickedItem?.Text == "<")
             {
                 foreach (KeyValuePair<string, ToolStripMenuItem> menuItem in pluginList)
                 {
@@ -138,7 +138,7 @@ namespace Observatory.UI
                 CoreMenu.Width = 70;
                 ResizePanels(new Point(CoreMenu.Width + 3, 12), 0);
             }
-            else if (e.ClickedItem.Text == ">")
+            else if (e.ClickedItem?.Text == ">")
             {
                 foreach (KeyValuePair<string, ToolStripMenuItem> menuItem in pluginList)
                 {
@@ -150,7 +150,7 @@ namespace Observatory.UI
                 CoreMenu.Width = GetExpandedMenuWidth();
                 ResizePanels(new Point(CoreMenu.Width + 3, 12), 0);
             }
-            else
+            else if (e.ClickedItem != null)
             {
                 ActivatePluginTab(e.ClickedItem);
             }
@@ -312,6 +312,15 @@ namespace Observatory.UI
             // "Anchor" property not working as expected?
             CorePanel.Width = Width - CorePanel.Location.X - 30;
             CorePanel.Height = Height - CorePanel.Location.Y - 80;
+        }
+
+        private void ExportButton_Click(object sender, EventArgs e)
+        {
+            // Find currently selected item for export
+            var selectedItem = pluginList.Where(list => list.Value.Font.Bold);
+            if (selectedItem.Any())
+                PluginExport(selectedItem.First().Key);
+            
         }
     }
 }
