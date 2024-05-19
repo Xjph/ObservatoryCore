@@ -28,12 +28,6 @@
     </ItemGroup>
 	
 	<ItemGroup>
-	<Reference Include="ObservatoryFramework">
-		<HintPath>..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll</HintPath>
-	</Reference>
-	</ItemGroup>
-	
-	<ItemGroup>
 	<Compile Update="Assets\Resources.Designer.cs">
 	  <DesignTime>True</DesignTime>
 	  <AutoGen>True</AutoGen>
@@ -71,6 +65,12 @@
 	
 	<ItemGroup>
 	  <Folder Include="Resources\" />
+	</ItemGroup>
+	
+	<ItemGroup>
+	  <Reference Include="ObservatoryFramework">
+	    <HintPath>..\ObservatoryFramework\bin\Release\net8.0\ObservatoryFramework.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
