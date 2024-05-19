@@ -5,7 +5,7 @@
 #define MyAppPublisher "Jonathan Miller"
 #define MyAppURL "https://github.com/xjph/ObservatoryCore"
 #define MyAppExeName "ObservatoryCore.exe"
-#define MyAppVersion GetVersionNumbersString('..\ObservatoryCore\bin\Release\net6.0\publish\framework-dependent\ObservatoryCore.exe')
+#define MyAppVersion GetVersionNumbersString('..\ObservatoryCore\bin\Release\net8.0-windows7.0\publish\framework-dependent\ObservatoryCore.exe')
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -60,15 +60,15 @@ Name: "Plugins\Telegram"; Description: "{cm:TelegramDescription}"; Types: Full
 Name: "{app}\plugins"; Permissions: users-modify
 
 [Files]
-Source: "..\ObservatoryCore\bin\Release\net6.0\publish\framework-dependent\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\ObservatoryCore\bin\Release\net6.0\publish\framework-dependent\*"; Excludes: "\plugins\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\ObservatoryExplorer.dll"; DestDir: "{app}\plugins"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\deps\lua54.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\deps\KeraLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\deps\NLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\ObservatoryBotanist.dll"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
-Source: "..\ObservatoryCore\bin\Release\net6.0\plugins\ObservatoryTelegram.dll"; DestDir: "{app}\plugins"; Components: Plugins\Telegram
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\publish\framework-dependent\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\publish\framework-dependent\*"; Excludes: "\plugins\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryExplorer.dll"; DestDir: "{app}\plugins"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\lua54.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\KeraLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\NLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryBotanist.dll"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryTelegram.dll"; DestDir: "{app}\plugins"; Components: Plugins\Telegram
 Source: ".\netcorecheck.exe"; Flags: dontcopy noencryption
 Source: ".\netcorecheck_x64.exe"; Flags: dontcopy noencryption
 
@@ -283,10 +283,10 @@ var
   ResultCode: Integer;
 begin
   // source code: https://github.com/dotnet/deployment-tools/tree/master/src/clickonce/native/projects/NetCoreCheck
-  if not FileExists(ExpandConstant('{tmp}{\}') + 'netcorecheck' + Dependency_ArchSuffix + '.exe') then begin
-    ExtractTemporaryFile('netcorecheck' + Dependency_ArchSuffix + '.exe');
+  if not FileExists(ExpandConstant('{tmp}{\}') + 'netcorecheck.exe') then begin
+    ExtractTemporaryFile('netcorecheck.exe');
   end;
-  Result := ShellExec('', ExpandConstant('{tmp}{\}') + 'netcorecheck' + Dependency_ArchSuffix + '.exe', Version, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
+  Result := ShellExec('', ExpandConstant('{tmp}{\}') + 'netcorecheck.exe', Version, '', SW_HIDE, ewWaitUntilTerminated, ResultCode) and (ResultCode = 0);
 end;
 
 procedure Dependency_Add(const Filename, Parameters, Title, URL, Checksum: String; const ForceSuccess, RestartAfter: Boolean);
@@ -315,14 +315,14 @@ begin
   Dependency_List[DependencyCount] := Dependency;
 end;
 
-procedure Dependency_AddDotNet60Desktop;
+procedure Dependency_AddDotNet80Desktop;
 begin
   // https://dotnet.microsoft.com/download/dotnet/5.0
-  if not Dependency_IsNetCoreInstalled('Microsoft.WindowsDesktop.App 6.0.11') then begin
-    Dependency_Add('dotnet50desktop' + Dependency_ArchSuffix + '.exe',
+  if not Dependency_IsNetCoreInstalled('-n Microsoft.WindowsDesktop.App -v 8.0.5') then begin
+    Dependency_Add('windowsdesktop-runtime-8.0.5-win-' + Dependency_ArchSuffix + '.exe',
       '/lcid ' + IntToStr(GetUILanguage) + ' /passive /norestart',
-      '.NET Desktop Runtime 6.0.11' + Dependency_ArchTitle,
-      Dependency_String('https://download.visualstudio.microsoft.com/download/pr/2a392287-fd51-4ee8-9c15-a672ab9bc55d/03d4784b3a543a0fb9ce5677ed13a9a3/windowsdesktop-runtime-6.0.11-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/0192a249-3ec8-4374-a827-e186dd58d55d/cec046575f3eb2247a10ba3d50f5cf6c/windowsdesktop-runtime-6.0.11-win-x64.exe'),
+      '.NET Desktop Runtime 8.0.5' + Dependency_ArchTitle,
+      Dependency_String('https://download.visualstudio.microsoft.com/download/pr/44a63708-94fa-4edf-81a9-50612e4ef82f/1c9f61bc16d3bec6217337951898dbd3/windowsdesktop-runtime-8.0.5-win-x86.exe', 'https://download.visualstudio.microsoft.com/download/pr/0ff148e7-bbf6-48ed-bdb6-367f4c8ea14f/bd35d787171a1f0de7da6b57cc900ef5/windowsdesktop-runtime-8.0.5-win-x64.exe'),
       '', False, False);
   end;
 end;
@@ -330,7 +330,7 @@ end;
 function InitializeSetup: Boolean;
 begin
   // add the dependencies you need
-  Dependency_AddDotNet60Desktop;
+  Dependency_AddDotNet80Desktop;
   // ...
   Result := true;
 end;
