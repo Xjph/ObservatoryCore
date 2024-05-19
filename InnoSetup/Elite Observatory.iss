@@ -45,16 +45,12 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 Name: "Full"; Description: "Full installation"
 Name: "Custom"; Description: "Custom installation"; Flags: iscustom
 
-[CustomMessages]
-TelegramDescription=Telegram: Plugin for sending notifications via Telegram instant messages.%nProvided by Matt-G (mgraham-dev).
-
 [Components]
 Name: "Core"; Description: "Core Elite Observatory Application"; Flags: fixed; Types: Full Custom
 Name: "Plugins"; Description: "Optional Observatory Plugins"; Types: Full
 Name: "Plugins\Explorer"; Description: "Explorer: Plugin for finding interesting objects while exploring."; Types: Full
 Name: "Plugins\Botanist"; Description: "Botanist: Plugin for tracking surface biological signals scanned while on foot."; Types: Full
 Name: "Plugins\Herald"; Description: "Herald: Plugin for cloud-based high quality speech notifications via Microsoft Azure Cognitive Services."; Types: Full
-Name: "Plugins\Telegram"; Description: "{cm:TelegramDescription}"; Types: Full
 
 [Dirs]
 Name: "{app}\plugins"; Permissions: users-modify
@@ -68,9 +64,7 @@ Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\KeraLua.d
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\NLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryBotanist.dll"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
-Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryTelegram.dll"; DestDir: "{app}\plugins"; Components: Plugins\Telegram
 Source: ".\netcorecheck.exe"; Flags: dontcopy noencryption
-Source: ".\netcorecheck_x64.exe"; Flags: dontcopy noencryption
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
