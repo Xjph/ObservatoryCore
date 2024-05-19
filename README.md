@@ -6,7 +6,7 @@ Tool for reading/monitoring Elite Dangerous journals for interesting objects. Su
 ## *IMPORTANT*
 Observatory Core is a perpetual work-in-progress. New features are being developed and even the current ones may experience a degree of flux.
 
-Noteworth planned functionality includes, but is not limited to:
+Noteworthy planned functionality includes, but is not limited to:
 * Integration with Frontier's Companion API
 * Data submission to IGAU
 * Data submission to EDDN
