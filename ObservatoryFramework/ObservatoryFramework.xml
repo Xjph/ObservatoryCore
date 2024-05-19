@@ -1490,6 +1490,15 @@
             Receives data sent by other plugins.
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.ExportContent(System.String,System.String@)">
+            <summary>
+            <para>Plugin specific data export implementation. Omit or return null to use Observatory's own export process.</para>
+            <para>While default behaviour is expected to be a delimited text file (i.e., .csv), a plugin may create a file in any format.</para>
+            </summary>
+            <param name="delimiter">Column delimiter for csv export.</param>
+            <param name="filetype">File extension to use for file. Change this when returning a file format other than delimited text.</param>
+            <returns>File content as a byte array.</returns>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
             <para>Interface for worker plugins which process journal data to update their UI or send notifications.</para>
