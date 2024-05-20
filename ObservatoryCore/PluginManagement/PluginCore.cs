@@ -173,16 +173,16 @@ namespace Observatory.PluginManagement
 #if PORTABLE
                 string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
                 var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
-                return $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}-Data{Path.DirectorySeparatorChar}";
+                string folderLocation = $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}-Data{Path.DirectorySeparatorChar}";
 #else
                 string folderLocation = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
                     + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}{Path.DirectorySeparatorChar}";
-
+#endif
                 if (!Directory.Exists(folderLocation))
                     Directory.CreateDirectory(folderLocation);
 
                 return folderLocation;
-#endif
+
             }
         }
 
