@@ -77,8 +77,6 @@
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Exec Condition=" '$(OS)' == 'Windows_NT'" Command="if not exist &quot;$(ProjectDir)..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryFramework\ObservatoryFramework.csproj&quot; -c Release" />
 		<Exec Condition=" '$(OS)' == 'Windows_NT'" Command="if not exist &quot;$(OutDir)plugins\ObservatoryExplorer.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryExplorer\ObservatoryExplorer.csproj&quot; -c $(ConfigurationName)" />
-		<Exec Condition=" '$(OS)' != 'Windows_NT'" Command="[ ! -e &quot;$(ProjectDir)../ObservatoryFramework/bin/Release/net6.0/ObservatoryFramework.dll&quot; ] &amp;&amp; dotnet build &quot;$(ProjectDir)../ObservatoryFramework/ObservatoryFramework.csproj&quot; -c Release || echo No build necessary" />
-		<Exec Condition=" '$(OS)' != 'Windows_NT'" Command="[ ! -e &quot;$(ProjectDir)$(OutDir)plugins/ObservatoryExplorer.dll&quot; ] &amp;&amp; dotnet build &quot;$(ProjectDir)../ObservatoryExplorer/ObservatoryExplorer.csproj&quot; -c $(ConfigurationName) || echo No build necessary" />
 	</Target>
 	
 </Project>
