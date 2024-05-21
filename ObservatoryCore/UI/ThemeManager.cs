@@ -67,7 +67,11 @@
             { "Default.ForeColor", Color.LightGray },
             { "Default.BackColor", Color.Black },
             { "Button.ForeColor", Color.LightGray },
-            { "Button.BackColor", Color.DimGray }
+            { "Button.BackColor", Color.DimGray },
+            { "LinkLabel.ActiveLinkColor", Color.Red },
+            { "LinkLabel.DisabledLinkColor", Color.FromArgb(0x85, 0x85, 0x85) },
+            { "LinkLabel.LinkColor", Color.FromArgb(0xA0, 0xA0, 0xFF) },
+            { "LinkLabel.VisitedLinkColor", Color.FromArgb(0x80, 0, 0x80) },
         };
         #endregion
 

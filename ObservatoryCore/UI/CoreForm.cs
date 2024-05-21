@@ -298,7 +298,10 @@ namespace Observatory.UI
 
         private void DonateLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            OpenURL("https://www.paypal.com/donate/?hosted_button_id=XYQWYQ337TBP4");
+            // OpenURL("https://www.paypal.com/donate/?hosted_button_id=XYQWYQ337TBP4");
+            var donateForm = new DonateForm();
+            ThemeManager.GetInstance.RegisterControl(donateForm);
+            donateForm.ShowDialog();
         }
 
         private void OpenURL(string url)
