@@ -1,15 +1,15 @@
 $cert = Get-ChildItem Cert:\LocalMachine\My -CodeSigningCert
-Set-AuthenticodeSignature -FilePath ./ObservatoryCore/bin/Release/net8.0-windows7.0/ObservatoryCore.exe -Certificate $cert
-Set-AuthenticodeSignature -FilePath ./ObservatoryCore/bin/Release/net8.0-windows7.0/publish/framework-dependent/ObservatoryCore.exe -Certificate $cert
-Set-AuthenticodeSignature -FilePath ./ObservatoryCore/bin/Release/net8.0-windows7.0/plugins/ObservatoryExplorer.dll -Certificate $cert
-Set-AuthenticodeSignature -FilePath ./ObservatoryCore/bin/Release/net8.0-windows7.0/plugins/ObservatoryBotanist.dll -Certificate $cert
-Set-AuthenticodeSignature -FilePath ./ObservatoryCore/bin/Release/net8.0-windows7.0/plugins/ObservatoryHerald.dll -Certificate $cert
-
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\ObservatoryCore.exe -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\publish\framework-dependent\ObservatoryCore.exe -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryExplorer.dll -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryBotanist.dll -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryHerald.dll -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Portable\net8.0-windows7.0\publish\ObservatoryCore.exe -Certificate $cert
 # SIG # Begin signature block
 # MIIFjQYJKoZIhvcNAQcCoIIFfjCCBXoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
 # gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
-# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQUYkPyzh9LE3Ag7XyJhO+FM6OE
-# yIygggMnMIIDIzCCAgugAwIBAgIQS+YyjIH0QqtDnjQBoAFcnjANBgkqhkiG9w0B
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU1NNz6GTIylZYJT/ZhEB8CLdx
+# 6eWgggMnMIIDIzCCAgugAwIBAgIQS+YyjIH0QqtDnjQBoAFcnjANBgkqhkiG9w0B
 # AQsFADAbMRkwFwYDVQQDDBBqbWlsbGVyQHhqcGgubmV0MB4XDTI0MDUxOTE0NTQ0
 # MFoXDTI1MDUxOTE1MTQ0MFowGzEZMBcGA1UEAwwQam1pbGxlckB4anBoLm5ldDCC
 # ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKxAS9FIIfnBtKqxg1+/IfM/
@@ -29,11 +29,11 @@ Set-AuthenticodeSignature -FilePath ./ObservatoryCore/bin/Release/net8.0-windows
 # 0DCCAcwCAQEwLzAbMRkwFwYDVQQDDBBqbWlsbGVyQHhqcGgubmV0AhBL5jKMgfRC
 # q0OeNAGgAVyeMAkGBSsOAwIaBQCgeDAYBgorBgEEAYI3AgEMMQowCKACgAChAoAA
 # MBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwGCisGAQQBgjcCAQsxDjAMBgor
-# BgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBTb2TrhSmSWM3QTEXZ0WgADJLuHiTAN
-# BgkqhkiG9w0BAQEFAASCAQA6shKXeHPzcXBYENZvjAzUoE1SR6m/P9lXhkaYO4d+
-# FtfzWrmHTo1E8UVEGf9wRDHHaDeJpBW8bFwjpC5pqQH1+f/Xw6YPUiZxxjHHWyLJ
-# jBaTf0CT0tgSzrWDpzXfa4oqdBCn4ZxBEhS7dvsjxQxa4H0iqq8VHvw3i25XYsul
-# j1LQUT+ihTSaVRKAs4puaW9bZpDB5g3ZTMztNvIEREZW1ydMFtx0YBWd4dMGrqAH
-# E9CKg2n5PwJZ122THgRpHaDmtL8ZhauyP+CciKFwZvGZgZ4UWlCS1efNRe/F2Lxp
-# tyFNqadL1aVblPLlMmcbpJe8YpfzuRNodWA3I3oIMyIw
+# BgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBR94UPubgLZBABU5rM5Z5s+iEkF5jAN
+# BgkqhkiG9w0BAQEFAASCAQBy87ermUJI0OgZu2uYv1mwcd4l9ow+Ml8hmt5Bw9pN
+# g7aK63AClB7eFyaLRuYtSvvni/vExQGABXXNiSxDeg01repC1pDf+uCR5Z7SIuxP
+# lTvQYACvIWQKMjQxJzg7691Qetleq9KAhgLxrhoDgPTXtboHUUhOdQCaxMdnylVT
+# l2y1SjimZA3nLwsAYjK2clzsXeetN11IBtdulo/VfS21YWjgUwoo7itVh5kDFApm
+# rdshYJoTQtsGjepzzbbdAUFi12gmbhJklkOIL8HZ7S7BsywqcD59/f9YqknWNN6u
+# 3f0+TE9/4E1amggsvgyORRlt8z9PnkSCZAsM6x0SSyhO
 # SIG # End signature block
