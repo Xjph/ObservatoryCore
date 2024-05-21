@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections;
 
 namespace Observatory.Botanist
 {
@@ -87,6 +88,23 @@ namespace Observatory.Botanist
         public PluginUI PluginUI => pluginUI;
 
         public object Settings { get => botanistSettings; set { botanistSettings = (BotanistSettings)value;  } }
+
+        #region Not Sortable
+
+        public IObservatoryComparer ColumnSorter => new Sorter();
+
+        public class Sorter : IObservatoryComparer
+        {
+            public int SortColumn { get; set; }
+            public int Order { get; set; }
+
+            public int Compare(object x, object y)
+            {
+                return 0;
+            }
+        }
+
+        #endregion
 
         public void JournalEvent<TJournal>(TJournal journal) where TJournal : JournalBase
         {
