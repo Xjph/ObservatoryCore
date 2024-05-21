@@ -323,7 +323,12 @@ namespace Observatory.UI
             var selectedItem = pluginList.Where(list => list.Value.Font.Bold);
             if (selectedItem.Any())
                 PluginExport(selectedItem.First().Key);
-            
+
+        }
+
+        private void CoreForm_Shown(object sender, EventArgs e)
+        {
+            PluginManager.GetInstance.ObservatoryReady();
         }
     }
 }

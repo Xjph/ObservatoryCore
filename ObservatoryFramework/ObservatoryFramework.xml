@@ -1499,6 +1499,11 @@
             <param name="filetype">File extension to use for file. Change this when returning a file format other than delimited text.</param>
             <returns>File content as a byte array.</returns>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.ObservatoryReady">
+            <summary>
+            Called when Observatory finishes loading and the UI is ready.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
             <para>Interface for worker plugins which process journal data to update their UI or send notifications.</para>

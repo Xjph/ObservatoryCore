@@ -640,6 +640,7 @@
             MinimumSize = new Size(600, 600);
             Name = "CoreForm";
             Text = "Elite Observatory Core";
+            Shown += CoreForm_Shown;
             Resize += CoreForm_Resize;
             CoreMenu.ResumeLayout(false);
             CoreMenu.PerformLayout();

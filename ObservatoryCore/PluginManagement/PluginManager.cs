@@ -308,6 +308,17 @@ namespace Observatory.PluginManagement
             return errorList;
         }
 
+        public void ObservatoryReady()
+        {
+            var workers = workerPlugins.Select(p => p.plugin);
+            var notifiers = notifyPlugins.Select(p => p.plugin);
+
+            foreach (IObservatoryPlugin plugin in workers.Concat<IObservatoryPlugin>(notifiers))
+            {
+                plugin.ObservatoryReady();
+            }
+        }
+
         private static string ComputeSha512Hash(string filePath)
         {
             using (var SHA512 = System.Security.Cryptography.SHA512.Create())

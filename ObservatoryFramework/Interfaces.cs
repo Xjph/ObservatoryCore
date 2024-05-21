@@ -73,6 +73,12 @@ namespace Observatory.Framework.Interfaces
         {
             return null;
         }
+
+        /// <summary>
+        /// Called when Observatory finishes loading and the UI is ready.
+        /// </summary>
+        public void ObservatoryReady()
+        { }
     }
 
     /// <summary>
