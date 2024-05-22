@@ -96,17 +96,15 @@ namespace Observatory.UI
         {
             var settings = Properties.Core.Default;
 
-            var clampValues = (int value, int min, int max) => Math.Max(Math.Min(value, max), min);
-
             DisplayDropdown.SelectedIndex = settings.NativeNotifyScreen + 1;
             CornerDropdown.SelectedIndex = settings.NativeNotifyCorner;
             FontDropdown.SelectedItem = settings.NativeNotifyFont;
-            ScaleSpinner.Value = clampValues(settings.NativeNotifyScale, 1, 500);
-            DurationSpinner.Value = clampValues(settings.NativeNotifyTimeout, 100, 60000);
+            ScaleSpinner.Value = Math.Clamp(settings.NativeNotifyScale, 1, 500);
+            DurationSpinner.Value = Math.Clamp(settings.NativeNotifyTimeout, 100, 60000);
             ColourButton.BackColor = Color.FromArgb((int)settings.NativeNotifyColour);
             PopupCheckbox.Checked = settings.NativeNotify;
-            VoiceVolumeSlider.Value = clampValues(settings.VoiceVolume, 0, 100);
-            VoiceSpeedSlider.Value = clampValues(settings.VoiceRate, 0, 100);
+            VoiceVolumeSlider.Value = Math.Clamp(settings.VoiceVolume, 0, 100);
+            VoiceSpeedSlider.Value = Math.Clamp(settings.VoiceRate, 0, 100);
             VoiceDropdown.SelectedItem = settings.VoiceSelected;
             VoiceCheckbox.Checked = settings.VoiceNotify;
             LabelJournalPath.Text = LogMonitor.GetJournalFolder().FullName;
