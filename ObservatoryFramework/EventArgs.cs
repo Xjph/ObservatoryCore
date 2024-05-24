@@ -1,4 +1,5 @@
 ﻿using System;
+using Observatory.Framework.Files.Journal;
 
 namespace Observatory.Framework
 {
@@ -16,7 +17,7 @@ namespace Observatory.Framework
         /// <para>Elite Dangerous journal event, deserialized into a .NET object of the type specified by JournalEventArgs.journalType.</para>
         /// <para>Unhandled json values within a journal entry type will be contained in member property:<br/>Dictionary&lt;string, object&gt; AdditionalProperties.</para>
         /// </summary>
-        public object journalEvent;
+        public JournalBase journalEvent;
     }
 
     /// <summary>

@@ -4,9 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Observatory.Framework;
 using Observatory.Framework.Files;
+using Observatory.Framework.Files.Journal;
 
 namespace Observatory
 {
@@ -307,14 +309,18 @@ namespace Observatory
             return readErrors;
         }
 
+        private JsonSerializerOptions options = new()
+        {
+            AllowOutOfOrderMetadataProperties = true,
+        };
+
         private JournalEventArgs DeserializeToEventArgs(string eventType, string line)
         {
             
             var eventClass = journalTypes[eventType];
-            MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
-            MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
-            object entry = journalGeneric.Invoke(null, new object[] { line });
-            return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
+            var journal =  JsonSerializer.Deserialize<JournalBase>(line, options);
+            // journal.GetType should be specific journal
+            return new JournalEventArgs() { journalType = eventClass, journalEvent = journal };
         }
 
         private void DeserializeAndInvoke(string line)
