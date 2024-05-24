@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 
 namespace Observatory.Herald
 {
+    using HttpClient = System.Net.Http.HttpClient;
     class SpeechRequestManager
     {
         private HttpClient httpClient;

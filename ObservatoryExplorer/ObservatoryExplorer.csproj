@@ -36,9 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="ObservatoryFramework">
-      <HintPath>..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\ObservatoryFramework\ObservatoryFramework.csproj" />
   </ItemGroup>
 
 </Project>
