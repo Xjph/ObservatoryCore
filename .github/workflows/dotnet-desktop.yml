@@ -82,4 +82,6 @@ jobs:
 
     - name: Build the application
       run: dotnet build $env:Solution_Name -c $env:Configuration
+      env:
+        Configuration: ${{ matrix.configuration }}
 
