@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using Observatory.Framework;
 using Observatory.Framework.Files;
+using Observatory.Framework.Files.Journal;
 
 namespace Observatory
 {
