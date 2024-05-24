@@ -32,6 +32,7 @@
     <PackageReference Include="MessageBox.Avalonia" Version="2.0.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
     <PackageReference Include="System.Speech" Version="5.0.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0-preview.4.24266.19" />
   </ItemGroup>
 
   <ItemGroup>
