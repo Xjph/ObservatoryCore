@@ -96,6 +96,10 @@ namespace Observatory.UI
 
             var ovPopupPlugins = notifyPlugins.Where(n => n.plugin.OverridePopupNotifications);
 
+            var disableMessage = (string type, string plugin) 
+                => $"Native {type} notifications overridden by \"{plugin}\".\r\n"
+                + "Use plugin settings to configure.";
+
             if (ovPopupPlugins.Any())
             {
                 PopupCheckbox.Checked = false;
@@ -108,12 +112,13 @@ namespace Observatory.UI
                 ColourButton.Enabled = false;
                 TestButton.Enabled = false;
 
-                var pluginNames = string.Join(", ", ovPopupPlugins.Select(o => o.plugin.ShortName));
+                var pluginNames = string.Join(", ", ovPopupPlugins.Select(o => o.plugin.Name));
 
-                PopupSettingsPanel.MouseMove += (_, _) =>
-                {
-                    OverrideTooltip.SetToolTip(PopupSettingsPanel, "Disabled by plugin: " + pluginNames);
-                };
+                PopupDisabledPanel.Visible = true;
+                PopupDisabledPanel.Enabled = true;
+                PopupDisabledLabel.Text = disableMessage("popup", pluginNames);
+                PopupDisabledPanel.BringToFront();
+
             }
 
             var ovAudioPlugins = notifyPlugins.Where(n => n.plugin.OverrideAudioNotifications);
@@ -127,12 +132,13 @@ namespace Observatory.UI
                 VoiceDropdown.Enabled = false;
                 VoiceTestButton.Enabled = false;
 
-                var pluginNames = string.Join(", ", ovAudioPlugins.Select(o => o.plugin.ShortName));
+                var pluginNames = string.Join(", ", ovAudioPlugins.Select(o => o.plugin.Name));
 
-                VoiceSettingsPanel.MouseMove += (_, _) =>
-                {
-                    OverrideTooltip.SetToolTip(VoiceSettingsPanel, "Disabled by plugin: " + pluginNames);
-                };
+                VoiceDisabledPanel.Visible = true;
+                VoiceDisabledPanel.Enabled = true;
+                VoiceDisabledLabel.Text = disableMessage("voice", pluginNames);
+                VoiceDisabledPanel.BringToFront();
+                
             }
         }
 
