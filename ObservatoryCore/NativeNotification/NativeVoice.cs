@@ -1,4 +1,21 @@
-﻿using Observatory.Framework;
+﻿#if PROTON
+
+using Observatory.Framework;
+
+namespace Observatory.NativeNotification
+{
+    public class NativeVoice
+    {
+        public void EnqueueAndAnnounce(NotificationArgs eventArgs)
+        {
+            // stub
+        }
+    }
+}
+
+#else
+
+using Observatory.Framework;
 using System.Xml;
 using System.Speech.Synthesis;
 using System.Runtime.InteropServices;
@@ -102,3 +119,5 @@ namespace Observatory.NativeNotification
         }
     }
 }
+
+#endif

@@ -5,7 +5,7 @@
 	<ImplicitUsings>enable</ImplicitUsings>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
-    <Configurations>Debug;Release;Portable</Configurations>
+    <Configurations>Debug;Release;Portable;Proton</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>

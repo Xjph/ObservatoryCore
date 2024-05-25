@@ -86,11 +86,11 @@ namespace Observatory.UI
             if (Screen.AllScreens.Length > 1)
                 for (int i = 0; i < Screen.AllScreens.Length; i++)
                     DisplayDropdown.Items.Add((i + 1).ToString());
-
+#if !PROTON
             var voices = new System.Speech.Synthesis.SpeechSynthesizer().GetInstalledVoices();
             foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
                 VoiceDropdown.Items.Add(voice);
-            
+#endif 
         }
 
         private void PopulateNativeSettings()
@@ -109,6 +109,18 @@ namespace Observatory.UI
             TryLoadSetting(VoiceDropdown, "SelectedItem", settings.VoiceSelected);
             TryLoadSetting(VoiceCheckbox, "Checked", settings.VoiceNotify);
             TryLoadSetting(LabelJournalPath, "Text", LogMonitor.GetJournalFolder().FullName);
+
+#if PROTON
+            VoiceCheckbox.Checked = false;
+            VoiceCheckbox.Enabled = false;
+            VoiceVolumeSlider.Enabled = false;
+            VoiceSpeedSlider.Enabled = false;
+            VoiceDropdown.Enabled = false;
+            VoiceTestButton.Enabled = false;
+            VoiceDisabledPanel.Visible = true;
+            VoiceDisabledLabel.Text = "Native voice notifications not available in this build.";
+            VoiceDisabledPanel.BringToFront();
+#endif
         }
 
         static private void TryLoadSetting(object control, string property, object newValue)

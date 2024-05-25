@@ -7,7 +7,7 @@
 	<UseWindowsForms>true</UseWindowsForms>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<RootNamespace>Observatory</RootNamespace>
-	<Configurations>Debug;Release;Portable</Configurations>
+	<Configurations>Debug;Release;Portable;Proton</Configurations>
 	</PropertyGroup>
 
     <PropertyGroup>
