@@ -276,6 +276,12 @@
             ApplyTheme(control);
         }
 
+        public void RegisterControl(object control, Func<object, bool> applyTheme)
+        {
+            if (applyTheme(control))
+                RegisterControl(control);
+        }
+
         public void UnregisterControl(object control)
         {
             controls.Remove(control);

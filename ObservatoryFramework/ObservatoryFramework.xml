@@ -1504,6 +1504,13 @@
             Called when Observatory finishes loading and the UI is ready.
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.ApplyTheme(System.Object)">
+            <summary>
+            Method called to check if a control should be themed.
+            </summary>
+            <param name="control">Control object to be themed.</param>
+            <returns>Whether theme should be applied.</returns>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
             <para>Interface for worker plugins which process journal data to update their UI or send notifications.</para>

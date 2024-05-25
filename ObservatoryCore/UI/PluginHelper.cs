@@ -48,7 +48,7 @@ namespace Observatory.UI
             var addAndRegister = (Panel pluginPanel) =>
             {
                 uiPanels.Add(newItem, pluginPanel);
-                themeManager.RegisterControl(pluginPanel);
+                themeManager.RegisterControl(pluginPanel, plugin.ApplyTheme);
             };
 
             if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic)

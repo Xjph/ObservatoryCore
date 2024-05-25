@@ -79,6 +79,13 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         public void ObservatoryReady()
         { }
+
+        /// <summary>
+        /// Method called to check if a control should be themed.
+        /// </summary>
+        /// <param name="control">Control object to be themed.</param>
+        /// <returns>Whether theme should be applied.</returns>
+        public bool ApplyTheme(object control) => true;
     }
 
     /// <summary>
