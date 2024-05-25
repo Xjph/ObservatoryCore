@@ -54,7 +54,11 @@ namespace Observatory
 
         internal static void LogError(Exception ex, string context)
         {
+#if PORTABLE
+            var docPath = Application.StartupPath;
+#else
             var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+#endif
             var errorMessage = new System.Text.StringBuilder();
             var timestamp = DateTime.Now.ToString("G");
             errorMessage
