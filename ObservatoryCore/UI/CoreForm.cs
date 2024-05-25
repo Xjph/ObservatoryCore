@@ -337,8 +337,8 @@ namespace Observatory.UI
                 Directory.CreateDirectory(pluginDir);
             }
 
-            var fileExplorerInfo = new System.Diagnostics.ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
-            System.Diagnostics.Process.Start(fileExplorerInfo);
+            var fileExplorerInfo = new ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
+            Process.Start(fileExplorerInfo);
         }
     }
 }
