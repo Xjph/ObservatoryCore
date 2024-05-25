@@ -1,5 +1,6 @@
 using Observatory.Framework;
 using Observatory.Utils;
+using System.Reflection;
 
 namespace Observatory.UI
 {
@@ -96,18 +97,30 @@ namespace Observatory.UI
         {
             var settings = Properties.Core.Default;
 
-            DisplayDropdown.SelectedIndex = settings.NativeNotifyScreen + 1;
-            CornerDropdown.SelectedIndex = settings.NativeNotifyCorner;
-            FontDropdown.SelectedItem = settings.NativeNotifyFont;
-            ScaleSpinner.Value = Math.Clamp(settings.NativeNotifyScale, 1, 500);
-            DurationSpinner.Value = Math.Clamp(settings.NativeNotifyTimeout, 100, 60000);
-            ColourButton.BackColor = Color.FromArgb((int)settings.NativeNotifyColour);
-            PopupCheckbox.Checked = settings.NativeNotify;
-            VoiceVolumeSlider.Value = Math.Clamp(settings.VoiceVolume, 0, 100);
-            VoiceSpeedSlider.Value = Math.Clamp(settings.VoiceRate, 0, 100);
-            VoiceDropdown.SelectedItem = settings.VoiceSelected;
-            VoiceCheckbox.Checked = settings.VoiceNotify;
-            LabelJournalPath.Text = LogMonitor.GetJournalFolder().FullName;
+            TryLoadSetting(DisplayDropdown, "SelectedIndex", settings.NativeNotifyScreen + 1);
+            TryLoadSetting(CornerDropdown, "SelectedIndex", settings.NativeNotifyCorner);
+            TryLoadSetting(FontDropdown, "SelectedItem", settings.NativeNotifyFont);
+            TryLoadSetting(ScaleSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyScale, 1, 500));
+            TryLoadSetting(DurationSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyTimeout, 100, 60000));
+            TryLoadSetting(ColourButton, "BackColor", Color.FromArgb((int)settings.NativeNotifyColour));
+            TryLoadSetting(PopupCheckbox, "Checked", settings.NativeNotify);
+            TryLoadSetting(VoiceVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100));
+            TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, 0, 100));
+            TryLoadSetting(VoiceDropdown, "SelectedItem", settings.VoiceSelected);
+            TryLoadSetting(VoiceCheckbox, "Checked", settings.VoiceNotify);
+            TryLoadSetting(LabelJournalPath, "Text", LogMonitor.GetJournalFolder().FullName);
+        }
+
+        static private void TryLoadSetting(object control, string property, object newValue)
+        {
+            try
+            {
+                (control.GetType().GetProperty(property)?.GetSetMethod())?.Invoke(control, [newValue]);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Unable to load all settings, some values may have been cleared.\r\nError: {ex.InnerException?.Message}");
+            }
         }
 
         private void TestButton_Click(object sender, EventArgs e)
