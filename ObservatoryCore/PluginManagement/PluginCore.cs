@@ -30,7 +30,7 @@ namespace Observatory.PluginManagement
         {
             return (ex, context) =>
             {
-                ObservatoryCore.LogError(ex, $"from plugin {plugin.ShortName} {context}");
+                ObservatoryCore.LogError(ex, $"from plugin {plugin.ShortName} (v{plugin.Version}) {context}");
             };
         }
 
