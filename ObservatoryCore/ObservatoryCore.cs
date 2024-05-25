@@ -1,6 +1,4 @@
-using Observatory.PluginManagement;
 using Observatory.Utils;
-using System.Reflection.PortableExecutable;
 
 namespace Observatory
 {

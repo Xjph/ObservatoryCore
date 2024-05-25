@@ -1,6 +1,5 @@
 ﻿using Observatory.Framework;
 using Observatory.Framework.Files;
-using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Interfaces;
 using Observatory.NativeNotification;
 using Observatory.UI;

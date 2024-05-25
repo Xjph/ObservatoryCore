@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿#if PORTABLE
 using System.Reflection;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
+#endif
 
 namespace Observatory.Utils
 {

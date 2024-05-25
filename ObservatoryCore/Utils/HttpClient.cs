@@ -1,7 +1,4 @@
-﻿using System;
-using System.Net.Http;
-
-namespace Observatory.Utils
+﻿namespace Observatory.Utils
 {
     public sealed class HttpClient
     {

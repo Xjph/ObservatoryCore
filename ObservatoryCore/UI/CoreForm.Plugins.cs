@@ -1,6 +1,5 @@
 using Observatory.PluginManagement;
 using Observatory.Framework.Interfaces;
-using System.Linq;
 using System.Text.Json;
 using Observatory.Framework;
 using System.Text;

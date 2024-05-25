@@ -1,11 +1,8 @@
-﻿using Observatory.Framework;
-using Observatory.Framework.Interfaces;
+﻿using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Forms;
 
 namespace Observatory.UI
 {

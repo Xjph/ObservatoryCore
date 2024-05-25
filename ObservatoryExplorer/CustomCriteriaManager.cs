@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using Observatory.Framework.Files.Journal;
 using NLua;
-using System.Linq;
 
 namespace Observatory.Explorer
 {

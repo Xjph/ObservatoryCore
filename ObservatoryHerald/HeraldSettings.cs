@@ -1,6 +1,4 @@
 ﻿using Observatory.Framework;
-using System;
-using System.Collections.Generic;
 
 namespace Observatory.Herald
 {

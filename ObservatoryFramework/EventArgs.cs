@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Observatory.Framework
+﻿namespace Observatory.Framework
 {
     /// <summary>
     /// Provides data for Elite Dangerous journal events.

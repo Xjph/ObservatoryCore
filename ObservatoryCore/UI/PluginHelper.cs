@@ -1,14 +1,9 @@
 ﻿using Observatory.Framework.Interfaces;
 using Observatory.Framework;
-using System.Collections;
 using Observatory.PluginManagement;
-using Observatory.Utils;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
 using System.Reflection;
 using System.Text.Json;
-using System.Data.Common;
-using System.ComponentModel.Design.Serialization;
 
 namespace Observatory.UI
 {

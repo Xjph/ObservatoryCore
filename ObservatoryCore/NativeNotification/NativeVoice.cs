@@ -1,8 +1,5 @@
 ﻿using Observatory.Framework;
-using System.Collections.Generic;
 using System.Xml;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Speech.Synthesis;
 using System.Runtime.InteropServices;
 

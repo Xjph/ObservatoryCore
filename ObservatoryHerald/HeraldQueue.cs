@@ -1,9 +1,4 @@
 ﻿using Observatory.Framework;
-using System.Collections.Generic;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Threading;
-using System;
 using System.Diagnostics;
 using Observatory.Framework.Interfaces;
 

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Files.ParameterTypes;
 

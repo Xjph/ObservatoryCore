@@ -1,13 +1,9 @@
 ﻿using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.Framework.Files;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Observatory.Framework.Files.Journal;
 using System.Timers;
 using Observatory.Utils;
-using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.PluginManagement
 {
