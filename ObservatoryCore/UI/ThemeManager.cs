@@ -5,7 +5,7 @@
         #region Constructor
         private ThemeManager()
         {
-            controls = new List<object>();
+            controls = [];
             Themes = new()
             {
                 { "Dark", DarkTheme },
@@ -38,7 +38,7 @@
 
         private string SelectedTheme;
 
-        private readonly List<object> controls;
+        private readonly Dictionary<object, Func<object, bool>> controls;
 
         #region Hardcoded Themes
         static private Dictionary<string, Color> LightTheme = new Dictionary<string, Color>
@@ -176,43 +176,45 @@
             Properties.Core.Default.Save();
         }
 
-        private void ApplyTheme(object control)
+        private void ApplyTheme(object control, Func<object, bool> applyTheme)
         {
-            var controlType = control.GetType();
-
-            var theme = Themes.ContainsKey(SelectedTheme)
-                ? Themes[SelectedTheme] : Themes["Light"];
-
-            if (controlType == typeof(MenuStrip))
+            if (applyTheme(control))
             {
-                var menuStrip = (MenuStrip)control;
-                foreach (ToolStripMenuItem item in menuStrip.Items)
+                var controlType = control.GetType();
+
+                var theme = Themes.ContainsKey(SelectedTheme)
+                    ? Themes[SelectedTheme] : Themes["Light"];
+
+                if (controlType == typeof(MenuStrip))
                 {
-                    ApplyTheme(item);
+                    var menuStrip = (MenuStrip)control;
+                    foreach (ToolStripMenuItem item in menuStrip.Items)
+                    {
+                        ApplyTheme(item, applyTheme);
+                    }
+                }
+
+                foreach (var property in controlType.GetProperties().Where(p => p.PropertyType == typeof(Color)))
+                {
+                    string themeControl = Themes[SelectedTheme].ContainsKey(controlType.Name + "." + property.Name)
+                        ? controlType.Name
+                        : "Default";
+
+                    if (Themes[SelectedTheme].ContainsKey(themeControl + "." + property.Name))
+                        property.SetValue(control, Themes[SelectedTheme][themeControl + "." + property.Name]);
+                }
+
+                if (control.GetType().IsSubclassOf(typeof(Control)))
+                {
+                    var typedControl = (Control)control;
+                    if (typedControl.HasChildren)
+                        foreach (Control child in typedControl.Controls)
+                        {
+                            if (_excludedControlNames.Contains(child.Name)) continue;
+                            ApplyTheme(child, applyTheme);
+                        }
                 }
             }
-
-            foreach (var property in controlType.GetProperties().Where(p => p.PropertyType == typeof(Color)))
-            {
-                string themeControl = Themes[SelectedTheme].ContainsKey(controlType.Name + "." + property.Name)
-                    ? controlType.Name
-                    : "Default";
-
-                if (Themes[SelectedTheme].ContainsKey(themeControl + "." + property.Name))
-                    property.SetValue(control, Themes[SelectedTheme][themeControl + "." + property.Name]);
-            }
-
-            if (control.GetType().IsSubclassOf(typeof(Control)))
-            {
-                var typedControl = (Control)control;
-                if (typedControl.HasChildren)
-                    foreach (Control child in typedControl.Controls)
-                    {
-                        if (_excludedControlNames.Contains(child.Name)) continue;
-                        ApplyTheme(child);
-                    }
-            }
-
         }
 
         #endregion
@@ -253,7 +255,7 @@
                     SelectedTheme = value;
                     foreach (var control in controls)
                     {
-                        ApplyTheme(control);
+                        ApplyTheme(control.Key, control.Value);
                     }
                     Properties.Core.Default.Theme = value;
                     Properties.Core.Default.Save();
@@ -272,14 +274,16 @@
 
         public void RegisterControl(object control)
         {
-            controls.Add(control);
-            ApplyTheme(control);
+            RegisterControl(control, (_) => true);
         }
 
         public void RegisterControl(object control, Func<object, bool> applyTheme)
         {
             if (applyTheme(control))
-                RegisterControl(control);
+            {
+                controls.Add(control, applyTheme);
+                ApplyTheme(control, applyTheme);
+            }
         }
 
         public void UnregisterControl(object control)
