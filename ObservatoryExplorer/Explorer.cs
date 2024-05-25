@@ -179,7 +179,7 @@ namespace Observatory.Explorer
                             var exceptionResult = new ExplorerUIResults()
                             {
                                 BodyName = "Error Reading Custom Criteria File",
-                                Time = DateTime.Now.ToString("G"),
+                                Time = DateTime.Now.ToString("s").Replace('T', ' '),
                                 Description = e.Message,
                                 Details = e.OriginalScript
                             };
@@ -241,7 +241,7 @@ namespace Observatory.Explorer
                     var scanResult = new ExplorerUIResults()
                     {
                         BodyName = result.SystemWide ? scanEvent.StarSystem : scanEvent.BodyName,
-                        Time = scanEvent.TimestampDateTime.ToString("G"),
+                        Time = scanEvent.TimestampDateTime.ToString("s").Replace('T', ' '),
                         Description = result.Description,
                         Details = result.Detail
                     };
