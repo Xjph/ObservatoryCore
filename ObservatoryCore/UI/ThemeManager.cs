@@ -45,6 +45,7 @@
         {
             { "Default.ForeColor", SystemColors.ControlText },
             { "Default.BackColor", SystemColors.Control },
+            { "Button.BackColor", SystemColors.ControlLight },
             { "ComboBox.BackColor", SystemColors.Window },
             { "ComboBox.ForeColor", SystemColors.WindowText },
             { "LinkLabel.ActiveLinkColor", Color.Red },
