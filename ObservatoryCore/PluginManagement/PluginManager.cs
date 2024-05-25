@@ -315,7 +315,14 @@ namespace Observatory.PluginManagement
 
             foreach (IObservatoryPlugin plugin in workers.Concat<IObservatoryPlugin>(notifiers))
             {
-                plugin.ObservatoryReady();
+                try
+                {
+                    plugin.ObservatoryReady();
+                }
+                catch (Exception ex)
+                {
+                    core.GetPluginErrorLogger(plugin)(ex, "in ObservatoryReady()");
+                }
             }
         }
 
