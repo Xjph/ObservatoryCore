@@ -51,6 +51,8 @@
             VoiceLabel = new Label();
             VoiceSpeedLabel = new Label();
             VoiceVolumeLabel = new Label();
+            VoiceDisabledPanel = new Panel();
+            VoiceDisabledLabel = new Label();
             PopupSettingsPanel = new Panel();
             DurationSpinner = new NumericUpDown();
             ScaleSpinner = new NumericUpDown();
@@ -66,6 +68,8 @@
             DisplayDropdown = new ComboBox();
             CornerLabel = new Label();
             DisplayLabel = new Label();
+            PopupDisabledPanel = new Panel();
+            PopupDisabledLabel = new Label();
             PluginFolderButton = new Button();
             PluginList = new ListView();
             NameColumn = new ColumnHeader();
@@ -80,20 +84,16 @@
             DonateLink = new LinkLabel();
             PopupColour = new ColorDialog();
             OverrideTooltip = new ToolTip(components);
-            PopupDisabledPanel = new Panel();
-            VoiceDisabledPanel = new Panel();
-            PopupDisabledLabel = new Label();
-            VoiceDisabledLabel = new Label();
             CoreMenu.SuspendLayout();
             CorePanel.SuspendLayout();
             VoiceSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)VoiceVolumeSlider).BeginInit();
+            VoiceDisabledPanel.SuspendLayout();
             PopupSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)DurationSpinner).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ScaleSpinner).BeginInit();
             PopupDisabledPanel.SuspendLayout();
-            VoiceDisabledPanel.SuspendLayout();
             SuspendLayout();
             // 
             // CoreMenu
@@ -333,6 +333,26 @@
             VoiceVolumeLabel.Text = "Volume:";
             VoiceVolumeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
+            // VoiceDisabledPanel
+            // 
+            VoiceDisabledPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            VoiceDisabledPanel.Controls.Add(VoiceDisabledLabel);
+            VoiceDisabledPanel.Enabled = false;
+            VoiceDisabledPanel.Location = new Point(3, 3);
+            VoiceDisabledPanel.Name = "VoiceDisabledPanel";
+            VoiceDisabledPanel.Size = new Size(651, 162);
+            VoiceDisabledPanel.TabIndex = 16;
+            VoiceDisabledPanel.Visible = false;
+            // 
+            // VoiceDisabledLabel
+            // 
+            VoiceDisabledLabel.AutoSize = true;
+            VoiceDisabledLabel.Location = new Point(19, 12);
+            VoiceDisabledLabel.Name = "VoiceDisabledLabel";
+            VoiceDisabledLabel.Size = new Size(141, 15);
+            VoiceDisabledLabel.TabIndex = 0;
+            VoiceDisabledLabel.Text = "Placeholder Disabled Text";
+            // 
             // PopupSettingsPanel
             // 
             PopupSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -504,6 +524,26 @@
             DisplayLabel.Text = "Display:";
             DisplayLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
+            // PopupDisabledPanel
+            // 
+            PopupDisabledPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PopupDisabledPanel.Controls.Add(PopupDisabledLabel);
+            PopupDisabledPanel.Enabled = false;
+            PopupDisabledPanel.Location = new Point(3, 3);
+            PopupDisabledPanel.Name = "PopupDisabledPanel";
+            PopupDisabledPanel.Size = new Size(651, 199);
+            PopupDisabledPanel.TabIndex = 16;
+            PopupDisabledPanel.Visible = false;
+            // 
+            // PopupDisabledLabel
+            // 
+            PopupDisabledLabel.AutoSize = true;
+            PopupDisabledLabel.Location = new Point(19, 12);
+            PopupDisabledLabel.Name = "PopupDisabledLabel";
+            PopupDisabledLabel.Size = new Size(141, 15);
+            PopupDisabledLabel.TabIndex = 0;
+            PopupDisabledLabel.Text = "Placeholder Disabled Text";
+            // 
             // PluginFolderButton
             // 
             PluginFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
@@ -515,6 +555,7 @@
             PluginFolderButton.TabIndex = 1;
             PluginFolderButton.Text = "Open Plugin Folder";
             PluginFolderButton.UseVisualStyleBackColor = false;
+            PluginFolderButton.Click += PluginFolderButton_Click;
             // 
             // PluginList
             // 
@@ -630,46 +671,6 @@
             DonateLink.Text = "Donate";
             DonateLink.LinkClicked += DonateLink_LinkClicked;
             // 
-            // PopupDisabledPanel
-            // 
-            PopupDisabledPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            PopupDisabledPanel.Controls.Add(PopupDisabledLabel);
-            PopupDisabledPanel.Enabled = false;
-            PopupDisabledPanel.Location = new Point(3, 3);
-            PopupDisabledPanel.Name = "PopupDisabledPanel";
-            PopupDisabledPanel.Size = new Size(651, 199);
-            PopupDisabledPanel.TabIndex = 16;
-            PopupDisabledPanel.Visible = false;
-            // 
-            // VoiceDisabledPanel
-            // 
-            VoiceDisabledPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-            VoiceDisabledPanel.Controls.Add(VoiceDisabledLabel);
-            VoiceDisabledPanel.Enabled = false;
-            VoiceDisabledPanel.Location = new Point(3, 3);
-            VoiceDisabledPanel.Name = "VoiceDisabledPanel";
-            VoiceDisabledPanel.Size = new Size(651, 162);
-            VoiceDisabledPanel.TabIndex = 16;
-            VoiceDisabledPanel.Visible = false;
-            // 
-            // PopupDisabledLabel
-            // 
-            PopupDisabledLabel.AutoSize = true;
-            PopupDisabledLabel.Location = new Point(19, 12);
-            PopupDisabledLabel.Name = "PopupDisabledLabel";
-            PopupDisabledLabel.Size = new Size(141, 15);
-            PopupDisabledLabel.TabIndex = 0;
-            PopupDisabledLabel.Text = "Placeholder Disabled Text";
-            // 
-            // VoiceDisabledLabel
-            // 
-            VoiceDisabledLabel.AutoSize = true;
-            VoiceDisabledLabel.Location = new Point(19, 12);
-            VoiceDisabledLabel.Name = "VoiceDisabledLabel";
-            VoiceDisabledLabel.Size = new Size(141, 15);
-            VoiceDisabledLabel.TabIndex = 0;
-            VoiceDisabledLabel.Text = "Placeholder Disabled Text";
-            // 
             // CoreForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -698,14 +699,14 @@
             VoiceSettingsPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).EndInit();
             ((System.ComponentModel.ISupportInitialize)VoiceVolumeSlider).EndInit();
+            VoiceDisabledPanel.ResumeLayout(false);
+            VoiceDisabledPanel.PerformLayout();
             PopupSettingsPanel.ResumeLayout(false);
             PopupSettingsPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)DurationSpinner).EndInit();
             ((System.ComponentModel.ISupportInitialize)ScaleSpinner).EndInit();
             PopupDisabledPanel.ResumeLayout(false);
             PopupDisabledPanel.PerformLayout();
-            VoiceDisabledPanel.ResumeLayout(false);
-            VoiceDisabledPanel.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }

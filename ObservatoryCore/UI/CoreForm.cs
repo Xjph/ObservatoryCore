@@ -327,5 +327,18 @@ namespace Observatory.UI
         {
             PluginManager.GetInstance.ObservatoryReady();
         }
+
+        private void PluginFolderButton_Click(object sender, EventArgs e)
+        {
+            var pluginDir = Application.StartupPath + "plugins";
+
+            if (!Directory.Exists(pluginDir))
+            {
+                Directory.CreateDirectory(pluginDir);
+            }
+
+            var fileExplorerInfo = new System.Diagnostics.ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
+            System.Diagnostics.Process.Start(fileExplorerInfo);
+        }
     }
 }
