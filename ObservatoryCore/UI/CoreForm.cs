@@ -161,6 +161,8 @@ namespace Observatory.UI
                 panel.Value.Visible = false;
             }
 
+            // This shouldn't be necessary anymore with panels added on load.
+            // Assess and remove?
             if (!Controls.Contains(uiPanels[item]))
             {
                 uiPanels[item].Location = CorePanel.Location;

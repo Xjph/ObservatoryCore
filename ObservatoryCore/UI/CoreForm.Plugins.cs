@@ -87,6 +87,22 @@ namespace Observatory.UI
                 pluginList.Add(item.Text, item);
             }
 
+            foreach(var pluginPanel in uiPanels)
+            {
+                pluginPanel.Value.BackColor = CorePanel.BackColor;
+                pluginPanel.Value.Parent = CorePanel.Parent;
+                Controls.Add(pluginPanel.Value);
+            }
+
+            CorePanel.Resize += (_, _) =>
+            {
+                foreach (var pluginPanel in uiPanels)
+                {
+                    pluginPanel.Value.Location = CorePanel.Location;
+                    pluginPanel.Value.Size = CorePanel.Size;
+                }
+            };
+
             CoreMenu.Width = GetExpandedMenuWidth();
         }
 
