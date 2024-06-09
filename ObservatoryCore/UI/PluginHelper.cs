@@ -218,6 +218,35 @@ namespace Observatory.UI
                 listView.Sort();
             };
 
+            List<object> addedItemList = new List<object>();
+            var timer = new System.Timers.Timer();
+            timer.Interval = 100;
+            timer.AutoReset = false;
+            timer.Elapsed += (_,_) => {
+                List<ListViewItem> items = new List<ListViewItem>();
+                foreach (var newItem in addedItemList)
+                {
+                    ListViewItem newListItem = new();
+                    foreach (var property in newItem.GetType().GetProperties())
+                    {
+                        newListItem.SubItems.Add(property.GetValue(newItem)?.ToString());
+                    }
+                    newListItem.SubItems.RemoveAt(0);
+                    items.Add(newListItem);
+                }
+                if (listView.Created)
+                {
+                    listView.Invoke(() => listView.Items.AddRange(items.ToArray()));
+                }
+                else
+                {
+                    listView.Items.AddRange(items.ToArray());
+                }
+                
+                timer.Stop();
+            };
+
+
             plugin.PluginUI.DataGrid.CollectionChanged += (sender, e) =>
             {
                 var updateGrid = () =>
@@ -225,16 +254,11 @@ namespace Observatory.UI
                     if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add &&
                 e.NewItems != null)
                     {
-                        foreach (var newItem in e.NewItems)
-                        {
-                            ListViewItem newListItem = new();
-                            foreach (var property in newItem.GetType().GetProperties())
-                            {
-                                newListItem.SubItems.Add(property.GetValue(newItem)?.ToString());
-                            }
-                            newListItem.SubItems.RemoveAt(0);
-                            listView.Items.Add(newListItem);
-                        }
+                        timer.Stop();
+                        foreach (var item in e.NewItems)
+                            addedItemList.Add(item);
+                        
+                        timer.Start();
                     }
 
                     if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove &&
