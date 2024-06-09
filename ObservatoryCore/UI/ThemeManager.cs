@@ -1,4 +1,6 @@
-﻿namespace Observatory.UI
+﻿using Observatory.Utils;
+
+namespace Observatory.UI
 {
     internal class ThemeManager
     {
