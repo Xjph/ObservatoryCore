@@ -242,7 +242,7 @@ namespace Observatory.UI
                 {
                     listView.Items.AddRange(items.ToArray());
                 }
-                
+                addedItemList.Clear();
                 timer.Stop();
             };
 
