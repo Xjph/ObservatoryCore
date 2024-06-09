@@ -4,6 +4,8 @@ namespace Observatory.UI
 {
     internal class PluginListView : ListView
     {
+        private bool _suspend = false;
+
         public PluginListView()
         {
             OwnerDraw = true;
@@ -22,6 +24,7 @@ namespace Observatory.UI
 
         public void SuspendDrawing()
         {
+            _suspend = true;
             BeginUpdate();
             comparer = ListViewItemSorter;
         }
@@ -33,72 +36,76 @@ namespace Observatory.UI
                 ListViewItemSorter = comparer;
                 comparer = null;
             }
+            _suspend = false;
             EndUpdate();
         }
 
-        private static void DrawBorder(Graphics graphics, Pen pen, Rectangle bounds, bool header = false)
+        private void DrawBorder(Graphics graphics, Pen pen, Rectangle bounds, bool header = false)
         {
-            
-            Point topRight = new(bounds.Right, bounds.Top);
-            Point bottomRight = new(bounds.Right, bounds.Bottom);
-            
-            graphics.DrawLine(pen, topRight, bottomRight);
-            
-            if (header)
+            if (!_suspend)
             {
-                Point bottomLeft = new(bounds.Left, bounds.Bottom);
-                // Point topLeft = new(bounds.Left, bounds.Top);
-                // graphics.DrawLine(pen, topLeft, topRight);
-                // graphics.DrawLine(pen, topLeft, bottomLeft);
-                graphics.DrawLine(pen, bottomLeft, bottomRight);
+                Point topRight = new(bounds.Right, bounds.Top);
+                Point bottomRight = new(bounds.Right, bounds.Bottom);
+
+                graphics.DrawLine(pen, topRight, bottomRight);
+
+                if (header)
+                {
+                    Point bottomLeft = new(bounds.Left, bounds.Bottom);
+                    // Point topLeft = new(bounds.Left, bounds.Top);
+                    // graphics.DrawLine(pen, topLeft, topRight);
+                    // graphics.DrawLine(pen, topLeft, bottomLeft);
+                    graphics.DrawLine(pen, bottomLeft, bottomRight);
+                }
             }
         }
 
         private void PluginListView_DrawColumnHeader(object? sender, DrawListViewColumnHeaderEventArgs e)
         {
-            using (var g = e.Graphics)
-                if (g != null)
+            using var g = e.Graphics;
+            if (!_suspend && g != null)
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                Pen pen = new(new SolidBrush(Color.LightGray));
+                DrawBorder(g, pen, e.Bounds);
+                using (var font = new Font(this.Font, FontStyle.Bold))
                 {
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    Pen pen = new(new SolidBrush(Color.LightGray));
-                    DrawBorder(g, pen, e.Bounds);
-                    using (var font = new Font(this.Font, FontStyle.Bold))
-                    {
-                        Brush textBrush = new SolidBrush(ForeColor);
-                        g.DrawString(e.Header?.Text, font, textBrush, e.Bounds);
-                    }
+                    Brush textBrush = new SolidBrush(ForeColor);
+                    g.DrawString(e.Header?.Text, font, textBrush, e.Bounds);
                 }
+            }
         }
 
         private void PluginListView_DrawSubItem(object? sender, DrawListViewSubItemEventArgs e)
         {
-            using (var g = e.Graphics)
-                if (g != null)
-                {
-                    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    Pen pen = new(new SolidBrush(Color.LightGray));
-                    DrawBorder(g, pen, e.Bounds, false);
-                    
-                    e.DrawText();
-                }
+            using var g = e.Graphics;
+            if (!_suspend && g != null)
+            {
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                Pen pen = new(new SolidBrush(Color.LightGray));
+                DrawBorder(g, pen, e.Bounds, false);
+
+                e.DrawText();
+            }
         }
 
         private void PluginListView_DrawItem(object? sender, DrawListViewItemEventArgs e)
         {
-            var offsetColor = (int value) =>
+            if (!_suspend)
             {
-                if (value > 127)
+                var offsetColor = (int value) =>
                 {
-                    return value - 20;
-                }
-                else
-                {
-                    return value + 20;
-                }
-            };
+                    if (value > 127)
+                    {
+                        return value - 20;
+                    }
+                    else
+                    {
+                        return value + 20;
+                    }
+                };
 
-            using (var g = e.Graphics)
-            {
+                using var g = e.Graphics;
                 if (e.ItemIndex % 2 == 0)
                 {
                     e.Item.BackColor = BackColor;
@@ -115,7 +122,6 @@ namespace Observatory.UI
                     e.DrawBackground();
                 }
             }
-   
         }
     }
 }
