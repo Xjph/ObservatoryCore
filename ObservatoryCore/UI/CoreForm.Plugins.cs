@@ -211,7 +211,7 @@ namespace Observatory.UI
                 {
                     // Failed deserialization means bad value, blow it away.
                     Properties.Core.Default.PluginsEnabled = string.Empty;
-                    Properties.Core.Default.Save();
+                    SettingsManager.Save();
                 }
             }
 
@@ -242,7 +242,7 @@ namespace Observatory.UI
                 Dictionary<string, bool> pluginsEnabled = ListedPlugins.ToDictionary(e => e.Value.Name, e => e.Key.Checked);
 
                 Properties.Core.Default.PluginsEnabled = JsonSerializer.Serialize(pluginsEnabled);
-                Properties.Core.Default.Save();
+                SettingsManager.Save();
             }
         }
 

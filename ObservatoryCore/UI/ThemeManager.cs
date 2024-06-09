@@ -173,7 +173,7 @@
             }
 
             Properties.Core.Default.SavedThemes = System.Text.Json.JsonSerializer.Serialize(savedThemeContainers);
-            Properties.Core.Default.Save();
+            SettingsManager.Save();
         }
 
         private void ApplyTheme(object control, Func<object, bool> applyTheme)
@@ -258,7 +258,7 @@
                         ApplyTheme(control.Key, control.Value);
                     }
                     Properties.Core.Default.Theme = value;
-                    Properties.Core.Default.Save();
+                    SettingsManager.Save();
                 }
             }
         }

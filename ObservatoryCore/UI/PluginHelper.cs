@@ -97,7 +97,7 @@ namespace Observatory.UI
                 {
                     // Failed deserialization means bad value, blow it away.
                     Properties.Core.Default.ColumnSizing = string.Empty;
-                    Properties.Core.Default.Save();
+                    SettingsManager.Save();
                 }
             }
 
@@ -148,7 +148,7 @@ namespace Observatory.UI
             }
 
             Properties.Core.Default.ColumnSizing = JsonSerializer.Serialize(columnSizing);
-            Properties.Core.Default.Save();
+            SettingsManager.Save();
 
             // Oddly, the listview resize event often fires after the column size change but
             // with stale (default?!) column width values.
@@ -188,7 +188,7 @@ namespace Observatory.UI
                 if (saveProps)
                 {
                     Properties.Core.Default.ColumnSizing = JsonSerializer.Serialize(columnSizing);
-                    Properties.Core.Default.Save();
+                    SettingsManager.Save();
                 }
             };
 

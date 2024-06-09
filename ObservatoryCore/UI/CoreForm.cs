@@ -162,16 +162,6 @@ namespace Observatory.UI
                 panel.Value.Visible = false;
             }
 
-            // This shouldn't be necessary anymore with panels added on load.
-            // Assess and remove?
-            if (!Controls.Contains(uiPanels[item]))
-            {
-                uiPanels[item].Location = CorePanel.Location;
-                uiPanels[item].Size = CorePanel.Size;
-                uiPanels[item].BackColor = CorePanel.BackColor;
-                uiPanels[item].Parent = CorePanel.Parent;
-                Controls.Add(uiPanels[item]);
-            }
             uiPanels[item].Visible = true;
 
             SetClickedItem(item);
@@ -186,7 +176,7 @@ namespace Observatory.UI
             }
         }
 
-        private static void ColourListHeader(ref ListView list, Color backColor, Color foreColor)
+        private static void ColourListHeader(ref NoHScrollList list, Color backColor, Color foreColor)
         {
             list.OwnerDraw = true;
 
@@ -349,7 +339,7 @@ namespace Observatory.UI
             // Save location
             Properties.Core.Default.MainWindowPosition = Location;
             Properties.Core.Default.MainWindowSize = Size;
-            Properties.Core.Default.Save();
+            SettingsManager.Save();
         }
 
         private void CoreForm_Load(object sender, EventArgs e)

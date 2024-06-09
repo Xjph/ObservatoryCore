@@ -71,7 +71,7 @@
             PopupDisabledPanel = new Panel();
             PopupDisabledLabel = new Label();
             PluginFolderButton = new Button();
-            PluginList = new ListView();
+            PluginList = new NoHScrollList();
             NameColumn = new ColumnHeader();
             TypeColumn = new ColumnHeader();
             VersionColumn = new ColumnHeader();
@@ -129,6 +129,7 @@
             // 
             CorePanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             CorePanel.AutoScroll = true;
+            CorePanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             CorePanel.Controls.Add(LabelJournalPath);
             CorePanel.Controls.Add(LabelJournal);
             CorePanel.Controls.Add(ButtonAddTheme);
@@ -231,6 +232,7 @@
             // VoiceSettingsPanel
             // 
             VoiceSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            VoiceSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             VoiceSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
             VoiceSettingsPanel.Controls.Add(VoiceSpeedSlider);
             VoiceSettingsPanel.Controls.Add(VoiceVolumeSlider);
@@ -356,6 +358,7 @@
             // PopupSettingsPanel
             // 
             PopupSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            PopupSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             PopupSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
             PopupSettingsPanel.Controls.Add(DurationSpinner);
             PopupSettingsPanel.Controls.Add(ScaleSpinner);
@@ -570,6 +573,7 @@
             PluginList.MultiSelect = false;
             PluginList.Name = "PluginList";
             PluginList.OwnerDraw = true;
+            PluginList.Scrollable = false;
             PluginList.Size = new Size(659, 184);
             PluginList.TabIndex = 0;
             PluginList.UseCompatibleStateImageBehavior = false;
@@ -686,7 +690,7 @@
             Controls.Add(CoreMenu);
             Icon = (Icon)resources.GetObject("$this.Icon");
             MainMenuStrip = CoreMenu;
-            MinimumSize = new Size(600, 600);
+            MinimumSize = new Size(600, 300);
             Name = "CoreForm";
             Text = "Elite Observatory Core";
             FormClosing += CoreForm_FormClosing;
@@ -724,7 +728,7 @@
         private Button ExportButton;
         private LinkLabel GithubLink;
         private LinkLabel DonateLink;
-        private ListView PluginList;
+        private NoHScrollList PluginList;
         private ColumnHeader NameColumn;
         private ColumnHeader TypeColumn;
         private ColumnHeader VersionColumn;

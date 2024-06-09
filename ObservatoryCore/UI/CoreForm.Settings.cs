@@ -194,7 +194,7 @@ namespace Observatory.UI
                 ? folderBrowse.SelectedPath
                 : string.Empty;
 
-            Properties.Core.Default.Save();
+            SettingsManager.Save();
             LabelJournalPath.Text = LogMonitor.GetJournalFolder().FullName;
         }
     }
