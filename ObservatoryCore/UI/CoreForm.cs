@@ -30,6 +30,7 @@ namespace Observatory.UI
             DoubleBuffered = true;
             InitializeComponent();
 
+
             PopulateDropdownOptions();
             PopulateNativeSettings();
 
@@ -341,6 +342,34 @@ namespace Observatory.UI
 
             var fileExplorerInfo = new ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
             Process.Start(fileExplorerInfo);
+        }
+
+        private void CoreForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Save location
+            Properties.Core.Default.MainWindowPosition = Location;
+            Properties.Core.Default.MainWindowSize = Size;
+            Properties.Core.Default.Save();
+        }
+
+        private void CoreForm_Load(object sender, EventArgs e)
+        {
+            var savedLocation = Properties.Core.Default.MainWindowPosition;
+            var savedSize = Properties.Core.Default.MainWindowSize;
+
+            // Ensure we're on screen
+            bool onscreen = false;
+            var formBounds = new Rectangle(savedLocation, savedSize);
+            foreach (var screen in Screen.AllScreens)
+            {
+                onscreen = onscreen || screen.WorkingArea.Contains(formBounds);
+            }
+
+            if (onscreen)
+            {
+                Location = savedLocation;
+                Size = savedSize;
+            }
         }
     }
 }
