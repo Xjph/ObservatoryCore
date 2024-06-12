@@ -5,6 +5,7 @@ using Observatory.Utils;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Text.Json;
+using System.Collections.Concurrent;
 
 namespace Observatory.UI
 {
@@ -219,13 +220,15 @@ namespace Observatory.UI
                 listView.Sort();
             };
 
-            List<object> addedItemList = new List<object>();
+            ConcurrentQueue<object> addedItemList = new();
             var timer = new System.Timers.Timer();
             timer.Interval = 100;
             timer.AutoReset = false;
-            timer.Elapsed += (_,_) => {
+            timer.Elapsed += (_,_) => 
+            {
                 List<ListViewItem> items = new List<ListViewItem>();
-                foreach (var newItem in addedItemList)
+
+                while(addedItemList.TryDequeue(out object? newItem))
                 {
                     ListViewItem newListItem = new();
                     foreach (var property in newItem.GetType().GetProperties())
@@ -243,8 +246,12 @@ namespace Observatory.UI
                 {
                     listView.Items.AddRange(items.ToArray());
                 }
-                addedItemList.Clear();
+
                 timer.Stop();
+                
+                // Possible that something was added between last dequeue and timer.Stop()
+                if (addedItemList.TryPeek(out _))
+                    timer.Start();
             };
 
 
@@ -257,7 +264,7 @@ namespace Observatory.UI
                     {
                         timer.Stop();
                         foreach (var item in e.NewItems)
-                            addedItemList.Add(item);
+                            addedItemList.Enqueue(item);
                         
                         timer.Start();
                     }
@@ -284,7 +291,9 @@ namespace Observatory.UI
 
                     if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
                     {
+                        timer.Stop();
                         listView.Items.Clear();
+                        addedItemList.Clear();
                         foreach (var item in plugin.PluginUI.DataGrid)
                         {
                             ListViewItem listItem = new();
