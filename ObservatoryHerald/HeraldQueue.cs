@@ -113,7 +113,7 @@ namespace Observatory.Herald
             return await speechManager.GetAudioFileFromSsml(ssml, voice, style, rate);
         }
 
-        private async void PlayAudioRequestsSequentially(List<Task<string>> requestTasks)
+        private void PlayAudioRequestsSequentially(List<Task<string>> requestTasks)
         {
             foreach (var request in requestTasks)
             {
@@ -122,7 +122,7 @@ namespace Observatory.Herald
                 {
                     file = request.Result;
                     Debug.WriteLine($"Playing audio file: {file}");
-                    await core.PlayAudioFile(file);
+                    core.PlayAudioFile(file);
                     // audioPlayer.Play(file).Wait();
                 }
                 catch (Exception ex)

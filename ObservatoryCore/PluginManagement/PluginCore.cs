@@ -14,6 +14,7 @@ namespace Observatory.PluginManagement
         private readonly NativePopup NativePopup;
         private bool OverridePopup;
         private bool OverrideAudio;
+        private AudioHandler AudioHandler;
 
         public PluginCore(bool OverridePopup = false, bool OverrideAudio = false)
         {
@@ -21,6 +22,7 @@ namespace Observatory.PluginManagement
             NativePopup = new();
             this.OverridePopup = OverridePopup;
             this.OverrideAudio = OverrideAudio;
+            AudioHandler = new();
         }
 
         public string Version => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
@@ -185,10 +187,7 @@ namespace Observatory.PluginManagement
             }
         }
 
-        public async Task PlayAudioFile(string filePath)
-        {
-            await AudioHandler.PlayFile(filePath);
-        }
+        public Task PlayAudioFile(string filePath) => AudioHandler.EnqueueAndPlay(filePath);
 
         public void SendPluginMessage(IObservatoryPlugin plugin, object message)
         {
