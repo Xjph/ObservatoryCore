@@ -303,8 +303,9 @@ namespace Observatory.UI
         {
             // Core panel is behaving weirdly on resize.
             // "Anchor" property not working as expected?
-            CorePanel.Width = Width - CorePanel.Location.X - 30;
-            CorePanel.Height = Height - CorePanel.Location.Y - 80;
+            // Now this is breaking scaling and everything seems fine when I remove it?!
+            // CorePanel.Width = Width - CorePanel.Location.X - 30;
+            // CorePanel.Height = Height - CorePanel.Location.Y - 80;
         }
 
         private void ExportButton_Click(object sender, EventArgs e)
