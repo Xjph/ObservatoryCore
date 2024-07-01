@@ -320,6 +320,13 @@ namespace Observatory.UI
         private void CoreForm_Shown(object sender, EventArgs e)
         {
             PluginManager.GetInstance.ObservatoryReady();
+
+            
+            if (Properties.Core.Default.StartReadAll)
+                ReadAllButton_Click(ReadAllButton, EventArgs.Empty);
+
+            if (Properties.Core.Default.StartMonitor)
+                ToggleMonitorButton_Click(ToggleMonitorButton, EventArgs.Empty);
         }
 
         private void PluginFolderButton_Click(object sender, EventArgs e)

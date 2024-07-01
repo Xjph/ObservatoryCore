@@ -34,11 +34,16 @@
             coreToolStripMenuItem = new ToolStripMenuItem();
             toolStripMenuItem1 = new ToolStripMenuItem();
             CorePanel = new Panel();
-            LabelJournalPath = new Label();
+            CoreSettingsLabel = new Label();
+            CoreSettingsPanel = new Panel();
+            StartContextCheckbox = new CheckBox();
+            StartReadallCheckbox = new CheckBox();
+            StartMonitorCheckbox = new CheckBox();
             LabelJournal = new Label();
-            ButtonAddTheme = new Button();
-            ThemeDropdown = new ComboBox();
             ThemeLabel = new Label();
+            LabelJournalPath = new Label();
+            ThemeDropdown = new ComboBox();
+            ButtonAddTheme = new Button();
             AudioLabel = new Label();
             PopupLabel = new Label();
             PluginSettingsButton = new Button();
@@ -86,6 +91,7 @@
             OverrideTooltip = new ToolTip(components);
             CoreMenu.SuspendLayout();
             CorePanel.SuspendLayout();
+            CoreSettingsPanel.SuspendLayout();
             VoiceSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).BeginInit();
             ((System.ComponentModel.ISupportInitialize)VoiceVolumeSlider).BeginInit();
@@ -105,7 +111,7 @@
             CoreMenu.LayoutStyle = ToolStripLayoutStyle.VerticalStackWithOverflow;
             CoreMenu.Location = new Point(0, 0);
             CoreMenu.Name = "CoreMenu";
-            CoreMenu.Size = new Size(120, 691);
+            CoreMenu.Size = new Size(120, 843);
             CoreMenu.TabIndex = 0;
             // 
             // coreToolStripMenuItem
@@ -130,11 +136,8 @@
             CorePanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             CorePanel.AutoScroll = true;
             CorePanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            CorePanel.Controls.Add(LabelJournalPath);
-            CorePanel.Controls.Add(LabelJournal);
-            CorePanel.Controls.Add(ButtonAddTheme);
-            CorePanel.Controls.Add(ThemeDropdown);
-            CorePanel.Controls.Add(ThemeLabel);
+            CorePanel.Controls.Add(CoreSettingsLabel);
+            CorePanel.Controls.Add(CoreSettingsPanel);
             CorePanel.Controls.Add(AudioLabel);
             CorePanel.Controls.Add(PopupLabel);
             CorePanel.Controls.Add(PluginSettingsButton);
@@ -144,59 +147,119 @@
             CorePanel.Controls.Add(PluginList);
             CorePanel.Location = new Point(123, 12);
             CorePanel.Name = "CorePanel";
-            CorePanel.Size = new Size(665, 679);
+            CorePanel.Size = new Size(665, 831);
             CorePanel.TabIndex = 1;
+            // 
+            // CoreSettingsLabel
+            // 
+            CoreSettingsLabel.AutoSize = true;
+            CoreSettingsLabel.Location = new Point(5, 614);
+            CoreSettingsLabel.Name = "CoreSettingsLabel";
+            CoreSettingsLabel.Size = new Size(77, 15);
+            CoreSettingsLabel.TabIndex = 15;
+            CoreSettingsLabel.Text = "Core Settings";
+            // 
+            // CoreSettingsPanel
+            // 
+            CoreSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            CoreSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
+            CoreSettingsPanel.Controls.Add(StartContextCheckbox);
+            CoreSettingsPanel.Controls.Add(StartReadallCheckbox);
+            CoreSettingsPanel.Controls.Add(StartMonitorCheckbox);
+            CoreSettingsPanel.Controls.Add(LabelJournal);
+            CoreSettingsPanel.Controls.Add(ThemeLabel);
+            CoreSettingsPanel.Controls.Add(LabelJournalPath);
+            CoreSettingsPanel.Controls.Add(ThemeDropdown);
+            CoreSettingsPanel.Controls.Add(ButtonAddTheme);
+            CoreSettingsPanel.Location = new Point(3, 621);
+            CoreSettingsPanel.Name = "CoreSettingsPanel";
+            CoreSettingsPanel.Size = new Size(659, 148);
+            CoreSettingsPanel.TabIndex = 14;
+            CoreSettingsPanel.Tag = "";
+            // 
+            // StartContextCheckbox
+            // 
+            StartContextCheckbox.AutoSize = true;
+            StartContextCheckbox.Location = new Point(121, 119);
+            StartContextCheckbox.Name = "StartContextCheckbox";
+            StartContextCheckbox.Size = new Size(202, 19);
+            StartContextCheckbox.TabIndex = 16;
+            StartContextCheckbox.Text = "Refresh Context On Monitor Start";
+            StartContextCheckbox.UseVisualStyleBackColor = true;
+            StartContextCheckbox.CheckedChanged += StartContextCheckbox_CheckedChanged;
+            // 
+            // StartReadallCheckbox
+            // 
+            StartReadallCheckbox.AutoSize = true;
+            StartReadallCheckbox.Location = new Point(121, 94);
+            StartReadallCheckbox.Name = "StartReadallCheckbox";
+            StartReadallCheckbox.Size = new Size(130, 19);
+            StartReadallCheckbox.TabIndex = 15;
+            StartReadallCheckbox.Text = "Read All On Launch";
+            StartReadallCheckbox.UseVisualStyleBackColor = true;
+            StartReadallCheckbox.CheckedChanged += StartReadallCheckbox_CheckedChanged;
+            // 
+            // StartMonitorCheckbox
+            // 
+            StartMonitorCheckbox.AutoSize = true;
+            StartMonitorCheckbox.Location = new Point(121, 69);
+            StartMonitorCheckbox.Name = "StartMonitorCheckbox";
+            StartMonitorCheckbox.Size = new Size(157, 19);
+            StartMonitorCheckbox.TabIndex = 14;
+            StartMonitorCheckbox.Text = "Start Monitor On Launch";
+            StartMonitorCheckbox.UseVisualStyleBackColor = true;
+            StartMonitorCheckbox.CheckedChanged += StartMonitorCheckbox_CheckedChanged;
+            // 
+            // LabelJournal
+            // 
+            LabelJournal.AutoSize = true;
+            LabelJournal.Location = new Point(30, 15);
+            LabelJournal.Name = "LabelJournal";
+            LabelJournal.Size = new Size(84, 15);
+            LabelJournal.TabIndex = 12;
+            LabelJournal.Text = "Journal Folder:";
+            // 
+            // ThemeLabel
+            // 
+            ThemeLabel.AutoSize = true;
+            ThemeLabel.Location = new Point(68, 43);
+            ThemeLabel.Name = "ThemeLabel";
+            ThemeLabel.Size = new Size(46, 15);
+            ThemeLabel.TabIndex = 9;
+            ThemeLabel.Text = "Theme:";
+            ThemeLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // LabelJournalPath
             // 
             LabelJournalPath.Font = new Font("Segoe UI", 8.25F);
-            LabelJournalPath.Location = new Point(124, 624);
+            LabelJournalPath.Location = new Point(120, 16);
             LabelJournalPath.Name = "LabelJournalPath";
             LabelJournalPath.Size = new Size(526, 13);
             LabelJournalPath.TabIndex = 13;
             LabelJournalPath.Text = "X:\\Journal";
             LabelJournalPath.DoubleClick += LabelJournalPath_DoubleClick;
             // 
-            // LabelJournal
+            // ThemeDropdown
             // 
-            LabelJournal.AutoSize = true;
-            LabelJournal.Location = new Point(34, 623);
-            LabelJournal.Name = "LabelJournal";
-            LabelJournal.Size = new Size(84, 15);
-            LabelJournal.TabIndex = 12;
-            LabelJournal.Text = "Journal Folder:";
+            ThemeDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
+            ThemeDropdown.FormattingEnabled = true;
+            ThemeDropdown.Location = new Point(120, 40);
+            ThemeDropdown.Name = "ThemeDropdown";
+            ThemeDropdown.Size = new Size(121, 23);
+            ThemeDropdown.TabIndex = 10;
+            ThemeDropdown.SelectedIndexChanged += ThemeDropdown_SelectedIndexChanged;
             // 
             // ButtonAddTheme
             // 
             ButtonAddTheme.FlatAppearance.BorderSize = 0;
             ButtonAddTheme.FlatStyle = FlatStyle.Flat;
-            ButtonAddTheme.Location = new Point(251, 648);
+            ButtonAddTheme.Location = new Point(247, 40);
             ButtonAddTheme.Name = "ButtonAddTheme";
             ButtonAddTheme.Size = new Size(88, 23);
             ButtonAddTheme.TabIndex = 11;
             ButtonAddTheme.Text = "Add Theme";
             ButtonAddTheme.UseVisualStyleBackColor = true;
             ButtonAddTheme.Click += ButtonAddTheme_Click;
-            // 
-            // ThemeDropdown
-            // 
-            ThemeDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
-            ThemeDropdown.FormattingEnabled = true;
-            ThemeDropdown.Location = new Point(124, 648);
-            ThemeDropdown.Name = "ThemeDropdown";
-            ThemeDropdown.Size = new Size(121, 23);
-            ThemeDropdown.TabIndex = 10;
-            ThemeDropdown.SelectedIndexChanged += ThemeDropdown_SelectedIndexChanged;
-            // 
-            // ThemeLabel
-            // 
-            ThemeLabel.AutoSize = true;
-            ThemeLabel.Location = new Point(72, 651);
-            ThemeLabel.Name = "ThemeLabel";
-            ThemeLabel.Size = new Size(46, 15);
-            ThemeLabel.TabIndex = 9;
-            ThemeLabel.Text = "Theme:";
-            ThemeLabel.TextAlign = ContentAlignment.MiddleCenter;
             // 
             // AudioLabel
             // 
@@ -605,7 +668,7 @@
             ReadAllButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ReadAllButton.FlatAppearance.BorderSize = 0;
             ReadAllButton.FlatStyle = FlatStyle.Flat;
-            ReadAllButton.Location = new Point(713, 698);
+            ReadAllButton.Location = new Point(713, 850);
             ReadAllButton.Name = "ReadAllButton";
             ReadAllButton.Size = new Size(75, 23);
             ReadAllButton.TabIndex = 2;
@@ -618,7 +681,7 @@
             ToggleMonitorButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ToggleMonitorButton.FlatAppearance.BorderSize = 0;
             ToggleMonitorButton.FlatStyle = FlatStyle.Flat;
-            ToggleMonitorButton.Location = new Point(610, 698);
+            ToggleMonitorButton.Location = new Point(610, 850);
             ToggleMonitorButton.Name = "ToggleMonitorButton";
             ToggleMonitorButton.Size = new Size(97, 23);
             ToggleMonitorButton.TabIndex = 3;
@@ -631,7 +694,7 @@
             ClearButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ClearButton.FlatAppearance.BorderSize = 0;
             ClearButton.FlatStyle = FlatStyle.Flat;
-            ClearButton.Location = new Point(529, 698);
+            ClearButton.Location = new Point(529, 850);
             ClearButton.Name = "ClearButton";
             ClearButton.Size = new Size(75, 23);
             ClearButton.TabIndex = 4;
@@ -643,7 +706,7 @@
             ExportButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ExportButton.FlatAppearance.BorderSize = 0;
             ExportButton.FlatStyle = FlatStyle.Flat;
-            ExportButton.Location = new Point(448, 698);
+            ExportButton.Location = new Point(448, 850);
             ExportButton.Name = "ExportButton";
             ExportButton.Size = new Size(75, 23);
             ExportButton.TabIndex = 5;
@@ -655,7 +718,7 @@
             // 
             GithubLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             GithubLink.AutoSize = true;
-            GithubLink.Location = new Point(12, 694);
+            GithubLink.Location = new Point(12, 846);
             GithubLink.Name = "GithubLink";
             GithubLink.Size = new Size(42, 15);
             GithubLink.TabIndex = 6;
@@ -667,7 +730,7 @@
             // 
             DonateLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             DonateLink.AutoSize = true;
-            DonateLink.Location = new Point(12, 709);
+            DonateLink.Location = new Point(12, 861);
             DonateLink.Name = "DonateLink";
             DonateLink.Size = new Size(45, 15);
             DonateLink.TabIndex = 7;
@@ -679,7 +742,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 733);
+            ClientSize = new Size(800, 885);
             Controls.Add(DonateLink);
             Controls.Add(GithubLink);
             Controls.Add(ExportButton);
@@ -701,6 +764,8 @@
             CoreMenu.PerformLayout();
             CorePanel.ResumeLayout(false);
             CorePanel.PerformLayout();
+            CoreSettingsPanel.ResumeLayout(false);
+            CoreSettingsPanel.PerformLayout();
             VoiceSettingsPanel.ResumeLayout(false);
             VoiceSettingsPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).EndInit();
@@ -773,5 +838,10 @@
         private Label VoiceDisabledLabel;
         private Panel PopupDisabledPanel;
         private Label PopupDisabledLabel;
+        private Label CoreSettingsLabel;
+        private Panel CoreSettingsPanel;
+        private CheckBox StartContextCheckbox;
+        private CheckBox StartReadallCheckbox;
+        private CheckBox StartMonitorCheckbox;
     }
 }
