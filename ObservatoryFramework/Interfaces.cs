@@ -289,6 +289,13 @@ namespace Observatory.Framework.Interfaces
         public void RegisterControl(object control);
 
         /// <summary>
+        /// Register a UI control for themeing and provide a delegate to selectively theme it and its child controls.
+        /// </summary>
+        /// <param name="control">UI Control object or ToolStripMenuItem</param>
+        /// <param name="applyTheme">Function which accepts a control or ToolStripMenuItem and returns true or false to indicate whether it should be themed.</param>
+        public void RegisterControl(object control, Func<object, bool> applyTheme);
+
+        /// <summary>
         /// Remove a UI control from themeing.
         /// </summary>
         /// <param name="control">UI Control object or ToolStripMenuItem</param>

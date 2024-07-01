@@ -194,6 +194,11 @@ namespace Observatory.PluginManagement
             PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, message));
         }
 
+        public void RegisterControl(object control, Func<object, bool> applyTheme)
+        {
+            ThemeManager.GetInstance.RegisterControl(control, applyTheme);
+        }
+
         public void RegisterControl(object control)
         {
             ThemeManager.GetInstance.RegisterControl(control);
