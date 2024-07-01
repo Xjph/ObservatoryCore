@@ -75,14 +75,16 @@ namespace Observatory.Herald
 
                     List<Task<string>> audioRequestTasks = new();
 
-                    if (!notification.Suppression.HasFlag(NotificationSuppression.Title))
+                    if (!notification.Suppression.HasFlag(NotificationSuppression.Title)
+                        && !string.IsNullOrWhiteSpace(notification.Title))
                     {
                         audioRequestTasks.Add(string.IsNullOrWhiteSpace(notification.TitleSsml)
                             ? RetrieveAudioToFile(notification.Title)
                             : RetrieveAudioSsmlToFile(notification.TitleSsml));
                     }
 
-                    if (!notification.Suppression.HasFlag(NotificationSuppression.Detail))
+                    if (!notification.Suppression.HasFlag(NotificationSuppression.Detail)
+                        && !string.IsNullOrWhiteSpace(notification.Detail))
                     {
                         audioRequestTasks.Add(string.IsNullOrWhiteSpace(notification.DetailSsml)
                             ? RetrieveAudioToFile(notification.Detail)
