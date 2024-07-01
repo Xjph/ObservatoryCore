@@ -36,7 +36,6 @@
             CorePanel = new Panel();
             CoreSettingsLabel = new Label();
             CoreSettingsPanel = new Panel();
-            StartContextCheckbox = new CheckBox();
             StartReadallCheckbox = new CheckBox();
             StartMonitorCheckbox = new CheckBox();
             LabelJournal = new Label();
@@ -111,7 +110,7 @@
             CoreMenu.LayoutStyle = ToolStripLayoutStyle.VerticalStackWithOverflow;
             CoreMenu.Location = new Point(0, 0);
             CoreMenu.Name = "CoreMenu";
-            CoreMenu.Size = new Size(120, 843);
+            CoreMenu.Size = new Size(120, 762);
             CoreMenu.TabIndex = 0;
             // 
             // coreToolStripMenuItem
@@ -147,7 +146,7 @@
             CorePanel.Controls.Add(PluginList);
             CorePanel.Location = new Point(123, 12);
             CorePanel.Name = "CorePanel";
-            CorePanel.Size = new Size(665, 831);
+            CorePanel.Size = new Size(665, 750);
             CorePanel.TabIndex = 1;
             // 
             // CoreSettingsLabel
@@ -163,7 +162,6 @@
             // 
             CoreSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CoreSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
-            CoreSettingsPanel.Controls.Add(StartContextCheckbox);
             CoreSettingsPanel.Controls.Add(StartReadallCheckbox);
             CoreSettingsPanel.Controls.Add(StartMonitorCheckbox);
             CoreSettingsPanel.Controls.Add(LabelJournal);
@@ -173,20 +171,9 @@
             CoreSettingsPanel.Controls.Add(ButtonAddTheme);
             CoreSettingsPanel.Location = new Point(3, 621);
             CoreSettingsPanel.Name = "CoreSettingsPanel";
-            CoreSettingsPanel.Size = new Size(659, 148);
+            CoreSettingsPanel.Size = new Size(659, 124);
             CoreSettingsPanel.TabIndex = 14;
             CoreSettingsPanel.Tag = "";
-            // 
-            // StartContextCheckbox
-            // 
-            StartContextCheckbox.AutoSize = true;
-            StartContextCheckbox.Location = new Point(121, 119);
-            StartContextCheckbox.Name = "StartContextCheckbox";
-            StartContextCheckbox.Size = new Size(202, 19);
-            StartContextCheckbox.TabIndex = 16;
-            StartContextCheckbox.Text = "Refresh Context On Monitor Start";
-            StartContextCheckbox.UseVisualStyleBackColor = true;
-            StartContextCheckbox.CheckedChanged += StartContextCheckbox_CheckedChanged;
             // 
             // StartReadallCheckbox
             // 
@@ -668,7 +655,7 @@
             ReadAllButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ReadAllButton.FlatAppearance.BorderSize = 0;
             ReadAllButton.FlatStyle = FlatStyle.Flat;
-            ReadAllButton.Location = new Point(713, 850);
+            ReadAllButton.Location = new Point(713, 769);
             ReadAllButton.Name = "ReadAllButton";
             ReadAllButton.Size = new Size(75, 23);
             ReadAllButton.TabIndex = 2;
@@ -681,7 +668,7 @@
             ToggleMonitorButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ToggleMonitorButton.FlatAppearance.BorderSize = 0;
             ToggleMonitorButton.FlatStyle = FlatStyle.Flat;
-            ToggleMonitorButton.Location = new Point(610, 850);
+            ToggleMonitorButton.Location = new Point(610, 769);
             ToggleMonitorButton.Name = "ToggleMonitorButton";
             ToggleMonitorButton.Size = new Size(97, 23);
             ToggleMonitorButton.TabIndex = 3;
@@ -694,7 +681,7 @@
             ClearButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ClearButton.FlatAppearance.BorderSize = 0;
             ClearButton.FlatStyle = FlatStyle.Flat;
-            ClearButton.Location = new Point(529, 850);
+            ClearButton.Location = new Point(529, 769);
             ClearButton.Name = "ClearButton";
             ClearButton.Size = new Size(75, 23);
             ClearButton.TabIndex = 4;
@@ -706,7 +693,7 @@
             ExportButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ExportButton.FlatAppearance.BorderSize = 0;
             ExportButton.FlatStyle = FlatStyle.Flat;
-            ExportButton.Location = new Point(448, 850);
+            ExportButton.Location = new Point(448, 769);
             ExportButton.Name = "ExportButton";
             ExportButton.Size = new Size(75, 23);
             ExportButton.TabIndex = 5;
@@ -718,7 +705,7 @@
             // 
             GithubLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             GithubLink.AutoSize = true;
-            GithubLink.Location = new Point(12, 846);
+            GithubLink.Location = new Point(12, 765);
             GithubLink.Name = "GithubLink";
             GithubLink.Size = new Size(42, 15);
             GithubLink.TabIndex = 6;
@@ -730,7 +717,7 @@
             // 
             DonateLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             DonateLink.AutoSize = true;
-            DonateLink.Location = new Point(12, 861);
+            DonateLink.Location = new Point(12, 780);
             DonateLink.Name = "DonateLink";
             DonateLink.Size = new Size(45, 15);
             DonateLink.TabIndex = 7;
@@ -742,7 +729,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 885);
+            ClientSize = new Size(800, 804);
             Controls.Add(DonateLink);
             Controls.Add(GithubLink);
             Controls.Add(ExportButton);
@@ -840,7 +827,6 @@
         private Label PopupDisabledLabel;
         private Label CoreSettingsLabel;
         private Panel CoreSettingsPanel;
-        private CheckBox StartContextCheckbox;
         private CheckBox StartReadallCheckbox;
         private CheckBox StartMonitorCheckbox;
     }

@@ -111,7 +111,6 @@ namespace Observatory.UI
             TryLoadSetting(LabelJournalPath, "Text", LogMonitor.GetJournalFolder().FullName);
             TryLoadSetting(StartMonitorCheckbox, "Checked", settings.StartMonitor);
             TryLoadSetting(StartReadallCheckbox, "Checked", settings.StartReadAll);
-            TryLoadSetting(StartContextCheckbox, "Checked", settings.TryPrimeSystemContextOnStartMonitor);
 
 #if PROTON
             VoiceCheckbox.Checked = false;
@@ -210,12 +209,6 @@ namespace Observatory.UI
         private void StartReadallCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Core.Default.StartReadAll = StartReadallCheckbox.Checked;
-            SettingsManager.Save();
-        }
-
-        private void StartContextCheckbox_CheckedChanged(object sender, EventArgs e)
-        {
-            Properties.Core.Default.TryPrimeSystemContextOnStartMonitor = StartContextCheckbox.Checked;
             SettingsManager.Save();
         }
     }
