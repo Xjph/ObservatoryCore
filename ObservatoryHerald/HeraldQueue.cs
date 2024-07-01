@@ -91,7 +91,8 @@ namespace Observatory.Herald
                             : RetrieveAudioSsmlToFile(notification.DetailSsml));
                     }
 
-                    PlayAudioRequestsSequentially(audioRequestTasks);
+                    if (audioRequestTasks.Count > 0)
+                        PlayAudioRequestsSequentially(audioRequestTasks);
                 }
             }
             catch (Exception ex)
