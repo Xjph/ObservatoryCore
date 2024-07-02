@@ -9,19 +9,22 @@ namespace Observatory.UI
     public partial class CoreForm : Form
     {
         private readonly Dictionary<object, Panel> uiPanels;
-        private ThemeManager themeManager;
+        private readonly ThemeManager themeManager;
 
         [DllImport("user32.dll")]
         private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
         private const int WM_SETREDRAW = 11;
         private static void SuspendDrawing(Control control)
         {
-            SendMessage(control.Handle, WM_SETREDRAW, false, 0);
+            if (SendMessage(control.Handle, WM_SETREDRAW, false, 0) != 0)
+                throw new Exception("Unexpected error when suspending form draw events.");
         }
 
         private static void ResumeDrawing(Control control)
         {
-            SendMessage(control.Handle, WM_SETREDRAW, true, 0);
+            if (SendMessage(control.Handle, WM_SETREDRAW, true, 0) != 0)
+                throw new Exception("Unexpected error when resuming form draw events.");
+
             control.Refresh();
         }
 
@@ -46,7 +49,7 @@ namespace Observatory.UI
             };
 
 
-            pluginList = new Dictionary<string, ToolStripMenuItem>();
+            pluginList = [];
 
             DisableOverriddenNotification();
             CoreMenu.ItemClicked += CoreMenu_ItemClicked;
@@ -252,7 +255,7 @@ namespace Observatory.UI
 
         private void SuspendSorting()
         {
-            PluginComparer = new();
+            PluginComparer = [];
             foreach (var panel in uiPanels.Values)
             {
                 foreach (var control in panel.Controls)
@@ -269,7 +272,7 @@ namespace Observatory.UI
 
         private void ResumeSorting()
         {
-            if (PluginComparer?.Any() ?? false)
+            if (PluginComparer.Count != 0)
                 foreach (var panel in PluginComparer.Keys)
                 {
                     panel.ListViewItemSorter = (IObservatoryComparer)PluginComparer[panel];
@@ -294,7 +297,7 @@ namespace Observatory.UI
             donateForm.ShowDialog();
         }
 
-        private void OpenURL(string url)
+        private static void OpenURL(string url)
         {
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }

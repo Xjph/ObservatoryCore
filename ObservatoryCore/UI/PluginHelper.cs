@@ -13,7 +13,7 @@ namespace Observatory.UI
     {
         internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryWorker plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
         {
-            List<string> pluginList = new List<string>();
+            List<string> pluginList = [];
             foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
             {
                 AddPlugin(menu, plugin.plugin, plugin.signed, uiPanels);
@@ -24,7 +24,7 @@ namespace Observatory.UI
 
         internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryNotifier plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
         {
-            List<string> pluginList = new List<string>();
+            List<string> pluginList = [];
             foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
             {
                 AddPlugin(menu, plugin.plugin, plugin.signed, uiPanels);
@@ -47,11 +47,11 @@ namespace Observatory.UI
             themeManager.RegisterControl(newItem);
             menu.Items.Add(newItem);
 
-            var addAndRegister = (Panel pluginPanel) =>
+            void addAndRegister(Panel pluginPanel)
             {
                 uiPanels.Add(newItem, pluginPanel);
                 themeManager.RegisterControl(pluginPanel, plugin.ApplyTheme);
-            };
+            }
 
             if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic)
                 addAndRegister(CreateBasicUI(plugin));
@@ -103,7 +103,7 @@ namespace Observatory.UI
                 }
             }
 
-            columnSizing ??= new List<ColumnSizing>();
+            columnSizing ??= [];
             // Is losing column sizes between versions acceptable?
             ColumnSizing pluginColumnSizing = columnSizing
                 .Where(c => c.PluginName == plugin.Name && c.PluginVersion == plugin.Version)
@@ -129,9 +129,9 @@ namespace Observatory.UI
 
                 int width;
 
-                if (pluginColumnSizing.ColumnWidth.ContainsKey(columnLabel))
+                if (pluginColumnSizing.ColumnWidth.TryGetValue(columnLabel, out int value))
                 {
-                    width = pluginColumnSizing.ColumnWidth[columnLabel];
+                    width = value;
                 }
                 else
                 {
@@ -159,7 +159,7 @@ namespace Observatory.UI
             // stale resize event from overwriting with bad data.
             // Using a higher-order function here to create two different versions of the
             // event handler for these purposes.
-            var handleColSize = (bool saveProps) =>
+            Action<object?, EventArgs> handleColSize(bool saveProps) =>
             (object? sender, EventArgs e) =>
             {
                 int colTotalWidth = 0;
@@ -221,12 +221,14 @@ namespace Observatory.UI
             };
 
             ConcurrentQueue<object> addedItemList = new();
-            var timer = new System.Timers.Timer();
-            timer.Interval = 100;
-            timer.AutoReset = false;
+            var timer = new System.Timers.Timer
+            {
+                Interval = 100,
+                AutoReset = false
+            };
             timer.Elapsed += (_,_) => 
             {
-                List<ListViewItem> items = new List<ListViewItem>();
+                List<ListViewItem> items = [];
 
                 while(addedItemList.TryDequeue(out object? newItem))
                 {
@@ -257,7 +259,7 @@ namespace Observatory.UI
 
             plugin.PluginUI.DataGrid.CollectionChanged += (sender, e) =>
             {
-                var updateGrid = () =>
+                void updateGrid()
                 {
                     if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add &&
                 e.NewItems != null)
@@ -265,7 +267,7 @@ namespace Observatory.UI
                         timer.Stop();
                         foreach (var item in e.NewItems)
                             addedItemList.Enqueue(item);
-                        
+
                         timer.Start();
                     }
 
@@ -305,7 +307,7 @@ namespace Observatory.UI
                             listView.Items.Add(listItem);
                         }
                     }
-                };
+                }
 
                 if (listView.Created)
                 {
@@ -322,7 +324,7 @@ namespace Observatory.UI
 
         internal static Panel CreatePluginSettings(IObservatoryPlugin plugin)
         {
-            Panel panel = new Panel();
+            Panel panel = new();
 
             return panel;
         }

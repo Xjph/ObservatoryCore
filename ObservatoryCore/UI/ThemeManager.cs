@@ -27,23 +27,23 @@ namespace Observatory.UI
                 return _instance.Value;
             }
         }
-        private static HashSet<string> _excludedControlNames = new()
-        {
+        private static readonly HashSet<string> _excludedControlNames =
+        [
             "ColourButton",
-        };
+        ];
         private static readonly Lazy<ThemeManager> _instance = new(() => new ThemeManager());
         #endregion
 
         #region Private Fields/Properties
 
-        private Dictionary<string, Dictionary<string, Color>> Themes;
+        private readonly Dictionary<string, Dictionary<string, Color>> Themes;
 
         private string SelectedTheme;
 
         private readonly Dictionary<object, Func<object, bool>> controls;
 
         #region Hardcoded Themes
-        static private Dictionary<string, Color> LightTheme = new Dictionary<string, Color>
+        static private readonly Dictionary<string, Color> LightTheme = new()
         {
             { "Default.ForeColor", SystemColors.ControlText },
             { "Default.BackColor", SystemColors.Control },
@@ -65,7 +65,7 @@ namespace Observatory.UI
             { "UpDownEdit.ForeColor", SystemColors.WindowText }
         };
 
-        static private Dictionary<string, Color> DarkTheme = new Dictionary<string, Color>
+        private static readonly Dictionary<string, Color> DarkTheme = new()
         {
             { "Default.ForeColor", Color.LightGray },
             { "Default.BackColor", Color.Black },
@@ -82,9 +82,9 @@ namespace Observatory.UI
 
         #region Private Methods
 
-        private Dictionary<string, Color> DeserializeTheme(ThemeSerializationContainer themeContainer)
+        private static Dictionary<string, Color> DeserializeTheme(ThemeSerializationContainer themeContainer)
         {
-            Dictionary<string, Color> parsedTheme = new();
+            Dictionary<string, Color> parsedTheme = [];
             foreach (var value in themeContainer.Theme)
             {
                 var color = DeserializeColor(value.Value);
@@ -93,7 +93,7 @@ namespace Observatory.UI
             return parsedTheme;
         }
 
-        private Color DeserializeColor(ColorSerializationContainer colorContainer)
+        private static Color DeserializeColor(ColorSerializationContainer colorContainer)
         {
             Color color;
             var nameOrRGB = colorContainer;
@@ -121,12 +121,12 @@ namespace Observatory.UI
             {
                 savedThemeContainers = System.Text.Json.JsonSerializer.Deserialize
                     <List<ThemeSerializationContainer>>
-                    (savedThemes) ?? new();
+                    (savedThemes) ?? [];
             }
             catch
             {
                 // If we get an error here just blow away saved themes and start fresh
-                savedThemeContainers = new();
+                savedThemeContainers = [];
             }
 
             foreach (var savedTheme in savedThemeContainers)
@@ -151,17 +151,17 @@ namespace Observatory.UI
                 {
                     savedThemeContainers = System.Text.Json.JsonSerializer.Deserialize
                         <List<ThemeSerializationContainer>>
-                        (savedThemes) ?? new();
+                        (savedThemes) ?? [];
                 }
                 else
                 {
-                    savedThemeContainers = new();
+                    savedThemeContainers = [];
                 }
             }
             catch
             {
                 // If we get an error here just blow away saved themes and start fresh
-                savedThemeContainers = new();
+                savedThemeContainers = [];
             }
 
             var existingTheme = savedThemeContainers.Where(saved => saved.Name == theme.Name);
@@ -184,8 +184,9 @@ namespace Observatory.UI
             {
                 var controlType = control.GetType();
 
-                var theme = Themes.ContainsKey(SelectedTheme)
-                    ? Themes[SelectedTheme] : Themes["Light"];
+                var theme = Themes.TryGetValue(SelectedTheme, out Dictionary<string, Color>? value) 
+                    ? value 
+                    : Themes["Light"];
 
                 if (controlType == typeof(MenuStrip))
                 {

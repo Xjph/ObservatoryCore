@@ -7,23 +7,13 @@ using Observatory.Utils;
 
 namespace Observatory.PluginManagement
 {
-    public class PluginCore : IObservatoryCore
+    public class PluginCore(bool OverridePopup = false, bool OverrideAudio = false) : IObservatoryCore
     {
-
-        private readonly NativeVoice NativeVoice;
-        private readonly NativePopup NativePopup;
-        private bool OverridePopup;
-        private bool OverrideAudio;
-        private AudioHandler AudioHandler;
-
-        public PluginCore(bool OverridePopup = false, bool OverrideAudio = false)
-        {
-            NativeVoice = new();
-            NativePopup = new();
-            this.OverridePopup = OverridePopup;
-            this.OverrideAudio = OverrideAudio;
-            AudioHandler = new();
-        }
+        private readonly NativeVoice NativeVoice = new();
+        private readonly NativePopup NativePopup = new();
+        private readonly bool OverridePopup = OverridePopup;
+        private readonly bool OverrideAudio = OverrideAudio;
+        private readonly AudioHandler AudioHandler = new();
 
         public string Version => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
 
@@ -263,33 +253,32 @@ namespace Observatory.PluginManagement
             ExecuteOnUIThread(() => { listView.ResumeDrawing(); });
         }
 
-        private PluginListView? FindPluginListView(IObservatoryWorker worker)
+        private static PluginListView? FindPluginListView(IObservatoryWorker worker)
         {
             if (worker.PluginUI.PluginUIType != PluginUI.UIType.Basic
-                || !(worker.PluginUI.UI is Panel)) return null;
+                || worker.PluginUI.UI is not Panel) return null;
 
-            PluginListView? listView = null;
-            Panel? panel = worker.PluginUI.UI as Panel;
+            PluginListView? listView;
 
-            if (panel != null)
-            foreach (var control in panel.Controls)
-            {
-                if (control?.GetType() == typeof(PluginListView))
+            if (worker.PluginUI.UI is Panel panel)
+                foreach (var control in panel.Controls)
                 {
-                    listView = (PluginListView)control;
-                    return listView;
+                    if (control?.GetType() == typeof(PluginListView))
+                    {
+                        listView = (PluginListView)control;
+                        return listView;
+                    }
                 }
-            }
             return null;
         }
 
-        private CoreForm? FindCoreForm()
+        private static CoreForm? FindCoreForm()
         {
             foreach (var f in Application.OpenForms)
             {
-                if (f is CoreForm)
+                if (f is CoreForm form)
                 {
-                    return (CoreForm)f;
+                    return form;
                 }
             }
             return null;

@@ -26,7 +26,7 @@ namespace Observatory.Utils
 
         private LogMonitor()
         {
-            currentLine = new();
+            currentLine = [];
             journalTypes = JournalReader.PopulateEventClasses();
             InitializeWatchers(string.Empty);
             SetLogMonitorState(LogMonitorState.Idle);
@@ -123,9 +123,9 @@ namespace Observatory.Utils
 
             // Read at most the last two files (in case we were launched after the game and the latest
             // journal is mostly empty) but keeping only the lines since the last FSDJump.
-            List<string> lastSystemLines = new();
-            List<string> lastFileLines = new();
-            List<String> fileHeaderLines = new();
+            List<string> lastSystemLines = [];
+            List<string> lastFileLines = [];
+            List<string> fileHeaderLines = [];
             bool sawFSDJump = false;
             foreach (var file in files.Skip(Math.Max(files.Count() - 2, 0)))
             {
@@ -268,8 +268,8 @@ namespace Observatory.Utils
         private readonly Dictionary<string, int> currentLine;
         private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
         private bool firstStartMonitor = true;
-        private readonly string[] EventsWithAncillaryFile = new string[]
-        {
+        private readonly string[] EventsWithAncillaryFile =
+        [
             "Cargo",
             "NavRoute",
             "Market",
@@ -279,7 +279,7 @@ namespace Observatory.Utils
             "FCMaterials",
             "ModuleInfo",
             "ShipLocker"
-        };
+        ];
 
         #endregion
 
@@ -380,7 +380,7 @@ namespace Observatory.Utils
 
         private static void ReportErrors(List<(Exception ex, string file, string line)> readErrors)
         {
-            if (readErrors.Any())
+            if (readErrors.Count != 0)
             {
                 var errorList = readErrors.Select(error =>
                 {
@@ -405,12 +405,13 @@ namespace Observatory.Utils
         {
             var fileContent = ReadAllLines(eventArgs.FullPath);
 
-            if (!currentLine.ContainsKey(eventArgs.FullPath))
+            if (!currentLine.TryGetValue(eventArgs.FullPath, out int value))
             {
-                currentLine.Add(eventArgs.FullPath, fileContent.Count - 1);
+                value = fileContent.Count - 1;
+                currentLine.Add(eventArgs.FullPath, value);
             }
 
-            foreach (string line in fileContent.Skip(currentLine[eventArgs.FullPath]))
+            foreach (string line in fileContent.Skip(value))
             {
                 try
                 {
@@ -418,7 +419,7 @@ namespace Observatory.Utils
                 }
                 catch (Exception ex)
                 {
-                    ReportErrors(new List<(Exception ex, string file, string line)>() { (ex, eventArgs.Name ?? string.Empty, line) });
+                    ReportErrors([(ex, eventArgs.Name ?? string.Empty, line)]);
                 }
             }
 
@@ -494,8 +495,10 @@ namespace Observatory.Utils
             try
             {
                 Guid FolderSavedGames = new ("4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4");
-                SHGetKnownFolderPath(ref FolderSavedGames, 0, IntPtr.Zero, out pathPtr);
-                return Marshal.PtrToStringUni(pathPtr) ?? string.Empty;
+                if (SHGetKnownFolderPath(ref FolderSavedGames, 0, IntPtr.Zero, out pathPtr) == 0)
+                    return Marshal.PtrToStringUni(pathPtr) ?? string.Empty;
+                else
+                    throw new Exception("Unknown error retrieving Saved Games folder location.");
             }
             finally
             {
