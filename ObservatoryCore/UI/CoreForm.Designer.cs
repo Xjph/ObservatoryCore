@@ -301,13 +301,12 @@
             // VoiceSpeedSlider
             // 
             VoiceSpeedSlider.Location = new Point(121, 51);
-            VoiceSpeedSlider.Maximum = 100;
+            VoiceSpeedSlider.Minimum = 1;
             VoiceSpeedSlider.Name = "VoiceSpeedSlider";
             VoiceSpeedSlider.Size = new Size(120, 45);
             VoiceSpeedSlider.TabIndex = 15;
-            VoiceSpeedSlider.TickFrequency = 10;
             VoiceSpeedSlider.TickStyle = TickStyle.Both;
-            VoiceSpeedSlider.Value = 50;
+            VoiceSpeedSlider.Value = 10;
             VoiceSpeedSlider.Scroll += VoiceSpeedSlider_Scroll;
             // 
             // VoiceVolumeSlider
@@ -333,6 +332,7 @@
             VoiceTestButton.TabIndex = 13;
             VoiceTestButton.Text = "Test";
             VoiceTestButton.UseVisualStyleBackColor = false;
+            VoiceTestButton.Click += VoiceTestButton_Click;
             // 
             // VoiceCheckbox
             // 

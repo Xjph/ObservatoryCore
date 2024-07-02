@@ -280,7 +280,8 @@ namespace Observatory.UI
             PluginComparer?.Clear();
         }
 
-        private Observatory.NativeNotification.NativePopup? nativePopup;
+        private NativeNotification.NativePopup? nativePopup;
+        private NativeNotification.NativeVoice? nativeVoice;
 
 
 
@@ -324,7 +325,7 @@ namespace Observatory.UI
         {
             PluginManager.GetInstance.ObservatoryReady();
 
-            
+
             if (Properties.Core.Default.StartReadAll)
                 ReadAllButton_Click(ReadAllButton, EventArgs.Empty);
 

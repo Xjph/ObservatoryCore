@@ -150,6 +150,20 @@ namespace Observatory.UI
             nativePopup.InvokeNativeNotification(args);
         }
 
+
+        private void VoiceTestButton_Click(object sender, EventArgs e)
+        {
+            NotificationArgs args = new()
+            {
+                Title = "Test Voice Notification",
+                Detail = "This is a test of native voice notifications."
+            };
+
+            nativeVoice ??= new();
+
+            nativeVoice.EnqueueAndAnnounce(args);
+        }
+
         private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
             themeManager.CurrentTheme = ThemeDropdown.SelectedItem.ToString() ?? themeManager.CurrentTheme;

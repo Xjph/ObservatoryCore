@@ -19,6 +19,7 @@ using Observatory.Framework;
 using System.Xml;
 using System.Speech.Synthesis;
 using System.Runtime.InteropServices;
+using System.Diagnostics;
 
 namespace Observatory.NativeNotification
 {
@@ -58,42 +59,50 @@ namespace Observatory.NativeNotification
 
         private void ProcessQueue()
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            try
             {
-                string voice = Properties.Core.Default.VoiceSelected;
-
-                var speech = new SpeechSynthesizer()
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Volume = Properties.Core.Default.VoiceVolume,
-                    Rate = Properties.Core.Default.VoiceRate
-                };
-                speech.SelectVoice(voice);
+                    string voice = Properties.Core.Default.VoiceSelected;
 
-                while (notificationEvents.Any())
-                {
-                    var notification = notificationEvents.Dequeue();
+                    var speech = new SpeechSynthesizer()
+                    {
+                        Volume = Properties.Core.Default.VoiceVolume,
+                        Rate = Properties.Core.Default.VoiceRate
+                    };
+                    speech.SelectVoice(voice);
 
-                    if (notification.TitleSsml?.Length > 0)
+                    while (notificationEvents.Any())
                     {
-                        string ssml = AddVoiceToSsml(notification.TitleSsml, voice);
-                        speech.SpeakSsml(ssml);
-                    }
-                    else
-                    {
-                        speech.Speak(notification.Title);
-                    }
+                        var notification = notificationEvents.Dequeue();
 
-                    if (notification.DetailSsml?.Length > 0)
-                    {
-                        string ssml = AddVoiceToSsml(notification.DetailSsml, voice);
-                        speech.SpeakSsml(ssml);
-                    }
-                    else
-                    {
-                        speech.Speak(notification.Detail);
+                        if (notification.TitleSsml?.Length > 0)
+                        {
+                            string ssml = AddVoiceToSsml(notification.TitleSsml, voice);
+                            speech.SpeakSsml(ssml);
+                        }
+                        else
+                        {
+                            speech.Speak(notification.Title);
+                        }
+
+                        if (notification.DetailSsml?.Length > 0)
+                        {
+                            string ssml = AddVoiceToSsml(notification.DetailSsml, voice);
+                            speech.SpeakSsml(ssml);
+                        }
+                        else
+                        {
+                            speech.Speak(notification.Detail);
+                        }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+            
             processing = false;
         }
 
