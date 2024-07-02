@@ -5,7 +5,7 @@
         private HttpClient()
         { }
 
-        private static readonly Lazy<System.Net.Http.HttpClient> lazy = new Lazy<System.Net.Http.HttpClient>(() => new System.Net.Http.HttpClient());
+        private static readonly Lazy<System.Net.Http.HttpClient> lazy = new Lazy<System.Net.Http.HttpClient>(() => new System.Net.Http.HttpClient() { Timeout = TimeSpan.FromSeconds(10) });
 
         public static System.Net.Http.HttpClient Client
         {
