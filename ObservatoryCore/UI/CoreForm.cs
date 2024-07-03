@@ -8,7 +8,6 @@ namespace Observatory.UI
 {
     public partial class CoreForm : Form
     {
-        private readonly Dictionary<object, Panel> uiPanels;
         private readonly ThemeManager themeManager;
 
         [DllImport("user32.dll")]
@@ -42,17 +41,10 @@ namespace Observatory.UI
             FitColumns();
             string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
             Text += $" - v{version}";
-            CoreMenu.SizeChanged += CoreMenu_SizeChanged;
-            uiPanels = new()
-            {
-                { coreToolStripMenuItem, CorePanel }
-            };
-
 
             pluginList = [];
 
             DisableOverriddenNotification();
-            CoreMenu.ItemClicked += CoreMenu_ItemClicked;
 
             themeManager = ThemeManager.GetInstance;
             themeManager.RegisterControl(this);
@@ -67,34 +59,28 @@ namespace Observatory.UI
 
         public void FocusPlugin(string pluginShortName)
         {
-            var pluginItem = FindMenuItemForPlugin(pluginShortName);
-            if (pluginItem != null)
+            var pluginTab = FindMenuItemForPlugin(pluginShortName);
+            if (pluginTab != null)
             {
                 SuspendDrawing(this);
-                ActivatePluginTab(pluginItem);
+                CoreTabControl.SelectedTab = pluginTab;
                 ResumeDrawing(this);
             }
         }
 
-        private ToolStripItem? FindMenuItemForPlugin(string pluginShortName)
+        private TabPage? FindMenuItemForPlugin(string pluginShortName)
         {
-            foreach (ToolStripItem item in CoreMenu.Items)
+            foreach (TabPage tab in CoreTabControl.TabPages)
             {
-                if (item.Text == pluginShortName)
+                if (tab.Text == pluginShortName)
                 {
-                    return item;
+                    return tab;
                 }
             }
             return null;
         }
 
-        private void CoreMenu_SizeChanged(object? sender, EventArgs e)
-        {
-            CorePanel.Location = new Point(12 + CoreMenu.Width, 12);
-            CorePanel.Width = Width - CoreMenu.Width - 40;
-        }
-
-        private readonly Dictionary<string, ToolStripMenuItem> pluginList;
+        private readonly Dictionary<string, TabPage> pluginList;
 
         private void ToggleMonitorButton_Click(object sender, EventArgs e)
         {
@@ -107,75 +93,6 @@ namespace Observatory.UI
             {
                 LogMonitor.GetInstance.Start();
                 ToggleMonitorButton.Text = "Stop Monitor";
-            }
-        }
-
-        private void ResizePanels(Point location, int widthChange)
-        {
-            CorePanel.Location = location;
-            CorePanel.Width += widthChange;
-            foreach (var panel in uiPanels)
-            {
-                if (Controls.Contains(panel.Value))
-                {
-                    panel.Value.Location = CorePanel.Location;
-                    panel.Value.Size = CorePanel.Size;
-                }
-            }
-        }
-
-        private void CoreMenu_ItemClicked(object? _, ToolStripItemClickedEventArgs e)
-        {
-            SuspendDrawing(this);
-            if (e.ClickedItem?.Text == "<")
-            {
-                foreach (KeyValuePair<string, ToolStripMenuItem> menuItem in pluginList)
-                {
-                    if (menuItem.Value.Text == "<")
-                        menuItem.Value.Text = ">";
-                    else
-                        menuItem.Value.Text = menuItem.Key[..3];
-                }
-                CoreMenu.Width = 70;
-                ResizePanels(new Point(CoreMenu.Width + 3, 12), 0);
-            }
-            else if (e.ClickedItem?.Text == ">")
-            {
-                foreach (KeyValuePair<string, ToolStripMenuItem> menuItem in pluginList)
-                {
-                    if (menuItem.Value.Text == ">")
-                        menuItem.Value.Text = "<";
-                    else
-                        menuItem.Value.Text = menuItem.Key;
-                }
-                CoreMenu.Width = GetExpandedMenuWidth();
-                ResizePanels(new Point(CoreMenu.Width + 3, 12), 0);
-            }
-            else if (e.ClickedItem != null)
-            {
-                ActivatePluginTab(e.ClickedItem);
-            }
-            ResumeDrawing(this);
-        }
-
-        private void ActivatePluginTab(ToolStripItem item)
-        {
-            foreach (var panel in uiPanels.Where(p => p.Key != item))
-            {
-                panel.Value.Visible = false;
-            }
-
-            uiPanels[item].Visible = true;
-
-            SetClickedItem(item);
-        }
-
-        private void SetClickedItem(ToolStripItem item)
-        {
-            foreach (ToolStripItem menuItem in CoreMenu.Items)
-            {
-                bool bold = menuItem == item;
-                menuItem.Font = new Font(menuItem.Font, bold ? FontStyle.Bold : FontStyle.Regular);
             }
         }
 
@@ -256,9 +173,9 @@ namespace Observatory.UI
         private void SuspendSorting()
         {
             PluginComparer = [];
-            foreach (var panel in uiPanels.Values)
+            foreach (TabPage tab in CoreTabControl.TabPages)
             {
-                foreach (var control in panel.Controls)
+                foreach (var control in tab.Controls)
                 {
                     if (control?.GetType() == typeof(PluginListView))
                     {
@@ -371,6 +288,40 @@ namespace Observatory.UI
             {
                 Location = savedLocation;
                 Size = savedSize;
+            }
+        }
+
+        private void CoreTabControl_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            e.Graphics.FillRectangle(new SolidBrush(BackColor), CoreTabControl.ClientRectangle);
+            
+            for (int i = 0; i < CoreTabControl.TabPages.Count; i++)
+            {
+                var tab = CoreTabControl.TabPages[i];
+                var selected = CoreTabControl.SelectedIndex == i;
+                var tabArea = CoreTabControl.GetTabRect(i);
+                var stringFormat = new StringFormat()
+                {
+                    LineAlignment = StringAlignment.Center,
+                    Alignment = StringAlignment.Center
+                };
+                if (selected)
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(CoreTabControl.SelectedTabColor), tabArea);
+                    tabArea.Offset(-1, -1);
+                }
+                else
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(CoreTabControl.TabColor), tabArea);
+                    tabArea.Offset(1, 1);
+                }
+
+                if (CoreTabControl.Alignment == TabAlignment.Left)
+                {
+                    stringFormat.FormatFlags = StringFormatFlags.DirectionVertical;
+                }
+
+                e.Graphics.DrawString(tab.Text, e.Font ?? new Font("Segoe UI", 9), new SolidBrush(tab.ForeColor), tabArea, stringFormat);
             }
         }
     }

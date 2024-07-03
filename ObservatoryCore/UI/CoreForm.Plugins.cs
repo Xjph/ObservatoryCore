@@ -81,30 +81,12 @@ namespace Observatory.UI
         {
             var uiPlugins = PluginManager.GetInstance.workerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None);
 
-            PluginHelper.CreatePluginTabs(CoreMenu, uiPlugins, uiPanels);
+            PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins);
 
-            foreach(ToolStripMenuItem item in CoreMenu.Items)
+            foreach(TabPage tab in CoreTabControl.TabPages)
             {
-                pluginList.Add(item.Text, item);
+                pluginList.Add(tab.Text, tab);
             }
-
-            foreach(var pluginPanel in uiPanels)
-            {
-                pluginPanel.Value.BackColor = CorePanel.BackColor;
-                pluginPanel.Value.Parent = CorePanel.Parent;
-                Controls.Add(pluginPanel.Value);
-            }
-
-            CorePanel.Resize += (_, _) =>
-            {
-                foreach (var pluginPanel in uiPanels)
-                {
-                    pluginPanel.Value.Location = CorePanel.Location;
-                    pluginPanel.Value.Size = CorePanel.Size;
-                }
-            };
-
-            CoreMenu.Width = GetExpandedMenuWidth();
         }
 
         private void DisableOverriddenNotification()
@@ -157,18 +139,6 @@ namespace Observatory.UI
                 VoiceDisabledPanel.BringToFront();
                 
             }
-        }
-
-        private int GetExpandedMenuWidth()
-        {
-            int maxWidth = 0;
-            foreach (ToolStripMenuItem item in CoreMenu.Items)
-            {
-                var itemWidth = TextRenderer.MeasureText(item.Text, item.Font);
-                maxWidth = itemWidth.Width > maxWidth ? itemWidth.Width : maxWidth;
-            }
-
-            return maxWidth + 25;
         }
 
         // Called from PluginManagement

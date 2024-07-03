@@ -11,52 +11,57 @@ namespace Observatory.UI
 {
     internal class PluginHelper
     {
-        internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryWorker plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
+        internal static List<string> CreatePluginTabs(TabControl tabs, IEnumerable<(IObservatoryWorker plugin, PluginManager.PluginStatus signed)> plugins)
         {
             List<string> pluginList = [];
             foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
             {
-                AddPlugin(menu, plugin.plugin, plugin.signed, uiPanels);
+                AddPlugin(tabs, plugin.plugin, plugin.signed);
                 pluginList.Add(plugin.plugin.ShortName);
             }
             return pluginList;
         }
 
-        internal static List<string> CreatePluginTabs(MenuStrip menu, IEnumerable<(IObservatoryNotifier plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<object, Panel> uiPanels)
+        internal static List<string> CreatePluginTabs(TabControl tabs, IEnumerable<(IObservatoryNotifier plugin, PluginManager.PluginStatus signed)> plugins)
         {
             List<string> pluginList = [];
             foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
             {
-                AddPlugin(menu, plugin.plugin, plugin.signed, uiPanels);
+                AddPlugin(tabs, plugin.plugin, plugin.signed);
                 pluginList.Add(plugin.plugin.ShortName);
             }
             return pluginList;
         }
 
-        private static void AddPlugin(MenuStrip menu, IObservatoryPlugin plugin, PluginManager.PluginStatus signed, Dictionary<object, Panel> uiPanels)
+        private static void AddPlugin(TabControl tabs, IObservatoryPlugin plugin, PluginManager.PluginStatus signed)
         {
-            var newItem = new ToolStripMenuItem()
+            var newTab = new TabPage
             {
                 Text = plugin.ShortName,
-                BackColor = menu.Items[0].BackColor,
-                ForeColor = menu.Items[0].ForeColor,
-                Font = menu.Items[0].Font,
-                TextAlign = menu.Items[0].TextAlign
+                BackColor = tabs.TabPages[0].BackColor,
+                ForeColor = tabs.TabPages[0].ForeColor,
+                Font = tabs.TabPages[0].Font
             };
+
             var themeManager = ThemeManager.GetInstance;
-            themeManager.RegisterControl(newItem);
-            menu.Items.Add(newItem);
+            themeManager.RegisterControl(newTab);
+            tabs.TabPages.Add(newTab);
 
             void addAndRegister(Panel pluginPanel)
             {
-                uiPanels.Add(newItem, pluginPanel);
+                // uiPanels.Add(newTab, pluginPanel);
                 themeManager.RegisterControl(pluginPanel, plugin.ApplyTheme);
+                pluginPanel.Width = newTab.Width;
+                pluginPanel.Height = newTab.Height;
+                pluginPanel.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom;
+                newTab.Controls.Add(pluginPanel);
             }
 
             if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic)
                 addAndRegister(CreateBasicUI(plugin));
             else if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Panel)
                 addAndRegister((Panel)plugin.PluginUI.UI);
+
             
         }
 

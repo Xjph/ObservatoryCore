@@ -30,10 +30,6 @@
         {
             components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CoreForm));
-            CoreMenu = new MenuStrip();
-            coreToolStripMenuItem = new ToolStripMenuItem();
-            toolStripMenuItem1 = new ToolStripMenuItem();
-            CorePanel = new Panel();
             CoreSettingsLabel = new Label();
             CoreSettingsPanel = new Panel();
             StartReadallCheckbox = new CheckBox();
@@ -88,8 +84,8 @@
             DonateLink = new LinkLabel();
             PopupColour = new ColorDialog();
             OverrideTooltip = new ToolTip(components);
-            CoreMenu.SuspendLayout();
-            CorePanel.SuspendLayout();
+            CoreTabControl = new ColourableTabControl();
+            CoreTabPage = new TabPage();
             CoreSettingsPanel.SuspendLayout();
             VoiceSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).BeginInit();
@@ -99,60 +95,14 @@
             ((System.ComponentModel.ISupportInitialize)DurationSpinner).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ScaleSpinner).BeginInit();
             PopupDisabledPanel.SuspendLayout();
+            CoreTabControl.SuspendLayout();
+            CoreTabPage.SuspendLayout();
             SuspendLayout();
-            // 
-            // CoreMenu
-            // 
-            CoreMenu.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            CoreMenu.AutoSize = false;
-            CoreMenu.Dock = DockStyle.None;
-            CoreMenu.Items.AddRange(new ToolStripItem[] { coreToolStripMenuItem, toolStripMenuItem1 });
-            CoreMenu.LayoutStyle = ToolStripLayoutStyle.VerticalStackWithOverflow;
-            CoreMenu.Location = new Point(0, 0);
-            CoreMenu.Name = "CoreMenu";
-            CoreMenu.Size = new Size(120, 762);
-            CoreMenu.TabIndex = 0;
-            // 
-            // coreToolStripMenuItem
-            // 
-            coreToolStripMenuItem.Font = new Font("Segoe UI", 18F);
-            coreToolStripMenuItem.Name = "coreToolStripMenuItem";
-            coreToolStripMenuItem.Size = new Size(113, 36);
-            coreToolStripMenuItem.Text = "Core";
-            coreToolStripMenuItem.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // toolStripMenuItem1
-            // 
-            toolStripMenuItem1.Alignment = ToolStripItemAlignment.Right;
-            toolStripMenuItem1.Font = new Font("Segoe UI", 18F);
-            toolStripMenuItem1.Name = "toolStripMenuItem1";
-            toolStripMenuItem1.Size = new Size(113, 36);
-            toolStripMenuItem1.Text = "<";
-            toolStripMenuItem1.TextAlign = ContentAlignment.MiddleLeft;
-            // 
-            // CorePanel
-            // 
-            CorePanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            CorePanel.AutoScroll = true;
-            CorePanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            CorePanel.Controls.Add(CoreSettingsLabel);
-            CorePanel.Controls.Add(CoreSettingsPanel);
-            CorePanel.Controls.Add(AudioLabel);
-            CorePanel.Controls.Add(PopupLabel);
-            CorePanel.Controls.Add(PluginSettingsButton);
-            CorePanel.Controls.Add(VoiceSettingsPanel);
-            CorePanel.Controls.Add(PopupSettingsPanel);
-            CorePanel.Controls.Add(PluginFolderButton);
-            CorePanel.Controls.Add(PluginList);
-            CorePanel.Location = new Point(123, 12);
-            CorePanel.Name = "CorePanel";
-            CorePanel.Size = new Size(665, 750);
-            CorePanel.TabIndex = 1;
             // 
             // CoreSettingsLabel
             // 
             CoreSettingsLabel.AutoSize = true;
-            CoreSettingsLabel.Location = new Point(5, 614);
+            CoreSettingsLabel.Location = new Point(9, 608);
             CoreSettingsLabel.Name = "CoreSettingsLabel";
             CoreSettingsLabel.Size = new Size(77, 15);
             CoreSettingsLabel.TabIndex = 15;
@@ -169,16 +119,16 @@
             CoreSettingsPanel.Controls.Add(LabelJournalPath);
             CoreSettingsPanel.Controls.Add(ThemeDropdown);
             CoreSettingsPanel.Controls.Add(ButtonAddTheme);
-            CoreSettingsPanel.Location = new Point(3, 621);
+            CoreSettingsPanel.Location = new Point(6, 614);
             CoreSettingsPanel.Name = "CoreSettingsPanel";
-            CoreSettingsPanel.Size = new Size(659, 124);
+            CoreSettingsPanel.Size = new Size(714, 123);
             CoreSettingsPanel.TabIndex = 14;
             CoreSettingsPanel.Tag = "";
             // 
             // StartReadallCheckbox
             // 
             StartReadallCheckbox.AutoSize = true;
-            StartReadallCheckbox.Location = new Point(121, 94);
+            StartReadallCheckbox.Location = new Point(120, 91);
             StartReadallCheckbox.Name = "StartReadallCheckbox";
             StartReadallCheckbox.Size = new Size(130, 19);
             StartReadallCheckbox.TabIndex = 15;
@@ -189,7 +139,7 @@
             // StartMonitorCheckbox
             // 
             StartMonitorCheckbox.AutoSize = true;
-            StartMonitorCheckbox.Location = new Point(121, 69);
+            StartMonitorCheckbox.Location = new Point(120, 66);
             StartMonitorCheckbox.Name = "StartMonitorCheckbox";
             StartMonitorCheckbox.Size = new Size(157, 19);
             StartMonitorCheckbox.TabIndex = 14;
@@ -209,7 +159,7 @@
             // ThemeLabel
             // 
             ThemeLabel.AutoSize = true;
-            ThemeLabel.Location = new Point(68, 43);
+            ThemeLabel.Location = new Point(67, 40);
             ThemeLabel.Name = "ThemeLabel";
             ThemeLabel.Size = new Size(46, 15);
             ThemeLabel.TabIndex = 9;
@@ -230,7 +180,7 @@
             // 
             ThemeDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             ThemeDropdown.FormattingEnabled = true;
-            ThemeDropdown.Location = new Point(120, 40);
+            ThemeDropdown.Location = new Point(120, 37);
             ThemeDropdown.Name = "ThemeDropdown";
             ThemeDropdown.Size = new Size(121, 23);
             ThemeDropdown.TabIndex = 10;
@@ -240,7 +190,7 @@
             // 
             ButtonAddTheme.FlatAppearance.BorderSize = 0;
             ButtonAddTheme.FlatStyle = FlatStyle.Flat;
-            ButtonAddTheme.Location = new Point(247, 40);
+            ButtonAddTheme.Location = new Point(246, 37);
             ButtonAddTheme.Name = "ButtonAddTheme";
             ButtonAddTheme.Size = new Size(88, 23);
             ButtonAddTheme.TabIndex = 11;
@@ -251,7 +201,7 @@
             // AudioLabel
             // 
             AudioLabel.AutoSize = true;
-            AudioLabel.Location = new Point(5, 432);
+            AudioLabel.Location = new Point(9, 432);
             AudioLabel.Name = "AudioLabel";
             AudioLabel.Size = new Size(106, 15);
             AudioLabel.TabIndex = 8;
@@ -260,7 +210,7 @@
             // PopupLabel
             // 
             PopupLabel.AutoSize = true;
-            PopupLabel.Location = new Point(5, 215);
+            PopupLabel.Location = new Point(9, 217);
             PopupLabel.Name = "PopupLabel";
             PopupLabel.Size = new Size(113, 15);
             PopupLabel.TabIndex = 7;
@@ -271,7 +221,7 @@
             PluginSettingsButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginSettingsButton.FlatAppearance.BorderSize = 0;
             PluginSettingsButton.FlatStyle = FlatStyle.Flat;
-            PluginSettingsButton.Location = new Point(406, 193);
+            PluginSettingsButton.Location = new Point(471, 196);
             PluginSettingsButton.Name = "PluginSettingsButton";
             PluginSettingsButton.Size = new Size(120, 23);
             PluginSettingsButton.TabIndex = 6;
@@ -293,9 +243,9 @@
             VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
             VoiceSettingsPanel.Controls.Add(VoiceVolumeLabel);
             VoiceSettingsPanel.Controls.Add(VoiceDisabledPanel);
-            VoiceSettingsPanel.Location = new Point(3, 441);
+            VoiceSettingsPanel.Location = new Point(6, 438);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
-            VoiceSettingsPanel.Size = new Size(659, 170);
+            VoiceSettingsPanel.Size = new Size(714, 170);
             VoiceSettingsPanel.TabIndex = 5;
             // 
             // VoiceSpeedSlider
@@ -392,7 +342,7 @@
             VoiceDisabledPanel.Enabled = false;
             VoiceDisabledPanel.Location = new Point(3, 3);
             VoiceDisabledPanel.Name = "VoiceDisabledPanel";
-            VoiceDisabledPanel.Size = new Size(651, 162);
+            VoiceDisabledPanel.Size = new Size(706, 162);
             VoiceDisabledPanel.TabIndex = 16;
             VoiceDisabledPanel.Visible = false;
             // 
@@ -425,9 +375,9 @@
             PopupSettingsPanel.Controls.Add(CornerLabel);
             PopupSettingsPanel.Controls.Add(DisplayLabel);
             PopupSettingsPanel.Controls.Add(PopupDisabledPanel);
-            PopupSettingsPanel.Location = new Point(3, 224);
+            PopupSettingsPanel.Location = new Point(6, 225);
             PopupSettingsPanel.Name = "PopupSettingsPanel";
-            PopupSettingsPanel.Size = new Size(659, 207);
+            PopupSettingsPanel.Size = new Size(714, 207);
             PopupSettingsPanel.TabIndex = 3;
             // 
             // DurationSpinner
@@ -584,7 +534,7 @@
             PopupDisabledPanel.Enabled = false;
             PopupDisabledPanel.Location = new Point(3, 3);
             PopupDisabledPanel.Name = "PopupDisabledPanel";
-            PopupDisabledPanel.Size = new Size(651, 199);
+            PopupDisabledPanel.Size = new Size(706, 199);
             PopupDisabledPanel.TabIndex = 16;
             PopupDisabledPanel.Visible = false;
             // 
@@ -602,7 +552,7 @@
             PluginFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginFolderButton.FlatAppearance.BorderSize = 0;
             PluginFolderButton.FlatStyle = FlatStyle.Flat;
-            PluginFolderButton.Location = new Point(532, 193);
+            PluginFolderButton.Location = new Point(590, 196);
             PluginFolderButton.Name = "PluginFolderButton";
             PluginFolderButton.Size = new Size(130, 23);
             PluginFolderButton.TabIndex = 1;
@@ -619,12 +569,12 @@
             PluginList.FullRowSelect = true;
             PluginList.HeaderStyle = ColumnHeaderStyle.Nonclickable;
             PluginList.ImeMode = ImeMode.NoControl;
-            PluginList.Location = new Point(3, 3);
+            PluginList.Location = new Point(6, 6);
             PluginList.MultiSelect = false;
             PluginList.Name = "PluginList";
             PluginList.OwnerDraw = true;
             PluginList.Scrollable = false;
-            PluginList.Size = new Size(659, 184);
+            PluginList.Size = new Size(714, 184);
             PluginList.TabIndex = 0;
             PluginList.UseCompatibleStateImageBehavior = false;
             PluginList.View = View.Details;
@@ -655,7 +605,7 @@
             ReadAllButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ReadAllButton.FlatAppearance.BorderSize = 0;
             ReadAllButton.FlatStyle = FlatStyle.Flat;
-            ReadAllButton.Location = new Point(713, 769);
+            ReadAllButton.Location = new Point(671, 812);
             ReadAllButton.Name = "ReadAllButton";
             ReadAllButton.Size = new Size(75, 23);
             ReadAllButton.TabIndex = 2;
@@ -668,7 +618,7 @@
             ToggleMonitorButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ToggleMonitorButton.FlatAppearance.BorderSize = 0;
             ToggleMonitorButton.FlatStyle = FlatStyle.Flat;
-            ToggleMonitorButton.Location = new Point(610, 769);
+            ToggleMonitorButton.Location = new Point(568, 812);
             ToggleMonitorButton.Name = "ToggleMonitorButton";
             ToggleMonitorButton.Size = new Size(97, 23);
             ToggleMonitorButton.TabIndex = 3;
@@ -681,7 +631,7 @@
             ClearButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ClearButton.FlatAppearance.BorderSize = 0;
             ClearButton.FlatStyle = FlatStyle.Flat;
-            ClearButton.Location = new Point(529, 769);
+            ClearButton.Location = new Point(487, 812);
             ClearButton.Name = "ClearButton";
             ClearButton.Size = new Size(75, 23);
             ClearButton.TabIndex = 4;
@@ -693,7 +643,7 @@
             ExportButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ExportButton.FlatAppearance.BorderSize = 0;
             ExportButton.FlatStyle = FlatStyle.Flat;
-            ExportButton.Location = new Point(448, 769);
+            ExportButton.Location = new Point(406, 812);
             ExportButton.Name = "ExportButton";
             ExportButton.Size = new Size(75, 23);
             ExportButton.TabIndex = 5;
@@ -705,7 +655,7 @@
             // 
             GithubLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             GithubLink.AutoSize = true;
-            GithubLink.Location = new Point(12, 765);
+            GithubLink.Location = new Point(12, 808);
             GithubLink.Name = "GithubLink";
             GithubLink.Size = new Size(42, 15);
             GithubLink.TabIndex = 6;
@@ -717,7 +667,7 @@
             // 
             DonateLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             DonateLink.AutoSize = true;
-            DonateLink.Location = new Point(12, 780);
+            DonateLink.Location = new Point(12, 823);
             DonateLink.Name = "DonateLink";
             DonateLink.Size = new Size(45, 15);
             DonateLink.TabIndex = 7;
@@ -725,21 +675,54 @@
             DonateLink.Text = "Donate";
             DonateLink.LinkClicked += DonateLink_LinkClicked;
             // 
+            // CoreTabControl
+            // 
+            CoreTabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            CoreTabControl.Controls.Add(CoreTabPage);
+            CoreTabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
+            CoreTabControl.Location = new Point(12, 12);
+            CoreTabControl.Margin = new Padding(0);
+            CoreTabControl.Multiline = true;
+            CoreTabControl.Name = "CoreTabControl";
+            CoreTabControl.SelectedIndex = 0;
+            CoreTabControl.SelectedTabColor = Color.Empty;
+            CoreTabControl.Size = new Size(734, 794);
+            CoreTabControl.TabColor = Color.Empty;
+            CoreTabControl.TabIndex = 8;
+            CoreTabControl.DrawItem += CoreTabControl_DrawItem;
+            // 
+            // CoreTabPage
+            // 
+            CoreTabPage.BackColor = Color.Transparent;
+            CoreTabPage.Controls.Add(CoreSettingsLabel);
+            CoreTabPage.Controls.Add(PluginList);
+            CoreTabPage.Controls.Add(CoreSettingsPanel);
+            CoreTabPage.Controls.Add(PluginSettingsButton);
+            CoreTabPage.Controls.Add(AudioLabel);
+            CoreTabPage.Controls.Add(PluginFolderButton);
+            CoreTabPage.Controls.Add(VoiceSettingsPanel);
+            CoreTabPage.Controls.Add(PopupLabel);
+            CoreTabPage.Controls.Add(PopupSettingsPanel);
+            CoreTabPage.Location = new Point(4, 24);
+            CoreTabPage.Name = "CoreTabPage";
+            CoreTabPage.Padding = new Padding(3);
+            CoreTabPage.Size = new Size(726, 766);
+            CoreTabPage.TabIndex = 0;
+            CoreTabPage.Text = "Core";
+            // 
             // CoreForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 804);
+            ClientSize = new Size(758, 847);
+            Controls.Add(CoreTabControl);
             Controls.Add(DonateLink);
             Controls.Add(GithubLink);
             Controls.Add(ExportButton);
             Controls.Add(ClearButton);
             Controls.Add(ToggleMonitorButton);
             Controls.Add(ReadAllButton);
-            Controls.Add(CorePanel);
-            Controls.Add(CoreMenu);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MainMenuStrip = CoreMenu;
             MinimumSize = new Size(600, 300);
             Name = "CoreForm";
             Text = "Elite Observatory Core";
@@ -747,10 +730,6 @@
             Load += CoreForm_Load;
             Shown += CoreForm_Shown;
             Resize += CoreForm_Resize;
-            CoreMenu.ResumeLayout(false);
-            CoreMenu.PerformLayout();
-            CorePanel.ResumeLayout(false);
-            CorePanel.PerformLayout();
             CoreSettingsPanel.ResumeLayout(false);
             CoreSettingsPanel.PerformLayout();
             VoiceSettingsPanel.ResumeLayout(false);
@@ -765,15 +744,14 @@
             ((System.ComponentModel.ISupportInitialize)ScaleSpinner).EndInit();
             PopupDisabledPanel.ResumeLayout(false);
             PopupDisabledPanel.PerformLayout();
+            CoreTabControl.ResumeLayout(false);
+            CoreTabPage.ResumeLayout(false);
+            CoreTabPage.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
-
-        private MenuStrip CoreMenu;
-        private ToolStripMenuItem coreToolStripMenuItem;
-        private Panel CorePanel;
         private Button ReadAllButton;
         private Button ToggleMonitorButton;
         private Button ClearButton;
@@ -802,7 +780,6 @@
         private ComboBox FontDropdown;
         private Label LabelFont;
         private ColorDialog PopupColour;
-        private ToolStripMenuItem toolStripMenuItem1;
         private Panel VoiceSettingsPanel;
         private TrackBar VoiceSpeedSlider;
         private TrackBar VoiceVolumeSlider;
@@ -829,5 +806,7 @@
         private Panel CoreSettingsPanel;
         private CheckBox StartReadallCheckbox;
         private CheckBox StartMonitorCheckbox;
+        private ColourableTabControl CoreTabControl;
+        private TabPage CoreTabPage;
     }
 }

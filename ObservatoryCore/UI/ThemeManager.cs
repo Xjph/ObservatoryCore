@@ -62,7 +62,9 @@ namespace Observatory.UI
             { "UpDownButtons.BackColor", SystemColors.Window },
             { "UpDownButtons.ForeColor", SystemColors.WindowText },
             { "UpDownEdit.BackColor", SystemColors.Window },
-            { "UpDownEdit.ForeColor", SystemColors.WindowText }
+            { "UpDownEdit.ForeColor", SystemColors.WindowText },
+            { "ColourableTabControl.TabColor", SystemColors.ControlLight },
+            { "ColourableTabControl.SelectedTabColor", SystemColors.Control }
         };
 
         private static readonly Dictionary<string, Color> DarkTheme = new()
@@ -71,6 +73,9 @@ namespace Observatory.UI
             { "Default.BackColor", Color.Black },
             { "Button.ForeColor", Color.LightGray },
             { "Button.BackColor", Color.DimGray },
+            { "TabPage.ForeColor", Color.Black },
+            { "ColourableTabControl.TabColor", Color.DimGray },
+            { "ColourableTabControl.SelectedTabColor", Color.DarkGray },
             { "LinkLabel.ActiveLinkColor", Color.Red },
             { "LinkLabel.DisabledLinkColor", Color.FromArgb(0x85, 0x85, 0x85) },
             { "LinkLabel.LinkColor", Color.FromArgb(0xA0, 0xA0, 0xFF) },
