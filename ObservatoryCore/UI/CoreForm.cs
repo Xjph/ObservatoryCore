@@ -220,15 +220,6 @@ namespace Observatory.UI
             Process.Start(new ProcessStartInfo(url) { UseShellExecute = true });
         }
 
-        private void CoreForm_Resize(object sender, EventArgs e)
-        {
-            // Core panel is behaving weirdly on resize.
-            // "Anchor" property not working as expected?
-            // Now this is breaking scaling and everything seems fine when I remove it?!
-            // CorePanel.Width = Width - CorePanel.Location.X - 30;
-            // CorePanel.Height = Height - CorePanel.Location.Y - 80;
-        }
-
         private void ExportButton_Click(object sender, EventArgs e)
         {
             // Find currently selected item for export
@@ -268,11 +259,13 @@ namespace Observatory.UI
             // Save location
             Properties.Core.Default.MainWindowPosition = Location;
             Properties.Core.Default.MainWindowSize = Size;
+            Properties.Core.Default.CoreSplitterDistance = CoreSplitter.SplitterDistance;
             SettingsManager.Save();
         }
 
         private void CoreForm_Load(object sender, EventArgs e)
         {
+            CoreSplitter.SplitterDistance = Math.Clamp(Properties.Core.Default.CoreSplitterDistance, 20, CoreSplitter.Height - 20);
             var savedLocation = Properties.Core.Default.MainWindowPosition;
             var savedSize = Properties.Core.Default.MainWindowSize;
 
@@ -294,7 +287,7 @@ namespace Observatory.UI
         private void CoreTabControl_DrawItem(object sender, DrawItemEventArgs e)
         {
             e.Graphics.FillRectangle(new SolidBrush(BackColor), CoreTabControl.ClientRectangle);
-            
+
             for (int i = 0; i < CoreTabControl.TabPages.Count; i++)
             {
                 var tab = CoreTabControl.TabPages[i];
@@ -307,12 +300,26 @@ namespace Observatory.UI
                 };
                 if (selected)
                 {
-                    e.Graphics.FillRectangle(new SolidBrush(CoreTabControl.SelectedTabColor), tabArea);
+                    try
+                    {
+                        e.Graphics.FillRectangle(new SolidBrush(CoreTabControl.SelectedTabColor), tabArea);
+                    }
+                    catch (ExternalException ex) // A generic error occurred in GDI+.
+                    {
+                        // This happens sometimes randomly when resizing things a bunch, but doesn't seem to break anything.
+                    }
                     tabArea.Offset(-1, -1);
                 }
                 else
                 {
-                    e.Graphics.FillRectangle(new SolidBrush(CoreTabControl.TabColor), tabArea);
+                    try
+                    {
+                        e.Graphics.FillRectangle(new SolidBrush(CoreTabControl.TabColor), tabArea);
+                    }
+                    catch (ExternalException ex) // A generic error occurred in GDI+.
+                    {
+                        // This happens sometimes randomly when resizing things a bunch, but doesn't seem to break anything.
+                    }
                     tabArea.Offset(1, 1);
                 }
 

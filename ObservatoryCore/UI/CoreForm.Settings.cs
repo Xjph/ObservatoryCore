@@ -105,7 +105,7 @@ namespace Observatory.UI
             TryLoadSetting(ColourButton, "BackColor", Color.FromArgb((int)settings.NativeNotifyColour));
             TryLoadSetting(PopupCheckbox, "Checked", settings.NativeNotify);
             TryLoadSetting(VoiceVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100));
-            TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, 0, 100));
+            TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, 1, 100));
             TryLoadSetting(VoiceDropdown, "SelectedItem", settings.VoiceSelected);
             TryLoadSetting(VoiceCheckbox, "Checked", settings.VoiceNotify);
             TryLoadSetting(LabelJournalPath, "Text", LogMonitor.GetJournalFolder().FullName);
@@ -125,7 +125,7 @@ namespace Observatory.UI
 #endif
         }
 
-        static private void TryLoadSetting(object control, string property, object newValue)
+        static private void TryLoadSetting(Control control, string property, object newValue)
         {
             try
             {
@@ -133,7 +133,7 @@ namespace Observatory.UI
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Unable to load all settings, some values may have been cleared.\r\nError: {ex.InnerException?.Message}");
+                MessageBox.Show($"Unable to load all settings ({control.Name}), some values may have been cleared.\r\nError: {ex.InnerException?.Message}");
             }
         }
 
