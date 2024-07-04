@@ -81,12 +81,7 @@ namespace Observatory.UI
         {
             var uiPlugins = PluginManager.GetInstance.workerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None);
 
-            PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins);
-
-            foreach(TabPage tab in CoreTabControl.TabPages)
-            {
-                pluginList.Add(tab.Text, tab);
-            }
+            PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList);
         }
 
         private void DisableOverriddenNotification()
@@ -219,12 +214,11 @@ namespace Observatory.UI
 
         private Dictionary<IObservatoryPlugin, SettingsForm> SettingsForms = [];
 
-        private void PluginExport(string pluginShortName)
+        private static void PluginExport(IObservatoryPlugin plugin)
         {
             // TODO: Allow custom
             string delimiter = "\t";
 
-            var plugin = ListedPlugins?.Where(list => list.Value.ShortName == pluginShortName).FirstOrDefault().Value;
             if (plugin != null)
             {
                 string filetype = "csv";
@@ -277,6 +271,14 @@ namespace Observatory.UI
                 {
                     File.WriteAllBytes(saveAs.FileName, fileContent);
                 }
+            }
+        }
+
+        private void PluginClear(IObservatoryPlugin plugin)
+        {
+            if (plugin != null && plugin.PluginUI.PluginUIType == PluginUI.UIType.Basic)
+            {
+                plugin.PluginUI.DataGrid.Clear();
             }
         }
     }

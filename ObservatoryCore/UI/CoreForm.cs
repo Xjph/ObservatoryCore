@@ -42,8 +42,6 @@ namespace Observatory.UI
             string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
             Text += $" - v{version}";
 
-            pluginList = [];
-
             DisableOverriddenNotification();
 
             themeManager = ThemeManager.GetInstance;
@@ -55,6 +53,7 @@ namespace Observatory.UI
             }
             ThemeDropdown.SelectedItem = themeManager.CurrentTheme;
             CreatePluginTabs();
+            RestoreSavedTab();
         }
 
         public void FocusPlugin(string pluginShortName)
@@ -80,7 +79,7 @@ namespace Observatory.UI
             return null;
         }
 
-        private readonly Dictionary<string, TabPage> pluginList;
+        private readonly Dictionary<TabPage, IObservatoryPlugin> pluginList = [];
 
         private void ToggleMonitorButton_Click(object sender, EventArgs e)
         {
@@ -223,10 +222,20 @@ namespace Observatory.UI
         private void ExportButton_Click(object sender, EventArgs e)
         {
             // Find currently selected item for export
-            var selectedItem = pluginList.Where(list => list.Value.Font.Bold);
-            if (selectedItem.Any())
-                PluginExport(selectedItem.First().Key);
+            if (CoreTabControl.SelectedTab != null && pluginList.ContainsKey(CoreTabControl.SelectedTab))
+            {
+                var selectedItem = pluginList[CoreTabControl.SelectedTab];
+                PluginExport(selectedItem);
+            }
+        }
 
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            if (CoreTabControl.SelectedTab != null && pluginList.ContainsKey(CoreTabControl.SelectedTab))
+            {
+                var selectedItem = pluginList[CoreTabControl.SelectedTab];
+                PluginClear(selectedItem);
+            }
         }
 
         private void CoreForm_Shown(object sender, EventArgs e)
@@ -329,6 +338,36 @@ namespace Observatory.UI
                 }
 
                 e.Graphics.DrawString(tab.Text, e.Font ?? new Font("Segoe UI", 9), new SolidBrush(tab.ForeColor), tabArea, stringFormat);
+            }
+        }
+
+        private void RestoreSavedTab()
+        {
+            CoreTabControl.SelectedIndex = Properties.Core.Default.LastTabIndex < CoreTabControl.TabPages.Count
+                ? Properties.Core.Default.LastTabIndex
+                : 0;
+            CoreTabControl_SelectedIndexChanged(CoreTabControl, EventArgs.Empty);
+        }
+
+        private void CoreTabControl_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            var selectedTab = CoreTabControl.SelectedTab;
+            if (selectedTab != null)
+            {
+                pluginList.TryGetValue(selectedTab, out var plugin);
+
+                // Named bools for clarity
+                bool notCoreTab = selectedTab != CoreTabPage;
+                bool hasExportMethod = notCoreTab 
+                    && ((Delegate)plugin.ExportContent).Method != typeof(IObservatoryPlugin).GetMethod("ExportContent");
+                bool isBasicUI = notCoreTab && plugin?.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic;
+                
+                bool canExport = isBasicUI || hasExportMethod;
+                bool canClear = isBasicUI;
+                ExportButton.Enabled = canExport;
+                ClearButton.Enabled = canClear;
+                Properties.Core.Default.LastTabIndex = CoreTabControl.SelectedIndex;
+                SettingsManager.Save();
             }
         }
     }

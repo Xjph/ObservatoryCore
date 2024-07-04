@@ -11,29 +11,25 @@ namespace Observatory.UI
 {
     internal class PluginHelper
     {
-        internal static List<string> CreatePluginTabs(TabControl tabs, IEnumerable<(IObservatoryWorker plugin, PluginManager.PluginStatus signed)> plugins)
+        internal static void CreatePluginTabs(TabControl tabs, IEnumerable<(IObservatoryWorker plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<TabPage, IObservatoryPlugin> pluginList)
         {
-            List<string> pluginList = [];
             foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
             {
-                AddPlugin(tabs, plugin.plugin, plugin.signed);
-                pluginList.Add(plugin.plugin.ShortName);
+                var newTab = AddPlugin(tabs, plugin.plugin, plugin.signed);
+                pluginList.Add(newTab, plugin.plugin);
             }
-            return pluginList;
         }
 
-        internal static List<string> CreatePluginTabs(TabControl tabs, IEnumerable<(IObservatoryNotifier plugin, PluginManager.PluginStatus signed)> plugins)
+        internal static void CreatePluginTabs(TabControl tabs, IEnumerable<(IObservatoryNotifier plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<TabPage, IObservatoryPlugin> pluginList)
         {
-            List<string> pluginList = [];
             foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
             {
-                AddPlugin(tabs, plugin.plugin, plugin.signed);
-                pluginList.Add(plugin.plugin.ShortName);
+                var newTab = AddPlugin(tabs, plugin.plugin, plugin.signed);
+                pluginList.Add(newTab, plugin.plugin);
             }
-            return pluginList;
         }
 
-        private static void AddPlugin(TabControl tabs, IObservatoryPlugin plugin, PluginManager.PluginStatus signed)
+        private static TabPage AddPlugin(TabControl tabs, IObservatoryPlugin plugin, PluginManager.PluginStatus signed)
         {
             var newTab = new TabPage
             {
@@ -62,7 +58,7 @@ namespace Observatory.UI
             else if (plugin.PluginUI.PluginUIType == Framework.PluginUI.UIType.Panel)
                 addAndRegister((Panel)plugin.PluginUI.UI);
 
-            
+            return newTab;
         }
 
         private static Panel CreateBasicUI(IObservatoryPlugin plugin)

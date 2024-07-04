@@ -147,6 +147,7 @@
             ClearButton.TabIndex = 4;
             ClearButton.Text = "Clear";
             ClearButton.UseVisualStyleBackColor = false;
+            ClearButton.Click += ClearButton_Click;
             // 
             // ExportButton
             // 
@@ -200,6 +201,7 @@
             CoreTabControl.TabColor = Color.Empty;
             CoreTabControl.TabIndex = 8;
             CoreTabControl.DrawItem += CoreTabControl_DrawItem;
+            CoreTabControl.SelectedIndexChanged += CoreTabControl_SelectedIndexChanged;
             // 
             // CoreTabPage
             // 
