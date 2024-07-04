@@ -105,7 +105,7 @@ namespace Observatory.UI
             TryLoadSetting(ColourButton, "BackColor", Color.FromArgb((int)settings.NativeNotifyColour));
             TryLoadSetting(PopupCheckbox, "Checked", settings.NativeNotify);
             TryLoadSetting(VoiceVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100));
-            TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, 1, 100));
+            TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, 1, 10));
             TryLoadSetting(VoiceDropdown, "SelectedItem", settings.VoiceSelected);
             TryLoadSetting(VoiceCheckbox, "Checked", settings.VoiceNotify);
             TryLoadSetting(LabelJournalPath, "Text", LogMonitor.GetJournalFolder().FullName);
