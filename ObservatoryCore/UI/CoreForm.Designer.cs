@@ -82,6 +82,8 @@
             VoiceDisabledPanel = new Panel();
             VoiceDisabledLabel = new Label();
             CoreSettingsPanel = new Panel();
+            ExportFormatLabel = new Label();
+            ExportFormatDropdown = new ComboBox();
             CoreSettingsLabel = new Label();
             StartReadallCheckbox = new CheckBox();
             StartMonitorCheckbox = new CheckBox();
@@ -682,6 +684,8 @@
             // 
             CoreSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CoreSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
+            CoreSettingsPanel.Controls.Add(ExportFormatLabel);
+            CoreSettingsPanel.Controls.Add(ExportFormatDropdown);
             CoreSettingsPanel.Controls.Add(CoreSettingsLabel);
             CoreSettingsPanel.Controls.Add(StartReadallCheckbox);
             CoreSettingsPanel.Controls.Add(StartMonitorCheckbox);
@@ -696,6 +700,26 @@
             CoreSettingsPanel.TabIndex = 33;
             CoreSettingsPanel.Tag = "";
             // 
+            // ExportFormatLabel
+            // 
+            ExportFormatLabel.AutoSize = true;
+            ExportFormatLabel.Location = new Point(30, 57);
+            ExportFormatLabel.Name = "ExportFormatLabel";
+            ExportFormatLabel.Size = new Size(85, 15);
+            ExportFormatLabel.TabIndex = 35;
+            ExportFormatLabel.Text = "Export Format:";
+            // 
+            // ExportFormatDropdown
+            // 
+            ExportFormatDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
+            ExportFormatDropdown.FormattingEnabled = true;
+            ExportFormatDropdown.Items.AddRange(new object[] { "Tab-Separated Values (csv)", "Office Open XML (xlsx)" });
+            ExportFormatDropdown.Location = new Point(121, 54);
+            ExportFormatDropdown.Name = "ExportFormatDropdown";
+            ExportFormatDropdown.Size = new Size(214, 23);
+            ExportFormatDropdown.TabIndex = 34;
+            ExportFormatDropdown.SelectedIndexChanged += ExportFormatDropdown_SelectedIndexChanged;
+            // 
             // CoreSettingsLabel
             // 
             CoreSettingsLabel.AutoSize = true;
@@ -708,7 +732,7 @@
             // StartReadallCheckbox
             // 
             StartReadallCheckbox.AutoSize = true;
-            StartReadallCheckbox.Location = new Point(121, 107);
+            StartReadallCheckbox.Location = new Point(121, 137);
             StartReadallCheckbox.Name = "StartReadallCheckbox";
             StartReadallCheckbox.Size = new Size(130, 19);
             StartReadallCheckbox.TabIndex = 15;
@@ -719,7 +743,7 @@
             // StartMonitorCheckbox
             // 
             StartMonitorCheckbox.AutoSize = true;
-            StartMonitorCheckbox.Location = new Point(121, 82);
+            StartMonitorCheckbox.Location = new Point(121, 112);
             StartMonitorCheckbox.Name = "StartMonitorCheckbox";
             StartMonitorCheckbox.Size = new Size(157, 19);
             StartMonitorCheckbox.TabIndex = 14;
@@ -739,7 +763,7 @@
             // ThemeLabel
             // 
             ThemeLabel.AutoSize = true;
-            ThemeLabel.Location = new Point(68, 56);
+            ThemeLabel.Location = new Point(68, 86);
             ThemeLabel.Name = "ThemeLabel";
             ThemeLabel.Size = new Size(46, 15);
             ThemeLabel.TabIndex = 9;
@@ -760,7 +784,7 @@
             // 
             ThemeDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             ThemeDropdown.FormattingEnabled = true;
-            ThemeDropdown.Location = new Point(121, 53);
+            ThemeDropdown.Location = new Point(121, 83);
             ThemeDropdown.Name = "ThemeDropdown";
             ThemeDropdown.Size = new Size(121, 23);
             ThemeDropdown.TabIndex = 10;
@@ -770,7 +794,7 @@
             // 
             ButtonAddTheme.FlatAppearance.BorderSize = 0;
             ButtonAddTheme.FlatStyle = FlatStyle.Flat;
-            ButtonAddTheme.Location = new Point(247, 53);
+            ButtonAddTheme.Location = new Point(247, 83);
             ButtonAddTheme.Name = "ButtonAddTheme";
             ButtonAddTheme.Size = new Size(88, 23);
             ButtonAddTheme.TabIndex = 11;
@@ -885,5 +909,7 @@
         private Label LabelJournalPath;
         private ComboBox ThemeDropdown;
         private Button ButtonAddTheme;
+        private Label ExportFormatLabel;
+        private ComboBox ExportFormatDropdown;
     }
 }

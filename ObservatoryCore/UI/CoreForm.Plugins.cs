@@ -216,61 +216,13 @@ namespace Observatory.UI
 
         private static void PluginExport(IObservatoryPlugin plugin)
         {
-            // TODO: Allow custom
-            string delimiter = "\t";
-
             if (plugin != null)
             {
-                string filetype = "csv";
-                byte[] fileContent = plugin.ExportContent(delimiter, ref filetype);
-                if (fileContent == null)
-                {
-                    if (plugin.PluginUI.PluginUIType == PluginUI.UIType.Basic)
-                    {
-                        StringBuilder exportString = new();
-                        Panel pluginUI = (Panel)plugin.PluginUI.UI;
-                        ListView pluginGrid = (ListView)pluginUI.Controls[0];
-                        
-                        foreach (ColumnHeader column in pluginGrid.Columns)
-                        {
-                            exportString.Append(column.Text + delimiter);
-                        }
-                        exportString.AppendLine();
-
-                        foreach (ListViewItem row in pluginGrid.Items)
-                        {
-                            foreach (ListViewItem.ListViewSubItem item in row.SubItems)
-                            {
-                                exportString.Append(item.Text + delimiter);
-                            }
-                            exportString.AppendLine();
-                        }
-                        fileContent = Encoding.UTF8.GetBytes(exportString.ToString());
-                    }
-                    else
-                    {
-                        MessageBox.Show(
-                            $"Plugin {plugin.Name} does not use a basic data grid and does not provide an ExportContent method.",
-                            "Cannot Export",
-                            MessageBoxButtons.OK);
-                        return;
-                    }
-                }
-                SaveFileDialog saveAs = new()
-                {
-                    Title = plugin.Name + " Export",
-                    Filter = filetype == "csv"
-                    ? "Tab-separated values (*.csv)|*.csv"
-                    : $"Plugin-specified file type (*.{filetype})|*.{filetype}",
-                    DefaultExt = filetype,
-                    InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    FileName = $"Export-{plugin.ShortName}-{DateTime.Now:yyyy-MM-ddTHHmm}.{filetype}"
-                };
-                var result = saveAs.ShowDialog();
-                if (result == DialogResult.OK)
-                {
-                    File.WriteAllBytes(saveAs.FileName, fileContent);
-                }
+                // Custom export method handled inside ExportCSV
+                if (Properties.Core.Default.ExportFormat == 0 || HasCustomExport(plugin))
+                    ExportHandler.ExportCSV(plugin);
+                else
+                    ExportHandler.ExportXlsx(plugin);
             }
         }
 

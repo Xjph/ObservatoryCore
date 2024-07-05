@@ -111,6 +111,7 @@ namespace Observatory.UI
             TryLoadSetting(LabelJournalPath, "Text", LogMonitor.GetJournalFolder().FullName);
             TryLoadSetting(StartMonitorCheckbox, "Checked", settings.StartMonitor);
             TryLoadSetting(StartReadallCheckbox, "Checked", settings.StartReadAll);
+            TryLoadSetting(ExportFormatDropdown, "SelectedIndex", settings.ExportFormat);
 
 #if PROTON
             VoiceCheckbox.Checked = false;
@@ -223,6 +224,12 @@ namespace Observatory.UI
         private void StartReadallCheckbox_CheckedChanged(object sender, EventArgs e)
         {
             Properties.Core.Default.StartReadAll = StartReadallCheckbox.Checked;
+            SettingsManager.Save();
+        }
+
+        private void ExportFormatDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Core.Default.ExportFormat = ExportFormatDropdown.SelectedIndex;
             SettingsManager.Save();
         }
     }

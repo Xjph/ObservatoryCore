@@ -32,7 +32,6 @@ namespace Observatory.UI
             DoubleBuffered = true;
             InitializeComponent();
 
-
             PopulateDropdownOptions();
             PopulateNativeSettings();
 
@@ -358,10 +357,9 @@ namespace Observatory.UI
 
                 // Named bools for clarity
                 bool notCoreTab = selectedTab != CoreTabPage;
-                bool hasExportMethod = notCoreTab 
-                    && ((Delegate)plugin.ExportContent).Method != typeof(IObservatoryPlugin).GetMethod("ExportContent");
+                bool hasExportMethod = notCoreTab && HasCustomExport(plugin);
                 bool isBasicUI = notCoreTab && plugin?.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic;
-                
+
                 bool canExport = isBasicUI || hasExportMethod;
                 bool canClear = isBasicUI;
                 ExportButton.Enabled = canExport;
@@ -370,5 +368,8 @@ namespace Observatory.UI
                 SettingsManager.Save();
             }
         }
+
+        private static bool HasCustomExport(IObservatoryPlugin? plugin) => ((Delegate)plugin.ExportContent).Method != typeof(IObservatoryPlugin).GetMethod("ExportContent");
+        
     }
 }

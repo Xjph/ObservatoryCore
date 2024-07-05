@@ -357,5 +357,17 @@ namespace Observatory.Properties {
                 this["LastTabIndex"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ExportFormat {
+            get {
+                return ((int)(this["ExportFormat"]));
+            }
+            set {
+                this["ExportFormat"] = value;
+            }
+        }
     }
 }
