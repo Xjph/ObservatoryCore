@@ -205,7 +205,8 @@ namespace Observatory.UI
                 using (var brush = new SolidBrush(label.ForeColor))
                 {
                     sf.Alignment = sf.LineAlignment = StringAlignment.Near;
-                    e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+                    // Transparency breaks antialiasing :(
+                    e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
                     e.Graphics.DrawString(label.Text, label.Font, brush, label.ClientRectangle, sf);
                 }
             }
