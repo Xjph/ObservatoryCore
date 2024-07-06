@@ -821,6 +821,8 @@
             FormClosing += CoreForm_FormClosing;
             Load += CoreForm_Load;
             Shown += CoreForm_Shown;
+            ResizeBegin += CoreForm_ResizeBegin;
+            ResizeEnd += CoreForm_ResizeEnd;
             CoreTabControl.ResumeLayout(false);
             CoreTabPage.ResumeLayout(false);
             CoreSplitter.Panel1.ResumeLayout(false);

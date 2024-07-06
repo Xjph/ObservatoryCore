@@ -370,6 +370,15 @@ namespace Observatory.UI
         }
 
         private static bool HasCustomExport(IObservatoryPlugin? plugin) => ((Delegate)plugin.ExportContent).Method != typeof(IObservatoryPlugin).GetMethod("ExportContent");
-        
+
+        private void CoreForm_ResizeBegin(object sender, EventArgs e)
+        {
+            SuspendLayout();                
+        }
+
+        private void CoreForm_ResizeEnd(object sender, EventArgs e)
+        {
+            ResumeLayout();
+        }
     }
 }
