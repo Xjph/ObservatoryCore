@@ -11,7 +11,6 @@ namespace Observatory.Herald
         private string voice;
         private string style;
         private string rate;
-        private byte volume;
         private SpeechRequestManager speechManager;
         private Action<Exception, String> ErrorLogger;
         private IObservatoryCore core;
@@ -26,17 +25,11 @@ namespace Observatory.Herald
         }
 
 
-        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "", string selectedRate = "", int volume = 75)
+        internal void Enqueue(NotificationArgs notification, string selectedVoice, string selectedStyle = "", string selectedRate = "")
         {
             voice = selectedVoice;
             style = selectedStyle;
             rate = selectedRate;
-            // Ignore invalid values; assume default.
-            volume = volume >= 0 && volume <= 100 ? volume : 75;
-
-            // Volume is perceived logarithmically, convert to exponential curve
-            // to make perceived volume more in line with value set.
-            this.volume = ((byte)System.Math.Floor(System.Math.Pow(volume / 100.0, 2.0) * 100));
 
             Debug.WriteLine("Attempting to de-dupe notification titles against '{0}': '{1}'",
                 notification.Title.Trim().ToLower(),

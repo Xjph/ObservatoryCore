@@ -1701,6 +1701,13 @@
             </summary>
             <param name="control">UI Control object or ToolStripMenuItem</param>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.RegisterControl(System.Object,System.Func{System.Object,System.Boolean})">
+            <summary>
+            Register a UI control for themeing and provide a delegate to selectively theme it and its child controls.
+            </summary>
+            <param name="control">UI Control object or ToolStripMenuItem</param>
+            <param name="applyTheme">Function which accepts a control or ToolStripMenuItem and returns true or false to indicate whether it should be themed.</param>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.UnregisterControl(System.Object)">
             <summary>
             Remove a UI control from themeing.

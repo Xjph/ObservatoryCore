@@ -53,9 +53,10 @@ namespace Observatory.UI
             SettingsManager.Save();
         }
 
-        private void VoiceVolumeSlider_Scroll(object _, EventArgs e)
+        private void AudioVolumeSlider_Scroll(object _, EventArgs e)
         {
-            Properties.Core.Default.VoiceVolume = VoiceVolumeSlider.Value;
+            Properties.Core.Default.VoiceVolume = Math.Clamp(AudioVolumeSlider.Value, 0, 100);
+            Properties.Core.Default.AudioVolume = Math.Clamp(AudioVolumeSlider.Value / 100.0f, 0.0f, 1.0f);
             SettingsManager.Save();
         }
 
@@ -104,7 +105,7 @@ namespace Observatory.UI
             TryLoadSetting(DurationSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyTimeout, 100, 60000));
             TryLoadSetting(ColourButton, "BackColor", Color.FromArgb((int)settings.NativeNotifyColour));
             TryLoadSetting(PopupCheckbox, "Checked", settings.NativeNotify);
-            TryLoadSetting(VoiceVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100));
+            TryLoadSetting(AudioVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100)); // Also controls AudioVolume setting
             TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, 1, 10));
             TryLoadSetting(VoiceDropdown, "SelectedItem", settings.VoiceSelected);
             TryLoadSetting(VoiceCheckbox, "Checked", settings.VoiceNotify);
@@ -116,7 +117,6 @@ namespace Observatory.UI
 #if PROTON
             VoiceCheckbox.Checked = false;
             VoiceCheckbox.Enabled = false;
-            VoiceVolumeSlider.Enabled = false;
             VoiceSpeedSlider.Enabled = false;
             VoiceDropdown.Enabled = false;
             VoiceTestButton.Enabled = false;

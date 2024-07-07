@@ -7,12 +7,10 @@ using Observatory.Utils;
 
 namespace Observatory.PluginManagement
 {
-    public class PluginCore(bool OverridePopup = false, bool OverrideAudio = false) : IObservatoryCore
+    public class PluginCore() : IObservatoryCore
     {
         private readonly NativeVoice NativeVoice = new();
         private readonly NativePopup NativePopup = new();
-        private readonly bool OverridePopup = OverridePopup;
-        private readonly bool OverrideAudio = OverrideAudio;
         private readonly AudioHandler AudioHandler = new();
 
         public string Version => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
@@ -52,13 +50,16 @@ namespace Observatory.PluginManagement
                     handler?.Invoke(this, notificationArgs);
                 }
 #endif
-
-                if (!OverridePopup && Properties.Core.Default.NativeNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
+                if (!PluginManager.GetInstance.HasPopupOverrideNotifiers
+                    && Properties.Core.Default.NativeNotify 
+                    && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
                 {
                     guid = NativePopup.InvokeNativeNotification(notificationArgs);
                 }
 
-                if (!OverrideAudio && Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
+                if (!PluginManager.GetInstance.HasAudioOverrideNotifiers
+                    && Properties.Core.Default.VoiceNotify
+                    && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 {
                     NativeVoice.EnqueueAndAnnounce(notificationArgs);
                 }
