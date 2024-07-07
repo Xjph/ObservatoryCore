@@ -48,8 +48,8 @@
             VersionColumn = new ColumnHeader();
             StatusColumn = new ColumnHeader();
             PluginListButtonsLayoutPanel = new FlowLayoutPanel();
-            PluginFolderButton = new Button();
             PluginSettingsButton = new Button();
+            PluginFolderButton = new Button();
             CoreSettingsLayoutPanel = new FlowLayoutPanel();
             PopupSettingsPanel = new Panel();
             DurationSpinner = new NumericUpDown();
@@ -71,24 +71,24 @@
             PopupDisabledLabel = new Label();
             VoiceSettingsPanel = new Panel();
             VoiceSpeedSlider = new TrackBar();
-            VoiceVolumeSlider = new TrackBar();
             VoiceLabel = new Label();
             VoiceTestButton = new Button();
             VoiceSpeedLabel = new Label();
             AudioLabel = new Label();
             VoiceDropdown = new ComboBox();
             VoiceCheckbox = new CheckBox();
-            VoiceVolumeLabel = new Label();
             VoiceDisabledPanel = new Panel();
             VoiceDisabledLabel = new Label();
             CoreSettingsPanel = new Panel();
             ExportFormatLabel = new Label();
+            AudioVolumeSlider = new TrackBar();
             ExportFormatDropdown = new ComboBox();
             CoreSettingsLabel = new Label();
             StartReadallCheckbox = new CheckBox();
             StartMonitorCheckbox = new CheckBox();
             LabelJournal = new Label();
             ThemeLabel = new Label();
+            VoiceVolumeLabel = new Label();
             LabelJournalPath = new Label();
             ThemeDropdown = new ComboBox();
             ButtonAddTheme = new Button();
@@ -107,9 +107,9 @@
             PopupDisabledPanel.SuspendLayout();
             VoiceSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)VoiceVolumeSlider).BeginInit();
             VoiceDisabledPanel.SuspendLayout();
             CoreSettingsPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)AudioVolumeSlider).BeginInit();
             SuspendLayout();
             // 
             // ReadAllButton
@@ -235,6 +235,7 @@
             // 
             CoreSplitter.Panel2.BackColor = SystemColors.Control;
             CoreSplitter.Panel2.Controls.Add(CoreSettingsLayoutPanel);
+            CoreSplitter.Panel2.Padding = new Padding(3);
             CoreSplitter.Size = new Size(819, 817);
             CoreSplitter.SplitterDistance = 179;
             CoreSplitter.TabIndex = 16;
@@ -295,40 +296,39 @@
             // 
             // PluginListButtonsLayoutPanel
             // 
-            PluginListButtonsLayoutPanel.Controls.Add(PluginFolderButton);
             PluginListButtonsLayoutPanel.Controls.Add(PluginSettingsButton);
+            PluginListButtonsLayoutPanel.Controls.Add(PluginFolderButton);
             PluginListButtonsLayoutPanel.Dock = DockStyle.Fill;
-            PluginListButtonsLayoutPanel.FlowDirection = FlowDirection.RightToLeft;
             PluginListButtonsLayoutPanel.Location = new Point(3, 142);
             PluginListButtonsLayoutPanel.Name = "PluginListButtonsLayoutPanel";
             PluginListButtonsLayoutPanel.Size = new Size(813, 34);
             PluginListButtonsLayoutPanel.TabIndex = 9;
-            // 
-            // PluginFolderButton
-            // 
-            PluginFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
-            PluginFolderButton.FlatAppearance.BorderSize = 0;
-            PluginFolderButton.FlatStyle = FlatStyle.Flat;
-            PluginFolderButton.Location = new Point(680, 3);
-            PluginFolderButton.Name = "PluginFolderButton";
-            PluginFolderButton.Size = new Size(130, 23);
-            PluginFolderButton.TabIndex = 10;
-            PluginFolderButton.Text = "Open Plugin Folder";
-            PluginFolderButton.UseVisualStyleBackColor = false;
-            PluginFolderButton.Click += PluginFolderButton_Click;
             // 
             // PluginSettingsButton
             // 
             PluginSettingsButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginSettingsButton.FlatAppearance.BorderSize = 0;
             PluginSettingsButton.FlatStyle = FlatStyle.Flat;
-            PluginSettingsButton.Location = new Point(554, 3);
+            PluginSettingsButton.Location = new Point(3, 3);
             PluginSettingsButton.Name = "PluginSettingsButton";
             PluginSettingsButton.Size = new Size(120, 23);
             PluginSettingsButton.TabIndex = 11;
             PluginSettingsButton.Text = "Plugin Settings";
             PluginSettingsButton.UseVisualStyleBackColor = false;
             PluginSettingsButton.Click += PluginSettingsButton_Click;
+            // 
+            // PluginFolderButton
+            // 
+            PluginFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            PluginFolderButton.FlatAppearance.BorderSize = 0;
+            PluginFolderButton.FlatStyle = FlatStyle.Flat;
+            PluginFolderButton.Location = new Point(129, 3);
+            PluginFolderButton.Name = "PluginFolderButton";
+            PluginFolderButton.Size = new Size(130, 23);
+            PluginFolderButton.TabIndex = 10;
+            PluginFolderButton.Text = "Open Plugins Folder";
+            PluginFolderButton.UseVisualStyleBackColor = false;
+            PluginFolderButton.Click += PluginFolderButton_Click;
             // 
             // CoreSettingsLayoutPanel
             // 
@@ -337,9 +337,9 @@
             CoreSettingsLayoutPanel.Controls.Add(VoiceSettingsPanel);
             CoreSettingsLayoutPanel.Controls.Add(CoreSettingsPanel);
             CoreSettingsLayoutPanel.Dock = DockStyle.Fill;
-            CoreSettingsLayoutPanel.Location = new Point(0, 0);
+            CoreSettingsLayoutPanel.Location = new Point(3, 3);
             CoreSettingsLayoutPanel.Name = "CoreSettingsLayoutPanel";
-            CoreSettingsLayoutPanel.Size = new Size(819, 634);
+            CoreSettingsLayoutPanel.Size = new Size(813, 628);
             CoreSettingsLayoutPanel.TabIndex = 34;
             // 
             // PopupSettingsPanel
@@ -550,14 +550,12 @@
             VoiceSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             VoiceSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
             VoiceSettingsPanel.Controls.Add(VoiceSpeedSlider);
-            VoiceSettingsPanel.Controls.Add(VoiceVolumeSlider);
             VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceTestButton);
             VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
             VoiceSettingsPanel.Controls.Add(AudioLabel);
             VoiceSettingsPanel.Controls.Add(VoiceDropdown);
             VoiceSettingsPanel.Controls.Add(VoiceCheckbox);
-            VoiceSettingsPanel.Controls.Add(VoiceVolumeLabel);
             VoiceSettingsPanel.Controls.Add(VoiceDisabledPanel);
             VoiceSettingsPanel.Location = new Point(3, 239);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
@@ -566,7 +564,7 @@
             // 
             // VoiceSpeedSlider
             // 
-            VoiceSpeedSlider.Location = new Point(109, 70);
+            VoiceSpeedSlider.Location = new Point(109, 20);
             VoiceSpeedSlider.Minimum = 1;
             VoiceSpeedSlider.Name = "VoiceSpeedSlider";
             VoiceSpeedSlider.Size = new Size(120, 45);
@@ -575,23 +573,10 @@
             VoiceSpeedSlider.Value = 10;
             VoiceSpeedSlider.Scroll += VoiceSpeedSlider_Scroll;
             // 
-            // VoiceVolumeSlider
-            // 
-            VoiceVolumeSlider.LargeChange = 10;
-            VoiceVolumeSlider.Location = new Point(108, 20);
-            VoiceVolumeSlider.Maximum = 100;
-            VoiceVolumeSlider.Name = "VoiceVolumeSlider";
-            VoiceVolumeSlider.Size = new Size(121, 45);
-            VoiceVolumeSlider.TabIndex = 14;
-            VoiceVolumeSlider.TickFrequency = 10;
-            VoiceVolumeSlider.TickStyle = TickStyle.Both;
-            VoiceVolumeSlider.Value = 100;
-            VoiceVolumeSlider.Scroll += VoiceVolumeSlider_Scroll;
-            // 
             // VoiceLabel
             // 
             VoiceLabel.AutoSize = true;
-            VoiceLabel.Location = new Point(65, 124);
+            VoiceLabel.Location = new Point(65, 74);
             VoiceLabel.Name = "VoiceLabel";
             VoiceLabel.Size = new Size(38, 15);
             VoiceLabel.TabIndex = 4;
@@ -602,7 +587,7 @@
             // 
             VoiceTestButton.FlatAppearance.BorderSize = 0;
             VoiceTestButton.FlatStyle = FlatStyle.Flat;
-            VoiceTestButton.Location = new Point(178, 150);
+            VoiceTestButton.Location = new Point(178, 100);
             VoiceTestButton.Name = "VoiceTestButton";
             VoiceTestButton.Size = new Size(51, 23);
             VoiceTestButton.TabIndex = 13;
@@ -613,7 +598,7 @@
             // VoiceSpeedLabel
             // 
             VoiceSpeedLabel.AutoSize = true;
-            VoiceSpeedLabel.Location = new Point(61, 82);
+            VoiceSpeedLabel.Location = new Point(61, 32);
             VoiceSpeedLabel.Name = "VoiceSpeedLabel";
             VoiceSpeedLabel.Size = new Size(42, 15);
             VoiceSpeedLabel.TabIndex = 1;
@@ -633,7 +618,7 @@
             // 
             VoiceDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             VoiceDropdown.FormattingEnabled = true;
-            VoiceDropdown.Location = new Point(109, 121);
+            VoiceDropdown.Location = new Point(109, 71);
             VoiceDropdown.Name = "VoiceDropdown";
             VoiceDropdown.Size = new Size(121, 23);
             VoiceDropdown.TabIndex = 5;
@@ -642,23 +627,13 @@
             // VoiceCheckbox
             // 
             VoiceCheckbox.AutoSize = true;
-            VoiceCheckbox.Location = new Point(108, 153);
+            VoiceCheckbox.Location = new Point(108, 103);
             VoiceCheckbox.Name = "VoiceCheckbox";
             VoiceCheckbox.Size = new Size(68, 19);
             VoiceCheckbox.TabIndex = 11;
             VoiceCheckbox.Text = "Enabled";
             VoiceCheckbox.UseVisualStyleBackColor = true;
             VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
-            // 
-            // VoiceVolumeLabel
-            // 
-            VoiceVolumeLabel.AutoSize = true;
-            VoiceVolumeLabel.Location = new Point(52, 31);
-            VoiceVolumeLabel.Name = "VoiceVolumeLabel";
-            VoiceVolumeLabel.Size = new Size(50, 15);
-            VoiceVolumeLabel.TabIndex = 0;
-            VoiceVolumeLabel.Text = "Volume:";
-            VoiceVolumeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // VoiceDisabledPanel
             // 
@@ -685,12 +660,14 @@
             CoreSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CoreSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
             CoreSettingsPanel.Controls.Add(ExportFormatLabel);
+            CoreSettingsPanel.Controls.Add(AudioVolumeSlider);
             CoreSettingsPanel.Controls.Add(ExportFormatDropdown);
             CoreSettingsPanel.Controls.Add(CoreSettingsLabel);
             CoreSettingsPanel.Controls.Add(StartReadallCheckbox);
             CoreSettingsPanel.Controls.Add(StartMonitorCheckbox);
             CoreSettingsPanel.Controls.Add(LabelJournal);
             CoreSettingsPanel.Controls.Add(ThemeLabel);
+            CoreSettingsPanel.Controls.Add(VoiceVolumeLabel);
             CoreSettingsPanel.Controls.Add(LabelJournalPath);
             CoreSettingsPanel.Controls.Add(ThemeDropdown);
             CoreSettingsPanel.Controls.Add(ButtonAddTheme);
@@ -708,6 +685,19 @@
             ExportFormatLabel.Size = new Size(85, 15);
             ExportFormatLabel.TabIndex = 35;
             ExportFormatLabel.Text = "Export Format:";
+            // 
+            // AudioVolumeSlider
+            // 
+            AudioVolumeSlider.LargeChange = 10;
+            AudioVolumeSlider.Location = new Point(121, 112);
+            AudioVolumeSlider.Maximum = 100;
+            AudioVolumeSlider.Name = "AudioVolumeSlider";
+            AudioVolumeSlider.Size = new Size(214, 45);
+            AudioVolumeSlider.TabIndex = 14;
+            AudioVolumeSlider.TickFrequency = 10;
+            AudioVolumeSlider.TickStyle = TickStyle.Both;
+            AudioVolumeSlider.Value = 100;
+            AudioVolumeSlider.Scroll += AudioVolumeSlider_Scroll;
             // 
             // ExportFormatDropdown
             // 
@@ -732,7 +722,7 @@
             // StartReadallCheckbox
             // 
             StartReadallCheckbox.AutoSize = true;
-            StartReadallCheckbox.Location = new Point(121, 137);
+            StartReadallCheckbox.Location = new Point(121, 183);
             StartReadallCheckbox.Name = "StartReadallCheckbox";
             StartReadallCheckbox.Size = new Size(130, 19);
             StartReadallCheckbox.TabIndex = 15;
@@ -743,7 +733,7 @@
             // StartMonitorCheckbox
             // 
             StartMonitorCheckbox.AutoSize = true;
-            StartMonitorCheckbox.Location = new Point(121, 112);
+            StartMonitorCheckbox.Location = new Point(121, 158);
             StartMonitorCheckbox.Name = "StartMonitorCheckbox";
             StartMonitorCheckbox.Size = new Size(157, 19);
             StartMonitorCheckbox.TabIndex = 14;
@@ -769,6 +759,16 @@
             ThemeLabel.TabIndex = 9;
             ThemeLabel.Text = "Theme:";
             ThemeLabel.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // VoiceVolumeLabel
+            // 
+            VoiceVolumeLabel.AutoSize = true;
+            VoiceVolumeLabel.Location = new Point(65, 123);
+            VoiceVolumeLabel.Name = "VoiceVolumeLabel";
+            VoiceVolumeLabel.Size = new Size(50, 15);
+            VoiceVolumeLabel.TabIndex = 0;
+            VoiceVolumeLabel.Text = "Volume:";
+            VoiceVolumeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // LabelJournalPath
             // 
@@ -841,11 +841,11 @@
             VoiceSettingsPanel.ResumeLayout(false);
             VoiceSettingsPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).EndInit();
-            ((System.ComponentModel.ISupportInitialize)VoiceVolumeSlider).EndInit();
             VoiceDisabledPanel.ResumeLayout(false);
             VoiceDisabledPanel.PerformLayout();
             CoreSettingsPanel.ResumeLayout(false);
             CoreSettingsPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)AudioVolumeSlider).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -892,7 +892,7 @@
         private Label PopupLabel;
         private Panel VoiceSettingsPanel;
         private TrackBar VoiceSpeedSlider;
-        private TrackBar VoiceVolumeSlider;
+        private TrackBar AudioVolumeSlider;
         private Button VoiceTestButton;
         private CheckBox VoiceCheckbox;
         private ComboBox VoiceDropdown;

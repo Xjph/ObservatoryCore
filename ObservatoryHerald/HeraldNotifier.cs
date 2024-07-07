@@ -19,8 +19,6 @@ namespace Observatory.Herald
             {
                 SelectedVoice = "American - Christopher",
                 SelectedRate = "Default",
-                Volume = 75,
-                Enabled = false,
                 ApiEndpoint = "https://api.observatory.xjph.net/AzureVoice",
                 CacheSize = 100
             };
@@ -47,7 +45,6 @@ namespace Observatory.Herald
                 if (string.IsNullOrWhiteSpace(savedSettings.SelectedRate))
                 {
                     heraldSettings.SelectedVoice = savedSettings.SelectedVoice;
-                    heraldSettings.Enabled = savedSettings.Enabled;
                 }
                 else
                 {
@@ -75,21 +72,19 @@ namespace Observatory.Herald
                 }, 
                 GetAzureNameFromSetting(heraldSettings.SelectedVoice),
                 GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice),
-                heraldSettings.Rate[heraldSettings.SelectedRate].ToString(),
-                heraldSettings.Volume);
+                heraldSettings.Rate[heraldSettings.SelectedRate].ToString());
         }
 
         public void OnNotificationEvent(NotificationArgs notificationEventArgs)
         {
             if (Core.IsLogMonitorBatchReading) return;
 
-            if (heraldSettings.Enabled && notificationEventArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
+            if (notificationEventArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 heraldSpeech.Enqueue(
                     notificationEventArgs, 
                     GetAzureNameFromSetting(heraldSettings.SelectedVoice),
                     GetAzureStyleNameFromSetting(heraldSettings.SelectedVoice),
-                    heraldSettings.Rate[heraldSettings.SelectedRate].ToString(), 
-                    heraldSettings.Volume);
+                    heraldSettings.Rate[heraldSettings.SelectedRate].ToString());
         }
 
         private string GetAzureNameFromSetting(string settingName)

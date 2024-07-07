@@ -40,6 +40,7 @@ namespace Observatory.Utils
                 {
                     output.Init(file);
                     output.Play();
+                    output.Volume = Properties.Core.Default.AudioVolume;
 
                     while (output.PlaybackState == PlaybackState.Playing)
                     {

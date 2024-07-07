@@ -11,7 +11,7 @@ namespace Observatory.PluginManagement
     {
         private IEnumerable<IObservatoryWorker> observatoryWorkers;
         private IEnumerable<IObservatoryNotifier> observatoryNotifiers;
-        private HashSet<IObservatoryPlugin> disabledPlugins;
+        private readonly HashSet<IObservatoryPlugin> disabledPlugins;
         private List<(string error, string detail)> errorList;
         private System.Timers.Timer timer;
 
@@ -24,6 +24,8 @@ namespace Observatory.PluginManagement
 
             InitializeTimer();
         }
+
+        public HashSet<IObservatoryPlugin> DisabledPlugins {  get => disabledPlugins; }
 
         private void InitializeTimer()
         {

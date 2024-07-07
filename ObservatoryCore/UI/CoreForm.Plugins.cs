@@ -16,7 +16,7 @@ namespace Observatory.UI
         {
             ListedPlugins = new();
                         
-            foreach (var (plugin, signed) in PluginManager.GetInstance.workerPlugins)
+            foreach (var (plugin, signed) in PluginManager.GetInstance.EnabledWorkerPlugins)
             {
                 if (!ListedPlugins.ContainsValue(plugin))
                 {
@@ -28,7 +28,7 @@ namespace Observatory.UI
                 }
             }
 
-            foreach (var (plugin, signed) in PluginManager.GetInstance.notifyPlugins)
+            foreach (var (plugin, signed) in PluginManager.GetInstance.EnabledNotifyPlugins)
             {
                 if (!ListedPlugins.ContainsValue(plugin))
                 {
@@ -79,61 +79,72 @@ namespace Observatory.UI
 
         private void CreatePluginTabs()
         {
-            var uiPlugins = PluginManager.GetInstance.workerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None);
+            var uiPlugins = PluginManager.GetInstance.EnabledWorkerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None);
 
             PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList);
         }
 
         private void DisableOverriddenNotification()
         {
-            var notifyPlugins = PluginManager.GetInstance.notifyPlugins;
+            var notifyPlugins = PluginManager.GetInstance.EnabledNotifyPlugins;
 
             var ovPopupPlugins = notifyPlugins.Where(n => n.plugin.OverridePopupNotifications);
+            var hasPopupOverriders = ovPopupPlugins.Any();
 
             var disableMessage = (string type, string plugin) 
                 => $"Native {type} notifications overridden by \"{plugin}\".\r\n"
                 + "Use plugin settings to configure.";
 
-            if (ovPopupPlugins.Any())
-            {
-                PopupCheckbox.Checked = false;
-                PopupCheckbox.Enabled = false;
-                DisplayDropdown.Enabled = false;
-                CornerDropdown.Enabled = false;
-                FontDropdown.Enabled = false;
-                ScaleSpinner.Enabled = false;
-                DurationSpinner.Enabled = false;
-                ColourButton.Enabled = false;
-                TestButton.Enabled = false;
 
+            PopupCheckbox.Checked = Properties.Core.Default.NativeNotify;
+            PopupCheckbox.Enabled = !hasPopupOverriders;
+            DisplayDropdown.Enabled = !hasPopupOverriders;
+            CornerDropdown.Enabled = !hasPopupOverriders;
+            FontDropdown.Enabled = !hasPopupOverriders;
+            ScaleSpinner.Enabled = !hasPopupOverriders;
+            DurationSpinner.Enabled = !hasPopupOverriders;
+            ColourButton.Enabled = !hasPopupOverriders;
+            TestButton.Enabled = !hasPopupOverriders;
+            PopupDisabledPanel.Visible = hasPopupOverriders;
+            PopupDisabledPanel.Enabled = hasPopupOverriders;
+
+            if (hasPopupOverriders)
+            {
                 var pluginNames = string.Join(", ", ovPopupPlugins.Select(o => o.plugin.Name));
 
-                PopupDisabledPanel.Visible = true;
-                PopupDisabledPanel.Enabled = true;
                 PopupDisabledLabel.Text = disableMessage("popup", pluginNames);
                 PopupDisabledPanel.BringToFront();
-
+            }
+            else
+            {
+                PopupDisabledPanel.SendToBack();
             }
 
+#if !PROTON // Proton doesn't support native voice. Don't fiddle with anything if overriders are changed.
+            // See PopulateNativeSettings().
             var ovAudioPlugins = notifyPlugins.Where(n => n.plugin.OverrideAudioNotifications);
+            var hasAudioOverriders = ovAudioPlugins.Any();
 
-            if (ovAudioPlugins.Any())
+            VoiceCheckbox.Checked = Properties.Core.Default.VoiceNotify;
+            VoiceCheckbox.Enabled = !hasAudioOverriders;
+            VoiceSpeedSlider.Enabled = !hasAudioOverriders;
+            VoiceDropdown.Enabled = !hasAudioOverriders;
+            VoiceTestButton.Enabled = !hasAudioOverriders;
+            VoiceDisabledPanel.Visible = hasAudioOverriders;
+            VoiceDisabledPanel.Enabled = hasAudioOverriders;
+
+            if (hasAudioOverriders)
             {
-                VoiceCheckbox.Checked = false;
-                VoiceCheckbox.Enabled = false;
-                VoiceVolumeSlider.Enabled = false;
-                VoiceSpeedSlider.Enabled = false;
-                VoiceDropdown.Enabled = false;
-                VoiceTestButton.Enabled = false;
-
                 var pluginNames = string.Join(", ", ovAudioPlugins.Select(o => o.plugin.Name));
 
-                VoiceDisabledPanel.Visible = true;
-                VoiceDisabledPanel.Enabled = true;
                 VoiceDisabledLabel.Text = disableMessage("voice", pluginNames);
                 VoiceDisabledPanel.BringToFront();
-                
             }
+            else
+            {
+                VoiceDisabledPanel.SendToBack();
+            }
+#endif
         }
 
         // Called from PluginManagement
@@ -209,6 +220,7 @@ namespace Observatory.UI
 
                 Properties.Core.Default.PluginsEnabled = JsonSerializer.Serialize(pluginsEnabled);
                 SettingsManager.Save();
+                DisableOverriddenNotification();
             }
         }
 

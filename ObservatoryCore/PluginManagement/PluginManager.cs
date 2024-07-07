@@ -29,16 +29,35 @@ namespace Observatory.PluginManagement
         public readonly List<(string error, string? detail)> errorList;
         public readonly List<Panel> pluginPanels;
         public readonly List<DataTable> pluginTables;
-        public readonly List<(IObservatoryWorker plugin, PluginStatus signed)> workerPlugins;
-        public readonly List<(IObservatoryNotifier plugin, PluginStatus signed)> notifyPlugins;
+        private readonly List<(IObservatoryWorker plugin, PluginStatus signed)> _workerPlugins;
+        private readonly List<(IObservatoryNotifier plugin, PluginStatus signed)> _notifyPlugins;
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
         
+        public List<(IObservatoryWorker plugin, PluginStatus signed)> EnabledWorkerPlugins
+        {
+            get => _workerPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p.plugin)).ToList();
+        }
+
+        public List<(IObservatoryNotifier plugin, PluginStatus signed)> EnabledNotifyPlugins
+        {
+            get => _notifyPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p.plugin)).ToList();
+        }
+
+        public bool HasPopupOverrideNotifiers
+        {
+            get => EnabledNotifyPlugins.Any(n => n.plugin.OverridePopupNotifications);
+        }
+        public bool HasAudioOverrideNotifiers
+        {
+            get => EnabledNotifyPlugins.Any(n => n.plugin.OverrideAudioNotifications);
+        }
+
         private PluginManager()
         {
-            errorList = LoadPlugins(out workerPlugins, out notifyPlugins);
+            errorList = LoadPlugins(out _workerPlugins, out _notifyPlugins);
 
-            pluginHandler = new PluginEventHandler(workerPlugins.Select(p => p.plugin), notifyPlugins.Select(p => p.plugin));
+            pluginHandler = new PluginEventHandler(_workerPlugins.Select(p => p.plugin), _notifyPlugins.Select(p => p.plugin));
             var logMonitor = LogMonitor.GetInstance;
             pluginPanels = new();
             pluginTables = new();
@@ -47,14 +66,11 @@ namespace Observatory.PluginManagement
             logMonitor.StatusUpdate += pluginHandler.OnStatusUpdate;
             logMonitor.LogMonitorStateChanged += pluginHandler.OnLogMonitorStateChanged;
 
-            var ovPopup = notifyPlugins.Any(n => n.plugin.OverridePopupNotifications);
-            var ovAudio = notifyPlugins.Any(n => n.plugin.OverrideAudioNotifications);
-
-            core = new PluginCore(ovPopup, ovAudio);
+            core = new PluginCore();
 
             List<IObservatoryPlugin> errorPlugins = new();
             
-            foreach (var plugin in workerPlugins.Select(p => p.plugin))
+            foreach (var plugin in _workerPlugins.Select(p => p.plugin))
             {
                 try
                 {
@@ -68,10 +84,10 @@ namespace Observatory.PluginManagement
                 }
             }
 
-            workerPlugins.RemoveAll(w => errorPlugins.Contains(w.plugin));
+            _workerPlugins.RemoveAll(w => errorPlugins.Contains(w.plugin));
             errorPlugins.Clear();
 
-            foreach (var plugin in notifyPlugins.Select(p => p.plugin))
+            foreach (var plugin in _notifyPlugins.Select(p => p.plugin))
             {
                 // Notifiers which are also workers need not be loaded again (they are the same instance).
                 if (!plugin.GetType().IsAssignableTo(typeof(IObservatoryWorker)))
@@ -94,7 +110,7 @@ namespace Observatory.PluginManagement
                 }
             }
 
-            notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
+            _notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
 
             core.Notification += pluginHandler.OnNotificationEvent;
             core.PluginMessage += pluginHandler.OnPluginMessageEvent;
@@ -306,8 +322,8 @@ namespace Observatory.PluginManagement
 
         public void ObservatoryReady()
         {
-            var workers = workerPlugins.Select(p => p.plugin);
-            var notifiers = notifyPlugins.Select(p => p.plugin);
+            var workers = EnabledWorkerPlugins.Select(p => p.plugin);
+            var notifiers = EnabledNotifyPlugins.Select(p => p.plugin);
 
             foreach (IObservatoryPlugin plugin in workers.Concat<IObservatoryPlugin>(notifiers))
             {
