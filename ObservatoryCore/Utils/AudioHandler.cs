@@ -35,19 +35,27 @@ namespace Observatory.Utils
         {
             while (TryDequeue(out KeyValuePair<Guid, string> audioTask))
             {
-                using (var file = new AudioFileReader(audioTask.Value))
-                using (var output = new WaveOutEvent())
+                if (new FileInfo(audioTask.Value).Length > 0)
+                try
                 {
-                    output.Init(file);
-                    output.Play();
-                    output.Volume = Properties.Core.Default.AudioVolume;
-
-                    while (output.PlaybackState == PlaybackState.Playing)
+                    using (var file = new AudioFileReader(audioTask.Value))
+                    using (var output = new WaveOutEvent())
                     {
-                        Thread.Sleep(250);
-                    }
-                    audioTasks.Remove(audioTask.Key);
-                };
+                        output.Init(file);
+                        output.Play();
+                        output.Volume = Properties.Core.Default.AudioVolume;
+
+                        while (output.PlaybackState == PlaybackState.Playing)
+                        {
+                            Thread.Sleep(250);
+                        }
+                        audioTasks.Remove(audioTask.Key);
+                    };
+                }
+                catch (Exception ex)
+                {
+                    ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message,ex.StackTrace??string.Empty)]);
+                }
             }
            
             processingQueue = false;
