@@ -146,11 +146,15 @@ namespace Observatory.UI
 
         private void FitColumns()
         {
-            int totalWidth = 0;
-            foreach (ColumnHeader col in PluginList.Columns)
-                totalWidth += col.Width;
+            // Might be uninitialised if user hasn't visited the Core tab this session.
+            if (PluginList.Columns.Count > 0)
+            {
+                int totalWidth = 0;
+                foreach (ColumnHeader col in PluginList.Columns)
+                    totalWidth += col.Width;
 
-            PluginList.Columns[3].Width += PluginList.Width - totalWidth; // - SystemInformation.VerticalScrollBarWidth;
+                PluginList.Columns[3].Width += PluginList.Width - totalWidth; // - SystemInformation.VerticalScrollBarWidth;
+            }
         }
 
         private void ReadAllButton_Click(object sender, EventArgs e)
