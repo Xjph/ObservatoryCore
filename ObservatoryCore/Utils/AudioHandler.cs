@@ -39,7 +39,7 @@ namespace Observatory.Utils
                 try
                 {
                     using (var file = new AudioFileReader(audioTask.Value))
-                    using (var output = new WaveOutEvent())
+                    using (var output = new WaveOutEvent(){ DeviceNumber = Properties.Core.Default.AudioDevice })
                     {
                         output.Init(file);
                         output.Play();

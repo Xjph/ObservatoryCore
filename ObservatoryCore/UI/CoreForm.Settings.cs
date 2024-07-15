@@ -1,3 +1,4 @@
+using NAudio.Wave;
 using Observatory.Framework;
 using Observatory.Utils;
 using System.Reflection;
@@ -91,7 +92,11 @@ namespace Observatory.UI
             var voices = new System.Speech.Synthesis.SpeechSynthesizer().GetInstalledVoices();
             foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
                 VoiceDropdown.Items.Add(voice);
-#endif 
+
+            for (int n = -1; n < WaveOut.DeviceCount; n++)
+                AudioDeviceDropdown.Items.Add(WaveOut.GetCapabilities(n).ProductName);
+            AudioDeviceDropdown.SelectedIndex = Properties.Core.Default.AudioDevice + 1; // The +1 accounts for the device ID having -1 as a possible value
+#endif
         }
 
         private void PopulateNativeSettings()

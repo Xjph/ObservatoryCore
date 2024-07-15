@@ -80,6 +80,8 @@
             VoiceDisabledPanel = new Panel();
             VoiceDisabledLabel = new Label();
             CoreSettingsPanel = new Panel();
+            AudioDeviceLabel = new Label();
+            AudioDeviceDropdown = new ComboBox();
             ExportFormatLabel = new Label();
             AudioVolumeSlider = new TrackBar();
             ExportFormatDropdown = new ComboBox();
@@ -659,6 +661,8 @@
             // 
             CoreSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CoreSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
+            CoreSettingsPanel.Controls.Add(AudioDeviceLabel);
+            CoreSettingsPanel.Controls.Add(AudioDeviceDropdown);
             CoreSettingsPanel.Controls.Add(ExportFormatLabel);
             CoreSettingsPanel.Controls.Add(AudioVolumeSlider);
             CoreSettingsPanel.Controls.Add(ExportFormatDropdown);
@@ -673,9 +677,28 @@
             CoreSettingsPanel.Controls.Add(ButtonAddTheme);
             CoreSettingsPanel.Location = new Point(3, 475);
             CoreSettingsPanel.Name = "CoreSettingsPanel";
-            CoreSettingsPanel.Size = new Size(550, 230);
+            CoreSettingsPanel.Size = new Size(550, 233);
             CoreSettingsPanel.TabIndex = 33;
             CoreSettingsPanel.Tag = "";
+            // 
+            // AudioDeviceLabel
+            // 
+            AudioDeviceLabel.AutoSize = true;
+            AudioDeviceLabel.Location = new Point(35, 160);
+            AudioDeviceLabel.Name = "AudioDeviceLabel";
+            AudioDeviceLabel.Size = new Size(80, 15);
+            AudioDeviceLabel.TabIndex = 37;
+            AudioDeviceLabel.Text = "Audio Device:";
+            // 
+            // AudioDeviceDropdown
+            // 
+            AudioDeviceDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
+            AudioDeviceDropdown.FormattingEnabled = true;
+            AudioDeviceDropdown.Location = new Point(121, 157);
+            AudioDeviceDropdown.Name = "AudioDeviceDropdown";
+            AudioDeviceDropdown.Size = new Size(214, 23);
+            AudioDeviceDropdown.TabIndex = 36;
+            AudioDeviceDropdown.SelectedIndexChanged += AudioDeviceDropdown_SelectedIndexChanged;
             // 
             // ExportFormatLabel
             // 
@@ -722,7 +745,7 @@
             // StartReadallCheckbox
             // 
             StartReadallCheckbox.AutoSize = true;
-            StartReadallCheckbox.Location = new Point(121, 183);
+            StartReadallCheckbox.Location = new Point(117, 211);
             StartReadallCheckbox.Name = "StartReadallCheckbox";
             StartReadallCheckbox.Size = new Size(130, 19);
             StartReadallCheckbox.TabIndex = 15;
@@ -733,7 +756,7 @@
             // StartMonitorCheckbox
             // 
             StartMonitorCheckbox.AutoSize = true;
-            StartMonitorCheckbox.Location = new Point(121, 158);
+            StartMonitorCheckbox.Location = new Point(117, 186);
             StartMonitorCheckbox.Name = "StartMonitorCheckbox";
             StartMonitorCheckbox.Size = new Size(157, 19);
             StartMonitorCheckbox.TabIndex = 14;
@@ -913,5 +936,7 @@
         private Button ButtonAddTheme;
         private Label ExportFormatLabel;
         private ComboBox ExportFormatDropdown;
+        private Label AudioDeviceLabel;
+        private ComboBox AudioDeviceDropdown;
     }
 }

@@ -377,12 +377,19 @@ namespace Observatory.UI
 
         private void CoreForm_ResizeBegin(object sender, EventArgs e)
         {
-            SuspendLayout();                
+            SuspendLayout();
         }
 
         private void CoreForm_ResizeEnd(object sender, EventArgs e)
         {
             ResumeLayout();
+        }
+
+
+        private void AudioDeviceDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Core.Default.AudioDevice = AudioDeviceDropdown.SelectedIndex - 1; // The -1 accounts for the device ID having -1 as a possible value
+            SettingsManager.Save();
         }
     }
 }

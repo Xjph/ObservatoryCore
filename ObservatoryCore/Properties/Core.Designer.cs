@@ -381,5 +381,17 @@ namespace Observatory.Properties {
                 this["AudioVolume"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int AudioDevice {
+            get {
+                return ((int)(this["AudioDevice"]));
+            }
+            set {
+                this["AudioDevice"] = value;
+            }
+        }
     }
 }
