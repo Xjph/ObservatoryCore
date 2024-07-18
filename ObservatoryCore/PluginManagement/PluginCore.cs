@@ -61,7 +61,7 @@ namespace Observatory.PluginManagement
                     && Properties.Core.Default.VoiceNotify
                     && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 {
-                    NativeVoice.EnqueueAndAnnounce(notificationArgs);
+                    NativeVoice.AudioHandlerEnqueue(notificationArgs);
                 }
             }
 
@@ -88,7 +88,7 @@ namespace Observatory.PluginManagement
 
                 if (Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
                 {
-                    NativeVoice.EnqueueAndAnnounce(notificationArgs);
+                    NativeVoice.AudioHandlerEnqueue(notificationArgs);
                 }
             }
         }

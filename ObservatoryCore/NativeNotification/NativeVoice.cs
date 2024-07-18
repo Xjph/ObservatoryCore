@@ -20,6 +20,8 @@ using System.Xml;
 using System.Speech.Synthesis;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
+using System.IO;
+using Observatory.Utils;
 
 namespace Observatory.NativeNotification
 {
@@ -27,37 +29,16 @@ namespace Observatory.NativeNotification
     {
         private readonly Queue<NotificationArgs> notificationEvents;
         private bool processing;
+        private readonly AudioHandler audioHandler;
 
         public NativeVoice()
         {
             notificationEvents = new();
             processing = false;
+            audioHandler = new();
         }
 
-        public void EnqueueAndAnnounce(NotificationArgs eventArgs)
-        {
-            notificationEvents.Enqueue(eventArgs);
-            
-            if (!processing)
-            {
-                processing = true;
-                ProcessQueueAsync();
-            }
-        }
-
-        private async void ProcessQueueAsync()
-        {
-            try
-            {
-                await Task.Factory.StartNew(ProcessQueue);
-            }
-            catch (System.Exception ex)
-            {
-                ObservatoryCore.LogError(ex, " - Native Voice Notifier");
-            }
-        }
-
-        private void ProcessQueue()
+        public void AudioHandlerEnqueue(NotificationArgs eventArgs)
         {
             try
             {
@@ -71,39 +52,36 @@ namespace Observatory.NativeNotification
                         Rate = Properties.Core.Default.VoiceRate
                     };
                     speech.SelectVoice(voice);
+                    speech.SetOutputToWaveFile(Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav");
+                    var notification = eventArgs;
 
-                    while (notificationEvents.Any())
+                    if (notification.TitleSsml?.Length > 0)
                     {
-                        var notification = notificationEvents.Dequeue();
-
-                        if (notification.TitleSsml?.Length > 0)
-                        {
-                            string ssml = AddVoiceToSsml(notification.TitleSsml, voice);
-                            speech.SpeakSsml(ssml);
-                        }
-                        else
-                        {
-                            speech.Speak(notification.Title);
-                        }
-
-                        if (notification.DetailSsml?.Length > 0)
-                        {
-                            string ssml = AddVoiceToSsml(notification.DetailSsml, voice);
-                            speech.SpeakSsml(ssml);
-                        }
-                        else
-                        {
-                            speech.Speak(notification.Detail);
-                        }
+                        string ssml = AddVoiceToSsml(notification.TitleSsml, voice);
+                        speech.SpeakSsml(ssml);
                     }
+                    else
+                    {
+                        speech.Speak(notification.Title);
+                    }
+
+                    if (notification.DetailSsml?.Length > 0)
+                    {
+                        string ssml = AddVoiceToSsml(notification.DetailSsml, voice);
+                        speech.SpeakSsml(ssml);
+                    }
+                    else
+                    {
+                        speech.Speak(notification.Detail);
+                    }
+                    speech.Dispose();
+                    audioHandler.EnqueueAndPlay(@"C:\Temp\SomeFileLocation.wav");
                 }
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.Message);
             }
-            
-            processing = false;
         }
 
         private static string AddVoiceToSsml(string ssml, string voiceName)

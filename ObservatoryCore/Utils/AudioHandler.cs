@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave;
 using System.Collections.Concurrent;
+using System.IO;
 
 namespace Observatory.Utils
 {
@@ -50,6 +51,7 @@ namespace Observatory.Utils
                             Thread.Sleep(250);
                         }
                         audioTasks.Remove(audioTask.Key);
+                        File.Delete(audioTask.Value);
                     };
                 }
                 catch (Exception ex)

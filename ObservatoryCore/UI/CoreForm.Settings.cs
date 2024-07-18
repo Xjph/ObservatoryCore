@@ -167,7 +167,7 @@ namespace Observatory.UI
 
             nativeVoice ??= new();
 
-            nativeVoice.EnqueueAndAnnounce(args);
+            nativeVoice.AudioHandlerEnqueue(args);
         }
 
         private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
