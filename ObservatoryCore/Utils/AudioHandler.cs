@@ -10,6 +10,30 @@ namespace Observatory.Utils
         
         private List<Guid> audioTasks = [];
 
+        public void InstantlyPlay(string filePath)
+        {
+            if (new FileInfo(filePath).Length > 0)
+                try
+                {
+                    using (var file = new AudioFileReader(filePath))
+                    using (var output = new WaveOutEvent() { DeviceNumber = Properties.Core.Default.AudioDevice })
+                    {
+                        output.Init(file);
+                        output.Play();
+                        output.Volume = Properties.Core.Default.AudioVolume;
+
+                        while (output.PlaybackState == PlaybackState.Playing)
+                        {
+                            Thread.Sleep(250);
+                        }
+                    };
+                }
+                catch (Exception ex)
+                {
+                    ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                }
+        }
+
         internal Task EnqueueAndPlay(string filePath)
         {
             Guid thisTask = Guid.NewGuid();
