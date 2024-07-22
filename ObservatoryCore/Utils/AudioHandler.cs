@@ -10,50 +10,55 @@ namespace Observatory.Utils
         
         private List<Guid> audioTasks = [];
 
-        public void InstantlyPlay(string filePath)
+        internal Task EnqueueAndPlay(string filePath, bool instant = false)
         {
-            if (new FileInfo(filePath).Length > 0)
-                try
+            if (!instant)
+            {
+                Guid thisTask = Guid.NewGuid();
+                audioTasks.Add(thisTask);
+                Enqueue(new(thisTask, filePath));
+                return Task.Run(() =>
                 {
-                    using (var file = new AudioFileReader(filePath))
-                    using (var output = new WaveOutEvent() { DeviceNumber = Properties.Core.Default.AudioDevice })
+                    if (!processingQueue)
                     {
-                        output.Init(file);
-                        output.Play();
-                        output.Volume = Properties.Core.Default.AudioVolume;
-
-                        while (output.PlaybackState == PlaybackState.Playing)
+                        processingQueue = true;
+                        ProcessQueue();
+                    }
+                    else
+                    {
+                        while (audioTasks.Contains(thisTask))
                         {
                             Thread.Sleep(250);
                         }
-                    };
-                }
-                catch (Exception ex)
-                {
-                    ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
-                }
-        }
-
-        internal Task EnqueueAndPlay(string filePath)
-        {
-            Guid thisTask = Guid.NewGuid();
-            audioTasks.Add(thisTask);
-            Enqueue(new(thisTask, filePath));
-            return Task.Run(() => 
-            {
-                if (!processingQueue)
-                {
-                    processingQueue = true;
-                    ProcessQueue();
-                }
-                else
-                {
-                    while (audioTasks.Contains(thisTask))
-                    {
-                        Thread.Sleep(250);
                     }
-                }
-            });
+                });
+            }
+            else
+            {
+                return Task.Run(() =>
+                {
+                    if (new FileInfo(filePath).Length > 0)
+                        try
+                        {
+                            using (var file = new AudioFileReader(filePath))
+                            using (var output = new WaveOutEvent() { DeviceNumber = Properties.Core.Default.AudioDevice })
+                            {
+                                output.Init(file);
+                                output.Play();
+                                output.Volume = Properties.Core.Default.AudioVolume;
+
+                                while (output.PlaybackState == PlaybackState.Playing)
+                                {
+                                    Thread.Sleep(250);
+                                }
+                            };
+                        }
+                        catch (Exception ex)
+                        {
+                            ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                        }
+                });
+            }
         }
 
         private void ProcessQueue()
@@ -75,6 +80,7 @@ namespace Observatory.Utils
                             Thread.Sleep(250);
                         }
                         audioTasks.Remove(audioTask.Key);
+                        file.Close();
                         File.Delete(audioTask.Value);
                     };
                 }

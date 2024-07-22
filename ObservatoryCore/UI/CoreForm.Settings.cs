@@ -164,8 +164,8 @@ namespace Observatory.UI
                 Title = "Test Voice Notification",
                 Detail = "This is a test of native voice notifications."
             };
-
-            nativeVoice ??= new();
+            AudioHandler audioHandler = new AudioHandler();
+            nativeVoice ??= new(audioHandler);
 
             nativeVoice.AudioHandlerEnqueue(args);
         }

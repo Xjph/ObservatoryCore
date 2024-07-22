@@ -7,11 +7,17 @@ using Observatory.Utils;
 
 namespace Observatory.PluginManagement
 {
-    public class PluginCore() : IObservatoryCore
+    public class PluginCore : IObservatoryCore
     {
-        private readonly NativeVoice NativeVoice = new();
+        
         private readonly NativePopup NativePopup = new();
         private readonly AudioHandler AudioHandler = new();
+        private readonly NativeVoice NativeVoice;
+
+        internal PluginCore()
+        {
+            NativeVoice = new(AudioHandler);
+        }
 
         public string Version => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
 

@@ -25,17 +25,17 @@ using Observatory.Utils;
 
 namespace Observatory.NativeNotification
 {
-    public class NativeVoice
+    internal class NativeVoice
     {
         private readonly Queue<NotificationArgs> notificationEvents;
         private bool processing;
         private readonly AudioHandler audioHandler;
 
-        public NativeVoice()
+        public NativeVoice(AudioHandler audiohandler)
         {
             notificationEvents = new();
             processing = false;
-            audioHandler = new();
+            audioHandler = audiohandler;
         }
 
         public void AudioHandlerEnqueue(NotificationArgs eventArgs)
@@ -52,7 +52,8 @@ namespace Observatory.NativeNotification
                         Rate = Properties.Core.Default.VoiceRate
                     };
                     speech.SelectVoice(voice);
-                    speech.SetOutputToWaveFile(Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav");
+                    string filename = Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav";
+                    speech.SetOutputToWaveFile(filename);
                     var notification = eventArgs;
 
                     if (notification.TitleSsml?.Length > 0)
@@ -75,7 +76,7 @@ namespace Observatory.NativeNotification
                         speech.Speak(notification.Detail);
                     }
                     speech.Dispose();
-                    audioHandler.EnqueueAndPlay(@"C:\Temp\SomeFileLocation.wav");
+                    audioHandler.EnqueueAndPlay(filename);
                 }
             }
             catch (Exception ex)

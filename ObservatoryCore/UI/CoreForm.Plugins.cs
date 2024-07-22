@@ -132,7 +132,6 @@ namespace Observatory.UI
             VoiceTestButton.Enabled = !hasAudioOverriders;
             VoiceDisabledPanel.Visible = hasAudioOverriders;
             VoiceDisabledPanel.Enabled = hasAudioOverriders;
-            AudioDeviceDropdown.Enabled = !hasAudioOverriders;
 
             if (hasAudioOverriders)
             {
