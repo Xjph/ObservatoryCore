@@ -41,7 +41,7 @@ namespace Observatory.Utils
                         try
                         {
                             using (var file = new AudioFileReader(filePath))
-                            using (var output = new WaveOutEvent() { DeviceNumber = Properties.Core.Default.AudioDevice })
+                            using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
                             {
                                 output.Init(file);
                                 output.Play();
@@ -69,7 +69,7 @@ namespace Observatory.Utils
                 try
                 {
                     using (var file = new AudioFileReader(audioTask.Value))
-                    using (var output = new WaveOutEvent(){ DeviceNumber = Properties.Core.Default.AudioDevice })
+                    using (var output = new WaveOutEvent(){ DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
                     {
                         output.Init(file);
                         output.Play();
@@ -91,6 +91,27 @@ namespace Observatory.Utils
             }
            
             processingQueue = false;
+        }
+
+        public static List<string> GetDevices()
+        {
+            List<string> devices = new();
+            for (int n = -1; n < WaveOut.DeviceCount; n++)
+                devices.Add(WaveOut.GetCapabilities(n).ProductName); // Index will be offset by 1 due to the default device being -1
+            return devices;
+        }
+        public static int GetDeviceIndex(string deviceName)
+        {
+            for (int n = -1; n < WaveOut.DeviceCount; n++)
+                if (WaveOut.GetCapabilities(n).ProductName == deviceName)
+                    return n;
+            return -1;
+        }
+        public static string GetDeviceName(int deviceIndex)
+        {
+            if (!(-1 <= deviceIndex && deviceIndex < WaveOut.DeviceCount)) // If the device index is out of range
+                deviceIndex = -1; // Set to default device
+            return WaveOut.GetCapabilities(deviceIndex).ProductName;
         }
     }
 }

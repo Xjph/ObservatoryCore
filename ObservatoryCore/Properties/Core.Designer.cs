@@ -384,10 +384,10 @@ namespace Observatory.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
-        public int AudioDevice {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AudioDevice {
             get {
-                return ((int)(this["AudioDevice"]));
+                return ((string)(this["AudioDevice"]));
             }
             set {
                 this["AudioDevice"] = value;

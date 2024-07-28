@@ -699,6 +699,7 @@
             AudioDeviceDropdown.Size = new Size(214, 23);
             AudioDeviceDropdown.TabIndex = 36;
             AudioDeviceDropdown.SelectedIndexChanged += AudioDeviceDropdown_SelectedIndexChanged;
+            AudioDeviceDropdown.Click += AudioDeviceDropdown_Focused;
             // 
             // ExportFormatLabel
             // 

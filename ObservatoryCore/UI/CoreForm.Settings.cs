@@ -93,9 +93,9 @@ namespace Observatory.UI
             foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
                 VoiceDropdown.Items.Add(voice);
 
-            for (int n = -1; n < WaveOut.DeviceCount; n++)
-                AudioDeviceDropdown.Items.Add(WaveOut.GetCapabilities(n).ProductName);
-            AudioDeviceDropdown.SelectedIndex = Properties.Core.Default.AudioDevice + 1; // The +1 accounts for the device ID having -1 as a possible value
+            foreach (var device in AudioHandler.GetDevices())
+                AudioDeviceDropdown.Items.Add(device);
+            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) + 1; // GetDeviceIndex accounts for non-matches. Offset by 1 to account for default device.
 #endif
         }
 
