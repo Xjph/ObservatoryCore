@@ -142,16 +142,30 @@ namespace Observatory.Explorer
 
             #region Convenience Functions
 
+            // Body type related functions and tests
+
             //Rings - has > 0 belts
             LuaState.DoString(@"
                 function hasBelts (ring_list)
                     return _hasRingsFiltered(ring_list, 'Belt')
                 end");
 
+            //Body name represents a belt
+            LuaState.DoString(@"
+                function isBelt (body_name)
+                    return body_name ~= nil and string.find(body_name, 'Belt')
+                end");
+
             //Rings - has > 0 proper rings
             LuaState.DoString(@"
                 function hasRings (ring_list)
                     return _hasRingsFiltered(ring_list, 'Ring')
+                end");
+
+            //Body name represents a ring
+            LuaState.DoString(@"
+                function isRing (body_name)
+                    return body_name ~= nil and string.find(body_name, 'Ring')
                 end");
 
             LuaState.DoString(@"
@@ -161,8 +175,15 @@ namespace Observatory.Explorer
 
             LuaState.DoString(@"
                 function isPlanet (scan)
-                    return scan.PlanetClass ~= nil
+                    return scan.PlanetClass ~= nil and scan.PlanetClass ~= 'Barycentre'
                 end");
+
+            LuaState.DoString(@"
+                function isBarycentre (scan)
+                    return scan.PlanetClass ~= nil and scan.PlanetClass == 'Barycentre'
+                end");
+
+            // Atmosphere checks
 
             LuaState.DoString(@"
                 function hasAtmosphere (scan)
@@ -172,6 +193,55 @@ namespace Observatory.Explorer
             LuaState.DoString(@"
                 function hasLandableAtmosphere (scan)
                     return scan.Landable and scan.AtmosphereComposition ~= nil
+                end");
+
+            // Common unit conversion functions and related constants
+
+            // Since LUA has no 'const' keyword, using a metatable as recommended by this:
+            // https://andrejs-cainikovs.blogspot.com/2009/05/lua-constants.html
+            LuaState.DoString(@"
+                function protect(tbl)
+                    return setmetatable({}, {
+                        __index = tbl,
+                        __newindex = function(t, key, value)
+                            error(""attempting to change constant "" ..
+                                   tostring(key) .. "" to "" .. tostring(value), 2)
+                        end
+                    })
+                end
+
+                const = {
+                    SPEED_OF_LIGHT_mps = 299792458,
+                    GRAVITY_mps2 = 9.81,
+                    ATM_PRESSURE_Pa = 101325,
+                    DAY_s = 86400
+                }
+                const = protect(const)
+            ");
+
+            LuaState.DoString(@"
+                function distanceAsLs (value_in_m)
+                    return value_in_m / const.SPEED_OF_LIGHT_mps
+                end");
+
+            LuaState.DoString(@"
+                function distanceAsKm (value_in_m)
+                    return value_in_m / 1000
+                end");
+
+            LuaState.DoString(@"
+                function gravityAsG (value_in_mps2)
+                    return value_in_mps2 / const.GRAVITY_mps2
+                end");
+
+            LuaState.DoString(@"
+                function pressureAsAtm (value_in_pa)
+                    return value_in_pa / const.ATM_PRESSURE_Pa
+                end");
+
+            LuaState.DoString(@"
+                function periodAsDay (value_in_s)
+                    return value_in_s / const.DAY_s
                 end");
 
             #endregion
