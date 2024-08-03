@@ -214,7 +214,8 @@ namespace Observatory.Explorer
                     SPEED_OF_LIGHT_mps = 299792458,
                     GRAVITY_mps2 = 9.81,
                     ATM_PRESSURE_Pa = 101325,
-                    DAY_s = 86400
+                    DAY_s = 86400,
+                    HOUR_s = 3600,
                 }
                 const = protect(const)
             ");
@@ -242,6 +243,11 @@ namespace Observatory.Explorer
             LuaState.DoString(@"
                 function periodAsDay (value_in_s)
                     return value_in_s / const.DAY_s
+                end");
+
+            LuaState.DoString(@"
+                function periodAsHour (value_in_s)
+                    return value_in_s / const.HOUR_s
                 end");
 
             #endregion
@@ -458,13 +464,13 @@ namespace Observatory.Explorer
                     case "criteria":
                     case "complex":
                         string debugLabel;
-                        if (annotationRaw.Contains(' '))
-                        {
-                            debugLabel = string.Join(' ', annotationRaw.Split(' ')[1..]);
-                        }
-                        else if (annotationRaw.ToLower().StartsWith("criteria="))
+                        if (annotationRaw.ToLower().StartsWith("criteria="))
                         {
                             debugLabel = annotationRaw[9..];
+                        }
+                        else if (annotationRaw.Contains(' '))
+                        {
+                            debugLabel = string.Join(' ', annotationRaw.Split(' ')[1..]);
                         }
                         else
                         {
@@ -504,9 +510,9 @@ namespace Observatory.Explorer
         private string GetUniqueDescription(string functionName, string scriptDescription)
         {
             string uniqueDescription = functionName;
-            if (scriptDescription.ToLower().StartsWith("criteria="))
+            if (!string.IsNullOrWhiteSpace(scriptDescription) && scriptDescription != functionName)
             {
-                uniqueDescription += scriptDescription.Replace("criteria=", "=", StringComparison.CurrentCultureIgnoreCase);
+                uniqueDescription += '=' + scriptDescription;
             }
             return uniqueDescription;
         }
