@@ -480,9 +480,9 @@ namespace Observatory.Explorer
                         return true;
                     default:
                         string simpleDescription;
-                        if (line.ToLower().StartsWith("---@simple "))
+                        if (annotationRaw.ToLower().StartsWith("simple "))
                         {
-                            simpleDescription = annotationRaw[11..];
+                            simpleDescription = annotationRaw[7..];
                         }
                         else
                         {
