@@ -34,6 +34,12 @@ namespace Observatory.PluginManagement
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
         
+        // Intended for rendering Tabs. Includes Disabled plugins.
+        public List<(IObservatoryWorker plugin, PluginStatus signed)> AllUIPlugins
+        {
+            get => _workerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None).ToList();
+        }
+
         public List<(IObservatoryWorker plugin, PluginStatus signed)> EnabledWorkerPlugins
         {
             get => _workerPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p.plugin)).ToList();

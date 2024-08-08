@@ -79,7 +79,7 @@ namespace Observatory.UI
 
         private void CreatePluginTabs()
         {
-            var uiPlugins = PluginManager.GetInstance.EnabledWorkerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None);
+            var uiPlugins = PluginManager.GetInstance.AllUIPlugins;
 
             PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList);
         }
