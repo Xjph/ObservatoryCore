@@ -92,5 +92,8 @@
     <Setting Name="AudioVolume" Type="System.Single" Scope="User">
       <Value Profile="(Default)">0.75</Value>
     </Setting>
+    <Setting Name="AudioDevice" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

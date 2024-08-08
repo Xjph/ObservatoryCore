@@ -377,12 +377,29 @@ namespace Observatory.UI
 
         private void CoreForm_ResizeBegin(object sender, EventArgs e)
         {
-            SuspendLayout();                
+            SuspendLayout();
         }
 
         private void CoreForm_ResizeEnd(object sender, EventArgs e)
         {
             ResumeLayout();
+        }
+
+
+        private void AudioDeviceDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (AudioDeviceDropdown.SelectedItem == null)
+                Properties.Core.Default.AudioDevice = AudioHandler.GetDeviceName(-1); // Shouldn't happen but default to the Windows built-in device (always exists at -1)
+            else
+                Properties.Core.Default.AudioDevice = AudioDeviceDropdown.SelectedItem.ToString(); // Stores the current selected device
+            SettingsManager.Save();
+        }
+        private void AudioDeviceDropdown_Focused(object sender, EventArgs e)
+        {
+            AudioDeviceDropdown.Items.Clear();
+            foreach (var device in AudioHandler.GetDevices())
+                AudioDeviceDropdown.Items.Add(device);
+            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) + 1;
         }
     }
 }

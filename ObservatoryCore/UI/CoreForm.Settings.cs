@@ -1,3 +1,4 @@
+using NAudio.Wave;
 using Observatory.Framework;
 using Observatory.Utils;
 using System.Reflection;
@@ -91,7 +92,11 @@ namespace Observatory.UI
             var voices = new System.Speech.Synthesis.SpeechSynthesizer().GetInstalledVoices();
             foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
                 VoiceDropdown.Items.Add(voice);
-#endif 
+
+            foreach (var device in AudioHandler.GetDevices())
+                AudioDeviceDropdown.Items.Add(device);
+            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) + 1; // GetDeviceIndex accounts for non-matches. Offset by 1 to account for default device.
+#endif
         }
 
         private void PopulateNativeSettings()
@@ -159,10 +164,10 @@ namespace Observatory.UI
                 Title = "Test Voice Notification",
                 Detail = "This is a test of native voice notifications."
             };
+            AudioHandler audioHandler = new AudioHandler();
+            nativeVoice ??= new(audioHandler);
 
-            nativeVoice ??= new();
-
-            nativeVoice.EnqueueAndAnnounce(args);
+            nativeVoice.AudioHandlerEnqueue(args);
         }
 
         private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)

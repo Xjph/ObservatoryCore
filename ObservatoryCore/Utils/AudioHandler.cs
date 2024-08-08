@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave;
 using System.Collections.Concurrent;
+using System.IO;
 
 namespace Observatory.Utils
 {
@@ -9,26 +10,55 @@ namespace Observatory.Utils
         
         private List<Guid> audioTasks = [];
 
-        internal Task EnqueueAndPlay(string filePath)
+        internal Task EnqueueAndPlay(string filePath, bool instant = false)
         {
-            Guid thisTask = Guid.NewGuid();
-            audioTasks.Add(thisTask);
-            Enqueue(new(thisTask, filePath));
-            return Task.Run(() => 
+            if (!instant)
             {
-                if (!processingQueue)
+                Guid thisTask = Guid.NewGuid();
+                audioTasks.Add(thisTask);
+                Enqueue(new(thisTask, filePath));
+                return Task.Run(() =>
                 {
-                    processingQueue = true;
-                    ProcessQueue();
-                }
-                else
-                {
-                    while (audioTasks.Contains(thisTask))
+                    if (!processingQueue)
                     {
-                        Thread.Sleep(250);
+                        processingQueue = true;
+                        ProcessQueue();
                     }
-                }
-            });
+                    else
+                    {
+                        while (audioTasks.Contains(thisTask))
+                        {
+                            Thread.Sleep(250);
+                        }
+                    }
+                });
+            }
+            else
+            {
+                return Task.Run(() =>
+                {
+                    if (new FileInfo(filePath).Length > 0)
+                        try
+                        {
+                            using (var file = new AudioFileReader(filePath))
+                            using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
+                            {
+                                output.Init(file);
+                                output.Play();
+                                output.Volume = Properties.Core.Default.AudioVolume;
+
+                                while (output.PlaybackState == PlaybackState.Playing)
+                                {
+                                    Thread.Sleep(250);
+                                }
+                            };
+                        }
+                        catch (Exception ex)
+                        {
+                            ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                        }
+                });
+            }
         }
 
         private void ProcessQueue()
@@ -39,7 +69,7 @@ namespace Observatory.Utils
                 try
                 {
                     using (var file = new AudioFileReader(audioTask.Value))
-                    using (var output = new WaveOutEvent())
+                    using (var output = new WaveOutEvent(){ DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
                     {
                         output.Init(file);
                         output.Play();
@@ -50,6 +80,8 @@ namespace Observatory.Utils
                             Thread.Sleep(250);
                         }
                         audioTasks.Remove(audioTask.Key);
+                        file.Close();
+                        File.Delete(audioTask.Value);
                     };
                 }
                 catch (Exception ex)
@@ -59,6 +91,27 @@ namespace Observatory.Utils
             }
            
             processingQueue = false;
+        }
+
+        public static List<string> GetDevices()
+        {
+            List<string> devices = new();
+            for (int n = -1; n < WaveOut.DeviceCount; n++)
+                devices.Add(WaveOut.GetCapabilities(n).ProductName); // Index will be offset by 1 due to the default device being -1
+            return devices;
+        }
+        public static int GetDeviceIndex(string deviceName)
+        {
+            for (int n = -1; n < WaveOut.DeviceCount; n++)
+                if (WaveOut.GetCapabilities(n).ProductName == deviceName)
+                    return n;
+            return -1;
+        }
+        public static string GetDeviceName(int deviceIndex)
+        {
+            if (!(-1 <= deviceIndex && deviceIndex < WaveOut.DeviceCount)) // If the device index is out of range
+                deviceIndex = -1; // Set to default device
+            return WaveOut.GetCapabilities(deviceIndex).ProductName;
         }
     }
 }
