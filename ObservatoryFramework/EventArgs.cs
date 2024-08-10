@@ -139,7 +139,11 @@
         /// <summary>
         /// Batch read of recent journals is in progress to establish current player state.
         /// </summary>
-        PreRead = 4
+        PreRead = 4,
+        /// <summary>
+        /// Batch read of historical journals was stopped before completion.
+        /// </summary>
+        BatchCancelled = 8,
     }
 
     /// <summary>

@@ -30,13 +30,8 @@ namespace Observatory.UI
             HandleCreated += (_,_) =>
             Task.Run(() =>
             {
-                foreach (var journal in ReadAllJournals())
+                foreach (var journal in ReadAllJournals(ReadAllCancel))
                 {
-                    if (ReadAllCancel.IsCancellationRequested)
-                    {
-                        break;
-                    }
-
                     progressCount++;
                     Invoke(() =>
                     {

@@ -282,6 +282,11 @@
             Batch read of recent journals is in progress to establish current player state.
             </summary>
         </member>
+        <member name="F:Observatory.Framework.LogMonitorState.BatchCancelled">
+            <summary>
+            Batch read of historical journals was stopped before completion.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.LogMonitorStateChangedEventArgs">
             <summary>
             Provides information about a LogMonitor state transition.

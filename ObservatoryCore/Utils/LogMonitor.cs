@@ -76,16 +76,10 @@ namespace Observatory.Utils
 
         public bool IsMonitoring()
         {
-            return currentState.HasFlag(LogMonitorState.Realtime);
+            return (currentState & LogMonitorState.Realtime) != 0;
         }
 
-        // TODO(fredjk_gh): Remove?
-        public bool ReadAllInProgress()
-        {
-            return LogMonitorStateChangedEventArgs.IsBatchRead(currentState);
-        }
-
-        public Func<IEnumerable<string>> ReadAllGenerator(out int fileCount)
+        public Func<CancellationTokenSource, IEnumerable<string>> ReadAllGenerator(out int fileCount)
         {
             // Prevent pre-reading when starting monitoring after reading all.
             firstStartMonitor = false;
@@ -95,7 +89,7 @@ namespace Observatory.Utils
             var files = GetJournalFilesOrdered(logDirectory);
             fileCount = files.Count();
 
-            IEnumerable<string> ReadAllJournals()
+            IEnumerable<string> ReadAllJournals(CancellationTokenSource cancellationRequested)
             {
                 var readErrors = new List<(Exception ex, string file, string line)>();
                 foreach (var file in files)
@@ -103,10 +97,16 @@ namespace Observatory.Utils
                     yield return file.Name;
                     readErrors.AddRange(
                         ProcessLines(ReadAllLines(file.FullName), file.Name));
+
+                    if (cancellationRequested.IsCancellationRequested)
+                    {
+                        SetLogMonitorState(currentState & ~LogMonitorState.Batch | LogMonitorState.BatchCancelled);
+                        break;
+                    }
                 }
 
                 ReportErrors(readErrors);
-                SetLogMonitorState(currentState & ~LogMonitorState.Batch);
+                SetLogMonitorState(currentState & ~LogMonitorState.Batch & ~LogMonitorState.BatchCancelled);
             };
 
             return ReadAllJournals;
@@ -191,7 +191,7 @@ namespace Observatory.Utils
                 JournalEntry?.Invoke(this, journalEvent);
 
                 // Files are only valid if realtime, otherwise they will be stale or empty.
-                if (!currentState.HasFlag(LogMonitorState.Batch) && EventsWithAncillaryFile.Contains(eventType))
+                if ((currentState & LogMonitorState.Batch) == 0 && EventsWithAncillaryFile.Contains(eventType))
                 {
                     HandleAncillaryFile(eventType);
                 }
