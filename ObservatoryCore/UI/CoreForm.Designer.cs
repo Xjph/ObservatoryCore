@@ -367,7 +367,7 @@
             PopupSettingsPanel.Controls.Add(PopupDisabledPanel);
             PopupSettingsPanel.Location = new Point(3, 3);
             PopupSettingsPanel.Name = "PopupSettingsPanel";
-            PopupSettingsPanel.Size = new Size(550, 230);
+            PopupSettingsPanel.Size = new Size(550, 240);
             PopupSettingsPanel.TabIndex = 29;
             // 
             // DurationSpinner
@@ -533,7 +533,7 @@
             PopupDisabledPanel.Enabled = false;
             PopupDisabledPanel.Location = new Point(3, 17);
             PopupDisabledPanel.Name = "PopupDisabledPanel";
-            PopupDisabledPanel.Size = new Size(542, 207);
+            PopupDisabledPanel.Size = new Size(542, 218);
             PopupDisabledPanel.TabIndex = 16;
             PopupDisabledPanel.Visible = false;
             // 
@@ -559,9 +559,9 @@
             VoiceSettingsPanel.Controls.Add(VoiceDropdown);
             VoiceSettingsPanel.Controls.Add(VoiceCheckbox);
             VoiceSettingsPanel.Controls.Add(VoiceDisabledPanel);
-            VoiceSettingsPanel.Location = new Point(3, 239);
+            VoiceSettingsPanel.Location = new Point(3, 249);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
-            VoiceSettingsPanel.Size = new Size(550, 230);
+            VoiceSettingsPanel.Size = new Size(550, 240);
             VoiceSettingsPanel.TabIndex = 30;
             // 
             // VoiceSpeedSlider
@@ -644,7 +644,7 @@
             VoiceDisabledPanel.Enabled = false;
             VoiceDisabledPanel.Location = new Point(3, 18);
             VoiceDisabledPanel.Name = "VoiceDisabledPanel";
-            VoiceDisabledPanel.Size = new Size(542, 203);
+            VoiceDisabledPanel.Size = new Size(542, 217);
             VoiceDisabledPanel.TabIndex = 16;
             VoiceDisabledPanel.Visible = false;
             // 
@@ -675,9 +675,9 @@
             CoreSettingsPanel.Controls.Add(LabelJournalPath);
             CoreSettingsPanel.Controls.Add(ThemeDropdown);
             CoreSettingsPanel.Controls.Add(ButtonAddTheme);
-            CoreSettingsPanel.Location = new Point(3, 475);
+            CoreSettingsPanel.Location = new Point(3, 495);
             CoreSettingsPanel.Name = "CoreSettingsPanel";
-            CoreSettingsPanel.Size = new Size(550, 233);
+            CoreSettingsPanel.Size = new Size(550, 240);
             CoreSettingsPanel.TabIndex = 33;
             CoreSettingsPanel.Tag = "";
             // 
