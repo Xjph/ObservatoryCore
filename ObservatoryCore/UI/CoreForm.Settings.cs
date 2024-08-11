@@ -1,6 +1,8 @@
 using NAudio.Wave;
 using Observatory.Framework;
 using Observatory.Utils;
+using System.Configuration;
+using System.Diagnostics;
 using System.Reflection;
 
 namespace Observatory.UI
@@ -129,6 +131,9 @@ namespace Observatory.UI
             VoiceDisabledLabel.Text = "Native voice notifications not available in this build.";
             VoiceDisabledPanel.BringToFront();
 #endif
+#if !DEBUG
+            CoreConfigFolder.Visible = false;
+#endif
         }
 
         static private void TryLoadSetting(Control control, string property, object newValue)
@@ -236,6 +241,25 @@ namespace Observatory.UI
         {
             Properties.Core.Default.ExportFormat = ExportFormatDropdown.SelectedIndex;
             SettingsManager.Save();
+        }
+        private void CoreConfigFolder_Click(object sender, EventArgs e)
+        {
+#if PORTABLE
+            string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
+            var configDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
+#else
+            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            var fileInfo = new FileInfo(config.FilePath);
+            var configDir = fileInfo.DirectoryName;
+#endif
+
+            if (string.IsNullOrWhiteSpace(configDir) || !Directory.Exists(configDir))
+            {
+                return;
+            }
+
+            var fileExplorerInfo = new ProcessStartInfo() { FileName = configDir, UseShellExecute = true };
+            Process.Start(fileExplorerInfo);
         }
     }
 }

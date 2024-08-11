@@ -34,6 +34,9 @@ namespace Observatory.PluginManagement
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
         
+        public PluginCore Core { get { return core; } }
+
+
         // Intended for rendering Tabs. Includes Disabled plugins.
         public List<(IObservatoryWorker plugin, PluginStatus signed)> AllUIPlugins
         {
