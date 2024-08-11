@@ -1,5 +1,6 @@
 ﻿using NAudio.Wave;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 
 namespace Observatory.Utils
@@ -12,6 +13,12 @@ namespace Observatory.Utils
 
         internal Task EnqueueAndPlay(string filePath, bool instant = false)
         {
+            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
+            {
+                Debug.WriteLine($"Attempted to enqueue and play a empty or non-existant file: {filePath}; (instantly? {instant}");
+                return Task.CompletedTask;
+            }
+
             if (!instant)
             {
                 Guid thisTask = Guid.NewGuid();
@@ -19,17 +26,24 @@ namespace Observatory.Utils
                 Enqueue(new(thisTask, filePath));
                 return Task.Run(() =>
                 {
-                    if (!processingQueue)
+                    try
                     {
-                        processingQueue = true;
-                        ProcessQueue();
-                    }
-                    else
-                    {
-                        while (audioTasks.Contains(thisTask))
+                        if (!processingQueue)
                         {
-                            Thread.Sleep(250);
+                            processingQueue = true;
+                            ProcessQueue();
                         }
+                        else
+                        {
+                            while (audioTasks.Contains(thisTask))
+                            {
+                                Thread.Sleep(250);
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorReporter.ShowErrorPopup("Audio Playback Error (for instant playback)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
                     }
                 });
             }
