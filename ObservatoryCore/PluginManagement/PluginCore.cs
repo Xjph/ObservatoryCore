@@ -187,8 +187,8 @@ namespace Observatory.PluginManagement
             // Return the root data directory if no plugin assembly name specified.
             if (string.IsNullOrWhiteSpace(pluginAssemblyName))
             {
-                if (!Directory.Exists(pluginDataDir))
-                    Directory.CreateDirectory(pluginDataDir);
+                if (!Directory.Exists(rootdataDir))
+                    Directory.CreateDirectory(rootdataDir);
 
                 return rootdataDir;
             }
