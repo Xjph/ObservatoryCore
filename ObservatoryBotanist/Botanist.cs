@@ -4,6 +4,7 @@ using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Interfaces;
 using Observatory.Framework.Files.ParameterTypes;
 using System.Collections.ObjectModel;
+using Observatory.Framework.Sorters;
 
 namespace Observatory.Botanist
 {
@@ -85,22 +86,7 @@ namespace Observatory.Botanist
 
         public object Settings { get => botanistSettings; set { botanistSettings = (BotanistSettings)value;  } }
 
-        #region Not Sortable
-
-        public IObservatoryComparer ColumnSorter => new Sorter();
-
-        public class Sorter : IObservatoryComparer
-        {
-            public int SortColumn { get; set; }
-            public int Order { get; set; }
-
-            public int Compare(object x, object y)
-            {
-                return 0;
-            }
-        }
-
-        #endregion
+        public IObservatoryComparer ColumnSorter => new NoOpColumnSorter();
 
         public void JournalEvent<TJournal>(TJournal journal) where TJournal : JournalBase
         {
