@@ -37,8 +37,9 @@ namespace Observatory.Utils
             {
                 return Task.Run(() =>
                 {
-                    if (new FileInfo(filePath).Length > 0)
-                        try
+                    try
+                    {
+                        if (new FileInfo(filePath).Length > 0)
                         {
                             using (var file = new AudioFileReader(filePath))
                             using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
@@ -53,10 +54,11 @@ namespace Observatory.Utils
                                 }
                             };
                         }
-                        catch (Exception ex)
-                        {
-                            ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
-                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                    }
                 });
             }
         }
@@ -65,24 +67,26 @@ namespace Observatory.Utils
         {
             while (TryDequeue(out KeyValuePair<Guid, string> audioTask))
             {
-                if (new FileInfo(audioTask.Value).Length > 0)
                 try
                 {
-                    using (var file = new AudioFileReader(audioTask.Value))
-                    using (var output = new WaveOutEvent(){ DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
+                    if (new FileInfo(audioTask.Value).Length > 0)
                     {
-                        output.Init(file);
-                        output.Play();
-                        output.Volume = Properties.Core.Default.AudioVolume;
-
-                        while (output.PlaybackState == PlaybackState.Playing)
+                        using (var file = new AudioFileReader(audioTask.Value))
+                        using (var output = new WaveOutEvent(){ DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
                         {
-                            Thread.Sleep(250);
-                        }
-                        audioTasks.Remove(audioTask.Key);
-                        file.Close();
-                        File.Delete(audioTask.Value);
-                    };
+                            output.Init(file);
+                            output.Play();
+                            output.Volume = Properties.Core.Default.AudioVolume;
+
+                            while (output.PlaybackState == PlaybackState.Playing)
+                            {
+                                Thread.Sleep(250);
+                            }
+                            audioTasks.Remove(audioTask.Key);
+                            file.Close();
+                            File.Delete(audioTask.Value);
+                        };
+                    }
                 }
                 catch (Exception ex)
                 {
