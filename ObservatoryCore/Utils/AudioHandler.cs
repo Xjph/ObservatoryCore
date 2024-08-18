@@ -53,7 +53,7 @@ namespace Observatory.Utils
                 {
                     try
                     {
-                        if (new FileInfo(filePath).Length > 0)
+                        if (File.Exists(filePath) && new FileInfo(filePath).Length > 0)
                         {
                             using (var file = new AudioFileReader(filePath))
                             using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
@@ -83,7 +83,7 @@ namespace Observatory.Utils
             {
                 try
                 {
-                    if (new FileInfo(audioTask.Value).Length > 0)
+                    if (File.Exists(audioTask.Value) && new FileInfo(audioTask.Value).Length > 0)
                     {
                         using (var file = new AudioFileReader(audioTask.Value))
                         using (var output = new WaveOutEvent(){ DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
@@ -97,8 +97,6 @@ namespace Observatory.Utils
                                 Thread.Sleep(250);
                             }
                             audioTasks.Remove(audioTask.Key);
-                            file.Close();
-                            File.Delete(audioTask.Value);
                         };
                     }
                 }
