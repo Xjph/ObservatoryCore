@@ -76,7 +76,7 @@ namespace Observatory.NativeNotification
                         speech.Speak(notification.Detail);
                     }
                     speech.Dispose();
-                    audioHandler.EnqueueAndPlay(filename);
+                    audioHandler.EnqueueAndPlay(filename, new() { DeleteAfterPlay = true });
                 }
             }
             catch (Exception ex)

@@ -1,29 +1,37 @@
 ﻿using NAudio.Wave;
+using Observatory.Framework.Files.Journal;
+using Observatory.Framework.ParameterTypes;
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Observatory.Utils
 {
-    internal class AudioHandler : ConcurrentQueue<KeyValuePair<Guid, string>>
+    internal class AudioHandler : ConcurrentQueue<AudioTaskData>
     {
         private bool processingQueue = false;
-        
-        private List<Guid> audioTasks = [];
 
-        internal Task EnqueueAndPlay(string filePath, bool instant = false)
+        private ConcurrentDictionary<Guid, AudioTaskData> audioTasks = new();
+
+        internal Task EnqueueAndPlay(string filePath, AudioOptions options)
         {
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             {
-                Debug.WriteLine($"Attempted to enqueue and play a empty or non-existant file: {filePath}; (instantly? {instant}");
+                Debug.WriteLine($"Attempted to enqueue and play a empty or non-existant file: {filePath}; (instantly? {options.Instant}");
                 return Task.CompletedTask;
             }
 
-            if (!instant)
+            if (!options.Instant)
             {
-                Guid thisTask = Guid.NewGuid();
-                audioTasks.Add(thisTask);
-                Enqueue(new(thisTask, filePath));
+                AudioTaskData taskData = new()
+                {
+                    Id = Guid.NewGuid(),
+                    FilePath = filePath,
+                    Options = options,
+                };
+                audioTasks.TryAdd(taskData.Id, taskData);
+                Enqueue(taskData);
                 return Task.Run(() =>
                 {
                     try
@@ -31,11 +39,16 @@ namespace Observatory.Utils
                         if (!processingQueue)
                         {
                             processingQueue = true;
-                            ProcessQueue();
+                            while (TryDequeue(out AudioTaskData audioTask))
+                            {
+                                PlayAudioFile(audioTask);
+                            }
+
+                            processingQueue = false;
                         }
                         else
                         {
-                            while (audioTasks.Contains(thisTask))
+                            while (audioTasks.ContainsKey(taskData.Id))
                             {
                                 Thread.Sleep(250);
                             }
@@ -43,7 +56,7 @@ namespace Observatory.Utils
                     }
                     catch (Exception ex)
                     {
-                        ErrorReporter.ShowErrorPopup("Audio Playback Error (for instant playback)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                        ErrorReporter.ShowErrorPopup("Audio Playback Error (queued)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
                     }
                 });
             }
@@ -51,62 +64,57 @@ namespace Observatory.Utils
             {
                 return Task.Run(() =>
                 {
-                    try
+                    PlayAudioFile(new()
                     {
-                        if (File.Exists(filePath) && new FileInfo(filePath).Length > 0)
-                        {
-                            using (var file = new AudioFileReader(filePath))
-                            using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
-                            {
-                                output.Init(file);
-                                output.Play();
-                                output.Volume = Properties.Core.Default.AudioVolume;
-
-                                while (output.PlaybackState == PlaybackState.Playing)
-                                {
-                                    Thread.Sleep(250);
-                                }
-                            };
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
-                    }
+                        Id = Guid.Empty,
+                        FilePath = filePath,
+                        Options = options,
+                    });
                 });
             }
         }
 
-        private void ProcessQueue()
+        private void PlayAudioFile(AudioTaskData audioTask)
         {
-            while (TryDequeue(out KeyValuePair<Guid, string> audioTask))
+            try
             {
-                try
-                {
-                    if (File.Exists(audioTask.Value) && new FileInfo(audioTask.Value).Length > 0)
-                    {
-                        using (var file = new AudioFileReader(audioTask.Value))
-                        using (var output = new WaveOutEvent(){ DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
-                        {
-                            output.Init(file);
-                            output.Play();
-                            output.Volume = Properties.Core.Default.AudioVolume;
+                if (!File.Exists(audioTask.FilePath) || new FileInfo(audioTask.FilePath).Length == 0)
+                    return;
 
-                            while (output.PlaybackState == PlaybackState.Playing)
-                            {
-                                Thread.Sleep(250);
-                            }
-                            audioTasks.Remove(audioTask.Key);
-                        };
-                    }
-                }
-                catch (Exception ex)
+                using (var file = new AudioFileReader(audioTask.FilePath))
+                using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
                 {
-                    ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message,ex.StackTrace??string.Empty)]);
-                }
+                    output.Init(file);
+                    output.Play();
+                    output.Volume = Properties.Core.Default.AudioVolume;
+
+                    while (output.PlaybackState == PlaybackState.Playing)
+                    {
+                        Thread.Sleep(250);
+                    }
+                    if (!audioTask.Options.Instant && audioTask.Id != Guid.Empty) // Ignore "instant" plays which weren't tracked.
+                        audioTasks.TryRemove(new(audioTask.Id, audioTask));
+
+                    if (audioTask.Options.DeleteAfterPlay)
+                    {
+                        file.Close(); // Ensure the file is not open before attempting to delete it.
+                        try
+                        {
+                            File.Delete(audioTask.FilePath);
+                        }
+                        catch (Exception deleteEx)
+                        {
+                            // Ignore for now. Yes, this will result in some files being leaked.
+                            // TODO: Clean up on app close?
+                            Debug.WriteLine($"Unable to clean up file {audioTask.FilePath} due to error: {deleteEx.Message}");
+                        }
+                    }
+                };
             }
-           
-            processingQueue = false;
+            catch (Exception ex)
+            {
+                ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+            }
         }
 
         public static List<string> GetDevices()
@@ -129,5 +137,12 @@ namespace Observatory.Utils
                 deviceIndex = -1; // Set to default device
             return WaveOut.GetCapabilities(deviceIndex).ProductName;
         }
+    }
+
+    internal class AudioTaskData
+    {
+        public Guid Id { get; set; }
+        public string FilePath { get; set; }
+        public AudioOptions Options { get; set; }
     }
 }

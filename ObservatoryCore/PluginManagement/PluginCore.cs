@@ -1,6 +1,7 @@
 ﻿using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
+using Observatory.Framework.ParameterTypes;
 using Observatory.NativeNotification;
 using Observatory.UI;
 using Observatory.Utils;
@@ -184,7 +185,8 @@ namespace Observatory.PluginManagement
             }
         }
 
-        public Task PlayAudioFile(string filePath) => AudioHandler.EnqueueAndPlay(filePath);
+        public Task PlayAudioFile(string filePath, AudioOptions? options = null)
+            => AudioHandler.EnqueueAndPlay(filePath, options ?? new());
 
         public void SendPluginMessage(IObservatoryPlugin plugin, object message)
         {

@@ -53,32 +53,32 @@
             CoreSettingsLayoutPanel = new FlowLayoutPanel();
             PopupSettingsPanel = new Panel();
             DurationSpinner = new NumericUpDown();
+            DisplayLabel = new Label();
+            CornerLabel = new Label();
+            LabelFont = new Label();
+            LabelScale = new Label();
+            LabelDuration = new Label();
+            LabelColour = new Label();
             ScaleSpinner = new NumericUpDown();
             PopupLabel = new Label();
             FontDropdown = new ComboBox();
-            LabelColour = new Label();
-            LabelFont = new Label();
-            LabelScale = new Label();
             TestButton = new Button();
             CornerDropdown = new ComboBox();
-            DisplayLabel = new Label();
-            LabelDuration = new Label();
             ColourButton = new Button();
             DisplayDropdown = new ComboBox();
-            CornerLabel = new Label();
             PopupCheckbox = new CheckBox();
             PopupDisabledPanel = new Panel();
             PopupDisabledLabel = new Label();
             VoiceSettingsPanel = new Panel();
             VoiceSpeedSlider = new TrackBar();
             VoiceLabel = new Label();
-            VoiceTestButton = new Button();
             VoiceSpeedLabel = new Label();
             AudioLabel = new Label();
             VoiceDropdown = new ComboBox();
-            VoiceCheckbox = new CheckBox();
             VoiceDisabledPanel = new Panel();
             VoiceDisabledLabel = new Label();
+            VoiceCheckbox = new CheckBox();
+            VoiceTestButton = new Button();
             CoreSettingsPanel = new Panel();
             AudioDeviceLabel = new Label();
             AudioDeviceDropdown = new ComboBox();
@@ -350,24 +350,24 @@
             PopupSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             PopupSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
             PopupSettingsPanel.Controls.Add(DurationSpinner);
+            PopupSettingsPanel.Controls.Add(DisplayLabel);
+            PopupSettingsPanel.Controls.Add(CornerLabel);
+            PopupSettingsPanel.Controls.Add(LabelFont);
+            PopupSettingsPanel.Controls.Add(LabelScale);
+            PopupSettingsPanel.Controls.Add(LabelDuration);
+            PopupSettingsPanel.Controls.Add(LabelColour);
             PopupSettingsPanel.Controls.Add(ScaleSpinner);
             PopupSettingsPanel.Controls.Add(PopupLabel);
             PopupSettingsPanel.Controls.Add(FontDropdown);
-            PopupSettingsPanel.Controls.Add(LabelColour);
-            PopupSettingsPanel.Controls.Add(LabelFont);
-            PopupSettingsPanel.Controls.Add(LabelScale);
             PopupSettingsPanel.Controls.Add(TestButton);
             PopupSettingsPanel.Controls.Add(CornerDropdown);
-            PopupSettingsPanel.Controls.Add(DisplayLabel);
-            PopupSettingsPanel.Controls.Add(LabelDuration);
             PopupSettingsPanel.Controls.Add(ColourButton);
             PopupSettingsPanel.Controls.Add(DisplayDropdown);
-            PopupSettingsPanel.Controls.Add(CornerLabel);
             PopupSettingsPanel.Controls.Add(PopupCheckbox);
             PopupSettingsPanel.Controls.Add(PopupDisabledPanel);
             PopupSettingsPanel.Location = new Point(3, 3);
             PopupSettingsPanel.Name = "PopupSettingsPanel";
-            PopupSettingsPanel.Size = new Size(550, 230);
+            PopupSettingsPanel.Size = new Size(550, 240);
             PopupSettingsPanel.TabIndex = 29;
             // 
             // DurationSpinner
@@ -381,6 +381,66 @@
             DurationSpinner.TabIndex = 15;
             DurationSpinner.Value = new decimal(new int[] { 8000, 0, 0, 0 });
             DurationSpinner.ValueChanged += DurationSpinner_ValueChanged;
+            // 
+            // DisplayLabel
+            // 
+            DisplayLabel.AutoSize = true;
+            DisplayLabel.Location = new Point(55, 25);
+            DisplayLabel.Name = "DisplayLabel";
+            DisplayLabel.Size = new Size(48, 15);
+            DisplayLabel.TabIndex = 0;
+            DisplayLabel.Text = "Display:";
+            DisplayLabel.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // CornerLabel
+            // 
+            CornerLabel.AutoSize = true;
+            CornerLabel.Location = new Point(57, 54);
+            CornerLabel.Name = "CornerLabel";
+            CornerLabel.Size = new Size(46, 15);
+            CornerLabel.TabIndex = 1;
+            CornerLabel.Text = "Corner:";
+            CornerLabel.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // LabelFont
+            // 
+            LabelFont.AutoSize = true;
+            LabelFont.Location = new Point(69, 83);
+            LabelFont.Name = "LabelFont";
+            LabelFont.Size = new Size(34, 15);
+            LabelFont.TabIndex = 4;
+            LabelFont.Text = "Font:";
+            LabelFont.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // LabelScale
+            // 
+            LabelScale.AutoSize = true;
+            LabelScale.Location = new Point(45, 111);
+            LabelScale.Name = "LabelScale";
+            LabelScale.Size = new Size(58, 15);
+            LabelScale.TabIndex = 7;
+            LabelScale.Text = "Scale (%):";
+            LabelScale.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // LabelDuration
+            // 
+            LabelDuration.AutoSize = true;
+            LabelDuration.Location = new Point(20, 140);
+            LabelDuration.Name = "LabelDuration";
+            LabelDuration.Size = new Size(83, 15);
+            LabelDuration.TabIndex = 9;
+            LabelDuration.Text = "Duration (ms):";
+            LabelDuration.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // LabelColour
+            // 
+            LabelColour.AutoSize = true;
+            LabelColour.Location = new Point(57, 171);
+            LabelColour.Name = "LabelColour";
+            LabelColour.Size = new Size(46, 15);
+            LabelColour.TabIndex = 13;
+            LabelColour.Text = "Colour:";
+            LabelColour.TextAlign = ContentAlignment.MiddleRight;
             // 
             // ScaleSpinner
             // 
@@ -412,36 +472,6 @@
             FontDropdown.TabIndex = 5;
             FontDropdown.SelectedIndexChanged += FontDropdown_SelectedIndexChanged;
             // 
-            // LabelColour
-            // 
-            LabelColour.AutoSize = true;
-            LabelColour.Location = new Point(65, 171);
-            LabelColour.Name = "LabelColour";
-            LabelColour.Size = new Size(46, 15);
-            LabelColour.TabIndex = 13;
-            LabelColour.Text = "Colour:";
-            LabelColour.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // LabelFont
-            // 
-            LabelFont.AutoSize = true;
-            LabelFont.Location = new Point(77, 83);
-            LabelFont.Name = "LabelFont";
-            LabelFont.Size = new Size(34, 15);
-            LabelFont.TabIndex = 4;
-            LabelFont.Text = "Font:";
-            LabelFont.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // LabelScale
-            // 
-            LabelScale.AutoSize = true;
-            LabelScale.Location = new Point(54, 111);
-            LabelScale.Name = "LabelScale";
-            LabelScale.Size = new Size(58, 15);
-            LabelScale.TabIndex = 7;
-            LabelScale.Text = "Scale (%):";
-            LabelScale.TextAlign = ContentAlignment.MiddleRight;
-            // 
             // TestButton
             // 
             TestButton.FlatAppearance.BorderSize = 0;
@@ -465,26 +495,6 @@
             CornerDropdown.TabIndex = 3;
             CornerDropdown.SelectedIndexChanged += CornerDropdown_SelectedIndexChanged;
             // 
-            // DisplayLabel
-            // 
-            DisplayLabel.AutoSize = true;
-            DisplayLabel.Location = new Point(63, 25);
-            DisplayLabel.Name = "DisplayLabel";
-            DisplayLabel.Size = new Size(48, 15);
-            DisplayLabel.TabIndex = 0;
-            DisplayLabel.Text = "Display:";
-            DisplayLabel.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // LabelDuration
-            // 
-            LabelDuration.AutoSize = true;
-            LabelDuration.Location = new Point(29, 140);
-            LabelDuration.Name = "LabelDuration";
-            LabelDuration.Size = new Size(83, 15);
-            LabelDuration.TabIndex = 9;
-            LabelDuration.Text = "Duration (ms):";
-            LabelDuration.TextAlign = ContentAlignment.MiddleRight;
-            // 
             // ColourButton
             // 
             ColourButton.FlatStyle = FlatStyle.Flat;
@@ -505,16 +515,6 @@
             DisplayDropdown.TabIndex = 2;
             DisplayDropdown.SelectedIndexChanged += DisplayDropdown_SelectedIndexChanged;
             // 
-            // CornerLabel
-            // 
-            CornerLabel.AutoSize = true;
-            CornerLabel.Location = new Point(65, 54);
-            CornerLabel.Name = "CornerLabel";
-            CornerLabel.Size = new Size(46, 15);
-            CornerLabel.TabIndex = 1;
-            CornerLabel.Text = "Corner:";
-            CornerLabel.TextAlign = ContentAlignment.MiddleRight;
-            // 
             // PopupCheckbox
             // 
             PopupCheckbox.AutoSize = true;
@@ -533,7 +533,7 @@
             PopupDisabledPanel.Enabled = false;
             PopupDisabledPanel.Location = new Point(3, 17);
             PopupDisabledPanel.Name = "PopupDisabledPanel";
-            PopupDisabledPanel.Size = new Size(542, 207);
+            PopupDisabledPanel.Size = new Size(542, 218);
             PopupDisabledPanel.TabIndex = 16;
             PopupDisabledPanel.Visible = false;
             // 
@@ -552,24 +552,24 @@
             VoiceSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             VoiceSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
             VoiceSettingsPanel.Controls.Add(VoiceSpeedSlider);
-            VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceTestButton);
+            VoiceSettingsPanel.Controls.Add(VoiceCheckbox);
+            VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
             VoiceSettingsPanel.Controls.Add(AudioLabel);
             VoiceSettingsPanel.Controls.Add(VoiceDropdown);
-            VoiceSettingsPanel.Controls.Add(VoiceCheckbox);
             VoiceSettingsPanel.Controls.Add(VoiceDisabledPanel);
-            VoiceSettingsPanel.Location = new Point(3, 239);
+            VoiceSettingsPanel.Location = new Point(3, 249);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
-            VoiceSettingsPanel.Size = new Size(550, 230);
+            VoiceSettingsPanel.Size = new Size(550, 240);
             VoiceSettingsPanel.TabIndex = 30;
             // 
             // VoiceSpeedSlider
             // 
-            VoiceSpeedSlider.Location = new Point(109, 20);
+            VoiceSpeedSlider.Location = new Point(117, 20);
             VoiceSpeedSlider.Minimum = 1;
             VoiceSpeedSlider.Name = "VoiceSpeedSlider";
-            VoiceSpeedSlider.Size = new Size(120, 45);
+            VoiceSpeedSlider.Size = new Size(242, 45);
             VoiceSpeedSlider.TabIndex = 15;
             VoiceSpeedSlider.TickStyle = TickStyle.Both;
             VoiceSpeedSlider.Value = 10;
@@ -584,18 +584,6 @@
             VoiceLabel.TabIndex = 4;
             VoiceLabel.Text = "Voice:";
             VoiceLabel.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // VoiceTestButton
-            // 
-            VoiceTestButton.FlatAppearance.BorderSize = 0;
-            VoiceTestButton.FlatStyle = FlatStyle.Flat;
-            VoiceTestButton.Location = new Point(178, 100);
-            VoiceTestButton.Name = "VoiceTestButton";
-            VoiceTestButton.Size = new Size(51, 23);
-            VoiceTestButton.TabIndex = 13;
-            VoiceTestButton.Text = "Test";
-            VoiceTestButton.UseVisualStyleBackColor = false;
-            VoiceTestButton.Click += VoiceTestButton_Click;
             // 
             // VoiceSpeedLabel
             // 
@@ -620,22 +608,11 @@
             // 
             VoiceDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             VoiceDropdown.FormattingEnabled = true;
-            VoiceDropdown.Location = new Point(109, 71);
+            VoiceDropdown.Location = new Point(117, 71);
             VoiceDropdown.Name = "VoiceDropdown";
-            VoiceDropdown.Size = new Size(121, 23);
+            VoiceDropdown.Size = new Size(242, 23);
             VoiceDropdown.TabIndex = 5;
             VoiceDropdown.SelectedIndexChanged += VoiceDropdown_SelectedIndexChanged;
-            // 
-            // VoiceCheckbox
-            // 
-            VoiceCheckbox.AutoSize = true;
-            VoiceCheckbox.Location = new Point(108, 103);
-            VoiceCheckbox.Name = "VoiceCheckbox";
-            VoiceCheckbox.Size = new Size(68, 19);
-            VoiceCheckbox.TabIndex = 11;
-            VoiceCheckbox.Text = "Enabled";
-            VoiceCheckbox.UseVisualStyleBackColor = true;
-            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
             // 
             // VoiceDisabledPanel
             // 
@@ -644,7 +621,7 @@
             VoiceDisabledPanel.Enabled = false;
             VoiceDisabledPanel.Location = new Point(3, 18);
             VoiceDisabledPanel.Name = "VoiceDisabledPanel";
-            VoiceDisabledPanel.Size = new Size(542, 203);
+            VoiceDisabledPanel.Size = new Size(542, 217);
             VoiceDisabledPanel.TabIndex = 16;
             VoiceDisabledPanel.Visible = false;
             // 
@@ -656,6 +633,29 @@
             VoiceDisabledLabel.Size = new Size(141, 15);
             VoiceDisabledLabel.TabIndex = 0;
             VoiceDisabledLabel.Text = "Placeholder Disabled Text";
+            // 
+            // VoiceCheckbox
+            // 
+            VoiceCheckbox.AutoSize = true;
+            VoiceCheckbox.Location = new Point(117, 100);
+            VoiceCheckbox.Name = "VoiceCheckbox";
+            VoiceCheckbox.Size = new Size(68, 19);
+            VoiceCheckbox.TabIndex = 11;
+            VoiceCheckbox.Text = "Enabled";
+            VoiceCheckbox.UseVisualStyleBackColor = true;
+            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
+            // 
+            // VoiceTestButton
+            // 
+            VoiceTestButton.FlatAppearance.BorderSize = 0;
+            VoiceTestButton.FlatStyle = FlatStyle.Flat;
+            VoiceTestButton.Location = new Point(191, 97);
+            VoiceTestButton.Name = "VoiceTestButton";
+            VoiceTestButton.Size = new Size(51, 23);
+            VoiceTestButton.TabIndex = 13;
+            VoiceTestButton.Text = "Test";
+            VoiceTestButton.UseVisualStyleBackColor = false;
+            VoiceTestButton.Click += VoiceTestButton_Click;
             // 
             // CoreSettingsPanel
             // 
@@ -675,16 +675,16 @@
             CoreSettingsPanel.Controls.Add(LabelJournalPath);
             CoreSettingsPanel.Controls.Add(ThemeDropdown);
             CoreSettingsPanel.Controls.Add(ButtonAddTheme);
-            CoreSettingsPanel.Location = new Point(3, 475);
+            CoreSettingsPanel.Location = new Point(3, 495);
             CoreSettingsPanel.Name = "CoreSettingsPanel";
-            CoreSettingsPanel.Size = new Size(550, 233);
+            CoreSettingsPanel.Size = new Size(550, 240);
             CoreSettingsPanel.TabIndex = 33;
             CoreSettingsPanel.Tag = "";
             // 
             // AudioDeviceLabel
             // 
             AudioDeviceLabel.AutoSize = true;
-            AudioDeviceLabel.Location = new Point(35, 160);
+            AudioDeviceLabel.Location = new Point(23, 160);
             AudioDeviceLabel.Name = "AudioDeviceLabel";
             AudioDeviceLabel.Size = new Size(80, 15);
             AudioDeviceLabel.TabIndex = 37;
@@ -694,9 +694,9 @@
             // 
             AudioDeviceDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             AudioDeviceDropdown.FormattingEnabled = true;
-            AudioDeviceDropdown.Location = new Point(121, 157);
+            AudioDeviceDropdown.Location = new Point(117, 157);
             AudioDeviceDropdown.Name = "AudioDeviceDropdown";
-            AudioDeviceDropdown.Size = new Size(214, 23);
+            AudioDeviceDropdown.Size = new Size(242, 23);
             AudioDeviceDropdown.TabIndex = 36;
             AudioDeviceDropdown.SelectedIndexChanged += AudioDeviceDropdown_SelectedIndexChanged;
             AudioDeviceDropdown.Click += AudioDeviceDropdown_Focused;
@@ -704,7 +704,7 @@
             // ExportFormatLabel
             // 
             ExportFormatLabel.AutoSize = true;
-            ExportFormatLabel.Location = new Point(30, 57);
+            ExportFormatLabel.Location = new Point(18, 57);
             ExportFormatLabel.Name = "ExportFormatLabel";
             ExportFormatLabel.Size = new Size(85, 15);
             ExportFormatLabel.TabIndex = 35;
@@ -713,10 +713,10 @@
             // AudioVolumeSlider
             // 
             AudioVolumeSlider.LargeChange = 10;
-            AudioVolumeSlider.Location = new Point(121, 112);
+            AudioVolumeSlider.Location = new Point(117, 112);
             AudioVolumeSlider.Maximum = 100;
             AudioVolumeSlider.Name = "AudioVolumeSlider";
-            AudioVolumeSlider.Size = new Size(214, 45);
+            AudioVolumeSlider.Size = new Size(242, 45);
             AudioVolumeSlider.TabIndex = 14;
             AudioVolumeSlider.TickFrequency = 10;
             AudioVolumeSlider.TickStyle = TickStyle.Both;
@@ -728,9 +728,9 @@
             ExportFormatDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             ExportFormatDropdown.FormattingEnabled = true;
             ExportFormatDropdown.Items.AddRange(new object[] { "Tab-Separated Values (csv)", "Office Open XML (xlsx)" });
-            ExportFormatDropdown.Location = new Point(121, 54);
+            ExportFormatDropdown.Location = new Point(117, 54);
             ExportFormatDropdown.Name = "ExportFormatDropdown";
-            ExportFormatDropdown.Size = new Size(214, 23);
+            ExportFormatDropdown.Size = new Size(242, 23);
             ExportFormatDropdown.TabIndex = 34;
             ExportFormatDropdown.SelectedIndexChanged += ExportFormatDropdown_SelectedIndexChanged;
             // 
@@ -768,7 +768,7 @@
             // LabelJournal
             // 
             LabelJournal.AutoSize = true;
-            LabelJournal.Location = new Point(31, 31);
+            LabelJournal.Location = new Point(19, 32);
             LabelJournal.Name = "LabelJournal";
             LabelJournal.Size = new Size(84, 15);
             LabelJournal.TabIndex = 12;
@@ -777,7 +777,7 @@
             // ThemeLabel
             // 
             ThemeLabel.AutoSize = true;
-            ThemeLabel.Location = new Point(68, 86);
+            ThemeLabel.Location = new Point(57, 86);
             ThemeLabel.Name = "ThemeLabel";
             ThemeLabel.Size = new Size(46, 15);
             ThemeLabel.TabIndex = 9;
@@ -787,7 +787,7 @@
             // VoiceVolumeLabel
             // 
             VoiceVolumeLabel.AutoSize = true;
-            VoiceVolumeLabel.Location = new Point(65, 123);
+            VoiceVolumeLabel.Location = new Point(53, 125);
             VoiceVolumeLabel.Name = "VoiceVolumeLabel";
             VoiceVolumeLabel.Size = new Size(50, 15);
             VoiceVolumeLabel.TabIndex = 0;
@@ -797,9 +797,9 @@
             // LabelJournalPath
             // 
             LabelJournalPath.Font = new Font("Segoe UI", 8.25F);
-            LabelJournalPath.Location = new Point(121, 32);
+            LabelJournalPath.Location = new Point(117, 32);
             LabelJournalPath.Name = "LabelJournalPath";
-            LabelJournalPath.Size = new Size(424, 13);
+            LabelJournalPath.Size = new Size(428, 13);
             LabelJournalPath.TabIndex = 13;
             LabelJournalPath.Text = "X:\\Journal";
             LabelJournalPath.DoubleClick += LabelJournalPath_DoubleClick;
@@ -808,9 +808,9 @@
             // 
             ThemeDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             ThemeDropdown.FormattingEnabled = true;
-            ThemeDropdown.Location = new Point(121, 83);
+            ThemeDropdown.Location = new Point(117, 83);
             ThemeDropdown.Name = "ThemeDropdown";
-            ThemeDropdown.Size = new Size(121, 23);
+            ThemeDropdown.Size = new Size(148, 23);
             ThemeDropdown.TabIndex = 10;
             ThemeDropdown.SelectedIndexChanged += ThemeDropdown_SelectedIndexChanged;
             // 
@@ -818,7 +818,7 @@
             // 
             ButtonAddTheme.FlatAppearance.BorderSize = 0;
             ButtonAddTheme.FlatStyle = FlatStyle.Flat;
-            ButtonAddTheme.Location = new Point(247, 83);
+            ButtonAddTheme.Location = new Point(271, 82);
             ButtonAddTheme.Name = "ButtonAddTheme";
             ButtonAddTheme.Size = new Size(88, 23);
             ButtonAddTheme.TabIndex = 11;
