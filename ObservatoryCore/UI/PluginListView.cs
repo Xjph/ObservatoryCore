@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using static System.Windows.Forms.ListViewItem;
+using System.Text;
 
 namespace Observatory.UI
 {
@@ -8,15 +10,25 @@ namespace Observatory.UI
 
         public PluginListView()
         {
+            View = View.Details;
             OwnerDraw = true;
             GridLines = false;
+            base.GridLines = false;//We should prevent the default drawing of gridlines.
             DrawItem += PluginListView_DrawItem;
             DrawSubItem += PluginListView_DrawSubItem;
             DrawColumnHeader += PluginListView_DrawColumnHeader;
-            
+
+            FullRowSelect = true;
+            MultiSelect = true;
+            KeyDown += PluginListView_KeyDown;
+
+            // Workaround win32 Listview owner draw bug mentioned here: https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.listview.drawitem?view=windowsdesktop-8.0&redirectedfrom=MSDN
+            // From https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.listview.ownerdraw?view=windowsdesktop-8.0
+            // This manifests if full-row select is enabled.
+            MouseMove += PluginListView_MouseMove;
+            Invalidated += PluginListView_Invalidated;
             
             DoubleBuffered = true;
-            base.GridLines = false;//We should prevent the default drawing of gridlines.
         }
 
         // Stash for performance when doing large UI updates.
@@ -93,34 +105,72 @@ namespace Observatory.UI
         {
             if (!_suspend)
             {
-                var offsetColor = (int value) =>
+                var offsetColor = (Color color, bool isEven, bool isSelected) =>
                 {
-                    if (value > 127)
-                    {
-                        return value - 20;
-                    }
-                    else
-                    {
-                        return value + 20;
-                    }
+                    if (isEven && !isSelected) return color;
+
+                    int offset = (isEven ? 0 : 20) + (isSelected ? 50 : 0);
+                    var r = color.R + (color.R > 127 ? -1 * offset : offset);
+                    var g = color.G + (color.G > 127 ? -1 * offset : offset);
+                    var b = color.B + (color.B > 127 ? -1 * offset : offset);
+
+                    return Color.FromArgb(r, g, b);
                 };
 
                 using var g = e.Graphics;
-                if (e.ItemIndex % 2 == 0)
-                {
-                    e.Item.BackColor = BackColor;
-                }
-                else
-                {
-                    e.Item.BackColor = Color.FromArgb(offsetColor(BackColor.R), offsetColor(BackColor.G), offsetColor(BackColor.B));
-                }
+                e.Item.BackColor = offsetColor(BackColor, e.ItemIndex % 2 == 0, e.Item.Selected);
 
                 if (g != null)
                 {
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                     Pen pen = new(new SolidBrush(Color.LightGray));
                     e.DrawBackground();
+                    e.DrawFocusRectangle();
                 }
+            }
+        }
+
+        private void PluginListView_Invalidated(object? sender, InvalidateEventArgs e)
+        {
+            foreach (ListViewItem item in Items)
+            {
+                if (item == null) return;
+                item.Tag = null;
+            }
+        }
+
+        private void PluginListView_MouseMove(object? sender, MouseEventArgs e)
+        {
+            ListViewItem item = GetItemAt(e.X, e.Y);
+            if (item != null && item.Tag == null)
+            {
+                Invalidate(item.Bounds);
+                item.Tag = "invalidated";
+            }
+        }
+
+        private void PluginListView_KeyDown(object? sender, KeyEventArgs e)
+        {
+            if (SelectedItems.Count == 0)
+            {
+                e.Handled = false;
+                return;
+            }
+
+            if (e.KeyCode == Keys.C && e.Control & !e.Alt & !e.Shift)
+            {
+                StringBuilder sb = new StringBuilder();
+                foreach (int index in SelectedIndices)
+                {
+                    foreach (ListViewSubItem subItem in Items[index].SubItems)
+                    {
+                        sb.Append(subItem.Text);
+                        sb.Append('\t');
+                    }
+                    sb.AppendLine();
+                }
+                Clipboard.SetText(sb.ToString());
+                e.Handled = true;
             }
         }
     }

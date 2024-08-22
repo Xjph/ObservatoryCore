@@ -6,6 +6,8 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Text.Json;
 using System.Collections.Concurrent;
+using System.Text;
+using static System.Windows.Forms.ListViewItem;
 
 namespace Observatory.UI
 {
@@ -77,7 +79,6 @@ namespace Observatory.UI
 
             PluginListView listView = new()
             {
-                View = View.Details,
                 Location = new Point(0, 0),
                 Size = panel.Size,
                 Dock = DockStyle.Fill,
