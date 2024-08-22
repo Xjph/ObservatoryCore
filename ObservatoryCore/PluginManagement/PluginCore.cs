@@ -1,6 +1,7 @@
 ﻿using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
+using Observatory.Framework.ParameterTypes;
 using Observatory.NativeNotification;
 using Observatory.UI;
 using Observatory.Utils;
@@ -41,7 +42,7 @@ namespace Observatory.PluginManagement
             var guid = Guid.Empty;
 
 #if DEBUG // For exercising testing notifier plugins in read-all
-            if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
+            if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
             {
                 var handler = Notification;
                 handler?.Invoke(this, notificationArgs);
@@ -50,7 +51,7 @@ namespace Observatory.PluginManagement
             if (!IsLogMonitorBatchReading)
             {
 #if !DEBUG
-                if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
+                if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
                 {
                     var handler = Notification;
                     handler?.Invoke(this, notificationArgs);
@@ -58,14 +59,14 @@ namespace Observatory.PluginManagement
 #endif
                 if (!PluginManager.GetInstance.HasPopupOverrideNotifiers
                     && Properties.Core.Default.NativeNotify 
-                    && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
+                    && (notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
                 {
                     guid = NativePopup.InvokeNativeNotification(notificationArgs);
                 }
 
                 if (!PluginManager.GetInstance.HasAudioOverrideNotifiers
                     && Properties.Core.Default.VoiceNotify
-                    && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
+                    && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
                 {
                     NativeVoice.AudioHandlerEnqueue(notificationArgs);
                 }
@@ -83,16 +84,16 @@ namespace Observatory.PluginManagement
         {
             if (!IsLogMonitorBatchReading)
             {
-                if (notificationArgs.Rendering.HasFlag(NotificationRendering.PluginNotifier))
+                if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
                 {
                     var handler = Notification;
                     handler?.Invoke(this, notificationArgs);
                 }
 
-                if (notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVisual))
+                if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
                     NativePopup.UpdateNotification(id, notificationArgs);
 
-                if (Properties.Core.Default.VoiceNotify && notificationArgs.Rendering.HasFlag(NotificationRendering.NativeVocal))
+                if (Properties.Core.Default.VoiceNotify && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
                 {
                     NativeVoice.AudioHandlerEnqueue(notificationArgs);
                 }
@@ -201,7 +202,8 @@ namespace Observatory.PluginManagement
             }
         }
 
-        public Task PlayAudioFile(string filePath) => AudioHandler.EnqueueAndPlay(filePath);
+        public Task PlayAudioFile(string filePath, AudioOptions? options = null)
+            => AudioHandler.EnqueueAndPlay(filePath, options ?? new());
 
         public void SendPluginMessage(IObservatoryPlugin plugin, object message)
         {
