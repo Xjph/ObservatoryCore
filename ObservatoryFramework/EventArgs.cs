@@ -168,7 +168,7 @@
         /// <returns>A boolean; True iff the state provided represents a batch-mode read.</returns>
         public static bool IsBatchRead(LogMonitorState state)
         {
-            return state.HasFlag(LogMonitorState.Batch) || state.HasFlag(LogMonitorState.PreRead);
+            return (state & LogMonitorState.Batch) > 0 || (state & LogMonitorState.PreRead) > 0;
         }
     }
 }
