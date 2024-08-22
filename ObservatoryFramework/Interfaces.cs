@@ -1,5 +1,6 @@
 ﻿using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
+using Observatory.Framework.ParameterTypes;
 using System.Drawing;
 
 namespace Observatory.Framework.Interfaces
@@ -275,7 +276,8 @@ namespace Observatory.Framework.Interfaces
         /// Plays audio file using default audio device.
         /// </summary>
         /// <param name="filePath">Absolute path to audio file.</param>
-        public Task PlayAudioFile(string filePath);
+        /// <param name="options">Additional options class for customizing audio playback.</param>
+        public Task PlayAudioFile(string filePath, AudioOptions options = null);
 
         /// <summary>
         /// Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.

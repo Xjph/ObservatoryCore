@@ -1689,11 +1689,12 @@
             Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
             </summary>
         </member>
-        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.PlayAudioFile(System.String)">
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.PlayAudioFile(System.String,Observatory.Framework.ParameterTypes.AudioOptions)">
             <summary>
             Plays audio file using default audio device.
             </summary>
             <param name="filePath">Absolute path to audio file.</param>
+            <param name="options">Additional options class for customizing audio playback.</param>
         </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendPluginMessage(Observatory.Framework.Interfaces.IObservatoryPlugin,System.Object)">
             <summary>
@@ -1768,6 +1769,22 @@
         <member name="P:Observatory.Framework.Interfaces.IObservatoryComparer.Order">
             <summary>
             Current order of sorting. Ascending = 1, Descending = -1, No sorting = 0.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.ParameterTypes.AudioOptions">
+            <summary>
+            A parameter class for PlayAudioFile.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.ParameterTypes.AudioOptions.Instant">
+            <summary>
+            If set to true, the associated audio file is played immediately rather than queued. Default is false (queued).
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.ParameterTypes.AudioOptions.DeleteAfterPlay">
+            <summary>
+            If set to true, the provided audio file is deleted after playback finishes. Default is false (caller is responsible
+            for managing audio file cleanup).
             </summary>
         </member>
         <member name="T:Observatory.Framework.PluginUI">
