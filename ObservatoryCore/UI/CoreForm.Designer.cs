@@ -49,6 +49,7 @@
             StatusColumn = new ColumnHeader();
             PluginListButtonsLayoutPanel = new FlowLayoutPanel();
             PluginSettingsButton = new Button();
+            PluginDataDirButton = new Button();
             PluginFolderButton = new Button();
             CoreSettingsLayoutPanel = new FlowLayoutPanel();
             PopupSettingsPanel = new Panel();
@@ -83,6 +84,7 @@
             AudioDeviceLabel = new Label();
             AudioDeviceDropdown = new ComboBox();
             ExportFormatLabel = new Label();
+            CoreConfigFolder = new Button();
             AudioVolumeSlider = new TrackBar();
             ExportFormatDropdown = new ComboBox();
             CoreSettingsLabel = new Label();
@@ -122,7 +124,7 @@
             ReadAllButton.Location = new Point(770, 869);
             ReadAllButton.Name = "ReadAllButton";
             ReadAllButton.Size = new Size(75, 23);
-            ReadAllButton.TabIndex = 2;
+            ReadAllButton.TabIndex = 33;
             ReadAllButton.Text = "Read All";
             ReadAllButton.UseVisualStyleBackColor = false;
             ReadAllButton.Click += ReadAllButton_Click;
@@ -135,7 +137,7 @@
             ToggleMonitorButton.Location = new Point(667, 869);
             ToggleMonitorButton.Name = "ToggleMonitorButton";
             ToggleMonitorButton.Size = new Size(97, 23);
-            ToggleMonitorButton.TabIndex = 3;
+            ToggleMonitorButton.TabIndex = 32;
             ToggleMonitorButton.Text = "Start Monitor";
             ToggleMonitorButton.UseVisualStyleBackColor = false;
             ToggleMonitorButton.Click += ToggleMonitorButton_Click;
@@ -148,7 +150,7 @@
             ClearButton.Location = new Point(586, 869);
             ClearButton.Name = "ClearButton";
             ClearButton.Size = new Size(75, 23);
-            ClearButton.TabIndex = 4;
+            ClearButton.TabIndex = 31;
             ClearButton.Text = "Clear";
             ClearButton.UseVisualStyleBackColor = false;
             ClearButton.Click += ClearButton_Click;
@@ -161,7 +163,7 @@
             ExportButton.Location = new Point(505, 869);
             ExportButton.Name = "ExportButton";
             ExportButton.Size = new Size(75, 23);
-            ExportButton.TabIndex = 5;
+            ExportButton.TabIndex = 30;
             ExportButton.Text = "Export";
             ExportButton.UseVisualStyleBackColor = false;
             ExportButton.Click += ExportButton_Click;
@@ -173,7 +175,7 @@
             GithubLink.Location = new Point(12, 865);
             GithubLink.Name = "GithubLink";
             GithubLink.Size = new Size(42, 15);
-            GithubLink.TabIndex = 6;
+            GithubLink.TabIndex = 28;
             GithubLink.TabStop = true;
             GithubLink.Text = "github";
             GithubLink.LinkClicked += GithubLink_LinkClicked;
@@ -185,7 +187,7 @@
             DonateLink.Location = new Point(12, 880);
             DonateLink.Name = "DonateLink";
             DonateLink.Size = new Size(45, 15);
-            DonateLink.TabIndex = 7;
+            DonateLink.TabIndex = 29;
             DonateLink.TabStop = true;
             DonateLink.Text = "Donate";
             DonateLink.LinkClicked += DonateLink_LinkClicked;
@@ -203,7 +205,7 @@
             CoreTabControl.SelectedTabColor = Color.Empty;
             CoreTabControl.Size = new Size(833, 851);
             CoreTabControl.TabColor = Color.Empty;
-            CoreTabControl.TabIndex = 8;
+            CoreTabControl.TabIndex = 1;
             CoreTabControl.DrawItem += CoreTabControl_DrawItem;
             CoreTabControl.SelectedIndexChanged += CoreTabControl_SelectedIndexChanged;
             // 
@@ -240,7 +242,7 @@
             CoreSplitter.Panel2.Padding = new Padding(3);
             CoreSplitter.Size = new Size(819, 817);
             CoreSplitter.SplitterDistance = 179;
-            CoreSplitter.TabIndex = 16;
+            CoreSplitter.TabIndex = 6;
             // 
             // CoreLayoutPanel
             // 
@@ -271,7 +273,7 @@
             PluginList.Name = "PluginList";
             PluginList.OwnerDraw = true;
             PluginList.Size = new Size(813, 133);
-            PluginList.TabIndex = 8;
+            PluginList.TabIndex = 2;
             PluginList.UseCompatibleStateImageBehavior = false;
             PluginList.View = View.Details;
             PluginList.ItemChecked += PluginList_ItemChecked;
@@ -299,6 +301,7 @@
             // PluginListButtonsLayoutPanel
             // 
             PluginListButtonsLayoutPanel.Controls.Add(PluginSettingsButton);
+            PluginListButtonsLayoutPanel.Controls.Add(PluginDataDirButton);
             PluginListButtonsLayoutPanel.Controls.Add(PluginFolderButton);
             PluginListButtonsLayoutPanel.Dock = DockStyle.Fill;
             PluginListButtonsLayoutPanel.Location = new Point(3, 142);
@@ -314,20 +317,32 @@
             PluginSettingsButton.Location = new Point(3, 3);
             PluginSettingsButton.Name = "PluginSettingsButton";
             PluginSettingsButton.Size = new Size(120, 23);
-            PluginSettingsButton.TabIndex = 11;
+            PluginSettingsButton.TabIndex = 3;
             PluginSettingsButton.Text = "Plugin Settings";
             PluginSettingsButton.UseVisualStyleBackColor = false;
             PluginSettingsButton.Click += PluginSettingsButton_Click;
+            // 
+            // PluginDataDirButton
+            // 
+            PluginDataDirButton.FlatAppearance.BorderSize = 0;
+            PluginDataDirButton.FlatStyle = FlatStyle.Flat;
+            PluginDataDirButton.Location = new Point(129, 3);
+            PluginDataDirButton.Name = "PluginDataDirButton";
+            PluginDataDirButton.Size = new Size(155, 23);
+            PluginDataDirButton.TabIndex = 4;
+            PluginDataDirButton.Text = "Open Plugin Data Folder";
+            PluginDataDirButton.UseVisualStyleBackColor = true;
+            PluginDataDirButton.Click += PluginDataDirButton_Click;
             // 
             // PluginFolderButton
             // 
             PluginFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginFolderButton.FlatAppearance.BorderSize = 0;
             PluginFolderButton.FlatStyle = FlatStyle.Flat;
-            PluginFolderButton.Location = new Point(129, 3);
+            PluginFolderButton.Location = new Point(290, 3);
             PluginFolderButton.Name = "PluginFolderButton";
             PluginFolderButton.Size = new Size(130, 23);
-            PluginFolderButton.TabIndex = 10;
+            PluginFolderButton.TabIndex = 5;
             PluginFolderButton.Text = "Open Plugins Folder";
             PluginFolderButton.UseVisualStyleBackColor = false;
             PluginFolderButton.Click += PluginFolderButton_Click;
@@ -378,7 +393,7 @@
             DurationSpinner.Minimum = new decimal(new int[] { 100, 0, 0, 0 });
             DurationSpinner.Name = "DurationSpinner";
             DurationSpinner.Size = new Size(120, 23);
-            DurationSpinner.TabIndex = 15;
+            DurationSpinner.TabIndex = 11;
             DurationSpinner.Value = new decimal(new int[] { 8000, 0, 0, 0 });
             DurationSpinner.ValueChanged += DurationSpinner_ValueChanged;
             // 
@@ -449,7 +464,7 @@
             ScaleSpinner.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             ScaleSpinner.Name = "ScaleSpinner";
             ScaleSpinner.Size = new Size(120, 23);
-            ScaleSpinner.TabIndex = 14;
+            ScaleSpinner.TabIndex = 10;
             ScaleSpinner.Value = new decimal(new int[] { 100, 0, 0, 0 });
             ScaleSpinner.ValueChanged += ScaleSpinner_ValueChanged;
             // 
@@ -469,7 +484,7 @@
             FontDropdown.Location = new Point(117, 80);
             FontDropdown.Name = "FontDropdown";
             FontDropdown.Size = new Size(242, 23);
-            FontDropdown.TabIndex = 5;
+            FontDropdown.TabIndex = 9;
             FontDropdown.SelectedIndexChanged += FontDropdown_SelectedIndexChanged;
             // 
             // TestButton
@@ -479,7 +494,7 @@
             TestButton.Location = new Point(187, 167);
             TestButton.Name = "TestButton";
             TestButton.Size = new Size(51, 23);
-            TestButton.TabIndex = 12;
+            TestButton.TabIndex = 13;
             TestButton.Text = "Test";
             TestButton.UseVisualStyleBackColor = false;
             TestButton.Click += TestButton_Click;
@@ -492,7 +507,7 @@
             CornerDropdown.Location = new Point(117, 51);
             CornerDropdown.Name = "CornerDropdown";
             CornerDropdown.Size = new Size(121, 23);
-            CornerDropdown.TabIndex = 3;
+            CornerDropdown.TabIndex = 8;
             CornerDropdown.SelectedIndexChanged += CornerDropdown_SelectedIndexChanged;
             // 
             // ColourButton
@@ -501,7 +516,7 @@
             ColourButton.Location = new Point(118, 167);
             ColourButton.Name = "ColourButton";
             ColourButton.Size = new Size(51, 23);
-            ColourButton.TabIndex = 11;
+            ColourButton.TabIndex = 12;
             ColourButton.UseVisualStyleBackColor = true;
             ColourButton.Click += ColourButton_Click;
             // 
@@ -512,7 +527,7 @@
             DisplayDropdown.Location = new Point(117, 22);
             DisplayDropdown.Name = "DisplayDropdown";
             DisplayDropdown.Size = new Size(121, 23);
-            DisplayDropdown.TabIndex = 2;
+            DisplayDropdown.TabIndex = 7;
             DisplayDropdown.SelectedIndexChanged += DisplayDropdown_SelectedIndexChanged;
             // 
             // PopupCheckbox
@@ -521,7 +536,7 @@
             PopupCheckbox.Location = new Point(117, 196);
             PopupCheckbox.Name = "PopupCheckbox";
             PopupCheckbox.Size = new Size(68, 19);
-            PopupCheckbox.TabIndex = 10;
+            PopupCheckbox.TabIndex = 14;
             PopupCheckbox.Text = "Enabled";
             PopupCheckbox.UseVisualStyleBackColor = true;
             PopupCheckbox.CheckedChanged += PopupCheckbox_CheckedChanged;
@@ -585,6 +600,18 @@
             VoiceLabel.Text = "Voice:";
             VoiceLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
+            // VoiceTestButton
+            // 
+            VoiceTestButton.FlatAppearance.BorderSize = 0;
+            VoiceTestButton.FlatStyle = FlatStyle.Flat;
+            VoiceTestButton.Location = new Point(178, 100);
+            VoiceTestButton.Name = "VoiceTestButton";
+            VoiceTestButton.Size = new Size(51, 23);
+            VoiceTestButton.TabIndex = 18;
+            VoiceTestButton.Text = "Test";
+            VoiceTestButton.UseVisualStyleBackColor = false;
+            VoiceTestButton.Click += VoiceTestButton_Click;
+            // 
             // VoiceSpeedLabel
             // 
             VoiceSpeedLabel.AutoSize = true;
@@ -610,9 +637,20 @@
             VoiceDropdown.FormattingEnabled = true;
             VoiceDropdown.Location = new Point(117, 71);
             VoiceDropdown.Name = "VoiceDropdown";
-            VoiceDropdown.Size = new Size(242, 23);
-            VoiceDropdown.TabIndex = 5;
+            VoiceDropdown.Size = new Size(121, 23);
+            VoiceDropdown.TabIndex = 16;
             VoiceDropdown.SelectedIndexChanged += VoiceDropdown_SelectedIndexChanged;
+            // 
+            // VoiceCheckbox
+            // 
+            VoiceCheckbox.AutoSize = true;
+            VoiceCheckbox.Location = new Point(108, 103);
+            VoiceCheckbox.Name = "VoiceCheckbox";
+            VoiceCheckbox.Size = new Size(68, 19);
+            VoiceCheckbox.TabIndex = 17;
+            VoiceCheckbox.Text = "Enabled";
+            VoiceCheckbox.UseVisualStyleBackColor = true;
+            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
             // 
             // VoiceDisabledPanel
             // 
@@ -664,6 +702,7 @@
             CoreSettingsPanel.Controls.Add(AudioDeviceLabel);
             CoreSettingsPanel.Controls.Add(AudioDeviceDropdown);
             CoreSettingsPanel.Controls.Add(ExportFormatLabel);
+            CoreSettingsPanel.Controls.Add(CoreConfigFolder);
             CoreSettingsPanel.Controls.Add(AudioVolumeSlider);
             CoreSettingsPanel.Controls.Add(ExportFormatDropdown);
             CoreSettingsPanel.Controls.Add(CoreSettingsLabel);
@@ -696,8 +735,8 @@
             AudioDeviceDropdown.FormattingEnabled = true;
             AudioDeviceDropdown.Location = new Point(117, 157);
             AudioDeviceDropdown.Name = "AudioDeviceDropdown";
-            AudioDeviceDropdown.Size = new Size(242, 23);
-            AudioDeviceDropdown.TabIndex = 36;
+            AudioDeviceDropdown.Size = new Size(214, 23);
+            AudioDeviceDropdown.TabIndex = 25;
             AudioDeviceDropdown.SelectedIndexChanged += AudioDeviceDropdown_SelectedIndexChanged;
             AudioDeviceDropdown.Click += AudioDeviceDropdown_Focused;
             // 
@@ -710,14 +749,27 @@
             ExportFormatLabel.TabIndex = 35;
             ExportFormatLabel.Text = "Export Format:";
             // 
+            // CoreConfigFolder
+            // 
+            CoreConfigFolder.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            CoreConfigFolder.FlatAppearance.BorderSize = 0;
+            CoreConfigFolder.FlatStyle = FlatStyle.Flat;
+            CoreConfigFolder.Location = new Point(455, 3);
+            CoreConfigFolder.Name = "CoreConfigFolder";
+            CoreConfigFolder.Size = new Size(90, 23);
+            CoreConfigFolder.TabIndex = 19;
+            CoreConfigFolder.Text = "Config Folder";
+            CoreConfigFolder.UseVisualStyleBackColor = true;
+            CoreConfigFolder.Click += CoreConfigFolder_Click;
+            // 
             // AudioVolumeSlider
             // 
             AudioVolumeSlider.LargeChange = 10;
             AudioVolumeSlider.Location = new Point(117, 112);
             AudioVolumeSlider.Maximum = 100;
             AudioVolumeSlider.Name = "AudioVolumeSlider";
-            AudioVolumeSlider.Size = new Size(242, 45);
-            AudioVolumeSlider.TabIndex = 14;
+            AudioVolumeSlider.Size = new Size(214, 45);
+            AudioVolumeSlider.TabIndex = 24;
             AudioVolumeSlider.TickFrequency = 10;
             AudioVolumeSlider.TickStyle = TickStyle.Both;
             AudioVolumeSlider.Value = 100;
@@ -730,8 +782,8 @@
             ExportFormatDropdown.Items.AddRange(new object[] { "Tab-Separated Values (csv)", "Office Open XML (xlsx)" });
             ExportFormatDropdown.Location = new Point(117, 54);
             ExportFormatDropdown.Name = "ExportFormatDropdown";
-            ExportFormatDropdown.Size = new Size(242, 23);
-            ExportFormatDropdown.TabIndex = 34;
+            ExportFormatDropdown.Size = new Size(214, 23);
+            ExportFormatDropdown.TabIndex = 21;
             ExportFormatDropdown.SelectedIndexChanged += ExportFormatDropdown_SelectedIndexChanged;
             // 
             // CoreSettingsLabel
@@ -749,7 +801,7 @@
             StartReadallCheckbox.Location = new Point(117, 211);
             StartReadallCheckbox.Name = "StartReadallCheckbox";
             StartReadallCheckbox.Size = new Size(130, 19);
-            StartReadallCheckbox.TabIndex = 15;
+            StartReadallCheckbox.TabIndex = 27;
             StartReadallCheckbox.Text = "Read All On Launch";
             StartReadallCheckbox.UseVisualStyleBackColor = true;
             StartReadallCheckbox.CheckedChanged += StartReadallCheckbox_CheckedChanged;
@@ -760,7 +812,7 @@
             StartMonitorCheckbox.Location = new Point(117, 186);
             StartMonitorCheckbox.Name = "StartMonitorCheckbox";
             StartMonitorCheckbox.Size = new Size(157, 19);
-            StartMonitorCheckbox.TabIndex = 14;
+            StartMonitorCheckbox.TabIndex = 26;
             StartMonitorCheckbox.Text = "Start Monitor On Launch";
             StartMonitorCheckbox.UseVisualStyleBackColor = true;
             StartMonitorCheckbox.CheckedChanged += StartMonitorCheckbox_CheckedChanged;
@@ -799,8 +851,8 @@
             LabelJournalPath.Font = new Font("Segoe UI", 8.25F);
             LabelJournalPath.Location = new Point(117, 32);
             LabelJournalPath.Name = "LabelJournalPath";
-            LabelJournalPath.Size = new Size(428, 13);
-            LabelJournalPath.TabIndex = 13;
+            LabelJournalPath.Size = new Size(424, 13);
+            LabelJournalPath.TabIndex = 20;
             LabelJournalPath.Text = "X:\\Journal";
             LabelJournalPath.DoubleClick += LabelJournalPath_DoubleClick;
             // 
@@ -810,8 +862,8 @@
             ThemeDropdown.FormattingEnabled = true;
             ThemeDropdown.Location = new Point(117, 83);
             ThemeDropdown.Name = "ThemeDropdown";
-            ThemeDropdown.Size = new Size(148, 23);
-            ThemeDropdown.TabIndex = 10;
+            ThemeDropdown.Size = new Size(121, 23);
+            ThemeDropdown.TabIndex = 22;
             ThemeDropdown.SelectedIndexChanged += ThemeDropdown_SelectedIndexChanged;
             // 
             // ButtonAddTheme
@@ -821,7 +873,7 @@
             ButtonAddTheme.Location = new Point(271, 82);
             ButtonAddTheme.Name = "ButtonAddTheme";
             ButtonAddTheme.Size = new Size(88, 23);
-            ButtonAddTheme.TabIndex = 11;
+            ButtonAddTheme.TabIndex = 23;
             ButtonAddTheme.Text = "Add Theme";
             ButtonAddTheme.UseVisualStyleBackColor = true;
             ButtonAddTheme.Click += ButtonAddTheme_Click;
@@ -939,5 +991,7 @@
         private ComboBox ExportFormatDropdown;
         private Label AudioDeviceLabel;
         private ComboBox AudioDeviceDropdown;
+        private Button PluginDataDirButton;
+        private Button CoreConfigFolder;
     }
 }

@@ -169,19 +169,36 @@ namespace Observatory.PluginManagement
             get
             {
                 var context = new System.Diagnostics.StackFrame(1).GetMethod();
+                var pluginAssemblyName = context?.DeclaringType?.Assembly.GetName().Name;
+                return GetStorageFolderForPlugin(pluginAssemblyName);
+            }
+        }
+
+        internal string GetStorageFolderForPlugin(string pluginAssemblyName = "")
+        {
 #if PORTABLE
-                string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
-                var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
-                string folderLocation = $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}-Data{Path.DirectorySeparatorChar}";
+            string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
+            var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
+            var rootdataDir = $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}";
+            string pluginDataDir = $"{rootdataDir}{pluginAssemblyName}-Data{Path.DirectorySeparatorChar}";
 #else
-                string folderLocation = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)
-                    + $"{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}{context?.DeclaringType?.Assembly.GetName().Name}{Path.DirectorySeparatorChar}";
+            var rootdataDir = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}";
+            string pluginDataDir = $"{rootdataDir}{pluginAssemblyName}{Path.DirectorySeparatorChar}";
 #endif
-                if (!Directory.Exists(folderLocation))
-                    Directory.CreateDirectory(folderLocation);
+            // Return the root data directory if no plugin assembly name specified.
+            if (string.IsNullOrWhiteSpace(pluginAssemblyName))
+            {
+                if (!Directory.Exists(rootdataDir))
+                    Directory.CreateDirectory(rootdataDir);
 
-                return folderLocation;
+                return rootdataDir;
+            }
+            else
+            {
+                if (!Directory.Exists(pluginDataDir))
+                    Directory.CreateDirectory(pluginDataDir);
 
+                return pluginDataDir;
             }
         }
 

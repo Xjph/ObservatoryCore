@@ -4,6 +4,7 @@ using System.Text.Json;
 using Observatory.Framework;
 using Observatory.Utils;
 using System.Text;
+using System.Diagnostics;
 
 namespace Observatory.UI
 {
@@ -170,6 +171,27 @@ namespace Observatory.UI
                 var plugin = ListedPlugins[PluginList.SelectedItems[0]];
                 OpenSettings(plugin);
             }
+        }
+
+        private void PluginDataDirButton_Click(object sender, EventArgs e)
+        {
+            // Default to the root plugin data dir.
+            string storageDir = PluginManager.GetInstance.Core.GetStorageFolderForPlugin();
+
+            if (ListedPlugins != null && PluginList.SelectedItems.Count != 0)
+            {
+                var plugin = ListedPlugins[PluginList.SelectedItems[0]];
+                storageDir = PluginManager.GetInstance.Core.GetStorageFolderForPlugin(plugin.GetType().Assembly.GetName().Name ?? "");
+
+            }
+
+            if (string.IsNullOrWhiteSpace(storageDir) || !Directory.Exists(storageDir))
+            {
+                return; // Unexpected; but do nothing.
+            }
+
+            var fileExplorerInfo = new ProcessStartInfo() { FileName = storageDir, UseShellExecute = true };
+            Process.Start(fileExplorerInfo);
         }
 
         private void PluginsEnabledStateFromSettings()
