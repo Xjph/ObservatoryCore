@@ -62,7 +62,6 @@ namespace Observatory.Herald
             {
                 while (notifications.Any())
                 {
-                    // audioPlayer.SetVolume(volume).Wait();
                     notification = notifications.Dequeue();
                     Debug.WriteLine("Processing notification: {0} - {1}", notification.Title, notification.Detail);
 
@@ -119,7 +118,6 @@ namespace Observatory.Herald
                     file = request.Result;
                     Debug.WriteLine($"Playing audio file: {file}");
                     core.PlayAudioFile(file);
-                    // audioPlayer.Play(file).Wait();
                 }
                 catch (Exception ex)
                 {
@@ -134,14 +132,6 @@ namespace Observatory.Herald
                         ErrorLogger(ex, $"while retrieving audio file");
                     }
                 }
-
-                //while (audioPlayer.Playing)
-                //    Thread.Sleep(50);
-
-                //// Explicit stop to ensure device is ready for next file.
-                //// ...hopefully.
-                //audioPlayer.Stop(true).Wait();
-
             }
             speechManager.CommitCache();
         }
