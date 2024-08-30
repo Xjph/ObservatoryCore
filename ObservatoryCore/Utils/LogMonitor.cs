@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 using Observatory.Framework;
 using Observatory.Framework.Files;
 
@@ -478,7 +479,7 @@ namespace Observatory.Utils
 
                     if (journals.Any())
                     {
-                        FileInfo fileToPoke = GetJournalFilesOrdered(journalFolder).Last();
+                        FileInfo fileToPoke = journals.Last();
 
                         using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                         stream.Close();
@@ -506,11 +507,44 @@ namespace Observatory.Utils
             }
         }
 
+        private static Regex datePartRe = new(@"Journal\.(.+)\.\d+\.log", RegexOptions.Compiled);
+        private static Regex numericDateRe = new(@"^\d+$", RegexOptions.Compiled);
+
         private static IEnumerable<FileInfo> GetJournalFilesOrdered(DirectoryInfo journalFolder)
         {
-            return from file in journalFolder.GetFiles("Journal.*.??.log")
-                   orderby file.LastWriteTime
-                   select file;
+            return journalFolder.GetFiles("Journal.*.??.log")
+                .ToDictionary(f => TimestampFromFile(f), f => f)
+                .OrderBy(kvp => kvp.Key)
+                .Select(kvp => kvp.Value);
+        }
+
+        private static DateTime TimestampFromFile(FileInfo f)
+        {
+            // Grab the last write time (aka. mtime) for fallback in case we can't parse the value.
+            // We could try open the file and parse the first line of the journal as fallback as well,
+            // but that will slow this process down considerably (and this is fairly performance
+            // sensitive because it's called for every journal poke)and there's no urgent need for
+            // this level of fallback. If we ever have to deal with a filename format with no
+            // timestamp in the filename, we could consider this.
+            DateTime fallbackTime = f.LastWriteTime.ToUniversalTime();
+            // Default to fallback value.
+            DateTime timeStamp = fallbackTime;
+            string filename = f.Name;
+
+            Match datePart = datePartRe.Match(filename);
+            if (!datePart.Success)
+            {
+                // No timestamp detected in filename.
+                return timeStamp;
+            }
+
+            // Try parse as a numeric date from old journals in the format: yyMMddHHmmss
+            if (!DateTime.TryParseExact(datePart.Groups[1].Value, "yyMMddHHmmss", null, System.Globalization.DateTimeStyles.None, out timeStamp))
+            {
+                // Try parse this as a new style date of the format: yyyy-MM-ddTHHmmss
+                DateTime.TryParseExact(datePart.Groups[1].Value, "yyyy-MM-ddTHHmmss", null, System.Globalization.DateTimeStyles.None, out timeStamp);
+            }
+            return timeStamp;
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
