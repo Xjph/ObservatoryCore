@@ -1631,6 +1631,14 @@
             <param name="worker">Reference to the calling plugin's worker interface.</param>
             <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.AddGridItems(Observatory.Framework.Interfaces.IObservatoryWorker,System.Collections.Generic.IEnumerable{System.Object},System.Boolean)">
+            <summary>
+            Add multiple items to the bottom of the basic UI grid.
+            </summary>
+            <param name="worker">Reference to the calling plugin's worker interface.</param>
+            <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+            <param name="grouped">(optional) Specify that the items being added should be kept together and sorted as a single unit.</param>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SetGridItems(Observatory.Framework.Interfaces.IObservatoryWorker,System.Collections.Generic.IEnumerable{System.Object})">
             <summary>
             Replace the contents of the grid with the provided items.

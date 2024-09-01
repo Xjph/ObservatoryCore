@@ -1,38 +1,334 @@
-﻿using System.Collections;
+﻿using Observatory.Framework.Interfaces;
+using Observatory.Framework;
+using Observatory.Utils;
+using System.Collections;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Collections.Concurrent;
+using System.Collections.Specialized;
+using System.Dynamic;
 using static System.Windows.Forms.ListViewItem;
 using System.Text;
 
 namespace Observatory.UI
 {
-    internal class PluginListView : ListView
+    internal partial class PluginListView : ListView
     {
         private bool _suspend = false;
+        private Dictionary<Guid, List<ListViewItem>> _groupedItems = [];
+        private IObservatoryComparer _columnSorter;
+        private List<ColumnSizing> _columnSizing;
+        private ColumnSizing _pluginColumnSizing;
+        private bool _selectionInProgress = false;
 
-        public PluginListView()
+        public PluginListView(IObservatoryPlugin plugin, List<ColumnSizing> columnSizings)
         {
             View = View.Details;
             OwnerDraw = true;
             GridLines = false;
-            base.GridLines = false;//We should prevent the default drawing of gridlines.
-            DrawItem += PluginListView_DrawItem;
             DrawSubItem += PluginListView_DrawSubItem;
+            // DrawItem += PluginListView_DrawItem;
             DrawColumnHeader += PluginListView_DrawColumnHeader;
+            DoubleBuffered = true;
+            GridLines = false;
+            _columnSizing = columnSizings;
 
             FullRowSelect = true;
             MultiSelect = true;
             KeyDown += PluginListView_KeyDown;
 
-            // Workaround win32 Listview owner draw bug mentioned here: https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.listview.drawitem?view=windowsdesktop-8.0&redirectedfrom=MSDN
-            // From https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.listview.ownerdraw?view=windowsdesktop-8.0
-            // This manifests if full-row select is enabled.
-            MouseMove += PluginListView_MouseMove;
-            Invalidated += PluginListView_Invalidated;
-            
-            DoubleBuffered = true;
+            if (plugin.ColumnSorter != null)
+                _columnSorter = plugin.ColumnSorter;
+            else
+                _columnSorter = new DefaultSorter();
+
+            ColumnClick += PluginListView_ColumnClick;
+
+            // Is losing column sizes between versions acceptable?
+            _pluginColumnSizing = _columnSizing
+                .Where(c => c.PluginName == plugin.Name && c.PluginVersion == plugin.Version)
+                .FirstOrDefault(new ColumnSizing() { PluginName = plugin.Name, PluginVersion = plugin.Version });
+
+            if (!_columnSizing.Contains(_pluginColumnSizing))
+            {
+                _columnSizing.Add(_pluginColumnSizing);
+            }
+
+            foreach (var property in plugin.PluginUI.DataGrid.First().GetType().GetProperties())
+            {
+                string columnLabel = LowerUpper().Replace(UpperUpperLower().Replace(property.Name, "$1 $2"), "$1 $2");
+
+                int width;
+
+                if (_pluginColumnSizing.ColumnWidth.TryGetValue(columnLabel, out int value))
+                {
+                    width = value;
+                }
+                else
+                {
+                    var widthAttrib = property.GetCustomAttribute<ColumnSuggestedWidth>();
+
+                    width = widthAttrib == null
+                        // Rough approximation of width by label length if none specified.
+                        ? columnLabel.Length * 10
+                        : widthAttrib.Width;
+
+                    _pluginColumnSizing.ColumnWidth.Add(columnLabel, width);
+                }
+
+                Columns.Add(columnLabel, width);
+
+            }
+
+            Properties.Core.Default.ColumnSizing = JsonSerializer.Serialize(_columnSizing);
+            SettingsManager.Save();
+
+            ColumnWidthChanged += PluginListView_ColumnWidthChanged;
+            Resize += PluginListView_Resize;
+
+            ConcurrentQueue<object> addedItemList = new();
+            var timer = new System.Timers.Timer
+            {
+                Interval = 100,
+                AutoReset = false
+            };
+
+            timer.Elapsed += (_, _) =>
+            {
+                List<ListViewItem> items = [];
+
+                while (addedItemList.TryDequeue(out object? newItem))
+                {
+                    ListViewItem newListItem = new();
+                    if (newItem.GetType() == typeof(ExpandoObject))
+                    {
+                        dynamic groupedItem = (ExpandoObject)newItem;
+                        
+                        foreach (KeyValuePair<string, object> property in groupedItem)
+                        {
+                            if (property.Key != "ObservatoryListViewGroupID")
+                            newListItem.SubItems.Add(property.Value?.ToString());
+                        }
+
+                        Guid groupId = groupedItem.ObservatoryListViewGroupID;
+
+                        if (_groupedItems.ContainsKey(groupId))
+                        {
+                            _groupedItems[groupId].Add(newListItem);
+                        }
+                        else
+                        {
+                            _groupedItems.Add(groupId, [newListItem]);
+                        }
+                    }
+                    else
+                    foreach (var property in newItem.GetType().GetProperties())
+                    {
+                        newListItem.SubItems.Add(property.GetValue(newItem)?.ToString());
+                    }
+                    newListItem.SubItems.RemoveAt(0);
+                    items.Add(newListItem);
+                }
+                if (Created)
+                {
+                    Invoke(() => Items.AddRange(items.ToArray()));
+                }
+                else
+                {
+                    Items.AddRange(items.ToArray());
+                }
+
+                timer.Stop();
+
+                // Possible that something was added between last dequeue and timer.Stop()
+                if (addedItemList.TryPeek(out _))
+                    timer.Start();
+            };
+
+
+            plugin.PluginUI.DataGrid.CollectionChanged += (sender, e) =>
+            {
+                void updateGrid()
+                {
+                    if (e.Action == NotifyCollectionChangedAction.Add && e.NewItems != null)
+                    {
+                        timer.Stop();
+                        foreach (var item in e.NewItems)
+                            addedItemList.Enqueue(item);
+
+                        timer.Start();
+                    }
+
+                    if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null)
+                    {
+                        foreach (var oldItem in e.OldItems)
+                        {
+                            ListViewItem oldListItem = new();
+                            foreach (var property in oldItem.GetType().GetProperties())
+                            {
+                                oldListItem.SubItems.Add(property.GetValue(oldItem)?.ToString());
+                            }
+                            oldListItem.SubItems.RemoveAt(0);
+
+                            var itemToRemove = Items.Cast<ListViewItem>().Where(i => i.SubItems.Cast<string>().SequenceEqual(oldListItem.SubItems.Cast<string>())).First();
+                            if (itemToRemove != null)
+                            {
+                                Items.Remove(itemToRemove);
+                            }
+                        }
+                    }
+
+                    if (e.Action == NotifyCollectionChangedAction.Reset)
+                    {
+                        timer.Stop();
+                        Items.Clear();
+                        addedItemList.Clear();
+                        foreach (var item in plugin.PluginUI.DataGrid)
+                        {
+                            ListViewItem listItem = new();
+                            foreach (var property in item.GetType().GetProperties())
+                            {
+                                listItem.SubItems.Add(property.GetValue(item)?.ToString());
+                            }
+                            listItem.SubItems.RemoveAt(0);
+                            Items.Add(listItem);
+                        }
+                    }
+                }
+
+                if (Created)
+                {
+                    Invoke(updateGrid);
+                }
+                else
+                {
+                    updateGrid();
+                }
+            };
+        }
+
+        
+
+        private void PluginListView_Resize(object? sender, EventArgs e)
+        {
+            HandleColSize(false);
+        }
+
+        private void PluginListView_ColumnWidthChanged(object? sender, ColumnWidthChangedEventArgs e)
+        {
+            HandleColSize(true);
+        }
+
+        // Oddly, the listview resize event often fires after the column size change but
+        // with stale (default?!) column width values.
+        // Still need a resize handler to avoid the ugliness of the rightmost column
+        // leaving gaps, but preventing saving the width changes there should stop the
+        // stale resize event from overwriting with bad data.
+        // Using a higher-order function here to create two different versions of the
+        // event handler for these purposes.
+        private void HandleColSize(bool saveProps)
+        {
+            int colTotalWidth = 0;
+            ColumnHeader? rightmost = null;
+            foreach (ColumnHeader column in Columns)
+            {
+                colTotalWidth += column.Width;
+                if (rightmost == null || column.DisplayIndex > rightmost.DisplayIndex)
+                    rightmost = column;
+
+                if (saveProps)
+                {
+                    if (_pluginColumnSizing.ColumnWidth.ContainsKey(column.Text))
+                        _pluginColumnSizing.ColumnWidth[column.Text] = column.Width;
+                    else
+                        _pluginColumnSizing.ColumnWidth.Add(column.Text, column.Width);
+                }
+            }
+
+            if (rightmost != null && colTotalWidth < Width)
+            {
+                rightmost.Width = Width - (colTotalWidth - rightmost.Width);
+
+                if (saveProps)
+                    _pluginColumnSizing.ColumnWidth[rightmost.Text] = rightmost.Width;
+            }
+
+            if (saveProps)
+            {
+                Properties.Core.Default.ColumnSizing = JsonSerializer.Serialize(_columnSizing);
+                SettingsManager.Save();
+            }
         }
 
         // Stash for performance when doing large UI updates.
         private IComparer? comparer = null;
+
+        private void PluginListView_ColumnClick(object? sender, ColumnClickEventArgs e)
+        {
+            SuspendDrawing();
+            
+            if (e.Column == _columnSorter.SortColumn)
+            {
+                // Reverse the current sort direction for this column.
+                if (_columnSorter.Order == 1)
+                {
+                    _columnSorter.Order = -1;
+                }
+                else
+                {
+                    _columnSorter.Order = 1;
+                }
+            }
+            else
+            {
+                // Set the column number that is to be sorted; default to ascending.
+                _columnSorter.SortColumn = e.Column;
+                _columnSorter.Order = 1;
+            }
+
+            if (_groupedItems.Count > 0)
+            {
+                // Should sort only on first row, remove following rows for now
+                // Believe it or not casting to a list here is faster than operating 
+                // directly from ListView.Items
+                ArrayList itemList = [];
+                itemList.AddRange(Items);//.Cast<ListViewItem>().ToList();
+
+                foreach (var group in _groupedItems)
+                {
+                    foreach (var item in group.Value.Skip(1))
+                        itemList.Remove(item);
+                }
+
+                Items.Clear();
+                itemList.Sort(_columnSorter);
+
+                List<ListViewItem> areYouKiddingMeThatAllThisIsFaster = [];
+                foreach (ListViewItem sortedItem in itemList)
+                {
+                    areYouKiddingMeThatAllThisIsFaster.Add(sortedItem);
+
+                    var group = _groupedItems.Where(g => g.Value.First() == sortedItem);
+
+                    if (group.Any())
+                    foreach (var item in _groupedItems.Where(g => g.Value.First() == sortedItem).First().Value.Skip(1).Reverse())
+                    {
+                        areYouKiddingMeThatAllThisIsFaster.Add(item);
+                    }
+                }
+                
+                Items.AddRange(areYouKiddingMeThatAllThisIsFaster.ToArray());
+            }
+            else
+            {
+                ListViewItemSorter = _columnSorter;
+                Sort();
+                ListViewItemSorter = null;
+            }
+            
+            ResumeDrawing();
+        }
 
         public void SuspendDrawing()
         {
@@ -52,23 +348,16 @@ namespace Observatory.UI
             EndUpdate();
         }
 
-        private void DrawBorder(Graphics graphics, Pen pen, Rectangle bounds, bool header = false)
+        private void DrawBorder(Graphics graphics, Pen pen, Rectangle bounds)
         {
             if (!_suspend)
             {
-                Point topRight = new(bounds.Right, bounds.Top);
-                Point bottomRight = new(bounds.Right, bounds.Bottom);
-
+                // Right bound tweaking to avoid being overdrawn by adjacent subitem background
+                // Top bound tweaking to intentionally overdraw above subitem background
+                Point topRight = new(bounds.Right - 1, Math.Max(bounds.Top - 1, 0));
+                Point bottomRight = new(bounds.Right - 1, bounds.Bottom);
+                
                 graphics.DrawLine(pen, topRight, bottomRight);
-
-                if (header)
-                {
-                    Point bottomLeft = new(bounds.Left, bounds.Bottom);
-                    // Point topLeft = new(bounds.Left, bounds.Top);
-                    // graphics.DrawLine(pen, topLeft, topRight);
-                    // graphics.DrawLine(pen, topLeft, bottomLeft);
-                    graphics.DrawLine(pen, bottomLeft, bottomRight);
-                }
             }
         }
 
@@ -80,7 +369,7 @@ namespace Observatory.UI
                 g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 Pen pen = new(new SolidBrush(Color.LightGray));
                 DrawBorder(g, pen, e.Bounds);
-                using (var font = new Font(this.Font, FontStyle.Bold))
+                using (var font = new Font(Font, FontStyle.Bold))
                 {
                     Brush textBrush = new SolidBrush(ForeColor);
                     g.DrawString(e.Header?.Text, font, textBrush, e.Bounds);
@@ -93,60 +382,61 @@ namespace Observatory.UI
             using var g = e.Graphics;
             if (!_suspend && g != null)
             {
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
                 Pen pen = new(new SolidBrush(Color.LightGray));
-                DrawBorder(g, pen, e.Bounds, false);
-
-                e.DrawText();
-            }
-        }
-
-        private void PluginListView_DrawItem(object? sender, DrawListViewItemEventArgs e)
-        {
-            if (!_suspend)
-            {
-                var offsetColor = (Color color, bool isEven, bool isSelected) =>
+                
+                if (e.Item != null)
                 {
-                    if (isEven && !isSelected) return color;
+                    if (_groupedItems.Count == 0)
+                    {
+                        e.Item.BackColor = AlternatedColor(BackColor, e.Item.Index % 2 == 0);
+                    }
+                    else
+                    {
+                        var firstLines = _groupedItems.Values.Select(v => v.First());
+                        var thisGroup = _groupedItems.Values.Where(v => v.Contains(e.Item)).FirstOrDefault([e.Item]);
+                        
+                        if (firstLines.Contains(e.Item) || !_groupedItems.Values.Where(v => v.Contains(e.Item)).Any())
+                        {
+                            e.Item.BackColor = AlternatedColor(
+                                BackColor,
+                                e.Item.Index == 0 || Items[e.Item.Index - 1].BackColor != BackColor);
+                        }
+                        else
+                        {
+                            e.Item.BackColor = thisGroup.First().BackColor;
+                        }
+                    }
 
-                    int offset = (isEven ? 0 : 20) + (isSelected ? 50 : 0);
-                    var r = color.R + (color.R > 127 ? -1 * offset : offset);
-                    var g = color.G + (color.G > 127 ? -1 * offset : offset);
-                    var b = color.B + (color.B > 127 ? -1 * offset : offset);
-
-                    return Color.FromArgb(r, g, b);
-                };
-
-                using var g = e.Graphics;
-                e.Item.BackColor = offsetColor(BackColor, e.ItemIndex % 2 == 0, e.Item.Selected);
-
-                if (g != null)
-                {
                     g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-                    Pen pen = new(new SolidBrush(Color.LightGray));
-                    e.DrawBackground();
-                    e.DrawFocusRectangle();
+                    var backColor = SelectedColor(e.Item.BackColor, e.Item.Selected);
+                    using var backBrush = new SolidBrush(backColor);
+                    g.FillRectangle(backBrush, e.Bounds);
+
+                    e.DrawText();
+                    e.DrawFocusRectangle(e.Item.Bounds);
+                    DrawBorder(g, pen, e.Bounds);
                 }
             }
         }
 
-        private void PluginListView_Invalidated(object? sender, InvalidateEventArgs e)
+        private Color AlternatedColor(Color color, bool isEven)
         {
-            foreach (ListViewItem item in Items)
-            {
-                if (item == null) return;
-                item.Tag = null;
-            }
+            if (isEven) return color;
+            int offset = (isEven ? 0 : 20);
+            var r = color.R + (color.R > 127 ? -1 * offset : offset);
+            var g = color.G + (color.G > 127 ? -1 * offset : offset);
+            var b = color.B + (color.B > 127 ? -1 * offset : offset);
+            return Color.FromArgb(r, g, b);
         }
 
-        private void PluginListView_MouseMove(object? sender, MouseEventArgs e)
+        private Color SelectedColor(Color color, bool isSelected)
         {
-            ListViewItem item = GetItemAt(e.X, e.Y);
-            if (item != null && item.Tag == null)
-            {
-                Invalidate(item.Bounds);
-                item.Tag = "invalidated";
-            }
+            if (!isSelected) return color;
+            int offset = (isSelected ? 50 : 0);
+            var r = color.R + (color.R > 127 ? -1 * offset : offset);
+            var g = color.G + (color.G > 127 ? -1 * offset : offset);
+            var b = color.B + (color.B > 127 ? -1 * offset : offset);
+            return Color.FromArgb(r, g, b);
         }
 
         private void PluginListView_KeyDown(object? sender, KeyEventArgs e)
@@ -173,5 +463,11 @@ namespace Observatory.UI
                 e.Handled = true;
             }
         }
+
+        // https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
+        [GeneratedRegex(@"(\p{Ll})(\P{Ll})")]
+        private static partial Regex LowerUpper();
+        [GeneratedRegex(@"(\P{Ll})(\P{Ll}\p{Ll})")]
+        private static partial Regex UpperUpperLower();
     }
 }

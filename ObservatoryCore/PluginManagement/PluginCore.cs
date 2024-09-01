@@ -5,6 +5,7 @@ using Observatory.Framework.ParameterTypes;
 using Observatory.NativeNotification;
 using Observatory.UI;
 using Observatory.Utils;
+using System.Dynamic;
 
 namespace Observatory.PluginManagement
 {
@@ -110,14 +111,31 @@ namespace Observatory.PluginManagement
             worker.PluginUI.DataGrid.Add(item);
         }
 
-        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items, bool grouped = false)
         {
             BeginBulkUpdate(worker);
-
-            foreach (var item in items)
+            grouped = true;
+            if (grouped)
             {
-                worker.PluginUI.DataGrid.Add(item);
+                var groupId = Guid.NewGuid();
+                foreach (var item in items)
+                {
+                    dynamic groupedItem = new ExpandoObject();
+                    var interimDict = (IDictionary<string, object?>)groupedItem;
+
+                    foreach (var property in item.GetType().GetProperties())
+                        interimDict.Add(property.Name, property.GetValue(item));
+
+                    groupedItem.ObservatoryListViewGroupID = groupId;
+
+                    worker.PluginUI.DataGrid.Add(groupedItem);
+                }
             }
+            else 
+                foreach (var item in items)
+                {
+                    worker.PluginUI.DataGrid.Add(item);
+                }
 
             EndBulkUpdate(worker);
         }

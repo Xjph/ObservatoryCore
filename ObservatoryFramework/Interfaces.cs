@@ -212,7 +212,18 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
         /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
-        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items);
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
+        {
+            AddGridItems(worker, items, false);
+        }
+
+        /// <summary>
+        /// Add multiple items to the bottom of the basic UI grid.
+        /// </summary>
+        /// <param name="worker">Reference to the calling plugin's worker interface.</param>
+        /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+        /// <param name="grouped">(optional) Specify that the items being added should be kept together and sorted as a single unit.</param>
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items, bool grouped = false);
 
         /// <summary>
         /// Replace the contents of the grid with the provided items.
@@ -343,7 +354,7 @@ namespace Observatory.Framework.Interfaces
     /// <summary>
     /// Extends the base IComparer interface with exposed values for the column ID and sort order to use.
     /// </summary>
-    public interface IObservatoryComparer : System.Collections.IComparer
+    public interface IObservatoryComparer : System.Collections.Generic.IComparer
     {
         /// <summary>
         /// Column ID to be currently sorted by.

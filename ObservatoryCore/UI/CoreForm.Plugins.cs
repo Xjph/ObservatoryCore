@@ -3,7 +3,6 @@ using Observatory.Framework.Interfaces;
 using System.Text.Json;
 using Observatory.Framework;
 using Observatory.Utils;
-using System.Text;
 using System.Diagnostics;
 
 namespace Observatory.UI
@@ -81,8 +80,23 @@ namespace Observatory.UI
         private void CreatePluginTabs()
         {
             var uiPlugins = PluginManager.GetInstance.AllUIPlugins;
+            string colSize = Properties.Core.Default.ColumnSizing;
+            List<ColumnSizing>? columnSizing = null;
+            if (!string.IsNullOrWhiteSpace(colSize))
+            {
+                try
+                {
+                    columnSizing = JsonSerializer.Deserialize<List<ColumnSizing>>(colSize);
+                }
+                catch
+                {
+                    // Failed deserialization means bad value, blow it away.
+                    Properties.Core.Default.ColumnSizing = string.Empty;
+                    SettingsManager.Save();
+                }
+            }
 
-            PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList);
+            PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList, columnSizing ?? []);
         }
 
         private void DisableOverriddenNotification()
