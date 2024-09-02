@@ -354,7 +354,7 @@ namespace Observatory.Framework.Interfaces
     /// <summary>
     /// Extends the base IComparer interface with exposed values for the column ID and sort order to use.
     /// </summary>
-    public interface IObservatoryComparer : System.Collections.Generic.IComparer
+    public interface IObservatoryComparer : System.Collections.IComparer
     {
         /// <summary>
         /// Column ID to be currently sorted by.
