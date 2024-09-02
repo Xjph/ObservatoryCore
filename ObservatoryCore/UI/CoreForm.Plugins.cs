@@ -67,7 +67,7 @@ namespace Observatory.UI
                     return "Invalid File";
                     
                 case PluginManager.PluginStatus.NoCert:
-                    return "Unsigned Observatory (Debug build)";
+                    return "";
                     
                 case PluginManager.PluginStatus.SigCheckDisabled:
                     return "Signature Checks Disabled";
