@@ -3,6 +3,7 @@ using Observatory.PluginManagement;
 using Observatory.Utils;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace Observatory.UI
 {
@@ -38,7 +39,7 @@ namespace Observatory.UI
             ColourListHeader(ref PluginList, Color.DarkSlateGray, Color.LightGray);
             PopulatePluginList();
             FitColumns();
-            string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
+            string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0";
             Text += $" - v{version}";
 
             DisableOverriddenNotification();
@@ -53,6 +54,7 @@ namespace Observatory.UI
             ThemeDropdown.SelectedItem = themeManager.CurrentTheme;
             CreatePluginTabs();
             RestoreSavedTab();
+            CheckUpdate();
         }
 
         public void FocusPlugin(string pluginShortName)
@@ -202,7 +204,62 @@ namespace Observatory.UI
         private NativeNotification.NativePopup? nativePopup;
         private NativeNotification.NativeVoice? nativeVoice;
 
+        private void CheckUpdate()
+        {
+            try
+            {
+                string releasesResponse;
 
+                var request = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri("https://api.github.com/repos/xjph/ObservatoryCore/releases"),
+                    Headers = { { "User-Agent", "Xjph/ObservatoryCore" } }
+                };
+
+                releasesResponse = Utils.HttpClient.SendRequest(request).Content.ReadAsStringAsync().Result;
+
+                if (!string.IsNullOrEmpty(releasesResponse))
+                {
+                    var releases = System.Text.Json.JsonDocument.Parse(releasesResponse).RootElement.EnumerateArray();
+
+                    Version? latestVersion = null;
+                    string latestVersionUrl = string.Empty;
+
+                    foreach (var release in releases)
+                    {
+                        var tag = release.GetProperty("tag_name").ToString();
+                        var verstrings = tag[1..].Split('.');
+                        var ver = verstrings.Select(verString => { _ = int.TryParse(verString, out int ver); return ver; }).ToArray();
+                        if (ver.Length == 3 || ver.Length == 4)
+                        {
+                            Version githubVersion = new(ver[0], ver[1], ver[2], ver.Length == 3 ? 0 : ver[3]);
+                            if (latestVersion == null || githubVersion > latestVersion)
+                            {
+                                latestVersion = githubVersion;
+                                latestVersionUrl = release.GetProperty("html_url").ToString();
+                            }
+                        }
+                    }
+
+                    if (latestVersion > System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version)
+                    {
+                        UpdateLink.Visible = true;
+                        UpdateLink.Enabled = true;
+                        UpdateLink.LinkClicked += (_, _) =>
+                        {
+                            OpenURL(latestVersionUrl);
+                        };
+                    }
+                }
+            }
+            catch
+            {
+                // log?
+            }
+
+            
+        }
 
         private void GithubLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {

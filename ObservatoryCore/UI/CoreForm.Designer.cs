@@ -72,14 +72,14 @@
             PopupDisabledLabel = new Label();
             VoiceSettingsPanel = new Panel();
             VoiceSpeedSlider = new TrackBar();
+            VoiceTestButton = new Button();
+            VoiceCheckbox = new CheckBox();
             VoiceLabel = new Label();
             VoiceSpeedLabel = new Label();
             AudioLabel = new Label();
             VoiceDropdown = new ComboBox();
             VoiceDisabledPanel = new Panel();
             VoiceDisabledLabel = new Label();
-            VoiceCheckbox = new CheckBox();
-            VoiceTestButton = new Button();
             CoreSettingsPanel = new Panel();
             AudioDeviceLabel = new Label();
             AudioDeviceDropdown = new ComboBox();
@@ -96,6 +96,7 @@
             LabelJournalPath = new Label();
             ThemeDropdown = new ComboBox();
             ButtonAddTheme = new Button();
+            UpdateLink = new LinkLabel();
             CoreTabControl.SuspendLayout();
             CoreTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)CoreSplitter).BeginInit();
@@ -590,6 +591,29 @@
             VoiceSpeedSlider.Value = 10;
             VoiceSpeedSlider.Scroll += VoiceSpeedSlider_Scroll;
             // 
+            // VoiceTestButton
+            // 
+            VoiceTestButton.FlatAppearance.BorderSize = 0;
+            VoiceTestButton.FlatStyle = FlatStyle.Flat;
+            VoiceTestButton.Location = new Point(191, 97);
+            VoiceTestButton.Name = "VoiceTestButton";
+            VoiceTestButton.Size = new Size(51, 23);
+            VoiceTestButton.TabIndex = 13;
+            VoiceTestButton.Text = "Test";
+            VoiceTestButton.UseVisualStyleBackColor = false;
+            VoiceTestButton.Click += VoiceTestButton_Click;
+            // 
+            // VoiceCheckbox
+            // 
+            VoiceCheckbox.AutoSize = true;
+            VoiceCheckbox.Location = new Point(117, 100);
+            VoiceCheckbox.Name = "VoiceCheckbox";
+            VoiceCheckbox.Size = new Size(68, 19);
+            VoiceCheckbox.TabIndex = 11;
+            VoiceCheckbox.Text = "Enabled";
+            VoiceCheckbox.UseVisualStyleBackColor = true;
+            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
+            // 
             // VoiceLabel
             // 
             VoiceLabel.AutoSize = true;
@@ -599,18 +623,6 @@
             VoiceLabel.TabIndex = 4;
             VoiceLabel.Text = "Voice:";
             VoiceLabel.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // VoiceTestButton
-            // 
-            VoiceTestButton.FlatAppearance.BorderSize = 0;
-            VoiceTestButton.FlatStyle = FlatStyle.Flat;
-            VoiceTestButton.Location = new Point(178, 100);
-            VoiceTestButton.Name = "VoiceTestButton";
-            VoiceTestButton.Size = new Size(51, 23);
-            VoiceTestButton.TabIndex = 18;
-            VoiceTestButton.Text = "Test";
-            VoiceTestButton.UseVisualStyleBackColor = false;
-            VoiceTestButton.Click += VoiceTestButton_Click;
             // 
             // VoiceSpeedLabel
             // 
@@ -641,17 +653,6 @@
             VoiceDropdown.TabIndex = 16;
             VoiceDropdown.SelectedIndexChanged += VoiceDropdown_SelectedIndexChanged;
             // 
-            // VoiceCheckbox
-            // 
-            VoiceCheckbox.AutoSize = true;
-            VoiceCheckbox.Location = new Point(108, 103);
-            VoiceCheckbox.Name = "VoiceCheckbox";
-            VoiceCheckbox.Size = new Size(68, 19);
-            VoiceCheckbox.TabIndex = 17;
-            VoiceCheckbox.Text = "Enabled";
-            VoiceCheckbox.UseVisualStyleBackColor = true;
-            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
-            // 
             // VoiceDisabledPanel
             // 
             VoiceDisabledPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
@@ -671,29 +672,6 @@
             VoiceDisabledLabel.Size = new Size(141, 15);
             VoiceDisabledLabel.TabIndex = 0;
             VoiceDisabledLabel.Text = "Placeholder Disabled Text";
-            // 
-            // VoiceCheckbox
-            // 
-            VoiceCheckbox.AutoSize = true;
-            VoiceCheckbox.Location = new Point(117, 100);
-            VoiceCheckbox.Name = "VoiceCheckbox";
-            VoiceCheckbox.Size = new Size(68, 19);
-            VoiceCheckbox.TabIndex = 11;
-            VoiceCheckbox.Text = "Enabled";
-            VoiceCheckbox.UseVisualStyleBackColor = true;
-            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
-            // 
-            // VoiceTestButton
-            // 
-            VoiceTestButton.FlatAppearance.BorderSize = 0;
-            VoiceTestButton.FlatStyle = FlatStyle.Flat;
-            VoiceTestButton.Location = new Point(191, 97);
-            VoiceTestButton.Name = "VoiceTestButton";
-            VoiceTestButton.Size = new Size(51, 23);
-            VoiceTestButton.TabIndex = 13;
-            VoiceTestButton.Text = "Test";
-            VoiceTestButton.UseVisualStyleBackColor = false;
-            VoiceTestButton.Click += VoiceTestButton_Click;
             // 
             // CoreSettingsPanel
             // 
@@ -878,11 +856,26 @@
             ButtonAddTheme.UseVisualStyleBackColor = true;
             ButtonAddTheme.Click += ButtonAddTheme_Click;
             // 
+            // UpdateLink
+            // 
+            UpdateLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            UpdateLink.AutoSize = true;
+            UpdateLink.Enabled = false;
+            UpdateLink.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            UpdateLink.Location = new Point(60, 865);
+            UpdateLink.Name = "UpdateLink";
+            UpdateLink.Size = new Size(207, 32);
+            UpdateLink.TabIndex = 34;
+            UpdateLink.TabStop = true;
+            UpdateLink.Text = "Update Available";
+            UpdateLink.Visible = false;
+            // 
             // CoreForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(857, 904);
+            Controls.Add(UpdateLink);
             Controls.Add(CoreTabControl);
             Controls.Add(DonateLink);
             Controls.Add(GithubLink);
@@ -993,5 +986,6 @@
         private ComboBox AudioDeviceDropdown;
         private Button PluginDataDirButton;
         private Button CoreConfigFolder;
+        private LinkLabel UpdateLink;
     }
 }
