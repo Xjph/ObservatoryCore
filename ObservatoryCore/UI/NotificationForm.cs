@@ -141,7 +141,7 @@ namespace Observatory.UI
                 else
                     screenBounds = Screen.PrimaryScreen.Bounds;
             else
-                screenBounds = Screen.AllScreens[screen - 1].Bounds;
+                screenBounds = Screen.AllScreens[screen].Bounds;
 
             if (x >= 0 && y >= 0)
             {
