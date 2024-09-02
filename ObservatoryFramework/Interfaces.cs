@@ -1,7 +1,7 @@
-﻿using System;
-using System.Net.Http;
-using Observatory.Framework.Files;
+﻿using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
+using Observatory.Framework.ParameterTypes;
+using System.Drawing;
 
 namespace Observatory.Framework.Interfaces
 {
@@ -50,6 +50,43 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         public object Settings { get; set; }
 
+        /// <summary>
+        /// <para>Plugin-specific object implementing the IComparer interface which is used to sort columns in the basic UI datagrid.</para>
+        /// <para>If omitted a natural sort order is used.</para>
+        /// </summary>
+        public IObservatoryComparer ColumnSorter
+        { get => null; }
+
+        /// <summary>
+        /// Receives data sent by other plugins.
+        /// </summary>
+        public void HandlePluginMessage(string sourceName, string sourceVersion, object messageArgs)
+        { }
+
+        /// <summary>
+        /// <para>Plugin specific data export implementation. Omit or return null to use Observatory's own export process.</para>
+        /// <para>While default behaviour is expected to be a delimited text file (i.e., .csv), a plugin may create a file in any format.</para>
+        /// </summary>
+        /// <param name="delimiter">Column delimiter for csv export.</param>
+        /// <param name="filetype">File extension to use for file. Change this when returning a file format other than delimited text.</param>
+        /// <returns>File content as a byte array.</returns>
+        public byte[] ExportContent(string delimiter, ref string filetype) 
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Called when Observatory finishes loading and the UI is ready.
+        /// </summary>
+        public void ObservatoryReady()
+        { }
+
+        /// <summary>
+        /// Method called to check if a control should be themed.
+        /// </summary>
+        /// <param name="control">Control object to be themed.</param>
+        /// <returns>Whether theme should be applied.</returns>
+        public bool ApplyTheme(object control) => true;
     }
 
     /// <summary>
@@ -88,7 +125,7 @@ namespace Observatory.Framework.Interfaces
         /// Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
-        [Obsolete] // Replaced by LogMonitorStateChanged 
+        [Obsolete("Deprecated in favour of LogMonitorStateChanged")]
         public void ReadAllStarted()
         { }
 
@@ -97,7 +134,7 @@ namespace Observatory.Framework.Interfaces
         /// Used to track if a "Read All" operation is in progress or not to avoid unnecessary processing or notifications.<br/>
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
-        [Obsolete] // Replaced by LogMonitorStateChanged
+        [Obsolete("Deprecated in favour of LogMonitorStateChanged")]
         public void ReadAllFinished()
         { }
     }
@@ -114,6 +151,20 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="notificationEventArgs">Details of the notification as sent from the originating worker plugin.</param>
         public void OnNotificationEvent(NotificationArgs notificationEventArgs);
+
+        /// <summary>
+        /// Property set by notification plugins to indicate to Core 
+        /// that native audio notifications should be disabled/suppressed.
+        /// </summary>
+        public bool OverrideAudioNotifications
+        { get => false; }
+
+        /// <summary>
+        /// Property set by notification plugins to indicate to Core 
+        /// that native popup notifications should be disabled/suppressed.
+        /// </summary>
+        public bool OverridePopupNotifications
+        { get => false; }
     }
 
     /// <summary>
@@ -135,7 +186,7 @@ namespace Observatory.Framework.Interfaces
         /// <param name="notificationEventArgs">NotificationArgs object specifying notification content and behaviour.</param>
         /// <returns>Guid associated with the notification during its lifetime. Used as an argument with CancelNotification and UpdateNotification.</returns>
         public Guid SendNotification(NotificationArgs notificationEventArgs);
-        
+
         /// <summary>
         /// Cancel or close an active notification.
         /// </summary>
@@ -161,7 +212,25 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
         /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
-        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items);
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items)
+        {
+            AddGridItems(worker, items, false);
+        }
+
+        /// <summary>
+        /// Add multiple items to the bottom of the basic UI grid.
+        /// </summary>
+        /// <param name="worker">Reference to the calling plugin's worker interface.</param>
+        /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+        /// <param name="grouped">(optional) Specify that the items being added should be kept together and sorted as a single unit.</param>
+        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items, bool grouped = false);
+
+        /// <summary>
+        /// Replace the contents of the grid with the provided items.
+        /// </summary>
+        /// <param name="worker">Reference to the calling plugin's worker interface.</param>
+        /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+        public void SetGridItems(IObservatoryWorker worker, IEnumerable<object> items);
 
         /// <summary>
         /// Clears basic UI grid, removing all items.
@@ -186,7 +255,7 @@ namespace Observatory.Framework.Interfaces
         /// or pass it along to its collaborators.
         /// </summary>
         /// <param name="plugin">The calling plugin</param>
-        public Action<Exception, String> GetPluginErrorLogger (IObservatoryPlugin plugin);
+        public Action<Exception, string> GetPluginErrorLogger(IObservatoryPlugin plugin);
 
         /// <summary>
         /// Perform an action on the current Avalonia UI thread.
@@ -213,5 +282,89 @@ namespace Observatory.Framework.Interfaces
         /// Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
         /// </summary>
         public string PluginStorageFolder { get; }
+
+        /// <summary>
+        /// Plays audio file using default audio device.
+        /// </summary>
+        /// <param name="filePath">Absolute path to audio file.</param>
+        /// <param name="options">Additional options class for customizing audio playback.</param>
+        public Task PlayAudioFile(string filePath, AudioOptions options = null);
+
+        /// <summary>
+        /// Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
+        /// </summary>
+        public void SendPluginMessage(IObservatoryPlugin plugin, object message);
+
+        /// <summary>
+        /// Register a UI control for themeing.
+        /// </summary>
+        /// <param name="control">UI Control object or ToolStripMenuItem</param>
+        public void RegisterControl(object control);
+
+        /// <summary>
+        /// Register a UI control for themeing and provide a delegate to selectively theme it and its child controls.
+        /// </summary>
+        /// <param name="control">UI Control object or ToolStripMenuItem</param>
+        /// <param name="applyTheme">Function which accepts a control or ToolStripMenuItem and returns true or false to indicate whether it should be themed.</param>
+        public void RegisterControl(object control, Func<object, bool> applyTheme);
+
+        /// <summary>
+        /// Remove a UI control from themeing.
+        /// </summary>
+        /// <param name="control">UI Control object or ToolStripMenuItem</param>
+        public void UnregisterControl(object control);
+
+        /// <summary>
+        /// Retrieves the name of the currently selected UI theme.
+        /// </summary>
+        /// <returns>Name of the theme as a string.</returns>
+        public string GetCurrentThemeName();
+
+        /// <summary>
+        /// Retrieves the details of the currently selected UI theme.
+        /// </summary>
+        /// <returns>A dictionary keyed by the type of control as a string and the associated colour, e.g. { "Button.BackColor", Color.DimGrey } </returns>
+        public Dictionary<string, Color> GetCurrentThemeDetails();
+
+        /// <summary>
+        /// Request that Observatory save plugin settings to preserve changes made outside the settings UI.
+        /// </summary>
+        public void SaveSettings(IObservatoryPlugin plugin);
+
+        /// <summary>
+        /// Request that Observatory open the setting form for the current plugin
+        /// </summary>
+        public void OpenSettings(IObservatoryPlugin plugin);
+
+        /// <summary>
+        /// Deserializes a journal event from JSON into a journal object.
+        /// </summary>
+        /// <param name="json">JSON string representing a journal event</param>
+        /// <param name="replay">(Optional) Replay this event as a current journal entry to all plugins</param>
+        /// <returns>Journal object of the json passed in</returns>
+        public JournalEventArgs DeserializeEvent(string json, bool replay = false);
+
+        /// <summary>
+        /// Switches focus to the named plugin (if found).
+        /// </summary>
+        /// <param name="pluginName">The short name of the plugin which should be focused.</param>
+        public void FocusPlugin(string pluginName);
     }
+
+    /// <summary>
+    /// Extends the base IComparer interface with exposed values for the column ID and sort order to use.
+    /// </summary>
+    public interface IObservatoryComparer : System.Collections.IComparer
+    {
+        /// <summary>
+        /// Column ID to be currently sorted by.
+        /// </summary>
+        public int SortColumn { get; set; }
+
+        /// <summary>
+        /// Current order of sorting. Ascending = 1, Descending = -1, No sorting = 0.
+        /// </summary>
+        public int Order { get; set; }
+    }
+
 }

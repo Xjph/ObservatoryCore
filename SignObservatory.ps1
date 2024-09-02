@@ -1,0 +1,39 @@
+$cert = Get-ChildItem Cert:\LocalMachine\My -CodeSigningCert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\ObservatoryCore.exe -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\publish\framework-dependent\ObservatoryCore.exe -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryExplorer.dll -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryBotanist.dll -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryHerald.dll -Certificate $cert
+Set-AuthenticodeSignature -FilePath .\ObservatoryCore\bin\Portable\net8.0-windows7.0\publish\ObservatoryCore.exe -Certificate $cert
+# SIG # Begin signature block
+# MIIFjQYJKoZIhvcNAQcCoIIFfjCCBXoCAQExCzAJBgUrDgMCGgUAMGkGCisGAQQB
+# gjcCAQSgWzBZMDQGCisGAQQBgjcCAR4wJgIDAQAABBAfzDtgWUsITrck0sYpfvNR
+# AgEAAgEAAgEAAgEAAgEAMCEwCQYFKw4DAhoFAAQU1NNz6GTIylZYJT/ZhEB8CLdx
+# 6eWgggMnMIIDIzCCAgugAwIBAgIQS+YyjIH0QqtDnjQBoAFcnjANBgkqhkiG9w0B
+# AQsFADAbMRkwFwYDVQQDDBBqbWlsbGVyQHhqcGgubmV0MB4XDTI0MDUxOTE0NTQ0
+# MFoXDTI1MDUxOTE1MTQ0MFowGzEZMBcGA1UEAwwQam1pbGxlckB4anBoLm5ldDCC
+# ASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAKxAS9FIIfnBtKqxg1+/IfM/
+# 2Ul/jjnwG+jWJDJYARAjQ297dyN2n3JRELDnS0et8v8fzbWy9rADfWdRUWGdau1M
+# 7mQHKkymCVI34+PSfmhgskFh7gHh/560fikfL9ZmnHtVxpntxe/yT5kxWSJvZlsQ
+# i9jejIBrRIINgSTrkMt5zFwqCizLC5jI2gtqKYZ0+hFd1dJtUuc1Y73mj+cqtlIW
+# /3chD5jgdoJpjSaV0lrRMKJApudDgZ3jrnvgVMl8bgcsRtYOzybFY8MdKOcHttov
+# 3seuj+z2gP0K/2Z+eU4WDVXrYetaYHsYXMkYu1TXt3/rAtehqCnwFz/nSUtrIHEC
+# AwEAAaNjMGEwDgYDVR0PAQH/BAQDAgeAMBMGA1UdJQQMMAoGCCsGAQUFBwMDMBsG
+# A1UdEQQUMBKCEGptaWxsZXJAeGpwaC5uZXQwHQYDVR0OBBYEFKTVAzB0JNo8dwSw
+# bCz3/KdZv7SNMA0GCSqGSIb3DQEBCwUAA4IBAQAPDTU4Ib/kNY+FtumvhD6ufzBC
+# m0noUFIOwHww9zja8rz8JuLlXqxkTEVHAIR2s9qGHF5pn7Si/uurkX5dd/ydapNX
+# KWL0VPzoQlMof1hIBdPRvcBWVwGQlTJ97zpZl8KNqzTk1ZhBOnYZpi1q/DQLFtSX
+# 7RMqSta9jL7cjXtyEpiJD76aQgamKBJKuKBlrTu4pQPigYI9Mhw63hP0mXPWXw0p
+# StoGJa7Q+XyJwKNNpovwYpjcJYR+yl+wlHHH7IS9p19e3cSGJAbF64O1wwh5mu/p
+# JN4G1o0w3sAjLoiFQ8Op96RbkdTo+XEVpOwsj1hztw4AAWHFsl9FrQ/hC4awMYIB
+# 0DCCAcwCAQEwLzAbMRkwFwYDVQQDDBBqbWlsbGVyQHhqcGgubmV0AhBL5jKMgfRC
+# q0OeNAGgAVyeMAkGBSsOAwIaBQCgeDAYBgorBgEEAYI3AgEMMQowCKACgAChAoAA
+# MBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwGCisGAQQBgjcCAQsxDjAMBgor
+# BgEEAYI3AgEVMCMGCSqGSIb3DQEJBDEWBBR94UPubgLZBABU5rM5Z5s+iEkF5jAN
+# BgkqhkiG9w0BAQEFAASCAQBy87ermUJI0OgZu2uYv1mwcd4l9ow+Ml8hmt5Bw9pN
+# g7aK63AClB7eFyaLRuYtSvvni/vExQGABXXNiSxDeg01repC1pDf+uCR5Z7SIuxP
+# lTvQYACvIWQKMjQxJzg7691Qetleq9KAhgLxrhoDgPTXtboHUUhOdQCaxMdnylVT
+# l2y1SjimZA3nLwsAYjK2clzsXeetN11IBtdulo/VfS21YWjgUwoo7itVh5kDFApm
+# rdshYJoTQtsGjepzzbbdAUFi12gmbhJklkOIL8HZ7S7BsywqcD59/f9YqknWNN6u
+# 3f0+TE9/4E1amggsvgyORRlt8z9PnkSCZAsM6x0SSyhO
+# SIG # End signature block

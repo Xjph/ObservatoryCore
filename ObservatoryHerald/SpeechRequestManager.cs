@@ -1,14 +1,8 @@
 ﻿using Observatory.Framework;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
 using System.Security.Cryptography;
-using System.Threading.Tasks;
 using System.Collections.Concurrent;
 
 namespace Observatory.Herald
@@ -149,14 +143,7 @@ namespace Observatory.Herald
                 }
             };
 
-            var requestTask = httpClient.SendAsync(request);
-
-            requestTask.Wait(1000);
-
-            if (requestTask.IsFaulted) 
-                throw new PluginException("Herald", "Unable to retrieve available voices.", requestTask.Exception);
-
-            var response = requestTask.Result;
+            var response = httpClient.Send(request);
 
             if (response.IsSuccessStatusCode)
             {
@@ -187,7 +174,7 @@ namespace Observatory.Herald
             {
                 throw new PluginException("Herald", "Unable to retrieve available voices.", new Exception(response.StatusCode.ToString() + ": " + response.ReasonPhrase));
             }
-
+            
             return voices;
         }
 

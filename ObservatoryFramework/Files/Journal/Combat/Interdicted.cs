@@ -9,5 +9,6 @@
         public int CombatRank { get; init; }
         public string Faction { get; init; }
         public string Power { get; init; }
+        public bool IsThargoid { get; init; }
     }
 }

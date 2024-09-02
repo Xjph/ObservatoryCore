@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
+﻿using System.Collections.ObjectModel;
 using System.Text;
 using Observatory.Framework;
 using Observatory.Framework.Files.Journal;
@@ -183,12 +179,11 @@ namespace Observatory.Explorer
                             var exceptionResult = new ExplorerUIResults()
                             {
                                 BodyName = "Error Reading Custom Criteria File",
-                                Time = DateTime.Now.ToString("G"),
+                                Time = DateTime.Now.ToString("s").Replace('T', ' '),
                                 Description = e.Message,
                                 Details = e.OriginalScript
                             };
                             ObservatoryCore.AddGridItem(ExplorerWorker, exceptionResult);
-                            ExplorerWorker.settings.EnableCustomCriteria = false;
                         }
                         
                         CriteriaLastModified = fileModified;
@@ -240,17 +235,49 @@ namespace Observatory.Explorer
             if (results.Count > 0)
             {
                 StringBuilder notificationDetail = new();
+                StringBuilder notificationExtendedDetail = new();
                 foreach (var result in results)
                 {
-                    var scanResult = new ExplorerUIResults()
+                    if (result.Description.Contains('\n') || result.Detail.Contains('\n'))
                     {
-                        BodyName = result.SystemWide ? scanEvent.StarSystem : scanEvent.BodyName,
-                        Time = scanEvent.TimestampDateTime.ToString("G"),
-                        Description = result.Description,
-                        Details = result.Detail
-                    };
-                    ObservatoryCore.AddGridItem(ExplorerWorker, scanResult);
+                        var descriptionLines = result.Description.Split('\n');
+                        var detailLines = result.Detail.Split('\n');
+                        List<ExplorerUIResults> explorerUIResults = [];
+                        var lineOne = new ExplorerUIResults()
+                        {
+                            BodyName = result.SystemWide ? scanEvent.StarSystem : scanEvent.BodyName,
+                            Time = scanEvent.TimestampDateTime.ToString("s").Replace('T', ' '),
+                            Description = descriptionLines[0],
+                            Details = detailLines[0]
+                        };
+                        explorerUIResults.Add(lineOne);
+
+                        for (int i = 1; i < Math.Max(descriptionLines.Length, descriptionLines.Length); i++)
+                        {
+                            explorerUIResults.Add(new()
+                            {
+                                Description = i < descriptionLines.Length ? descriptionLines[i] : string.Empty,
+                                Details = i < detailLines.Length ? detailLines[i] : string.Empty
+                            });
+                        }
+
+                        ObservatoryCore.AddGridItems(ExplorerWorker, explorerUIResults);
+                    }
+                    else
+                    {
+                        
+
+                        var scanResult = new ExplorerUIResults()
+                        {
+                            BodyName = result.SystemWide ? scanEvent.StarSystem : scanEvent.BodyName,
+                            Time = scanEvent.TimestampDateTime.ToString("s").Replace('T', ' '),
+                            Description = result.Description,
+                            Details = result.Detail
+                        };
+                        ObservatoryCore.AddGridItem(ExplorerWorker, scanResult);
+                    }
                     notificationDetail.AppendLine(result.Description);
+                    notificationExtendedDetail.AppendLine(result.Detail);
                 }
 
                 string bodyAffix;
@@ -293,7 +320,10 @@ namespace Observatory.Explorer
                 {
                     Title = bodyLabel + bodyAffix,
                     TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
-                    Detail = notificationDetail.ToString()
+                    Detail = notificationDetail.ToString(),
+                    Sender = ExplorerWorker.ShortName,
+                    ExtendedDetails = notificationExtendedDetail.ToString(),
+                    CoalescingId = scanEvent.BodyID,
                 };
 
                 ObservatoryCore.SendNotification(args);

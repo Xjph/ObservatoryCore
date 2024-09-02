@@ -27,5 +27,6 @@ namespace Observatory.Framework.Files.Journal
         public CQC CQC { get; init; }
         [JsonPropertyName("FLEETCARRIER")]
         public FleetCarrier FleetCarrier { get; init; }
+        public Exobiology Exobiology { get; init; }
     }
 }

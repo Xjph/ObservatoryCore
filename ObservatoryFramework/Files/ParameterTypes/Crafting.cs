@@ -29,6 +29,30 @@ namespace Observatory.Framework.Files.ParameterTypes
         [JsonPropertyName("Recipes_Generated_Rank_5")]
         public int RecipesGeneratedRank5 { get; init; }
 
+        [JsonPropertyName("Suit_Mods_Applied")]
+        public int SuitModsApplied { get; init; }
+        
+        [JsonPropertyName("Suit_Mods_Applied_Full")]
+        public int SuitModsAppliedFull { get; init; }
+
+        [JsonPropertyName("Suits_Upgraded")]
+        public int SuitsUpgraded { get; init; }
+
+        [JsonPropertyName("Suits_Upgraded_Full")]
+        public int SuitsUpgradedFull { get; init; }
+
+        [JsonPropertyName("Weapon_Mods_Applied")]
+        public int WeaponModsApplied { get; init; }
+
+        [JsonPropertyName("Weapon_Mods_Applied_Full")]
+        public int WeaponModsAppliedFull { get; init; }
+
+        [JsonPropertyName("Weapons_Upgraded")]
+        public int WeaponsUpgraded { get; init; }
+
+        [JsonPropertyName("Weapons_Upgraded_Full")]
+        public int WeaponsUpgradedFull { get; init; }
+
         [JsonPropertyName("Recipes_Applied"), Obsolete(JournalUtilities.ObsoleteMessage)]
         public int RecipesApplied { get; init; }
 

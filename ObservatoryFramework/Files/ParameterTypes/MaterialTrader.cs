@@ -4,6 +4,12 @@ namespace Observatory.Framework.Files.ParameterTypes
 {
     public class MaterialTrader
     {
+        [JsonPropertyName("Assets_Traded_In")]
+        public int AssetsTradedIn { get; init; }
+
+        [JsonPropertyName("Assets_Traded_Out")]
+        public int AssetsTradedOut { get; init; }
+
         [JsonPropertyName("Trades_Completed")]
         public int TradesCompleted { get; init; }
 

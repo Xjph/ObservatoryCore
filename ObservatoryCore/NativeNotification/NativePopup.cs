@@ -1,14 +1,11 @@
 ﻿using Observatory.Framework;
-using System;
-using System.Collections.Generic;
-using Observatory.UI.Views;
-using Observatory.UI.ViewModels;
+using Observatory.UI;
 
 namespace Observatory.NativeNotification
 {
     public class NativePopup
     {
-        private Dictionary<Guid, NotificationView> notifications;
+        private Dictionary<Guid, NotificationForm> notifications;
 
         public NativePopup()
         {
@@ -18,30 +15,39 @@ namespace Observatory.NativeNotification
         public Guid InvokeNativeNotification(NotificationArgs notificationArgs)
         {
             var notificationGuid = Guid.NewGuid();
-            Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
+            Application.OpenForms[0]?.Invoke(() =>
             {
-                var notifyWindow = new NotificationView(notificationGuid) { DataContext = new NotificationViewModel(notificationArgs) };
-                notifyWindow.Closed += NotifyWindow_Closed;
+                var notification = new NotificationForm(notificationGuid, notificationArgs);
 
-                foreach (var notification in notifications)
+                notification.FormClosed += NotifyWindow_Closed;
+
+                foreach(var notificationForm in notifications)
                 {
-                    notification.Value.AdjustOffset(true);
+                    notificationForm.Value.AdjustOffset(true);
                 }
 
-                notifications.Add(notificationGuid, notifyWindow);
-                notifyWindow.Show();
+                notifications.Add(notificationGuid, notification);
+                notification.Show();
             });
-
+            
             return notificationGuid;
         }
 
-        private void NotifyWindow_Closed(object sender, EventArgs e)
+        private void NotifyWindow_Closed(object? sender, EventArgs e)
         {
-            var currentNotification = (NotificationView)sender;
-
-            if (notifications.ContainsKey(currentNotification.Guid))
+            if (sender != null)
             {
-                notifications.Remove(currentNotification.Guid);
+                var currentNotification = (NotificationForm)sender;
+
+                foreach (var notification in notifications.Where(n => n.Value.CreationTime < currentNotification.CreationTime))
+                {
+                    notification.Value.AdjustOffset(false);
+                }
+
+                if (notifications.ContainsKey(currentNotification.Guid))
+                {
+                    notifications.Remove(currentNotification.Guid);
+                }
             }
         }
 
@@ -49,10 +55,7 @@ namespace Observatory.NativeNotification
         {
             if (notifications.ContainsKey(guid))
             {
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    notifications[guid].Close();
-                });
+                notifications[guid].Close();
             }
         }
 
@@ -60,10 +63,7 @@ namespace Observatory.NativeNotification
         {
             if (notifications.ContainsKey(guid))
             {
-                Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() =>
-                {
-                    notifications[guid].DataContext = new NotificationViewModel(notificationArgs);
-                });
+                notifications[guid].Update(notificationArgs);
             }
         }
 

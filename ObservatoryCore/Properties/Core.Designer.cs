@@ -12,7 +12,7 @@ namespace Observatory.Properties {
     
     
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.2.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.10.0.0")]
     internal sealed partial class Core : global::System.Configuration.ApplicationSettingsBase {
         
         private static Core defaultInstance = ((Core)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Core())));
@@ -277,13 +277,120 @@ namespace Observatory.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Fixed width")]
-        public string ExportStyle {
+        public global::System.Collections.Specialized.StringCollection UnsignedAllowed {
             get {
-                return ((string)(this["ExportStyle"]));
+                return ((global::System.Collections.Specialized.StringCollection)(this["UnsignedAllowed"]));
             }
             set {
-                this["ExportStyle"] = value;
+                this["UnsignedAllowed"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Dark")]
+        public string Theme {
+            get {
+                return ((string)(this["Theme"]));
+            }
+            set {
+                this["Theme"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ColumnSizing {
+            get {
+                return ((string)(this["ColumnSizing"]));
+            }
+            set {
+                this["ColumnSizing"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PluginsEnabled {
+            get {
+                return ((string)(this["PluginsEnabled"]));
+            }
+            set {
+                this["PluginsEnabled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string SavedThemes {
+            get {
+                return ((string)(this["SavedThemes"]));
+            }
+            set {
+                this["SavedThemes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("250")]
+        public int CoreSplitterDistance {
+            get {
+                return ((int)(this["CoreSplitterDistance"]));
+            }
+            set {
+                this["CoreSplitterDistance"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int LastTabIndex {
+            get {
+                return ((int)(this["LastTabIndex"]));
+            }
+            set {
+                this["LastTabIndex"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0")]
+        public int ExportFormat {
+            get {
+                return ((int)(this["ExportFormat"]));
+            }
+            set {
+                this["ExportFormat"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.75")]
+        public float AudioVolume {
+            get {
+                return ((float)(this["AudioVolume"]));
+            }
+            set {
+                this["AudioVolume"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string AudioDevice {
+            get {
+                return ((string)(this["AudioDevice"]));
+            }
+            set {
+                this["AudioDevice"] = value;
             }
         }
     }
