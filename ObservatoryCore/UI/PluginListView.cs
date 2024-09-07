@@ -55,6 +55,8 @@ namespace Observatory.UI
                 _columnSizing.Add(_pluginColumnSizing);
             }
 
+            // Some plugins don't provide any columns?
+            if (plugin.PluginUI.DataGrid.Any())
             foreach (var property in plugin.PluginUI.DataGrid.First().GetType().GetProperties())
             {
                 string columnLabel = LowerUpper().Replace(UpperUpperLower().Replace(property.Name, "$1 $2"), "$1 $2");
