@@ -334,13 +334,22 @@ namespace Observatory.UI
 
         private void CoreForm_Load(object sender, EventArgs e)
         {
-            CoreSplitter.SplitterDistance = Math.Clamp(Properties.Core.Default.CoreSplitterDistance, 20, CoreSplitter.Height - 20);
+            CoreSplitter.SplitterDistance = Math.Clamp(
+                Properties.Core.Default.CoreSplitterDistance, 
+                20, 
+                Math.Min(CoreSplitter.Height - 20, 20)); // Edge case exception.
             var savedLocation = Properties.Core.Default.MainWindowPosition;
             var savedSize = Properties.Core.Default.MainWindowSize;
 
             // Ensure we're on screen
             bool onscreen = false;
-            var formBounds = new Rectangle(savedLocation, savedSize);
+            // Shrink the bounds slightly to allow window to touch edges.
+            var formBounds = new Rectangle(
+                savedLocation.X + 20, 
+                savedLocation.Y + 20, 
+                // Should never be this small, preventing edge case exception
+                Math.Min(savedSize.Width - 40, 1), 
+                Math.Min(savedSize.Height - 40, 1));
             foreach (var screen in Screen.AllScreens)
             {
                 onscreen = onscreen || screen.WorkingArea.Contains(formBounds);
