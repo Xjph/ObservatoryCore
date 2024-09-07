@@ -337,7 +337,7 @@ namespace Observatory.UI
             CoreSplitter.SplitterDistance = Math.Clamp(
                 Properties.Core.Default.CoreSplitterDistance, 
                 20, 
-                Math.Min(CoreSplitter.Height - 20, 20)); // Edge case exception.
+                Math.Max(CoreSplitter.Height - 20, 20)); // Edge case exception.
             var savedLocation = Properties.Core.Default.MainWindowPosition;
             var savedSize = Properties.Core.Default.MainWindowSize;
 
@@ -348,8 +348,8 @@ namespace Observatory.UI
                 savedLocation.X + 20, 
                 savedLocation.Y + 20, 
                 // Should never be this small, preventing edge case exception
-                Math.Min(savedSize.Width - 40, 1), 
-                Math.Min(savedSize.Height - 40, 1));
+                Math.Max(savedSize.Width - 40, 1), 
+                Math.Max(savedSize.Height - 40, 1));
             foreach (var screen in Screen.AllScreens)
             {
                 onscreen = onscreen || screen.WorkingArea.Contains(formBounds);
