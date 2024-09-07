@@ -140,7 +140,7 @@ namespace Observatory.UI
                 {
                     Items.AddRange(items.ToArray());
                     if (finalItem != null
-                    && (LogMonitor.GetInstance.CurrentState & LogMonitorState.Batch) == LogMonitorState.Batch)
+                    && (LogMonitor.GetInstance.CurrentState & LogMonitorState.Batch) != LogMonitorState.Batch)
                         EnsureVisible(Items.IndexOf(finalItem));
                 };
 
