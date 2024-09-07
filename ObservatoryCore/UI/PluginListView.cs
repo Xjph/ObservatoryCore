@@ -100,6 +100,8 @@ namespace Observatory.UI
             {
                 List<ListViewItem> items = [];
 
+                ListViewItem? finalItem = null;
+
                 while (addedItemList.TryDequeue(out object? newItem))
                 {
                     ListViewItem newListItem = new();
@@ -131,14 +133,24 @@ namespace Observatory.UI
                     }
                     newListItem.SubItems.RemoveAt(0);
                     items.Add(newListItem);
+                    finalItem = newListItem;
                 }
+
+                var addItemsAndScroll = () =>
+                {
+                    Items.AddRange(items.ToArray());
+                    if (finalItem != null
+                    && (LogMonitor.GetInstance.CurrentState & LogMonitorState.Batch) == LogMonitorState.Batch)
+                        EnsureVisible(Items.IndexOf(finalItem));
+                };
+
                 if (Created)
                 {
-                    Invoke(() => Items.AddRange(items.ToArray()));
+                    Invoke(addItemsAndScroll);
                 }
                 else
                 {
-                    Items.AddRange(items.ToArray());
+                    addItemsAndScroll();
                 }
 
                 timer.Stop();
