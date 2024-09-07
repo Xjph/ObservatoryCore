@@ -149,7 +149,10 @@ namespace Observatory.UI
 
         private void AddTheme(string themeName, Dictionary<string, Color> theme)
         {
-            Themes.Add(themeName, theme);
+            if (Themes.ContainsKey(themeName))
+                Themes[themeName] = theme;
+            else
+                Themes.Add(themeName, theme);
         }
 
         private void SaveTheme(ThemeSerializationContainer theme)
