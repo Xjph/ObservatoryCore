@@ -45,6 +45,7 @@ namespace Observatory.UI
             DisableOverriddenNotification();
 
             themeManager = ThemeManager.GetInstance;
+            themeManager.CurrentTheme = Properties.Core.Default.Theme;
             themeManager.RegisterControl(this);
 
             foreach (var theme in themeManager.GetThemes)

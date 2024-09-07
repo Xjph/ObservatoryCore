@@ -177,7 +177,9 @@ namespace Observatory.UI
 
         private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            themeManager.CurrentTheme = ThemeDropdown.SelectedItem.ToString() ?? themeManager.CurrentTheme;
+            themeManager.CurrentTheme = ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
+            Properties.Core.Default.Theme = themeManager.CurrentTheme;
+            SettingsManager.Save();
         }
 
         private void ButtonAddTheme_Click(object sender, EventArgs e)
