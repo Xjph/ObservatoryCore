@@ -11,6 +11,7 @@ namespace Observatory.UI
         private readonly IObservatoryPlugin _plugin;
         private readonly List<int> _colHeight = new List<int>();
         private int _colWidth = 400;
+        private double _scale;
 
         public SettingsForm(IObservatoryPlugin plugin)
         {
@@ -24,6 +25,10 @@ namespace Observatory.UI
                 int minScreenWidth = Screen.AllScreens.Min(s => s.Bounds.Width);
                 _colWidth = Math.Min(attrib.Width, minScreenWidth / 2);
             }
+
+            _scale = (double)DeviceDpi / 96;
+            _colWidth = (int)(_scale * _colWidth);
+
             var settings = PluginManagement.PluginManager.GetSettingDisplayNames(plugin.Settings).Where(s => !Attribute.IsDefined(s.Key, typeof(SettingIgnore)));
             CreateControls(settings);
 
@@ -51,7 +56,7 @@ namespace Observatory.UI
             {
                 // Reset the column tracking for checkboxes if this isn't a checkbox or explicitly requested
                 // to start a new grouping of settings.
-                int addedHeight = 35;
+                int addedHeight = (int)(35 * _scale);
                 var newGroup = Attribute.GetCustomAttribute(setting.Key, typeof(SettingNewGroup)) as SettingNewGroup;
 
                 if (setting.Key.PropertyType.Name != "Boolean" || newGroup != null)
@@ -212,7 +217,7 @@ namespace Observatory.UI
                 ForeColor = Color.LightGray,
             };
             label.Font = new Font(label.Font.FontFamily, label.Font.Size + 1, FontStyle.Bold);
-            label.Height += 10; // Add spacing.
+            label.Height += (int)(10 * _scale); // Add spacing.
             return label;
         }
 
@@ -257,7 +262,7 @@ namespace Observatory.UI
             {
                 Text = settingName,
                 Width = Convert.ToInt32(_colWidth * 0.8),
-                Height = 35,
+                Height = (int)(35 * _scale),
                 FlatStyle = FlatStyle.Flat,
             };
 
@@ -351,7 +356,7 @@ namespace Observatory.UI
                 Text = setting.Value,
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
                 Checked = (bool?)setting.Key.GetValue(_plugin.Settings) ?? false,
-                Height = 30,
+                Height = (int)(30 * _scale),
                 Width = _colWidth,
                 ForeColor = Color.LightGray
             };
@@ -406,7 +411,7 @@ namespace Observatory.UI
             Button button = new()
             {
                 Text = "Browse",
-                Height = 35,
+                Height = (int)(35 * _scale),
                 Width = _colWidth / 2,
                 FlatStyle = FlatStyle.Flat,
             };
