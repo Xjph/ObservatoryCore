@@ -82,11 +82,11 @@ namespace Observatory.Utils
                     return;
 
                 using (var file = new AudioFileReader(audioTask.FilePath))
-                using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) })
+                using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) - 1 })
                 {
                     output.Init(file);
-                    output.Play();
                     output.Volume = Properties.Core.Default.AudioVolume;
+                    output.Play();
 
                     while (output.PlaybackState == PlaybackState.Playing)
                     {
@@ -120,23 +120,37 @@ namespace Observatory.Utils
         public static List<string> GetDevices()
         {
             List<string> devices = new();
+            // Indexing starts with default device as -1
             for (int n = -1; n < WaveOut.DeviceCount; n++)
-                devices.Add(WaveOut.GetCapabilities(n).ProductName); // Index will be offset by 1 due to the default device being -1
+            {
+                try
+                {
+                    var deviceName = WaveOut.GetCapabilities(n).ProductName;
+                    if (deviceName == "Microsoft Sound Mapper")
+                        deviceName = "Default Audio Device";
+                    devices.Add(deviceName); 
+                }
+                catch
+                {
+                    // -1 potentially not present, ignore and continue
+                }
+            }
+                
             return devices;
         }
-        public static int GetDeviceIndex(string deviceName)
-        {
-            for (int n = -1; n < WaveOut.DeviceCount; n++)
-                if (WaveOut.GetCapabilities(n).ProductName == deviceName)
-                    return n;
-            return -1;
-        }
+
+        public static int GetDeviceIndex(string deviceName) => GetDevices().IndexOf(deviceName);
+
         public static string GetDeviceName(int deviceIndex)
         {
-            if (!(-1 <= deviceIndex && deviceIndex < WaveOut.DeviceCount)) // If the device index is out of range
-                deviceIndex = -1; // Set to default device
-            return WaveOut.GetCapabilities(deviceIndex).ProductName;
+            var devices = GetDevices();
+            if (devices.Count <= deviceIndex)
+                return devices.FirstOrDefault(string.Empty);
+            else
+                return devices[deviceIndex];
         }
+
+        public static string GetFirstDevice() => GetDevices().FirstOrDefault(string.Empty);
     }
 
     internal class AudioTaskData

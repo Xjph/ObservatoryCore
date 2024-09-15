@@ -97,7 +97,7 @@ namespace Observatory.UI
 
             foreach (var device in AudioHandler.GetDevices())
                 AudioDeviceDropdown.Items.Add(device);
-            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) + 1; // GetDeviceIndex accounts for non-matches. Offset by 1 to account for default device.
+            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
 #endif
         }
 
