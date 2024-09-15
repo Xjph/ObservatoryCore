@@ -105,14 +105,14 @@ namespace Observatory.UI
         {
             var settings = Properties.Core.Default;
 
-            TryLoadSetting(DisplayDropdown, "SelectedIndex", settings.NativeNotifyScreen + 1);
-            TryLoadSetting(CornerDropdown, "SelectedIndex", settings.NativeNotifyCorner);
+            TryLoadSetting(DisplayDropdown, "SelectedIndex", settings.NativeNotifyScreen + 1, 0);
+            TryLoadSetting(CornerDropdown, "SelectedIndex", settings.NativeNotifyCorner, 0);
             TryLoadSetting(FontDropdown, "SelectedItem", settings.NativeNotifyFont);
-            TryLoadSetting(ScaleSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyScale, 1, 500));
-            TryLoadSetting(DurationSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyTimeout, 100, 60000));
+            TryLoadSetting(ScaleSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyScale, 1, 500), 100);
+            TryLoadSetting(DurationSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyTimeout, 100, 60000), 5000);
             TryLoadSetting(ColourButton, "BackColor", Color.FromArgb((int)settings.NativeNotifyColour));
             TryLoadSetting(PopupCheckbox, "Checked", settings.NativeNotify);
-            TryLoadSetting(AudioVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100)); // Also controls AudioVolume setting
+            TryLoadSetting(AudioVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100), 100); // Also controls AudioVolume setting
             TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, 1, 10));
             TryLoadSetting(VoiceDropdown, "SelectedItem", settings.VoiceSelected);
             TryLoadSetting(VoiceCheckbox, "Checked", settings.VoiceNotify);
@@ -136,7 +136,7 @@ namespace Observatory.UI
 #endif
         }
 
-        static private void TryLoadSetting(Control control, string property, object newValue)
+        static private void TryLoadSetting(Control control, string property, object newValue, object? defaultValue = null)
         {
             try
             {
@@ -145,6 +145,8 @@ namespace Observatory.UI
             catch (Exception ex)
             {
                 MessageBox.Show($"Unable to load all settings ({control.Name}), some values may have been cleared.\r\nError: {ex.InnerException?.Message}");
+                if (defaultValue != null)
+                    (control.GetType().GetProperty(property)?.GetSetMethod())?.Invoke(control, [defaultValue]);
             }
         }
 
