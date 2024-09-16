@@ -1,6 +1,4 @@
 ﻿using Observatory.Framework;
-using System;
-using System.Collections.Generic;
 
 namespace Observatory.Herald
 {
@@ -32,20 +30,13 @@ namespace Observatory.Herald
         [SettingIgnore]
         public string SelectedRate { get; set; }
 
-        [SettingDisplayName("Volume")]
-        [SettingNumericUseSlider, SettingNumericBounds(0,100,1)]
-        public int Volume { get; set;}
+        [SettingDisplayName("Cache Size (MB): ")]
+        public int CacheSize { get; set; }
 
         [System.Text.Json.Serialization.JsonIgnore]
         public Action Test { get; internal set; }
 
-        [SettingDisplayName("Enabled")]
-        public bool Enabled { get; set; }
-
         [SettingIgnore]
         public string ApiEndpoint { get; set; }
-
-        [SettingDisplayName("Cache Size (MB): ")]
-        public int CacheSize { get; set; }
     }
 }

@@ -1,15 +1,4 @@
-﻿using Observatory.Framework;
-using Observatory.Framework.Files.Journal;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using Observatory.Framework;
 
 namespace Observatory.UI
 {
@@ -26,10 +15,37 @@ namespace Observatory.UI
         {
             get
             {
+                const int WS_EX_LAYERED = 0x80000;
+                const int WS_EX_TRANSPARENT = 0x20;
+                const int WS_EX_TOPMOST = 0x8;
                 CreateParams cp = base.CreateParams;
-                cp.ExStyle |= 0x00000008; // WS_EX_TOPMOST
+                cp.ExStyle |= WS_EX_LAYERED;
+                cp.ExStyle |= WS_EX_TRANSPARENT;
+                cp.ExStyle |= WS_EX_TOPMOST;
                 return cp;
             }
+        }
+        protected override void WndProc(ref Message m)
+        {
+
+            switch (m.Msg)
+            {
+                case DwmHelper.WM_DWMCOMPOSITIONCHANGED:
+                    if (System.Environment.OSVersion.Version.Major >= 6 && DwmHelper.IsCompositionEnabled())
+                    {
+                        var policy = DwmHelper.DWMNCRENDERINGPOLICY.Enabled;
+                        DwmHelper.WindowSetAttribute(Handle, DwmHelper.DWMWINDOWATTRIBUTE.NCRenderingPolicy, (int)policy);
+                        DwmHelper.WindowBorderlessDropShadow(Handle, 2);
+                        m.Result = IntPtr.Zero;
+                    }
+                    break;
+                case 0x0084:
+                    m.Result = (IntPtr)(-1);
+                    return;
+                default:
+                    break;
+            }
+            base.WndProc(ref m);
         }
 
         public NotificationForm(Guid guid, NotificationArgs args)
@@ -59,15 +75,17 @@ namespace Observatory.UI
                 // DwmHelper.WindowBorderlessDropShadow(Handle, 2);
             }
 
+            var scale = Properties.Core.Default.NativeNotifyScale / 100.0f;
+            Scale(new SizeF(scale, scale));
 
             Title.ForeColor = _color;
             Title.Text = args.Title;
-            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 24);
+            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 18 * scale);
             Body.ForeColor = _color;
             Body.Text = args.Detail;
-            Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14);
+            Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14 * scale);
             Paint += DrawBorder;
-            
+
             AdjustPosition(args.XPos / 100, args.YPos / 100);
 
             _timer = new();
@@ -123,13 +141,13 @@ namespace Observatory.UI
                 else
                     screenBounds = Screen.PrimaryScreen.Bounds;
             else
-                screenBounds = Screen.AllScreens[screen - 1].Bounds;
+                screenBounds = Screen.AllScreens[screen].Bounds;
 
             if (x >= 0 && y >= 0)
             {
                 _defaultPosition = false;
                 int xLocation = Convert.ToInt32(screenBounds.Width * x);
-                int yLocation = Convert.ToInt32(screenBounds.Height * x);
+                int yLocation = Convert.ToInt32(screenBounds.Height * y);
                 Location = Point.Add(screenBounds.Location, new Size(xLocation, yLocation));
             }
             else
@@ -175,40 +193,20 @@ namespace Observatory.UI
             }
         }
 
-        protected override void WndProc(ref Message m)
-        {
 
-            switch (m.Msg)
-            {
-                case DwmHelper.WM_DWMCOMPOSITIONCHANGED:
-                    if (System.Environment.OSVersion.Version.Major >= 6 && DwmHelper.IsCompositionEnabled())
-                    {
-                        var policy = DwmHelper.DWMNCRENDERINGPOLICY.Enabled;
-                        DwmHelper.WindowSetAttribute(Handle, DwmHelper.DWMWINDOWATTRIBUTE.NCRenderingPolicy, (int)policy);
-                        DwmHelper.WindowBorderlessDropShadow(Handle, 2);
-                        m.Result = IntPtr.Zero;
-                    }
-                    break;
-                case 0x0084:
-                    m.Result = (IntPtr)(-1);
-                    return;
-                default:
-                    break;
-            }
-            base.WndProc(ref m);
-        }
 
         private void DrawText(object? sender, PaintEventArgs e)
         {
             if (sender != null)
             {
                 var label = (Label)sender;
-                e.Graphics.Clear(Color.Transparent);
+                e.Graphics.Clear(Color.FromArgb(64, 64, 64));
                 using (var sf = new StringFormat())
                 using (var brush = new SolidBrush(label.ForeColor))
                 {
                     sf.Alignment = sf.LineAlignment = StringAlignment.Near;
-                    e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+                    // Transparency breaks antialiasing :(
+                    e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
                     e.Graphics.DrawString(label.Text, label.Font, brush, label.ClientRectangle, sf);
                 }
             }

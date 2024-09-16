@@ -1,15 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFramework>net6.0</TargetFramework>
+	<TargetFramework>net8.0</TargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
-    <Configurations>Debug;Release;Portable</Configurations>
+    <Configurations>Debug;Release;Portable;Proton</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
-    <VersionSuffix>0.1.$([System.DateTime]::UtcNow.Year.ToString().Substring(2))$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, "0")).$([System.DateTime]::UtcNow.ToString(HHmm))</VersionSuffix>
+    <VersionSuffix>0.2.$([System.DateTime]::UtcNow.Year.ToString().Substring(2))$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, "0")).$([System.DateTime]::UtcNow.ToString(HHmm))</VersionSuffix>
     <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
     <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
     <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
@@ -21,24 +21,19 @@
   </PropertyGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net6.0-windows\plugins\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)NLua.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net6.0-windows\plugins\deps\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)KeraLua.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net6.0-windows\plugins\deps\&quot; /y" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)runtimes\win-x64\native\lua54.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net6.0-windows\plugins\deps\&quot; /y" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="[ ! -d &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps&quot; ] &amp;&amp; mkdir -p &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps&quot; || echo Directory already exists" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetPath)&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/&quot; -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)NLua.dll&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/&quot; -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)KeraLua.dll&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)plugins/deps/&quot; -f" />
-    <Exec Condition=" '$(OS)' != 'Windows_NT' " Command="cp &quot;$(TargetDir)runtimes/linux-x64/native/liblua54.so&quot; &quot;$(ProjectDir)../ObservatoryCore/$(OutDir)lua54.so&quot; -f" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\&quot; /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)NLua.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\deps\&quot; /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)KeraLua.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\deps\&quot; /y" />
+    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)runtimes\win-x64\native\lua54.dll&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\deps\&quot; /y" />
   </Target>
   
   <ItemGroup>
-    <PackageReference Include="NLua" Version="1.6.3" />
+    <PackageReference Include="NLua" Version="1.7.3" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="ObservatoryFramework">
-      <HintPath>..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll</HintPath>
+      <HintPath>..\ObservatoryFramework\bin\Release\net8.0\ObservatoryFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
 

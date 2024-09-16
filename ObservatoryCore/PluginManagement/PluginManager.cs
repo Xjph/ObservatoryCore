@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Data;
 using Observatory.Framework.Interfaces;
-using System.IO;
 using Observatory.Framework;
 using System.Text.Json;
 using Observatory.Utils;
@@ -33,15 +29,44 @@ namespace Observatory.PluginManagement
         public readonly List<(string error, string? detail)> errorList;
         public readonly List<Panel> pluginPanels;
         public readonly List<DataTable> pluginTables;
-        public readonly List<(IObservatoryWorker plugin, PluginStatus signed)> workerPlugins;
-        public readonly List<(IObservatoryNotifier plugin, PluginStatus signed)> notifyPlugins;
+        private readonly List<(IObservatoryWorker plugin, PluginStatus signed)> _workerPlugins;
+        private readonly List<(IObservatoryNotifier plugin, PluginStatus signed)> _notifyPlugins;
         private readonly PluginCore core;
+        private readonly PluginEventHandler pluginHandler;
         
+        public PluginCore Core { get { return core; } }
+
+
+        // Intended for rendering Tabs. Includes Disabled plugins.
+        public List<(IObservatoryWorker plugin, PluginStatus signed)> AllUIPlugins
+        {
+            get => _workerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None).ToList();
+        }
+
+        public List<(IObservatoryWorker plugin, PluginStatus signed)> EnabledWorkerPlugins
+        {
+            get => _workerPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p.plugin)).ToList();
+        }
+
+        public List<(IObservatoryNotifier plugin, PluginStatus signed)> EnabledNotifyPlugins
+        {
+            get => _notifyPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p.plugin)).ToList();
+        }
+
+        public bool HasPopupOverrideNotifiers
+        {
+            get => EnabledNotifyPlugins.Any(n => n.plugin.OverridePopupNotifications);
+        }
+        public bool HasAudioOverrideNotifiers
+        {
+            get => EnabledNotifyPlugins.Any(n => n.plugin.OverrideAudioNotifications);
+        }
+
         private PluginManager()
         {
-            errorList = LoadPlugins(out workerPlugins, out notifyPlugins);
+            errorList = LoadPlugins(out _workerPlugins, out _notifyPlugins);
 
-            var pluginHandler = new PluginEventHandler(workerPlugins.Select(p => p.plugin), notifyPlugins.Select(p => p.plugin));
+            pluginHandler = new PluginEventHandler(_workerPlugins.Select(p => p.plugin), _notifyPlugins.Select(p => p.plugin));
             var logMonitor = LogMonitor.GetInstance;
             pluginPanels = new();
             pluginTables = new();
@@ -57,7 +82,7 @@ namespace Observatory.PluginManagement
 
             List<IObservatoryPlugin> errorPlugins = new();
             
-            foreach (var plugin in workerPlugins.Select(p => p.plugin))
+            foreach (var plugin in _workerPlugins.Select(p => p.plugin))
             {
                 try
                 {
@@ -71,10 +96,10 @@ namespace Observatory.PluginManagement
                 }
             }
 
-            workerPlugins.RemoveAll(w => errorPlugins.Contains(w.plugin));
+            _workerPlugins.RemoveAll(w => errorPlugins.Contains(w.plugin));
             errorPlugins.Clear();
 
-            foreach (var plugin in notifyPlugins.Select(p => p.plugin))
+            foreach (var plugin in _notifyPlugins.Select(p => p.plugin))
             {
                 // Notifiers which are also workers need not be loaded again (they are the same instance).
                 if (!plugin.GetType().IsAssignableTo(typeof(IObservatoryWorker)))
@@ -97,7 +122,7 @@ namespace Observatory.PluginManagement
                 }
             }
 
-            notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
+            _notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
 
             core.Notification += pluginHandler.OnNotificationEvent;
             core.PluginMessage += pluginHandler.OnPluginMessageEvent;
@@ -164,14 +189,15 @@ namespace Observatory.PluginManagement
             return settingNames;
         }
 
-        public void SaveSettings(IObservatoryPlugin plugin, object settings)
+        public void SaveSettings(IObservatoryPlugin plugin)
         {
             string savedSettings = Properties.Core.Default.PluginSettings;
-            Dictionary<string, object> pluginSettings;
+            Dictionary<string, object>? pluginSettings;
 
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
                 pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings);
+                pluginSettings ??= new();
             }
             else
             {
@@ -180,11 +206,11 @@ namespace Observatory.PluginManagement
 
             if (pluginSettings.ContainsKey(plugin.Name))
             {
-                pluginSettings[plugin.Name] = settings;
+                pluginSettings[plugin.Name] = plugin.Settings;
             }
             else
             {
-                pluginSettings.Add(plugin.Name, settings);
+                pluginSettings.Add(plugin.Name, plugin.Settings);
             }
 
             string newSettings = JsonSerializer.Serialize(pluginSettings, new JsonSerializerOptions()
@@ -194,6 +220,11 @@ namespace Observatory.PluginManagement
 
             Properties.Core.Default.PluginSettings = newSettings;
             SettingsManager.Save();
+        }
+
+        public void SetPluginEnabled(IObservatoryPlugin plugin, bool enabled)
+        {
+            pluginHandler.SetPluginEnabled(plugin, enabled);
         }
 
         private static List<(string, string?)> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
@@ -299,6 +330,24 @@ namespace Observatory.PluginManagement
                 }
             }
             return errorList;
+        }
+
+        public void ObservatoryReady()
+        {
+            var workers = EnabledWorkerPlugins.Select(p => p.plugin);
+            var notifiers = EnabledNotifyPlugins.Select(p => p.plugin);
+
+            foreach (IObservatoryPlugin plugin in workers.Concat<IObservatoryPlugin>(notifiers))
+            {
+                try
+                {
+                    plugin.ObservatoryReady();
+                }
+                catch (Exception ex)
+                {
+                    core.GetPluginErrorLogger(plugin)(ex, "in ObservatoryReady()");
+                }
+            }
         }
 
         private static string ComputeSha512Hash(string filePath)

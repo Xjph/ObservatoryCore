@@ -1,17 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
 	<OutputType>WinExe</OutputType>
-	<TargetFramework>net6.0-windows</TargetFramework>
+	<TargetFramework>net8.0-windows7.0</TargetFramework>
 	<Nullable>enable</Nullable>
 	<UseWindowsForms>true</UseWindowsForms>
 	<ImplicitUsings>enable</ImplicitUsings>
 	<RootNamespace>Observatory</RootNamespace>
-	<Configurations>Debug;Release;Portable</Configurations>
+	<Configurations>Debug;Release;Portable;Proton</Configurations>
 	</PropertyGroup>
 
     <PropertyGroup>
-	    <VersionSuffix>0.2.$([System.DateTime]::UtcNow.Year.ToString().Substring(2))$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, "0")).$([System.DateTime]::UtcNow.ToString(HHmm))</VersionSuffix>
+		<ProjectName>Elite Observatory Core</ProjectName>
+	    <VersionSuffix>1.0.3.$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, "0"))$([System.DateTime]::UtcNow.Hour)</VersionSuffix>
 	    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
 	    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
 	    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
@@ -26,12 +27,6 @@
       <PackageReference Include="NAudio" Version="2.2.1" />
       <PackageReference Include="System.Speech" Version="8.0.0" />
     </ItemGroup>
-	
-	<ItemGroup>
-	<Reference Include="ObservatoryFramework">
-		<HintPath>..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll</HintPath>
-	</Reference>
-	</ItemGroup>
 	
 	<ItemGroup>
 	<Compile Update="Assets\Resources.Designer.cs">
@@ -72,12 +67,16 @@
 	<ItemGroup>
 	  <Folder Include="Resources\" />
 	</ItemGroup>
+	
+	<ItemGroup>
+	  <Reference Include="ObservatoryFramework">
+	    <HintPath>..\ObservatoryFramework\bin\Release\net8.0\ObservatoryFramework.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
 
 	<Target Name="PreBuild" BeforeTargets="PreBuildEvent">
 		<Exec Condition=" '$(OS)' == 'Windows_NT'" Command="if not exist &quot;$(ProjectDir)..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryFramework\ObservatoryFramework.csproj&quot; -c Release" />
 		<Exec Condition=" '$(OS)' == 'Windows_NT'" Command="if not exist &quot;$(OutDir)plugins\ObservatoryExplorer.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryExplorer\ObservatoryExplorer.csproj&quot; -c $(ConfigurationName)" />
-		<Exec Condition=" '$(OS)' != 'Windows_NT'" Command="[ ! -e &quot;$(ProjectDir)../ObservatoryFramework/bin/Release/net6.0/ObservatoryFramework.dll&quot; ] &amp;&amp; dotnet build &quot;$(ProjectDir)../ObservatoryFramework/ObservatoryFramework.csproj&quot; -c Release || echo No build necessary" />
-		<Exec Condition=" '$(OS)' != 'Windows_NT'" Command="[ ! -e &quot;$(ProjectDir)$(OutDir)plugins/ObservatoryExplorer.dll&quot; ] &amp;&amp; dotnet build &quot;$(ProjectDir)../ObservatoryExplorer/ObservatoryExplorer.csproj&quot; -c $(ConfigurationName) || echo No build necessary" />
 	</Target>
 	
 </Project>

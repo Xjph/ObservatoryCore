@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Observatory.Framework
+﻿namespace Observatory.Framework
 {
     /// <summary>
     /// Container for exceptions within plugins which cannot be gracefully handled in context,

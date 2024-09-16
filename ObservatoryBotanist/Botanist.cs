@@ -3,10 +3,9 @@ using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Interfaces;
 using Observatory.Framework.Files.ParameterTypes;
-using System.Collections.Generic;
-using System.Linq;
-using System;
 using System.Collections.ObjectModel;
+using Observatory.Framework.Sorters;
+using System.Collections.Generic;
 
 namespace Observatory.Botanist
 {
@@ -88,6 +87,8 @@ namespace Observatory.Botanist
 
         public object Settings { get => botanistSettings; set { botanistSettings = (BotanistSettings)value;  } }
 
+        // public IObservatoryComparer ColumnSorter => new NoOpColumnSorter();
+
         public void JournalEvent<TJournal>(TJournal journal) where TJournal : JournalBase
         {
             switch (journal)
@@ -149,6 +150,8 @@ namespace Observatory.Botanist
                         {
                             var bioPlanet = BioPlanets[systemBodyId];
                             
+                            // If this is null don't bother.
+                            if (scanOrganic.Species_Localised != null)
                             switch (scanOrganic.ScanType)
                             {
                                 case ScanOrganicType.Log:
@@ -258,8 +261,10 @@ namespace Observatory.Botanist
 
             BotanistGrid uiObject = new();
             Core.ClearGrid(this, uiObject);
+            
             foreach (var bioPlanet in BioPlanets.Values)
             {
+                List<BotanistGrid> planetItems = [];
                 if (bioPlanet.SpeciesFound.Count == 0)
                 {
                     var planetRow = new BotanistGrid()
@@ -270,7 +275,8 @@ namespace Observatory.Botanist
                         Analysed = string.Empty,
                         ColonyDistance = string.Empty,
                     };
-                    Core.AddGridItem(this, planetRow);
+                    planetItems.Add(planetRow);
+                    // Core.AddGridItem(this, planetRow);
                 }
 
                 bool firstRow = true;
@@ -285,9 +291,11 @@ namespace Observatory.Botanist
                         Analysed = entry.Value.Analysed ? "✓" : "",
                         ColonyDistance = $"{colonyDistance}m",
                     };
-                    Core.AddGridItem(this, speciesRow);
+                    // Core.AddGridItem(this, speciesRow);
+                    planetItems.Add(speciesRow);
                     firstRow = false;
                 }
+                Core.AddGridItems(this, planetItems);
             }
         }
     }

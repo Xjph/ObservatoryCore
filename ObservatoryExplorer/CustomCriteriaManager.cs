@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
+﻿using System.Text;
 using Observatory.Framework.Files.Journal;
 using NLua;
-using System.Linq;
 
 namespace Observatory.Explorer
 {
@@ -146,16 +142,30 @@ namespace Observatory.Explorer
 
             #region Convenience Functions
 
+            // Body type related functions and tests
+
             //Rings - has > 0 belts
             LuaState.DoString(@"
                 function hasBelts (ring_list)
                     return _hasRingsFiltered(ring_list, 'Belt')
                 end");
 
+            //Body name represents a belt
+            LuaState.DoString(@"
+                function isBelt (body_name)
+                    return body_name ~= nil and string.find(body_name, 'Belt')
+                end");
+
             //Rings - has > 0 proper rings
             LuaState.DoString(@"
                 function hasRings (ring_list)
                     return _hasRingsFiltered(ring_list, 'Ring')
+                end");
+
+            //Body name represents a ring
+            LuaState.DoString(@"
+                function isRing (body_name)
+                    return body_name ~= nil and string.find(body_name, 'Ring')
                 end");
 
             LuaState.DoString(@"
@@ -165,8 +175,15 @@ namespace Observatory.Explorer
 
             LuaState.DoString(@"
                 function isPlanet (scan)
-                    return scan.PlanetClass ~= nil
+                    return scan.PlanetClass ~= nil and scan.PlanetClass ~= 'Barycentre'
                 end");
+
+            LuaState.DoString(@"
+                function isBarycentre (scan)
+                    return scan.PlanetClass ~= nil and scan.PlanetClass == 'Barycentre'
+                end");
+
+            // Atmosphere checks
 
             LuaState.DoString(@"
                 function hasAtmosphere (scan)
@@ -178,6 +195,61 @@ namespace Observatory.Explorer
                     return scan.Landable and scan.AtmosphereComposition ~= nil
                 end");
 
+            // Common unit conversion functions and related constants
+
+            // Since LUA has no 'const' keyword, using a metatable as recommended by this:
+            // https://andrejs-cainikovs.blogspot.com/2009/05/lua-constants.html
+            LuaState.DoString(@"
+                function protect(tbl)
+                    return setmetatable({}, {
+                        __index = tbl,
+                        __newindex = function(t, key, value)
+                            error(""attempting to change constant "" ..
+                                   tostring(key) .. "" to "" .. tostring(value), 2)
+                        end
+                    })
+                end
+
+                const = {
+                    SPEED_OF_LIGHT_mps = 299792458,
+                    GRAVITY_mps2 = 9.81,
+                    ATM_PRESSURE_Pa = 101325,
+                    DAY_s = 86400,
+                    HOUR_s = 3600,
+                }
+                const = protect(const)
+            ");
+
+            LuaState.DoString(@"
+                function distanceAsLs (value_in_m)
+                    return value_in_m / const.SPEED_OF_LIGHT_mps
+                end");
+
+            LuaState.DoString(@"
+                function distanceAsKm (value_in_m)
+                    return value_in_m / 1000
+                end");
+
+            LuaState.DoString(@"
+                function gravityAsG (value_in_mps2)
+                    return value_in_mps2 / const.GRAVITY_mps2
+                end");
+
+            LuaState.DoString(@"
+                function pressureAsAtm (value_in_pa)
+                    return value_in_pa / const.ATM_PRESSURE_Pa
+                end");
+
+            LuaState.DoString(@"
+                function periodAsDay (value_in_s)
+                    return value_in_s / const.DAY_s
+                end");
+
+            LuaState.DoString(@"
+                function periodAsHour (value_in_s)
+                    return value_in_s / const.HOUR_s
+                end");
+
             #endregion
 
             CriteriaFunctions.Clear();
@@ -187,12 +259,14 @@ namespace Observatory.Explorer
 
             try
             {
+                var IsEndAnnotation = (string line) => 
+                GetCriteriaAnnotation(line, out Annotation endAnnotation) && endAnnotation.type == AnnotationType.End;
+
                 for (int i = 0; i < criteria.Length; i++)
                 {
-                    if (criteria[i].Trim().StartsWith("::"))
+                    if (GetCriteriaAnnotation(criteria[i], out Annotation annotation))
                     {
-                        string scriptDescription = criteria[i].Trim().Replace("::", string.Empty);
-                        if (scriptDescription.ToLower() == "criteria" || scriptDescription.ToLower().StartsWith("criteria="))
+                        if (annotation.type == AnnotationType.Complex)
                         {
                             string functionName = $"Criteria{i}";
                             script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
@@ -204,21 +278,21 @@ namespace Observatory.Explorer
 
                                 script.AppendLine(criteria[i]);
                                 i++;
-                            } while (!criteria[i].Trim().ToLower().StartsWith("::end::"));
+                            } while (!IsEndAnnotation(criteria[i]));
                             script.AppendLine("end");
 
                             LuaState.DoString(script.ToString());
-                            CriteriaFunctions.Add(GetUniqueDescription(functionName, scriptDescription), LuaState[functionName] as LuaFunction);
+                            CriteriaFunctions.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
                             script.Clear();
                         }
-                        else if (scriptDescription.ToLower() == "global")
+                        else if (annotation.type == AnnotationType.Global)
                         {
                             i++;
                             do
                             {
                                 script.AppendLine(criteria[i]);
                                 i++;
-                            } while (!criteria[i].Trim().ToLower().StartsWith("::end::"));
+                            } while (!IsEndAnnotation(criteria[i]));
                             LuaState.DoString(script.ToString());
                             script.Clear();
                         }
@@ -232,7 +306,9 @@ namespace Observatory.Explorer
                             script.AppendLine($"    local result = {criteria[i]}");
                             script.AppendLine("    local detail = ''");
 
-                            if (criteria.Length > i + 1 && criteria[i + 1].Trim().ToLower() == "::detail::")
+                            if (criteria.Length > i + 1
+                                && GetCriteriaAnnotation(criteria[i + 1], out Annotation detailAnnotation) 
+                                && detailAnnotation.type == AnnotationType.Detail)
                             {
                                 i++; i++;
                                 // Gate detail evaluation on result to allow safe use of criteria-checked values in detail string.
@@ -241,11 +317,11 @@ namespace Observatory.Explorer
                                 script.AppendLine("    end");
                             }
 
-                            script.AppendLine($"    return result, '{scriptDescription}', detail");
+                            script.AppendLine($"    return result, '{annotation.value}', detail");
                             script.AppendLine("end");
 
                             LuaState.DoString(script.ToString());
-                            CriteriaFunctions.Add(GetUniqueDescription(functionName, scriptDescription), LuaState[functionName] as LuaFunction);
+                            CriteriaFunctions.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
                             script.Clear();
                         }
                     }
@@ -360,12 +436,83 @@ namespace Observatory.Explorer
             return results;
         }
 
+        private class Annotation
+        {
+            public AnnotationType type { get; init; }
+            public string value { get; init; }
+        }
+
+        private bool GetCriteriaAnnotation(string line, out Annotation annotation)
+        {
+            line = line.Trim();
+
+            if (line.StartsWith("::") || line.StartsWith("---@"))
+            {
+                string annotationRaw = line.Replace("::", string.Empty).Replace("---@", string.Empty);
+
+                switch (annotationRaw.Split(' ')[0].Split('=')[0].ToLower()) // Gross, but handles both formats
+                {
+                    case "end":
+                        annotation = new() { type = AnnotationType.End, value = string.Empty };
+                        return true;
+                    case "global":
+                        annotation = new() { type = AnnotationType.Global, value = string.Empty }; 
+                        return true;
+                    case "detail":
+                        annotation = new() { type = AnnotationType.Detail, value = string.Empty };
+                        return true;
+                    case "criteria":
+                    case "complex":
+                        string debugLabel;
+                        if (annotationRaw.ToLower().StartsWith("criteria="))
+                        {
+                            debugLabel = annotationRaw[9..];
+                        }
+                        else if (annotationRaw.Contains(' '))
+                        {
+                            debugLabel = string.Join(' ', annotationRaw.Split(' ')[1..]);
+                        }
+                        else
+                        {
+                            debugLabel = string.Empty;
+                        }
+                        annotation = new() { type = AnnotationType.Complex, value = debugLabel };
+                        return true;
+                    default:
+                        string simpleDescription;
+                        if (annotationRaw.ToLower().StartsWith("simple "))
+                        {
+                            simpleDescription = annotationRaw[7..];
+                        }
+                        else
+                        {
+                            simpleDescription = annotationRaw;
+                        }
+                        annotation = new() { type = AnnotationType.Simple, value = simpleDescription };
+                        return true;
+                }
+            }
+
+            annotation = new() { type = AnnotationType.None, value = string.Empty };
+            return false;
+        }
+
+        private enum AnnotationType
+        {
+            Simple,
+            Complex,
+            Detail,
+            Global,
+            End,
+            None
+        }
+
         private string GetUniqueDescription(string functionName, string scriptDescription)
         {
             string uniqueDescription = functionName;
-            if (scriptDescription.ToLower().StartsWith("criteria="))
+            if (!string.IsNullOrWhiteSpace(scriptDescription) && scriptDescription != functionName)
             {
-                uniqueDescription += scriptDescription.Replace("criteria=", "=", StringComparison.CurrentCultureIgnoreCase);
+                uniqueDescription += '=' + scriptDescription;
             }
             return uniqueDescription;
         }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Observatory.Utils
 {
@@ -29,8 +25,11 @@ namespace Observatory.Utils
                 errorLog.AppendLine($"{error.error} - {error.detail}");
                 errorLog.AppendLine();
             }
-
+#if PORTABLE
+            var docPath = Application.StartupPath;
+#else
             var docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+#endif
             File.AppendAllText(docPath + Path.DirectorySeparatorChar + "ObservatoryErrorLog.txt", errorLog.ToString());
 
             errorList.Clear();

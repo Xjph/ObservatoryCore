@@ -1,9 +1,6 @@
-﻿using Observatory.Framework;
+using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.Framework.Files;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Observatory.Framework.Files.Journal;
 using System.Timers;
 using Observatory.Utils;
@@ -14,6 +11,7 @@ namespace Observatory.PluginManagement
     {
         private IEnumerable<IObservatoryWorker> observatoryWorkers;
         private IEnumerable<IObservatoryNotifier> observatoryNotifiers;
+        private readonly HashSet<IObservatoryPlugin> disabledPlugins;
         private List<(string error, string detail)> errorList;
         private System.Timers.Timer timer;
 
@@ -21,10 +19,13 @@ namespace Observatory.PluginManagement
         {
             this.observatoryWorkers = observatoryWorkers;
             this.observatoryNotifiers = observatoryNotifiers;
+            disabledPlugins = new();
             errorList = new();
 
             InitializeTimer();
         }
+
+        public HashSet<IObservatoryPlugin> DisabledPlugins {  get => disabledPlugins; }
 
         private void InitializeTimer()
         {
@@ -39,6 +40,7 @@ namespace Observatory.PluginManagement
         {
             foreach (var worker in observatoryWorkers)
             {
+                if (disabledPlugins.Contains(worker)) continue;
                 try
                 {
                     worker.JournalEvent((JournalBase)journalEventArgs.journalEvent);
@@ -59,6 +61,7 @@ namespace Observatory.PluginManagement
         {
             foreach (var worker in observatoryWorkers)
             {
+                if (disabledPlugins.Contains(worker)) continue;
                 try
                 {
                     worker.StatusChange((Status)journalEventArgs.journalEvent);
@@ -79,13 +82,14 @@ namespace Observatory.PluginManagement
         {
             foreach (var worker in observatoryWorkers)
             {
+                if (disabledPlugins.Contains(worker)) continue;
                 try
                 {
                     worker.LogMonitorStateChanged(e);
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, "LogMonitorStateChanged event", ex.StackTrace);
+                    RecordError(ex, worker.Name, "LogMonitorStateChanged event", ex.StackTrace ?? "");
                 }
             }
         }
@@ -94,6 +98,7 @@ namespace Observatory.PluginManagement
         {
             foreach (var notifier in observatoryNotifiers)
             {
+                if (disabledPlugins.Contains(notifier)) continue;
                 try
                 {
                     notifier.OnNotificationEvent(notificationArgs);
@@ -114,8 +119,27 @@ namespace Observatory.PluginManagement
         {
             foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Concat(observatoryWorkers))
             {
-                plugin.HandlePluginMessage(messageArgs.SourceName, messageArgs.SourceVersion, messageArgs.Message);
+                if (disabledPlugins.Contains(plugin)) continue;
+
+                try
+                {
+                    plugin.HandlePluginMessage(messageArgs.SourceName, messageArgs.SourceVersion, messageArgs.Message);
+                }
+                catch (PluginException ex)
+                {
+                    RecordError(ex);
+                }
+                catch(Exception ex)
+                {
+                    RecordError(ex, plugin.Name, "OnPluginMessageEvent event", "");
+                }
             }
+        }
+
+        public void SetPluginEnabled(IObservatoryPlugin plugin, bool enabled)
+        {
+            if (enabled) disabledPlugins.Remove(plugin);
+            else disabledPlugins.Add(plugin);
         }
 
         private void ResetTimer()
@@ -136,7 +160,7 @@ namespace Observatory.PluginManagement
 
         private void RecordError(PluginException ex)
         {
-            errorList.Add(($"Error in {ex.PluginName}: {ex.Message}", ex.StackTrace));
+            errorList.Add(($"Error in {ex.PluginName}: {ex.Message}", ex.StackTrace ?? ""));
         }
 
         private void RecordError(Exception ex, string plugin, string eventType, string eventDetail)

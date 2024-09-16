@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
+﻿using System.Globalization;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Files.ParameterTypes;
 
@@ -100,7 +97,7 @@ namespace Observatory.Explorer
                 {
                     foreach (var ring in parent.Rings)
                     {
-                        var separation = Math.Min(Math.Abs(scan.SemiMajorAxis - ring.OuterRad), Math.Abs(ring.InnerRad - scan.SemiMajorAxis));
+                        var separation = Math.Min(Math.Abs(scan.SemiMajorAxis - ring.OuterRad), Math.Abs(ring.InnerRad - scan.SemiMajorAxis)) - scan.Radius;
                         if (separation < scan.Radius * 10)
                         {
                             var ringTypeName = ring.Name.Contains("Belt") ? "Belt" : "Ring";

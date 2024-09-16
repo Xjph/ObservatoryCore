@@ -7,8 +7,8 @@
         public string Name_Localised { get; init; }
         public string Category { get; init; }
         public string Category_Localised { get; init; }
-        public int BuyPrice { get; init; }
-        public int SellPrice { get; init; }
+        public uint BuyPrice { get; init; }
+        public uint SellPrice { get; init; }
         public int StockBracket { get; init; }
         public int DemandBracket { get; init; }
         public int Stock { get; init; }

@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32922.545
@@ -17,6 +17,7 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Portable|Any CPU = Portable|Any CPU
+		Proton|Any CPU = Proton|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
@@ -24,30 +25,40 @@ Global
 		{498F7360-D443-4D64-895C-9EAB5570D019}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{498F7360-D443-4D64-895C-9EAB5570D019}.Portable|Any CPU.ActiveCfg = Portable|Any CPU
 		{498F7360-D443-4D64-895C-9EAB5570D019}.Portable|Any CPU.Build.0 = Portable|Any CPU
+		{498F7360-D443-4D64-895C-9EAB5570D019}.Proton|Any CPU.ActiveCfg = Proton|Any CPU
+		{498F7360-D443-4D64-895C-9EAB5570D019}.Proton|Any CPU.Build.0 = Proton|Any CPU
 		{498F7360-D443-4D64-895C-9EAB5570D019}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{498F7360-D443-4D64-895C-9EAB5570D019}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0E1C4F16-858E-4E53-948A-77D81A8F3395}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{0E1C4F16-858E-4E53-948A-77D81A8F3395}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E1C4F16-858E-4E53-948A-77D81A8F3395}.Portable|Any CPU.ActiveCfg = Portable|Any CPU
 		{0E1C4F16-858E-4E53-948A-77D81A8F3395}.Portable|Any CPU.Build.0 = Portable|Any CPU
+		{0E1C4F16-858E-4E53-948A-77D81A8F3395}.Proton|Any CPU.ActiveCfg = Proton|Any CPU
+		{0E1C4F16-858E-4E53-948A-77D81A8F3395}.Proton|Any CPU.Build.0 = Proton|Any CPU
 		{0E1C4F16-858E-4E53-948A-77D81A8F3395}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E1C4F16-858E-4E53-948A-77D81A8F3395}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E0FCF2A2-BF56-4F4D-836B-92A0E8269192}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E0FCF2A2-BF56-4F4D-836B-92A0E8269192}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0FCF2A2-BF56-4F4D-836B-92A0E8269192}.Portable|Any CPU.ActiveCfg = Portable|Any CPU
 		{E0FCF2A2-BF56-4F4D-836B-92A0E8269192}.Portable|Any CPU.Build.0 = Portable|Any CPU
+		{E0FCF2A2-BF56-4F4D-836B-92A0E8269192}.Proton|Any CPU.ActiveCfg = Proton|Any CPU
+		{E0FCF2A2-BF56-4F4D-836B-92A0E8269192}.Proton|Any CPU.Build.0 = Proton|Any CPU
 		{E0FCF2A2-BF56-4F4D-836B-92A0E8269192}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0FCF2A2-BF56-4F4D-836B-92A0E8269192}.Release|Any CPU.Build.0 = Release|Any CPU
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Portable|Any CPU.ActiveCfg = Portable|Any CPU
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Portable|Any CPU.Build.0 = Portable|Any CPU
+		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Proton|Any CPU.ActiveCfg = Proton|Any CPU
+		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Proton|Any CPU.Build.0 = Proton|Any CPU
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Portable|Any CPU.ActiveCfg = Portable|Any CPU
 		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Portable|Any CPU.Build.0 = Portable|Any CPU
+		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Proton|Any CPU.ActiveCfg = Proton|Any CPU
+		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Proton|Any CPU.Build.0 = Proton|Any CPU
 		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection

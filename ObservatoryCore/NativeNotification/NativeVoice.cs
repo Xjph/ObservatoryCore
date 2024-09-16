@@ -1,63 +1,60 @@
-﻿using Observatory.Framework;
-using System.Collections.Generic;
-using System.Xml;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Speech.Synthesis;
-using System.Runtime.InteropServices;
+#if PROTON
+
+using Observatory.Framework;
 
 namespace Observatory.NativeNotification
 {
     public class NativeVoice
     {
+        public void EnqueueAndAnnounce(NotificationArgs eventArgs)
+        {
+            // stub
+        }
+    }
+}
+
+#else
+
+using Observatory.Framework;
+using System.Xml;
+using System.Speech.Synthesis;
+using System.Runtime.InteropServices;
+using System.Diagnostics;
+using System.IO;
+using Observatory.Utils;
+
+namespace Observatory.NativeNotification
+{
+    internal class NativeVoice
+    {
         private readonly Queue<NotificationArgs> notificationEvents;
         private bool processing;
+        private readonly AudioHandler audioHandler;
 
-        public NativeVoice()
+        public NativeVoice(AudioHandler audiohandler)
         {
             notificationEvents = new();
             processing = false;
+            audioHandler = audiohandler;
         }
 
-        public void EnqueueAndAnnounce(NotificationArgs eventArgs)
-        {
-            notificationEvents.Enqueue(eventArgs);
-            
-            if (!processing)
-            {
-                processing = true;
-                ProcessQueueAsync();
-            }
-        }
-
-        private async void ProcessQueueAsync()
+        public void AudioHandlerEnqueue(NotificationArgs eventArgs)
         {
             try
             {
-                await Task.Factory.StartNew(ProcessQueue);
-            }
-            catch (System.Exception ex)
-            {
-                ObservatoryCore.LogError(ex, " - Native Voice Notifier");
-            }
-        }
-
-        private void ProcessQueue()
-        {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                string voice = Properties.Core.Default.VoiceSelected;
-
-                var speech = new SpeechSynthesizer()
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 {
-                    Volume = Properties.Core.Default.VoiceVolume,
-                    Rate = Properties.Core.Default.VoiceRate
-                };
-                speech.SelectVoice(voice);
+                    string voice = Properties.Core.Default.VoiceSelected;
 
-                while (notificationEvents.Any())
-                {
-                    var notification = notificationEvents.Dequeue();
+                    var speech = new SpeechSynthesizer()
+                    {
+                        Volume = Properties.Core.Default.VoiceVolume,
+                        Rate = Properties.Core.Default.VoiceRate
+                    };
+                    speech.SelectVoice(voice);
+                    string filename = Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav";
+                    speech.SetOutputToWaveFile(filename);
+                    var notification = eventArgs;
 
                     if (notification.TitleSsml?.Length > 0)
                     {
@@ -78,9 +75,14 @@ namespace Observatory.NativeNotification
                     {
                         speech.Speak(notification.Detail);
                     }
+                    speech.Dispose();
+                    audioHandler.EnqueueAndPlay(filename, new() { DeleteAfterPlay = true });
                 }
             }
-            processing = false;
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
         }
 
         private static string AddVoiceToSsml(string ssml, string voiceName)
@@ -105,3 +107,5 @@ namespace Observatory.NativeNotification
         }
     }
 }
+
+#endif

@@ -1,13 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using Observatory.Assets;
 using Observatory.Framework;
 using Observatory.Framework.Interfaces;
@@ -19,6 +11,7 @@ namespace Observatory.UI
         private readonly IObservatoryPlugin _plugin;
         private readonly List<int> _colHeight = new List<int>();
         private int _colWidth = 400;
+        private double _scale;
 
         public SettingsForm(IObservatoryPlugin plugin)
         {
@@ -26,6 +19,16 @@ namespace Observatory.UI
             _plugin = plugin;
 
             // Filtered to only settings without SettingIgnore attribute
+            var attrib = _plugin.Settings.GetType().GetCustomAttribute<SettingSuggestedColumnWidth>();
+            if (attrib != null && attrib.Width > 0)
+            {
+                int minScreenWidth = Screen.AllScreens.Min(s => s.Bounds.Width);
+                _colWidth = Math.Min(attrib.Width, minScreenWidth / 2);
+            }
+
+            _scale = (double)DeviceDpi / 96;
+            _colWidth = (int)(_scale * _colWidth);
+
             var settings = PluginManagement.PluginManager.GetSettingDisplayNames(plugin.Settings).Where(s => !Attribute.IsDefined(s.Key, typeof(SettingIgnore)));
             CreateControls(settings);
 
@@ -51,12 +54,30 @@ namespace Observatory.UI
 
             foreach (var setting in settings)
             {
-                // Reset the column tracking for checkboxes if this isn't a checkbox
-                int addedHeight = 35;
-                if (setting.Key.PropertyType.Name != "Boolean")
+                // Reset the column tracking for checkboxes if this isn't a checkbox or explicitly requested
+                // to start a new grouping of settings.
+                int addedHeight = (int)(35 * _scale);
+                var newGroup = Attribute.GetCustomAttribute(setting.Key, typeof(SettingNewGroup)) as SettingNewGroup;
+
+                if (setting.Key.PropertyType.Name != "Boolean" || newGroup != null)
                 {
                     if (recentHalfCol) _colHeight.Add(addedHeight);
                     recentHalfCol = false;
+
+                    if (newGroup != null)
+                    {
+                        if (!string.IsNullOrEmpty(newGroup.Label))
+                        {
+                            var label = CreateGroupLabel(newGroup.Label);
+                            label.Location = GetSettingPosition();
+
+                            Controls.Add(label);
+                            trackBottomEdge(label);
+                            _colHeight.Add(label.Height);
+                        }
+                        else
+                            _colHeight.Add(10);
+                    }
                 }
 
                 switch (setting.Key.GetValue(_plugin.Settings))
@@ -98,7 +119,7 @@ namespace Observatory.UI
                         break;
                     case int:
                         // We have two options for integer values:
-                        // 1) A slider (explicit by way of the SettingIntegerUseSlider attribute and bounded to 0..100 by default)
+                        // 1) A slider (explicit by way of the SettingNumericUseSlider attribute and bounded to 0..100 by default)
                         // 2) A numeric up/down (default otherwise, and is unbounded by default).
                         // Bounds for both can be set via the SettingNumericBounds attribute, only the up/down uses Increment.
                         var intLabel = CreateSettingLabel(setting.Value);
@@ -109,7 +130,7 @@ namespace Observatory.UI
                         }
                         else
                         {
-                            intControl = CreateSettingNumericUpDown(setting.Key);
+                            intControl = CreateSettingNumericUpDownForInt(setting.Key);
                         }
                         intLabel.Location = GetSettingPosition();
                         intControl.Location = GetSettingPosition(true);
@@ -121,6 +142,23 @@ namespace Observatory.UI
                         Controls.Add(intLabel);
                         Controls.Add(intControl);
                         trackBottomEdge(intControl);
+                        break;
+                    case double:
+                        // We have one options for double values:
+                        // 1) A numeric up/down (default otherwise, and is unbounded by default).
+                        // Bounds can be set via the SettingNumericBounds attribute.
+                        var doubleLabel = CreateSettingLabel(setting.Value);
+                        Control doubleControl = CreateSettingNumericUpDownForDouble(setting.Key);
+                        doubleLabel.Location = GetSettingPosition();
+                        doubleControl.Location = GetSettingPosition(true);
+
+                        addedHeight = doubleControl.Height + 2;
+                        doubleLabel.Height = doubleControl.Height;
+                        doubleLabel.TextAlign = ContentAlignment.MiddleRight;
+
+                        Controls.Add(doubleLabel);
+                        Controls.Add(doubleControl);
+                        trackBottomEdge(doubleControl);
                         break;
                     case Action action:
                         var button = CreateSettingButton(setting.Value, action);
@@ -152,8 +190,7 @@ namespace Observatory.UI
 
         private Point GetSettingPosition(bool secondCol = false)
         {
-            //return new Point(10 + (secondCol ? 200 : 0), -26 + _colHeight.Sum());
-            return new Point(10 + (secondCol ? _colWidth : 0), 15 + _colHeight.Sum());
+            return new Point(20 + (secondCol ? _colWidth + 20 : 0), 15 + _colHeight.Sum());
         }
 
 
@@ -167,6 +204,20 @@ namespace Observatory.UI
                 ForeColor = Color.LightGray
             };
 
+            return label;
+        }
+
+        private Label CreateGroupLabel(string groupLabel)
+        {
+            Label label = new()
+            {
+                Text = groupLabel,
+                TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
+                Width = _colWidth * 2,
+                ForeColor = Color.LightGray,
+            };
+            label.Font = new Font(label.Font.FontFamily, label.Font.Size + 1, FontStyle.Bold);
+            label.Height += (int)(10 * _scale); // Add spacing.
             return label;
         }
 
@@ -211,9 +262,11 @@ namespace Observatory.UI
             {
                 Text = settingName,
                 Width = Convert.ToInt32(_colWidth * 0.8),
-                Height = 35,
+                Height = (int)(35 * _scale),
+                FlatStyle = FlatStyle.Flat,
             };
 
+            button.FlatAppearance.BorderSize = 0;
             button.Click += (sender, e) =>
             {
                 action.Invoke();
@@ -225,7 +278,7 @@ namespace Observatory.UI
 
         private TrackBar CreateSettingTrackbar(PropertyInfo setting)
         {
-            SettingNumericBounds? bounds = (SettingNumericBounds?)System.Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
+            SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
 
             var minBound = Convert.ToInt32(bounds?.Minimum ?? 0);
             var maxBound = Convert.ToInt32(bounds?.Maximum ?? 100);
@@ -246,16 +299,16 @@ namespace Observatory.UI
 
             trackBar.ValueChanged += (sender, e) =>
             {
-                setting.SetValue(_plugin.Settings, Convert.ToInt32(trackBar.Value));
+                setting.SetValue(_plugin.Settings, trackBar.Value);
                 SaveSettings();
             };
 
             return trackBar;
         }
 
-        private NumericUpDown CreateSettingNumericUpDown(PropertyInfo setting)
+        private NumericUpDown CreateSettingNumericUpDownForInt(PropertyInfo setting)
         {
-            SettingNumericBounds? bounds = (SettingNumericBounds?)System.Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
+            SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
             NumericUpDown numericUpDown = new()
             {
                 Width = _colWidth,
@@ -265,10 +318,31 @@ namespace Observatory.UI
             };
 
             numericUpDown.Value = (int?)setting.GetValue(_plugin.Settings) ?? 0;
-
             numericUpDown.ValueChanged += (sender, e) =>
             {
                 setting.SetValue(_plugin.Settings, Convert.ToInt32(numericUpDown.Value));
+                SaveSettings();
+            };
+
+            return numericUpDown;
+        }
+
+        private NumericUpDown CreateSettingNumericUpDownForDouble(PropertyInfo setting)
+        {
+            SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
+            NumericUpDown numericUpDown = new()
+            {
+                Width = _colWidth,
+                Minimum = Convert.ToDecimal(bounds?.Minimum ?? Double.MinValue),
+                Maximum = Convert.ToDecimal(bounds?.Maximum ?? Double.MaxValue),
+                Increment = Convert.ToDecimal(bounds?.Increment ?? 1.0),
+                DecimalPlaces = bounds?.Precision ?? 1,
+            };
+
+            numericUpDown.Value = Convert.ToDecimal(setting.GetValue(_plugin.Settings) ?? 0);
+            numericUpDown.ValueChanged += (sender, e) =>
+            {
+                setting.SetValue(_plugin.Settings, Convert.ToDouble(numericUpDown.Value));
                 SaveSettings();
             };
 
@@ -282,7 +356,7 @@ namespace Observatory.UI
                 Text = setting.Value,
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
                 Checked = (bool?)setting.Key.GetValue(_plugin.Settings) ?? false,
-                Height = 30,
+                Height = (int)(30 * _scale),
                 Width = _colWidth,
                 ForeColor = Color.LightGray
             };
@@ -337,10 +411,12 @@ namespace Observatory.UI
             Button button = new()
             {
                 Text = "Browse",
-                Height = 35,
+                Height = (int)(35 * _scale),
                 Width = _colWidth / 2,
+                FlatStyle = FlatStyle.Flat,
             };
 
+            button.FlatAppearance.BorderSize = 0;
             button.Click += (object? sender, EventArgs e) =>
             {
                 var currentDir = ((FileInfo?)setting.GetValue(_plugin.Settings))?.DirectoryName;
@@ -366,7 +442,7 @@ namespace Observatory.UI
 
         private void SaveSettings()
         {
-            PluginManagement.PluginManager.GetInstance.SaveSettings(_plugin, _plugin.Settings);
+            PluginManagement.PluginManager.GetInstance.SaveSettings(_plugin);
         }
 
         private void PluginSettingsCloseButton_Click(object sender, EventArgs e)

@@ -4,6 +4,22 @@
         <name>ObservatoryFramework</name>
     </assembly>
     <members>
+        <member name="T:Observatory.Framework.SettingSuggestedColumnWidth">
+            <summary>
+            Specifies the width of a settings column in the settings view. There are two columns.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.SettingSuggestedColumnWidth.#ctor(System.Int32)">
+            <summary>
+            Specifies the width of a settings column in the settings view. There are two columns.
+            </summary>
+            <param name="width">Provides a hint of the width of a settings column.</param>
+        </member>
+        <member name="P:Observatory.Framework.SettingSuggestedColumnWidth.Width">
+            <summary>
+            Provides a hint of the width of a settings column.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.SettingDisplayName">
             <summary>
             Specifies text to display as the name of the setting in the UI instead of the property name.
@@ -20,9 +36,20 @@
             Accessor to get/set displayed name.
             </summary>
         </member>
-        <member name="T:Observatory.Framework.ColumnSuggestedWidth">
+        <member name="T:Observatory.Framework.SettingNewGroup">
             <summary>
-            Suggests default column width when building basic UI
+            Starts a new visual group of settings beginning with the current setting with an optional label.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.SettingNewGroup.#ctor(System.String)">
+            <summary>
+            Starts a new visual group of settings beginning with the current setting with an optional label.
+            </summary>
+            <param name="label">An optional label describing the group.</param>
+        </member>
+        <member name="P:Observatory.Framework.SettingNewGroup.Label">
+            <summary>
+            An optional label describing the group.
             </summary>
         </member>
         <member name="T:Observatory.Framework.SettingIgnore">
@@ -56,13 +83,14 @@
             Specify bounds for numeric inputs.
             </summary>
         </member>
-        <member name="M:Observatory.Framework.SettingNumericBounds.#ctor(System.Double,System.Double,System.Double)">
+        <member name="M:Observatory.Framework.SettingNumericBounds.#ctor(System.Double,System.Double,System.Double,System.Int32)">
             <summary>
             Specify bounds for numeric inputs.
             </summary>
             <param name="minimum">Minimum allowed value.</param>
             <param name="maximum">Maximum allowed value.</param>
             <param name="increment">Increment between allowed values in slider/roller inputs.</param>
+            <param name="precision">The number of digits to display for non integer values.</param>
         </member>
         <member name="P:Observatory.Framework.SettingNumericBounds.Minimum">
             <summary>
@@ -71,12 +99,33 @@
         </member>
         <member name="P:Observatory.Framework.SettingNumericBounds.Maximum">
             <summary>
-            Maxunyn allowed value.
+            Maximum allowed value.
             </summary>
         </member>
         <member name="P:Observatory.Framework.SettingNumericBounds.Increment">
             <summary>
             Increment between allowed values in slider/roller inputs.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.SettingNumericBounds.Precision">
+            <summary>
+            The number of digits to display for non integer values.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.ColumnSuggestedWidth">
+            <summary>
+            Suggests default column width when building basic plugin grid UI.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.ColumnSuggestedWidth.#ctor(System.Int32)">
+            <summary>
+            Suggests default column width when building basic plugin grid UI.
+            </summary>
+            <param name="width">The suggested width of the annotated column.</param>
+        </member>
+        <member name="P:Observatory.Framework.ColumnSuggestedWidth.Width">
+            <summary>
+            The suggested width of the annotated column.
             </summary>
         </member>
         <member name="T:Observatory.Framework.JournalEventArgs">
@@ -231,6 +280,11 @@
         <member name="F:Observatory.Framework.LogMonitorState.PreRead">
             <summary>
             Batch read of recent journals is in progress to establish current player state.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.LogMonitorState.BatchCancelled">
+            <summary>
+            Batch read of historical journals was stopped before completion.
             </summary>
         </member>
         <member name="T:Observatory.Framework.LogMonitorStateChangedEventArgs">
@@ -1441,6 +1495,27 @@
             Receives data sent by other plugins.
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.ExportContent(System.String,System.String@)">
+            <summary>
+            <para>Plugin specific data export implementation. Omit or return null to use Observatory's own export process.</para>
+            <para>While default behaviour is expected to be a delimited text file (i.e., .csv), a plugin may create a file in any format.</para>
+            </summary>
+            <param name="delimiter">Column delimiter for csv export.</param>
+            <param name="filetype">File extension to use for file. Change this when returning a file format other than delimited text.</param>
+            <returns>File content as a byte array.</returns>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.ObservatoryReady">
+            <summary>
+            Called when Observatory finishes loading and the UI is ready.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.ApplyTheme(System.Object)">
+            <summary>
+            Method called to check if a control should be themed.
+            </summary>
+            <param name="control">Control object to be themed.</param>
+            <returns>Whether theme should be applied.</returns>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
             <para>Interface for worker plugins which process journal data to update their UI or send notifications.</para>
@@ -1556,6 +1631,21 @@
             <param name="worker">Reference to the calling plugin's worker interface.</param>
             <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.AddGridItems(Observatory.Framework.Interfaces.IObservatoryWorker,System.Collections.Generic.IEnumerable{System.Object},System.Boolean)">
+            <summary>
+            Add multiple items to the bottom of the basic UI grid.
+            </summary>
+            <param name="worker">Reference to the calling plugin's worker interface.</param>
+            <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+            <param name="grouped">(optional) Specify that the items being added should be kept together and sorted as a single unit.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SetGridItems(Observatory.Framework.Interfaces.IObservatoryWorker,System.Collections.Generic.IEnumerable{System.Object})">
+            <summary>
+            Replace the contents of the grid with the provided items.
+            </summary>
+            <param name="worker">Reference to the calling plugin's worker interface.</param>
+            <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.ClearGrid(Observatory.Framework.Interfaces.IObservatoryWorker,System.Object)">
             <summary>
             Clears basic UI grid, removing all items.
@@ -1607,16 +1697,72 @@
             Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
             </summary>
         </member>
-        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.PlayAudioFile(System.String)">
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.PlayAudioFile(System.String,Observatory.Framework.ParameterTypes.AudioOptions)">
             <summary>
             Plays audio file using default audio device.
             </summary>
             <param name="filePath">Absolute path to audio file.</param>
+            <param name="options">Additional options class for customizing audio playback.</param>
         </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendPluginMessage(Observatory.Framework.Interfaces.IObservatoryPlugin,System.Object)">
             <summary>
             Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
             </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.RegisterControl(System.Object)">
+            <summary>
+            Register a UI control for themeing.
+            </summary>
+            <param name="control">UI Control object or ToolStripMenuItem</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.RegisterControl(System.Object,System.Func{System.Object,System.Boolean})">
+            <summary>
+            Register a UI control for themeing and provide a delegate to selectively theme it and its child controls.
+            </summary>
+            <param name="control">UI Control object or ToolStripMenuItem</param>
+            <param name="applyTheme">Function which accepts a control or ToolStripMenuItem and returns true or false to indicate whether it should be themed.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.UnregisterControl(System.Object)">
+            <summary>
+            Remove a UI control from themeing.
+            </summary>
+            <param name="control">UI Control object or ToolStripMenuItem</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.GetCurrentThemeName">
+            <summary>
+            Retrieves the name of the currently selected UI theme.
+            </summary>
+            <returns>Name of the theme as a string.</returns>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.GetCurrentThemeDetails">
+            <summary>
+            Retrieves the details of the currently selected UI theme.
+            </summary>
+            <returns>A dictionary keyed by the type of control as a string and the associated colour, e.g. { "Button.BackColor", Color.DimGrey } </returns>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SaveSettings(Observatory.Framework.Interfaces.IObservatoryPlugin)">
+            <summary>
+            Request that Observatory save plugin settings to preserve changes made outside the settings UI.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.OpenSettings(Observatory.Framework.Interfaces.IObservatoryPlugin)">
+            <summary>
+            Request that Observatory open the setting form for the current plugin
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.DeserializeEvent(System.String,System.Boolean)">
+            <summary>
+            Deserializes a journal event from JSON into a journal object.
+            </summary>
+            <param name="json">JSON string representing a journal event</param>
+            <param name="replay">(Optional) Replay this event as a current journal entry to all plugins</param>
+            <returns>Journal object of the json passed in</returns>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.FocusPlugin(System.String)">
+            <summary>
+            Switches focus to the named plugin (if found).
+            </summary>
+            <param name="pluginName">The short name of the plugin which should be focused.</param>
         </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryComparer">
             <summary>
@@ -1631,6 +1777,22 @@
         <member name="P:Observatory.Framework.Interfaces.IObservatoryComparer.Order">
             <summary>
             Current order of sorting. Ascending = 1, Descending = -1, No sorting = 0.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.ParameterTypes.AudioOptions">
+            <summary>
+            A parameter class for PlayAudioFile.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.ParameterTypes.AudioOptions.Instant">
+            <summary>
+            If set to true, the associated audio file is played immediately rather than queued. Default is false (queued).
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.ParameterTypes.AudioOptions.DeleteAfterPlay">
+            <summary>
+            If set to true, the provided audio file is deleted after playback finishes. Default is false (caller is responsible
+            for managing audio file cleanup).
             </summary>
         </member>
         <member name="T:Observatory.Framework.PluginUI">

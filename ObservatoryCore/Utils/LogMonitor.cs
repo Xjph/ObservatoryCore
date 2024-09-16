@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
@@ -31,7 +27,7 @@ namespace Observatory.Utils
 
         private LogMonitor()
         {
-            currentLine = new();
+            currentLine = [];
             journalTypes = JournalReader.PopulateEventClasses();
             InitializeWatchers(string.Empty);
             SetLogMonitorState(LogMonitorState.Idle);
@@ -59,38 +55,32 @@ namespace Observatory.Utils
                 firstStartMonitor = false;
                 PrereadJournals();
             }
-            journalWatcher.EnableRaisingEvents = true;
-            statusWatcher.EnableRaisingEvents = true;
+            journalWatcher!.EnableRaisingEvents = true;
+            statusWatcher!.EnableRaisingEvents = true;
             SetLogMonitorState(LogMonitorState.Realtime);
             JournalPoke();
         }
 
         public void Stop()
         {
-            journalWatcher.EnableRaisingEvents = false;
-            statusWatcher.EnableRaisingEvents = false;
+            journalWatcher!.EnableRaisingEvents = false;
+            statusWatcher!.EnableRaisingEvents = false;
             SetLogMonitorState(LogMonitorState.Idle);
         }
 
         public void ChangeWatchedDirectory(string path)
         {
-            journalWatcher.Dispose();
-            statusWatcher.Dispose();
+            journalWatcher?.Dispose();
+            statusWatcher?.Dispose();
             InitializeWatchers(path);
         }
 
         public bool IsMonitoring()
         {
-            return currentState.HasFlag(LogMonitorState.Realtime);
+            return (currentState & LogMonitorState.Realtime) != 0;
         }
 
-        // TODO(fredjk_gh): Remove?
-        public bool ReadAllInProgress()
-        {
-            return LogMonitorStateChangedEventArgs.IsBatchRead(currentState);
-        }
-
-        public Func<IEnumerable<string>> ReadAllGenerator(out int fileCount)
+        public Func<CancellationTokenSource, IEnumerable<string>> ReadAllGenerator(out int fileCount)
         {
             // Prevent pre-reading when starting monitoring after reading all.
             firstStartMonitor = false;
@@ -100,7 +90,7 @@ namespace Observatory.Utils
             var files = GetJournalFilesOrdered(logDirectory);
             fileCount = files.Count();
 
-            IEnumerable<string> ReadAllJournals()
+            IEnumerable<string> ReadAllJournals(CancellationTokenSource cancellationRequested)
             {
                 var readErrors = new List<(Exception ex, string file, string line)>();
                 foreach (var file in files)
@@ -108,10 +98,16 @@ namespace Observatory.Utils
                     yield return file.Name;
                     readErrors.AddRange(
                         ProcessLines(ReadAllLines(file.FullName), file.Name));
+
+                    if (cancellationRequested.IsCancellationRequested)
+                    {
+                        SetLogMonitorState(currentState & ~LogMonitorState.Batch | LogMonitorState.BatchCancelled);
+                        break;
+                    }
                 }
 
                 ReportErrors(readErrors);
-                SetLogMonitorState(currentState & ~LogMonitorState.Batch);
+                SetLogMonitorState(currentState & ~LogMonitorState.Batch & ~LogMonitorState.BatchCancelled);
             };
 
             return ReadAllJournals;
@@ -119,8 +115,7 @@ namespace Observatory.Utils
 
         public void PrereadJournals()
         {
-            if (!Properties.Core.Default.TryPrimeSystemContextOnStartMonitor ||
-                Properties.Core.Default.StartReadAll) return;
+            if (Properties.Core.Default.StartReadAll) return;
 
             SetLogMonitorState(currentState | LogMonitorState.PreRead);
 
@@ -129,9 +124,9 @@ namespace Observatory.Utils
 
             // Read at most the last two files (in case we were launched after the game and the latest
             // journal is mostly empty) but keeping only the lines since the last FSDJump.
-            List<string> lastSystemLines = new();
-            List<string> lastFileLines = new();
-            List<String> fileHeaderLines = new();
+            List<string> lastSystemLines = [];
+            List<string> lastFileLines = [];
+            List<string> fileHeaderLines = [];
             bool sawFSDJump = false;
             foreach (var file in files.Skip(Math.Max(files.Count() - 2, 0)))
             {
@@ -182,76 +177,31 @@ namespace Observatory.Utils
             SetLogMonitorState(currentState & ~LogMonitorState.PreRead);
         }
 
-        #endregion
-
-        #region Public Events
-
-        public event EventHandler<LogMonitorStateChangedEventArgs> LogMonitorStateChanged;
-
-        public event EventHandler<JournalEventArgs> JournalEntry;
-
-        public event EventHandler<JournalEventArgs> StatusUpdate;
-
-        #endregion
-
-        #region Private Fields
-
-        private FileSystemWatcher? journalWatcher;
-        private FileSystemWatcher? statusWatcher;
-        private readonly Dictionary<string, Type> journalTypes;
-        private readonly Dictionary<string, int> currentLine;
-        private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
-        private bool firstStartMonitor = true;
-        private readonly string[] EventsWithAncillaryFile = new string[]
+        public JournalEventArgs DeserializeAndInvoke(string line, bool invoke = true)
         {
-            "Cargo",
-            "NavRoute",
-            "Market",
-            "Outfitting",
-            "Shipyard",
-            "Backpack",
-            "FCMaterials",
-            "ModuleInfo",
-            "ShipLocker"
-        };
-
-        #endregion
-
-        #region Private Methods
-
-        private void SetLogMonitorState(LogMonitorState newState)
-        {
-            var oldState = currentState;
-            currentState = newState;
-            LogMonitorStateChanged?.Invoke(this, new LogMonitorStateChangedEventArgs
+            var eventType = JournalUtilities.GetEventType(line);
+            if (!journalTypes.ContainsKey(eventType))
             {
-                PreviousState = oldState,
-                NewState = newState
-            }); ;
+                eventType = "JournalBase";
+            }
 
-            System.Diagnostics.Debug.WriteLine("LogMonitor State change: {0} -> {1}", oldState, newState);
+            var journalEvent = DeserializeToEventArgs(eventType, line);
+
+            if (invoke)
+            {
+                JournalEntry?.Invoke(this, journalEvent);
+
+                // Files are only valid if realtime, otherwise they will be stale or empty.
+                if ((currentState & LogMonitorState.Batch) == 0 && EventsWithAncillaryFile.Contains(eventType))
+                {
+                    HandleAncillaryFile(eventType);
+                }
+            }
+
+            return journalEvent;
         }
 
-        private void InitializeWatchers(string path)
-        {
-            DirectoryInfo logDirectory = GetJournalFolder(path);
-
-            journalWatcher = new FileSystemWatcher(logDirectory.FullName, "Journal.*.??.log")
-            {
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size |
-                                NotifyFilters.FileName | NotifyFilters.CreationTime
-            };
-            journalWatcher.Changed += LogChangedEvent;
-            journalWatcher.Created += LogCreatedEvent;
-
-            statusWatcher = new FileSystemWatcher(logDirectory.FullName, "Status.json")
-            {
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size
-            };
-            statusWatcher.Changed += StatusUpdateEvent;
-        }
-
-        private static DirectoryInfo GetJournalFolder(string path = "")
+        public static DirectoryInfo GetJournalFolder(string path = "")
         {
             DirectoryInfo logDirectory;
 
@@ -299,6 +249,75 @@ namespace Observatory.Utils
             return logDirectory;
         }
 
+        #endregion
+
+        #region Public Events
+
+        public event EventHandler<LogMonitorStateChangedEventArgs> LogMonitorStateChanged;
+
+        public event EventHandler<JournalEventArgs> JournalEntry;
+
+        public event EventHandler<JournalEventArgs> StatusUpdate;
+
+        #endregion
+
+        #region Private Fields
+
+        private FileSystemWatcher? journalWatcher;
+        private FileSystemWatcher? statusWatcher;
+        private readonly Dictionary<string, Type> journalTypes;
+        private readonly Dictionary<string, int> currentLine;
+        private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
+        private bool firstStartMonitor = true;
+        private readonly string[] EventsWithAncillaryFile =
+        [
+            "Cargo",
+            "NavRoute",
+            "Market",
+            "Outfitting",
+            "Shipyard",
+            "Backpack",
+            "FCMaterials",
+            "ModuleInfo",
+            "ShipLocker"
+        ];
+
+        #endregion
+
+        #region Private Methods
+
+        private void SetLogMonitorState(LogMonitorState newState)
+        {
+            var oldState = currentState;
+            currentState = newState;
+            LogMonitorStateChanged?.Invoke(this, new LogMonitorStateChangedEventArgs
+            {
+                PreviousState = oldState,
+                NewState = newState
+            }); ;
+
+            System.Diagnostics.Debug.WriteLine("LogMonitor State change: {0} -> {1}", oldState, newState);
+        }
+
+        private void InitializeWatchers(string path)
+        {
+            DirectoryInfo logDirectory = GetJournalFolder(path);
+
+            journalWatcher = new FileSystemWatcher(logDirectory.FullName, "Journal.*.??.log")
+            {
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size |
+                                NotifyFilters.FileName | NotifyFilters.CreationTime
+            };
+            journalWatcher.Changed += LogChangedEvent;
+            journalWatcher.Created += LogCreatedEvent;
+
+            statusWatcher = new FileSystemWatcher(logDirectory.FullName, "Status.json")
+            {
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size
+            };
+            statusWatcher.Changed += StatusUpdateEvent;
+        }
+
         private List<(Exception ex, string file, string line)> ProcessLines(List<string> lines, string file)
         {
             var readErrors = new List<(Exception ex, string file, string line)>();
@@ -326,25 +345,6 @@ namespace Observatory.Utils
             return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
         }
 
-        private void DeserializeAndInvoke(string line)
-        {
-            var eventType = JournalUtilities.GetEventType(line);
-            if (!journalTypes.ContainsKey(eventType))
-            {
-                eventType = "JournalBase";
-            }
-
-            var journalEvent = DeserializeToEventArgs(eventType, line);
-
-            JournalEntry?.Invoke(this, journalEvent);
-
-            // Files are only valid if realtime, otherwise they will be stale or empty.
-            if (!currentState.HasFlag(LogMonitorState.Batch) && EventsWithAncillaryFile.Contains(eventType))
-            {
-                HandleAncillaryFile(eventType);
-            }
-        }
-
         private void HandleAncillaryFile(string eventType)
         {
             string filename = eventType == "ModuleInfo"
@@ -358,7 +358,7 @@ namespace Observatory.Utils
             // Some files are still locked by another process after 50ms.
             // Retry every 50ms for 0.5 seconds before giving up.
 
-            string fileContent = null;
+            string? fileContent = null;
             int retryCount = 0;
 
             while (fileContent == null && retryCount < 10)
@@ -381,7 +381,7 @@ namespace Observatory.Utils
 
         private static void ReportErrors(List<(Exception ex, string file, string line)> readErrors)
         {
-            if (readErrors.Any())
+            if (readErrors.Count != 0)
             {
                 var errorList = readErrors.Select(error =>
                 {
@@ -406,12 +406,13 @@ namespace Observatory.Utils
         {
             var fileContent = ReadAllLines(eventArgs.FullPath);
 
-            if (!currentLine.ContainsKey(eventArgs.FullPath))
+            if (!currentLine.TryGetValue(eventArgs.FullPath, out int value))
             {
-                currentLine.Add(eventArgs.FullPath, fileContent.Count - 1);
+                value = fileContent.Count - 1;
+                currentLine.Add(eventArgs.FullPath, value);
             }
 
-            foreach (string line in fileContent.Skip(currentLine[eventArgs.FullPath]))
+            foreach (string line in fileContent.Skip(value))
             {
                 try
                 {
@@ -419,7 +420,7 @@ namespace Observatory.Utils
                 }
                 catch (Exception ex)
                 {
-                    ReportErrors(new List<(Exception ex, string file, string line)>() { (ex, eventArgs.Name ?? string.Empty, line) });
+                    ReportErrors([(ex, eventArgs.Name ?? string.Empty, line)]);
                 }
             }
 
@@ -478,7 +479,7 @@ namespace Observatory.Utils
 
                     if (journals.Any())
                     {
-                        FileInfo fileToPoke = GetJournalFilesOrdered(journalFolder).Last();
+                        FileInfo fileToPoke = journals.Last();
 
                         using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
                         stream.Close();
@@ -495,8 +496,10 @@ namespace Observatory.Utils
             try
             {
                 Guid FolderSavedGames = new ("4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4");
-                SHGetKnownFolderPath(ref FolderSavedGames, 0, IntPtr.Zero, out pathPtr);
-                return Marshal.PtrToStringUni(pathPtr) ?? string.Empty;
+                if (SHGetKnownFolderPath(ref FolderSavedGames, 0, IntPtr.Zero, out pathPtr) == 0)
+                    return Marshal.PtrToStringUni(pathPtr) ?? string.Empty;
+                else
+                    throw new Exception("Unknown error retrieving Saved Games folder location.");
             }
             finally
             {
@@ -504,11 +507,44 @@ namespace Observatory.Utils
             }
         }
 
+        private static Regex datePartRe = new(@"Journal\.(.+)\.\d+\.log", RegexOptions.Compiled);
+        private static Regex numericDateRe = new(@"^\d+$", RegexOptions.Compiled);
+
         private static IEnumerable<FileInfo> GetJournalFilesOrdered(DirectoryInfo journalFolder)
         {
-            return from file in journalFolder.GetFiles("Journal.*.??.log")
-                   orderby file.LastWriteTime
-                   select file;
+            return journalFolder.GetFiles("Journal.*.??.log")
+                .ToDictionary(f => TimestampFromFile(f), f => f)
+                .OrderBy(kvp => kvp.Key)
+                .Select(kvp => kvp.Value);
+        }
+
+        private static DateTime TimestampFromFile(FileInfo f)
+        {
+            // Grab the last write time (aka. mtime) for fallback in case we can't parse the value.
+            // We could try open the file and parse the first line of the journal as fallback as well,
+            // but that will slow this process down considerably (and this is fairly performance
+            // sensitive because it's called for every journal poke)and there's no urgent need for
+            // this level of fallback. If we ever have to deal with a filename format with no
+            // timestamp in the filename, we could consider this.
+            DateTime fallbackTime = f.LastWriteTime.ToUniversalTime();
+            // Default to fallback value.
+            DateTime timeStamp = fallbackTime;
+            string filename = f.Name;
+
+            Match datePart = datePartRe.Match(filename);
+            if (!datePart.Success)
+            {
+                // No timestamp detected in filename.
+                return timeStamp;
+            }
+
+            // Try parse as a numeric date from old journals in the format: yyMMddHHmmss
+            if (!DateTime.TryParseExact(datePart.Groups[1].Value, "yyMMddHHmmss", null, System.Globalization.DateTimeStyles.None, out timeStamp))
+            {
+                // Try parse this as a new style date of the format: yyyy-MM-ddTHHmmss
+                DateTime.TryParseExact(datePart.Groups[1].Value, "yyyy-MM-ddTHHmmss", null, System.Globalization.DateTimeStyles.None, out timeStamp);
+            }
+            return timeStamp;
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]

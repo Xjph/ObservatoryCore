@@ -1,6 +1,5 @@
-﻿using Observatory.Framework;
+using Observatory.Framework;
 using Observatory.UI;
-using System;
 
 namespace Observatory.NativeNotification
 {
@@ -16,7 +15,7 @@ namespace Observatory.NativeNotification
         public Guid InvokeNativeNotification(NotificationArgs notificationArgs)
         {
             var notificationGuid = Guid.NewGuid();
-            Application.OpenForms[0].Invoke(() =>
+            Application.OpenForms[0]?.Invoke(() =>
             {
                 var notification = new NotificationForm(notificationGuid, notificationArgs);
 

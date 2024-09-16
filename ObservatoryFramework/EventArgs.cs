@@ -1,5 +1,3 @@
-﻿using System;
-
 namespace Observatory.Framework
 {
     /// <summary>
@@ -73,7 +71,7 @@ namespace Observatory.Framework
         /// <summary>
         /// A value which allows grouping of notifications together. For example, values &gt;= 0 &lt;= 1000 could be system body IDs, -1 is the system, anything else is arbitrary.
         /// </summary>
-        public int CoalescingId;
+        public int? CoalescingId;
     }
 
     /// <summary>
@@ -141,7 +139,11 @@ namespace Observatory.Framework
         /// <summary>
         /// Batch read of recent journals is in progress to establish current player state.
         /// </summary>
-        PreRead = 4
+        PreRead = 4,
+        /// <summary>
+        /// Batch read of historical journals was stopped before completion.
+        /// </summary>
+        BatchCancelled = 8,
     }
 
     /// <summary>
@@ -166,7 +168,7 @@ namespace Observatory.Framework
         /// <returns>A boolean; True iff the state provided represents a batch-mode read.</returns>
         public static bool IsBatchRead(LogMonitorState state)
         {
-            return state.HasFlag(LogMonitorState.Batch) || state.HasFlag(LogMonitorState.PreRead);
+            return (state & LogMonitorState.Batch) > 0 || (state & LogMonitorState.PreRead) > 0;
         }
     }
 }
