@@ -1,4 +1,4 @@
-using Observatory.Framework;
+﻿using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using Observatory.Framework.ParameterTypes;
@@ -278,7 +278,7 @@ namespace Observatory.PluginManagement
 
         internal void Shutdown()
         {
-            await AudioHandler.PlayFile(filePath);
+            NativePopup.CloseAll();
         }
 
         private void BeginBulkUpdate(IObservatoryWorker worker)

@@ -1,4 +1,4 @@
-namespace Observatory.Utils
+﻿namespace Observatory.Utils
 {
     public sealed class HttpClient
     {

@@ -1,4 +1,4 @@
-namespace Observatory.UI
+﻿namespace Observatory.UI
 {
     partial class CoreForm
     {

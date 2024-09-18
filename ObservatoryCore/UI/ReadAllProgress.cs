@@ -1,4 +1,4 @@
-using Observatory.Utils;
+﻿using Observatory.Utils;
 using System.Text;
 
 namespace Observatory.UI

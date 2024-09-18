@@ -1,4 +1,4 @@
-using NAudio.Wave;
+﻿using NAudio.Wave;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.ParameterTypes;
 using System.Collections.Concurrent;

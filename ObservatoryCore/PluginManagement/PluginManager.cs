@@ -1,4 +1,4 @@
-using System.Reflection;
+﻿using System.Reflection;
 using System.Data;
 using Observatory.Framework.Interfaces;
 using Observatory.Framework;
@@ -75,10 +75,7 @@ namespace Observatory.PluginManagement
             logMonitor.StatusUpdate += pluginHandler.OnStatusUpdate;
             logMonitor.LogMonitorStateChanged += pluginHandler.OnLogMonitorStateChanged;
 
-            var ovPopup = notifyPlugins.Any(n => n.plugin.OverridePopupNotifications);
-            var ovAudio = notifyPlugins.Any(n => n.plugin.OverrideAudioNotifications);
-
-            core = new PluginCore(ovPopup, ovAudio);
+            core = new PluginCore();
 
             List<IObservatoryPlugin> errorPlugins = new();
             

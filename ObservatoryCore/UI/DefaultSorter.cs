@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using Observatory.Framework.Interfaces;
 
 namespace Observatory.UI

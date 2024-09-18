@@ -1,4 +1,4 @@
-#if PORTABLE
+﻿#if PORTABLE
 using System.Reflection;
 using System.Text.Json;
 #endif

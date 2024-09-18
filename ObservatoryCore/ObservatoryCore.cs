@@ -28,7 +28,7 @@ namespace Observatory
                 {
                     try
                     {
-                        // Properties.Core.Default.Upgrade();
+                        Properties.Core.Default.Upgrade();
                     }
                     catch 
                     {

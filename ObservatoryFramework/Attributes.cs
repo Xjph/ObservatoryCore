@@ -1,4 +1,4 @@
-namespace Observatory.Framework
+﻿namespace Observatory.Framework
 {
 
     #region Settings class attributes

@@ -1,4 +1,4 @@
-using Observatory.Framework.Files;
+﻿using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.ParameterTypes;
 using System.Drawing;

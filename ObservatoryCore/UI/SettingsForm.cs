@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using System.Reflection;
 using Observatory.Assets;
 using Observatory.Framework;

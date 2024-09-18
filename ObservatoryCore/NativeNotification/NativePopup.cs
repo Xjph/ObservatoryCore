@@ -1,4 +1,4 @@
-using Observatory.Framework;
+﻿using Observatory.Framework;
 using Observatory.UI;
 
 namespace Observatory.NativeNotification

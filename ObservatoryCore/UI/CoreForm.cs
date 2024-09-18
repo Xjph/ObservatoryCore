@@ -1,4 +1,4 @@
-using Observatory.Framework.Interfaces;
+﻿using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
 using System.Diagnostics;

@@ -1,4 +1,4 @@
-#if PROTON
+﻿#if PROTON
 
 using Observatory.Framework;
 

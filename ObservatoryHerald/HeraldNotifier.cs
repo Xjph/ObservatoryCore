@@ -1,4 +1,4 @@
-using Observatory.Framework;
+﻿using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using System.Text.Json;
 

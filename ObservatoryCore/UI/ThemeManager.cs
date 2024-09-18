@@ -1,4 +1,4 @@
-using Observatory.Utils;
+﻿using Observatory.Utils;
 
 namespace Observatory.UI
 {

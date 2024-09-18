@@ -1,4 +1,4 @@
-using Observatory.Framework;
+﻿using Observatory.Framework;
 using System.Diagnostics;
 using Observatory.Framework.Interfaces;
 
@@ -108,7 +108,7 @@ namespace Observatory.Herald
             return await speechManager.GetAudioFileFromSsml(ssml, voice, style, rate);
         }
 
-        private async void PlayAudioRequestsSequentially(List<Task<string>> requestTasks)
+        private void PlayAudioRequestsSequentially(List<Task<string>> requestTasks)
         {
             foreach (var request in requestTasks)
             {
