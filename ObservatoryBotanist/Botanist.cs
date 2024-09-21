@@ -77,9 +77,24 @@ namespace Observatory.Botanist
             OverlayEnabled = true,
             OverlayIsSticky = true,
         };
-        public string Name => "Observatory Botanist";
+        private AboutInfo _aboutInfo = new()
+        {
+            FullName = "Observatory Botanist",
+            ShortName = "Botanist",
+            Description = "Botanist is a core plugin for Observatory, designed to provide simple output for biological signals.",
+            AuthorName = "Vithigar",
+            Links = new()
+            {
+                new AboutLink("github", "https://github.com/Xjph/ObservatoryCore"),
+                new AboutLink("Documentation", "https://observatory.xjph.net/usage/plugins/botanist"),
+            }
+        };
 
-        public string ShortName => "Botanist";
+        public string Name => _aboutInfo.FullName;
+
+        public string ShortName => _aboutInfo.ShortName;
+
+        public AboutInfo AboutInfo => _aboutInfo;
 
         public string Version => typeof(Botanist).Assembly.GetName().Version.ToString();
 

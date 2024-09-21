@@ -36,6 +36,11 @@ namespace Observatory.Framework.Interfaces
         public string Version { get; }
 
         /// <summary>
+        /// An object containing metadata about this plugin.
+        /// </summary>
+        public AboutInfo AboutInfo { get => null; }
+
+        /// <summary>
         /// Reference to plugin UI to display within its tab.
         /// </summary>
         public PluginUI PluginUI { get; }

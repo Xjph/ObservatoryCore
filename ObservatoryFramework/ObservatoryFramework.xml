@@ -4,6 +4,51 @@
         <name>ObservatoryFramework</name>
     </assembly>
     <members>
+        <member name="T:Observatory.Framework.AboutInfo">
+            <summary>
+            Provides metadata about a plugin or app.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.AboutInfo.ShortName">
+            <summary>
+            The short name of the plugin or app.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.AboutInfo.FullName">
+            <summary>
+            The full name of the plugin or app.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.AboutInfo.Description">
+            <summary>
+            A brief, multiline description of the plugin or app.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.AboutInfo.AuthorName">
+            <summary>
+            Your name. This is public, remember.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.AboutInfo.Links">
+            <summary>
+            Links to websites, documentation, donation, what have you. Up to 4 links will be rendered in the order added.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.AboutLink">
+            <summary>
+            Provides information for a link to be displayed in the "About" view.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.AboutLink.Text">
+            <summary>
+            Required. The text that will be linked to the URL below.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.AboutLink.Url">
+            <summary>
+            Required. The URL to launch when the link is clicked.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.SettingSuggestedColumnWidth">
             <summary>
             Specifies the width of a settings column in the settings view. There are two columns.
@@ -1467,6 +1512,11 @@
             <summary>
             Version string displayed in the Core settings tab's plugin list.<br/>
             Potentially used for automated version checking. (Not yet implemented)
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.AboutInfo">
+            <summary>
+            An object containing metadata about this plugin.
             </summary>
         </member>
         <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.PluginUI">

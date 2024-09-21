@@ -20,8 +20,15 @@ namespace Observatory.UI
             {
                 if (!ListedPlugins.ContainsValue(plugin))
                 {
-                    
-                    ListViewItem item = new ListViewItem(new[] { plugin.Name, "Worker", plugin.Version, PluginStatusString(signed) });
+                    var aboutInfo = plugin.AboutInfo;
+                    ListViewItem item = new ListViewItem(new[]
+                    {
+                        aboutInfo?.FullName ?? plugin.Name,
+                        aboutInfo?.AuthorName ?? string.Empty,
+                        "Worker",
+                        plugin.Version,
+                        PluginStatusString(signed)
+                    });
                     ListedPlugins.Add(item, plugin);
                     var lvItem = PluginList.Items.Add(item);
                     lvItem.Checked = true; // Start with enabled, let settings disable things.
@@ -32,7 +39,15 @@ namespace Observatory.UI
             {
                 if (!ListedPlugins.ContainsValue(plugin))
                 {
-                    ListViewItem item = new ListViewItem(new[] { plugin.Name, "Notifier", plugin.Version, PluginStatusString(signed) });
+                    var aboutInfo = plugin.AboutInfo;
+                    ListViewItem item = new ListViewItem(new[]
+                    {
+                        aboutInfo?.FullName ?? plugin.Name,
+                        aboutInfo?.AuthorName ?? string.Empty,
+                        "Notifier",
+                        plugin.Version,
+                        PluginStatusString(signed)
+                    });
                     ListedPlugins.Add(item, plugin);
                     var lvItem = PluginList.Items.Add(item);
                     lvItem.Checked = true; // Start with enabled, let settings disable things.
@@ -160,6 +175,22 @@ namespace Observatory.UI
                 VoiceDisabledPanel.SendToBack();
             }
 #endif
+        }
+
+        internal void AboutPluginButton_Click(object sender, EventArgs e)
+        {
+            if (ListedPlugins != null && PluginList.SelectedItems.Count != 0)
+            {
+                var plugin = ListedPlugins[PluginList.SelectedItems[0]];
+
+                var aboutInfo = plugin.AboutInfo;
+                if (aboutInfo != null)
+                {
+                    var aboutForm = new AboutForm(aboutInfo);
+                    ThemeManager.GetInstance.RegisterControl(aboutForm);
+                    aboutForm.ShowDialog();
+                }
+            }
         }
 
         // Called from PluginManagement

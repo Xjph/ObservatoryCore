@@ -7,6 +7,18 @@ namespace Observatory.Herald
     public class HeraldNotifier : IObservatoryNotifier
     {
         private IObservatoryCore Core;
+        private AboutInfo _aboutInfo = new()
+        {
+            FullName = "Observatory Herald",
+            ShortName = "Herald",
+            Description = "Herald is a core plugin for Observatory, designed to provide cloud-based higher-quality speech synthesis.",
+            AuthorName = "Vithigar",
+            Links = new()
+            {
+                new AboutLink("github", "https://github.com/Xjph/ObservatoryCore"),
+                new AboutLink("Documentation", "https://observatory.xjph.net/usage/plugins/herald"),
+            }
+        };
 
         public HeraldNotifier()
         {
@@ -24,9 +36,11 @@ namespace Observatory.Herald
             };
         }
 
-        public string Name => "Observatory Herald";
+        public string Name => _aboutInfo.FullName;
 
-        public string ShortName => "Herald";
+        public string ShortName => _aboutInfo.ShortName;
+
+        public AboutInfo AboutInfo => _aboutInfo;
 
         public bool OverrideAudioNotifications => true;
 
