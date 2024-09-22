@@ -90,10 +90,6 @@ namespace Observatory.Botanist
             }
         };
 
-        public string Name => _aboutInfo.FullName;
-
-        public string ShortName => _aboutInfo.ShortName;
-
         public AboutInfo AboutInfo => _aboutInfo;
 
         public string Version => typeof(Botanist).Assembly.GetName().Version.ToString();
@@ -181,7 +177,7 @@ namespace Observatory.Botanist
                                             Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance} m",
                                             Rendering = NotificationRendering.NativeVisual,
                                             Timeout = (botanistSettings.OverlayIsSticky ? 0 : -1),
-                                            Sender = ShortName,
+                                            Sender = AboutInfo.ShortName,
                                         };
                                         if (samplerStatusNotification == null)
                                         {

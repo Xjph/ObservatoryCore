@@ -36,10 +36,6 @@ namespace Observatory.Herald
             };
         }
 
-        public string Name => _aboutInfo.FullName;
-
-        public string ShortName => _aboutInfo.ShortName;
-
         public AboutInfo AboutInfo => _aboutInfo;
 
         public bool OverrideAudioNotifications => true;

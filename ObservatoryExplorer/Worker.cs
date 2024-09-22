@@ -48,10 +48,6 @@ namespace Observatory.Explorer
             }
         };
 
-        public string Name => _aboutInfo.FullName;
-
-        public string ShortName => _aboutInfo.ShortName;
-
         public AboutInfo AboutInfo => _aboutInfo;
  
         public string Version => typeof(ExplorerWorker).Assembly.GetName().Version.ToString();
