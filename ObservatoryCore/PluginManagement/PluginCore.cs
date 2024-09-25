@@ -262,6 +262,14 @@ namespace Observatory.PluginManagement
             });
         }
 
+        public void OpenAbout(IObservatoryPlugin plugin)
+        {
+            ExecuteOnUIThread(() =>
+            {
+                FindCoreForm()?.OpenAbout(plugin.AboutInfo);
+            });
+        }
+
         public JournalEventArgs DeserializeEvent(string json, bool replay = false)
         {
             var logMonitor = LogMonitor.GetInstance;

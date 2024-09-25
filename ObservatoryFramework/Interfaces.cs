@@ -342,6 +342,12 @@ namespace Observatory.Framework.Interfaces
         public void OpenSettings(IObservatoryPlugin plugin);
 
         /// <summary>
+        /// Request that Observatory open the About form for the current plugin
+        /// </summary>
+        /// <param name="plugin"></param>
+        public void OpenAbout(IObservatoryPlugin plugin);
+
+        /// <summary>
         /// Deserializes a journal event from JSON into a journal object.
         /// </summary>
         /// <param name="json">JSON string representing a journal event</param>

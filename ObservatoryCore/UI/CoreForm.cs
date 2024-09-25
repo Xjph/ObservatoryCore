@@ -282,9 +282,18 @@ namespace Observatory.UI
 
         private void AboutCore_Click(object sender, EventArgs e)
         {
-            var aboutForm = new AboutForm(_aboutCore);
-            ThemeManager.GetInstance.RegisterControl(aboutForm);
-            aboutForm.ShowDialog();
+            OpenAbout(_aboutCore);
+        }
+
+        // Also used for plugins.
+        internal void OpenAbout(AboutInfo aboutInfo)
+        {
+            if (aboutInfo != null)
+            {
+                var aboutForm = new AboutForm(aboutInfo);
+                ThemeManager.GetInstance.RegisterControl(aboutForm);
+                aboutForm.Show();
+            }
         }
 
         private static void OpenURL(string url)

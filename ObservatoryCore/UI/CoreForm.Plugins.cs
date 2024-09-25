@@ -182,18 +182,10 @@ namespace Observatory.UI
             if (ListedPlugins != null && PluginList.SelectedItems.Count != 0)
             {
                 var plugin = ListedPlugins[PluginList.SelectedItems[0]];
-
-                var aboutInfo = plugin.AboutInfo;
-                if (aboutInfo != null)
-                {
-                    var aboutForm = new AboutForm(aboutInfo);
-                    ThemeManager.GetInstance.RegisterControl(aboutForm);
-                    aboutForm.ShowDialog();
-                }
+                OpenAbout(plugin.AboutInfo);
             }
         }
 
-        // Called from PluginManagement
         internal void OpenSettings(IObservatoryPlugin plugin)
         {
             if (SettingsForms.ContainsKey(plugin))
