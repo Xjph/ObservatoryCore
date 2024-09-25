@@ -21,19 +21,24 @@ namespace Observatory.Framework.Interfaces
         /// <summary>
         /// Full name of the plugin. Displayed in the Core settings tab's plugin list.
         /// </summary>
-        public string Name { get; }
+        public string Name { get => AboutInfo?.FullName ?? "(AboutInfo is undefined)"; }
 
         /// <summary>
         /// Short name of the plugin. Used as the tab title for the plugin UI.<br/>
         /// Can be omitted, in which case the full Name will be used.
         /// </summary>
-        public string ShortName { get => Name; }
+        public string ShortName { get => AboutInfo?.ShortName ?? Name; }
 
         /// <summary>
         /// Version string displayed in the Core settings tab's plugin list.<br/>
         /// Potentially used for automated version checking. (Not yet implemented)
         /// </summary>
         public string Version { get; }
+
+        /// <summary>
+        /// An object containing metadata about this plugin.
+        /// </summary>
+        public AboutInfo AboutInfo { get => null; }
 
         /// <summary>
         /// Reference to plugin UI to display within its tab.
@@ -335,6 +340,12 @@ namespace Observatory.Framework.Interfaces
         /// Request that Observatory open the setting form for the current plugin
         /// </summary>
         public void OpenSettings(IObservatoryPlugin plugin);
+
+        /// <summary>
+        /// Request that Observatory open the About form for the current plugin
+        /// </summary>
+        /// <param name="plugin"></param>
+        public void OpenAbout(IObservatoryPlugin plugin);
 
         /// <summary>
         /// Deserializes a journal event from JSON into a journal object.

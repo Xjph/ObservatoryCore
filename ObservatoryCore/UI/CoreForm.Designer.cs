@@ -34,8 +34,6 @@
             ToggleMonitorButton = new Button();
             ClearButton = new Button();
             ExportButton = new Button();
-            GithubLink = new LinkLabel();
-            DonateLink = new LinkLabel();
             PopupColour = new ColorDialog();
             OverrideTooltip = new ToolTip(components);
             CoreTabControl = new ColourableTabControl();
@@ -44,10 +42,12 @@
             CoreLayoutPanel = new TableLayoutPanel();
             PluginList = new NoHScrollList();
             NameColumn = new ColumnHeader();
+            AuthorColumn = new ColumnHeader();
             TypeColumn = new ColumnHeader();
             VersionColumn = new ColumnHeader();
             StatusColumn = new ColumnHeader();
             PluginListButtonsLayoutPanel = new FlowLayoutPanel();
+            AboutPluginButton = new Button();
             PluginSettingsButton = new Button();
             PluginDataDirButton = new Button();
             PluginFolderButton = new Button();
@@ -97,6 +97,7 @@
             ThemeDropdown = new ComboBox();
             ButtonAddTheme = new Button();
             UpdateLink = new LinkLabel();
+            AboutCore = new Button();
             CoreTabControl.SuspendLayout();
             CoreTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)CoreSplitter).BeginInit();
@@ -169,30 +170,6 @@
             ExportButton.UseVisualStyleBackColor = false;
             ExportButton.Click += ExportButton_Click;
             // 
-            // GithubLink
-            // 
-            GithubLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            GithubLink.AutoSize = true;
-            GithubLink.Location = new Point(12, 865);
-            GithubLink.Name = "GithubLink";
-            GithubLink.Size = new Size(42, 15);
-            GithubLink.TabIndex = 28;
-            GithubLink.TabStop = true;
-            GithubLink.Text = "github";
-            GithubLink.LinkClicked += GithubLink_LinkClicked;
-            // 
-            // DonateLink
-            // 
-            DonateLink.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            DonateLink.AutoSize = true;
-            DonateLink.Location = new Point(12, 880);
-            DonateLink.Name = "DonateLink";
-            DonateLink.Size = new Size(45, 15);
-            DonateLink.TabIndex = 29;
-            DonateLink.TabStop = true;
-            DonateLink.Text = "Donate";
-            DonateLink.LinkClicked += DonateLink_LinkClicked;
-            // 
             // CoreTabControl
             // 
             CoreTabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -264,7 +241,7 @@
             // 
             PluginList.BorderStyle = BorderStyle.None;
             PluginList.CheckBoxes = true;
-            PluginList.Columns.AddRange(new ColumnHeader[] { NameColumn, TypeColumn, VersionColumn, StatusColumn });
+            PluginList.Columns.AddRange(new ColumnHeader[] { NameColumn, AuthorColumn, TypeColumn, VersionColumn, StatusColumn });
             PluginList.Dock = DockStyle.Fill;
             PluginList.FullRowSelect = true;
             PluginList.HeaderStyle = ColumnHeaderStyle.Nonclickable;
@@ -285,6 +262,11 @@
             NameColumn.Text = "Plugin";
             NameColumn.Width = 180;
             // 
+            // AuthorColumn
+            // 
+            AuthorColumn.Text = "Author";
+            AuthorColumn.Width = 100;
+            // 
             // TypeColumn
             // 
             TypeColumn.Text = "Type";
@@ -301,6 +283,7 @@
             // 
             // PluginListButtonsLayoutPanel
             // 
+            PluginListButtonsLayoutPanel.Controls.Add(AboutPluginButton);
             PluginListButtonsLayoutPanel.Controls.Add(PluginSettingsButton);
             PluginListButtonsLayoutPanel.Controls.Add(PluginDataDirButton);
             PluginListButtonsLayoutPanel.Controls.Add(PluginFolderButton);
@@ -310,12 +293,25 @@
             PluginListButtonsLayoutPanel.Size = new Size(813, 34);
             PluginListButtonsLayoutPanel.TabIndex = 9;
             // 
+            // AboutPluginButton
+            // 
+            AboutPluginButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            AboutPluginButton.FlatAppearance.BorderSize = 0;
+            AboutPluginButton.FlatStyle = FlatStyle.Flat;
+            AboutPluginButton.Location = new Point(3, 3);
+            AboutPluginButton.Name = "AboutPluginButton";
+            AboutPluginButton.Size = new Size(120, 23);
+            AboutPluginButton.TabIndex = 6;
+            AboutPluginButton.Text = "About Plugin";
+            AboutPluginButton.UseVisualStyleBackColor = false;
+            AboutPluginButton.Click += AboutPluginButton_Click;
+            // 
             // PluginSettingsButton
             // 
             PluginSettingsButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginSettingsButton.FlatAppearance.BorderSize = 0;
             PluginSettingsButton.FlatStyle = FlatStyle.Flat;
-            PluginSettingsButton.Location = new Point(3, 3);
+            PluginSettingsButton.Location = new Point(129, 3);
             PluginSettingsButton.Name = "PluginSettingsButton";
             PluginSettingsButton.Size = new Size(120, 23);
             PluginSettingsButton.TabIndex = 3;
@@ -327,7 +323,7 @@
             // 
             PluginDataDirButton.FlatAppearance.BorderSize = 0;
             PluginDataDirButton.FlatStyle = FlatStyle.Flat;
-            PluginDataDirButton.Location = new Point(129, 3);
+            PluginDataDirButton.Location = new Point(255, 3);
             PluginDataDirButton.Name = "PluginDataDirButton";
             PluginDataDirButton.Size = new Size(155, 23);
             PluginDataDirButton.TabIndex = 4;
@@ -340,7 +336,7 @@
             PluginFolderButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             PluginFolderButton.FlatAppearance.BorderSize = 0;
             PluginFolderButton.FlatStyle = FlatStyle.Flat;
-            PluginFolderButton.Location = new Point(290, 3);
+            PluginFolderButton.Location = new Point(416, 3);
             PluginFolderButton.Name = "PluginFolderButton";
             PluginFolderButton.Size = new Size(130, 23);
             PluginFolderButton.TabIndex = 5;
@@ -870,15 +866,29 @@
             UpdateLink.Text = "Update Available";
             UpdateLink.Visible = false;
             // 
+            // AboutCore
+            // 
+            AboutCore.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            AboutCore.FlatAppearance.BorderSize = 0;
+            AboutCore.FlatStyle = FlatStyle.Flat;
+            AboutCore.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            AboutCore.Location = new Point(16, 864);
+            AboutCore.Name = "AboutCore";
+            AboutCore.Size = new Size(42, 28);
+            AboutCore.TabIndex = 35;
+            AboutCore.Text = "ℹ️";
+            OverrideTooltip.SetToolTip(AboutCore, "About Elite Observatory Core");
+            AboutCore.UseVisualStyleBackColor = true;
+            AboutCore.Click += AboutCore_Click;
+            // 
             // CoreForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(857, 904);
+            Controls.Add(AboutCore);
             Controls.Add(UpdateLink);
             Controls.Add(CoreTabControl);
-            Controls.Add(DonateLink);
-            Controls.Add(GithubLink);
             Controls.Add(ExportButton);
             Controls.Add(ClearButton);
             Controls.Add(ToggleMonitorButton);
@@ -924,8 +934,6 @@
         private Button ToggleMonitorButton;
         private Button ClearButton;
         private Button ExportButton;
-        private LinkLabel GithubLink;
-        private LinkLabel DonateLink;
         private ColorDialog PopupColour;
         private ToolTip OverrideTooltip;
         private ColourableTabControl CoreTabControl;
@@ -987,5 +995,8 @@
         private Button PluginDataDirButton;
         private Button CoreConfigFolder;
         private LinkLabel UpdateLink;
+        private Button AboutCore;
+        private ColumnHeader AuthorColumn;
+        private Button AboutPluginButton;
     }
 }

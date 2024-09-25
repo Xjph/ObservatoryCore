@@ -35,11 +35,21 @@ namespace Observatory.Explorer
         private IObservatoryCore Core;
 
         private bool recordProcessedSinceBatchStart = false;
+        private AboutInfo _aboutInfo = new()
+        {
+            FullName = "Observatory Explorer",
+            ShortName = "Explorer",
+            Description = "Explorer is a core plugin for Observatory, designed to point out any astronomical points of interest that might be encountered.",
+            AuthorName = "Vithigar",
+            Links = new()
+            {
+                new AboutLink("github", "https://github.com/Xjph/ObservatoryCore"),
+                new AboutLink("Documentation", "https://observatory.xjph.net/usage/plugins/explorer"),
+            }
+        };
 
-        public string Name => "Observatory Explorer";
-
-        public string ShortName => "Explorer";
-
+        public AboutInfo AboutInfo => _aboutInfo;
+ 
         public string Version => typeof(ExplorerWorker).Assembly.GetName().Version.ToString();
 
         private PluginUI pluginUI;

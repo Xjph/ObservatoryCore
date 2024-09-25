@@ -1,4 +1,5 @@
-﻿using Observatory.Framework.Interfaces;
+﻿using Observatory.Framework;
+using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
 using System.Diagnostics;
@@ -9,6 +10,25 @@ namespace Observatory.UI
 {
     public partial class CoreForm : Form
     {
+
+        private AboutInfo _aboutCore = new AboutInfo()
+        {
+            FullName = "Elite Observatory Core",
+            ShortName = "Core",
+            Description = "A tool for reading/monitoring Elite Dangerous journals for interesting objects."
+                + Environment.NewLine
+                + Environment.NewLine
+                + "If you like this tool, consider making a one-time donation via PayPal, or ongoing via Patreon!",
+            AuthorName = "Vithigar",
+            Links = new()
+            {
+                new AboutLink("github", "https://github.com/Xjph/ObservatoryCore"),
+                new AboutLink("Documentation", "https://observatory.xjph.net/"),
+                new AboutLink("Donate via Paypal", "https://www.paypal.com/donate/?hosted_button_id=XYQWYQ337TBP4"),
+                new AboutLink("Donate via Patreon", "https://www.patreon.com/vithigar"),
+            }
+        };
+
         private readonly ThemeManager themeManager;
 
         [DllImport("user32.dll")]
@@ -258,21 +278,22 @@ namespace Observatory.UI
             {
                 // log?
             }
-
-            
         }
 
-        private void GithubLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void AboutCore_Click(object sender, EventArgs e)
         {
-            OpenURL("https://github.com/Xjph/ObservatoryCore");
+            OpenAbout(_aboutCore);
         }
 
-        private void DonateLink_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        // Also used for plugins.
+        internal void OpenAbout(AboutInfo aboutInfo)
         {
-            // OpenURL("https://www.paypal.com/donate/?hosted_button_id=XYQWYQ337TBP4");
-            var donateForm = new DonateForm();
-            ThemeManager.GetInstance.RegisterControl(donateForm);
-            donateForm.ShowDialog();
+            if (aboutInfo != null)
+            {
+                var aboutForm = new AboutForm(aboutInfo);
+                ThemeManager.GetInstance.RegisterControl(aboutForm);
+                aboutForm.Show();
+            }
         }
 
         private static void OpenURL(string url)
@@ -336,8 +357,8 @@ namespace Observatory.UI
         private void CoreForm_Load(object sender, EventArgs e)
         {
             CoreSplitter.SplitterDistance = Math.Clamp(
-                Properties.Core.Default.CoreSplitterDistance, 
-                20, 
+                Properties.Core.Default.CoreSplitterDistance,
+                20,
                 Math.Max(CoreSplitter.Height - 20, 20)); // Edge case exception.
             var savedLocation = Properties.Core.Default.MainWindowPosition;
             var savedSize = Properties.Core.Default.MainWindowSize;
@@ -346,10 +367,10 @@ namespace Observatory.UI
             bool onscreen = false;
             // Shrink the bounds slightly to allow window to touch edges.
             var formBounds = new Rectangle(
-                savedLocation.X + 20, 
-                savedLocation.Y + 20, 
+                savedLocation.X + 20,
+                savedLocation.Y + 20,
                 // Should never be this small, preventing edge case exception
-                Math.Max(savedSize.Width - 40, 1), 
+                Math.Max(savedSize.Width - 40, 1),
                 Math.Max(savedSize.Height - 40, 1));
             foreach (var screen in Screen.AllScreens)
             {
