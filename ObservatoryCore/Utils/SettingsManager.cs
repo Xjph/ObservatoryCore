@@ -1,4 +1,5 @@
 ﻿#if PORTABLE
+using System.Collections.Specialized;
 using System.Reflection;
 using System.Text.Json;
 #endif
@@ -51,7 +52,20 @@ namespace Observatory.Utils
                         if (currentProperty.Any())
                         {
                             JsonElement? value = (JsonElement?)savedProperty.Value;
-                            var deserializedValue = value?.Deserialize(currentProperty.First().PropertyType);
+                            object? deserializedValue;
+                            if (currentProperty.First().PropertyType == typeof(StringCollection))
+                            {
+                                deserializedValue = new StringCollection();
+                                var interimValue = value?.Deserialize<string[]>();
+                                if (interimValue != null)
+                                {
+                                    ((StringCollection)deserializedValue).AddRange(interimValue);
+                                }
+                            }
+                            else
+                            {
+                                deserializedValue = value?.Deserialize(currentProperty.First().PropertyType);
+                            }
                             currentProperty.First().SetValue(Properties.Core.Default, deserializedValue);
                         }
 

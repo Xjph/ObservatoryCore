@@ -97,7 +97,9 @@ namespace Observatory.UI
 
             foreach (var device in AudioHandler.GetDevices())
                 AudioDeviceDropdown.Items.Add(device);
-            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
+            var deviceIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
+            // Select first device if not found.
+            AudioDeviceDropdown.SelectedIndex = Math.Max(0, deviceIndex);
 #endif
         }
 

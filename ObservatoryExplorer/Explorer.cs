@@ -321,7 +321,7 @@ namespace Observatory.Explorer
                     Title = bodyLabel + bodyAffix,
                     TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
                     Detail = notificationDetail.ToString(),
-                    Sender = ExplorerWorker.ShortName,
+                    Sender = ExplorerWorker.AboutInfo.ShortName,
                     ExtendedDetails = notificationExtendedDetail.ToString(),
                     CoalescingId = scanEvent.BodyID,
                 };

@@ -77,9 +77,20 @@ namespace Observatory.Botanist
             OverlayEnabled = true,
             OverlayIsSticky = true,
         };
-        public string Name => "Observatory Botanist";
+        private AboutInfo _aboutInfo = new()
+        {
+            FullName = "Observatory Botanist",
+            ShortName = "Botanist",
+            Description = "Botanist is a core plugin for Observatory, designed to provide simple output for biological signals.",
+            AuthorName = "Vithigar",
+            Links = new()
+            {
+                new AboutLink("github", "https://github.com/Xjph/ObservatoryCore"),
+                new AboutLink("Documentation", "https://observatory.xjph.net/usage/plugins/botanist"),
+            }
+        };
 
-        public string ShortName => "Botanist";
+        public AboutInfo AboutInfo => _aboutInfo;
 
         public string Version => typeof(Botanist).Assembly.GetName().Version.ToString();
 
@@ -166,7 +177,7 @@ namespace Observatory.Botanist
                                             Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance} m",
                                             Rendering = NotificationRendering.NativeVisual,
                                             Timeout = (botanistSettings.OverlayIsSticky ? 0 : -1),
-                                            Sender = ShortName,
+                                            Sender = AboutInfo.ShortName,
                                         };
                                         if (samplerStatusNotification == null)
                                         {
