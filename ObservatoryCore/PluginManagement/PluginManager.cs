@@ -64,6 +64,12 @@ namespace Observatory.PluginManagement
 
         private PluginManager()
         {
+
+            if (Properties.Core.Default.UnsignedAllowed == null)
+                Properties.Core.Default.UnsignedAllowed = new();
+            if (Properties.Core.Default.SignaturesAllowed == null)
+                Properties.Core.Default.SignaturesAllowed = new();
+
             errorList = LoadPlugins(out _workerPlugins, out _notifyPlugins);
 
             pluginHandler = new PluginEventHandler(_workerPlugins.Select(p => p.plugin), _notifyPlugins.Select(p => p.plugin));
@@ -231,7 +237,7 @@ namespace Observatory.PluginManagement
             var errorList = new List<(string, string?)>();
 
             string pluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
-            
+
             string? ownExe = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
             FileSignatureInfo ownSig;
 
@@ -254,17 +260,25 @@ namespace Observatory.PluginManagement
 
                         if (!Properties.Core.Default.AllowUnsigned)
                         {
-                            if (ownSig.Kind == SignatureKind.Embedded)
+                            FileSignatureInfo pluginSig = null;
+                            if (ownSig.SigningCertificate != null)
                             {
-                                FileSignatureInfo pluginSig;
                                 using (var stream = File.OpenRead(dll))
                                     pluginSig = FileSignatureInfo.GetFromFileStream(stream);
 
-                                if (pluginSig.Kind == SignatureKind.Embedded)
+                                if (pluginSig.SigningCertificate != null)
                                 {
                                     if (pluginSig.SigningCertificate.Thumbprint == ownSig.SigningCertificate.Thumbprint)
                                     {
                                         pluginStatus = PluginStatus.Signed;
+                                    }
+                                    else if (pluginSig.State == SignatureState.SignedAndTrusted)
+                                    {
+                                        pluginStatus = PluginStatus.SignedThirdParty;
+                                    }
+                                    else if (Properties.Core.Default.SignaturesAllowed.Contains(pluginSig.SigningCertificate.Thumbprint))
+                                    {
+                                        pluginStatus = PluginStatus.AllowedSignature;
                                     }
                                     else
                                     {
@@ -281,19 +295,40 @@ namespace Observatory.PluginManagement
                                 pluginStatus = PluginStatus.NoCert;
                             }
 
-                            if (pluginStatus != PluginStatus.Signed && pluginStatus != PluginStatus.NoCert)
+                            if (RequiresUserAcceptance(pluginStatus))
                             {
                                 string pluginHash = ComputeSha512Hash(dll);
-
-                                if (Properties.Core.Default.UnsignedAllowed == null)
-                                    Properties.Core.Default.UnsignedAllowed = new();
-
-                                if (!Properties.Core.Default.UnsignedAllowed.Contains(pluginHash))
+                                var dllBaseName = Path.GetFileName(dll);
+                                string warning;
+                                if (pluginSig?.SigningCertificate != null)
                                 {
-                                    string warning;
-                                    warning = $"Unable to confirm signature of plugin library {dll}.\r\n\r\n";
+                                    // We have a cert but its thumbprint is not the same as Core's -- so it's third party; ask if we should allow ALL plugins with this thumbprint.
+                                    warning = $"Unable to confirm signature of plugin library {dllBaseName}.\r\n\r\n";
+                                    warning += "Please ensure that you trust the source of this plugin before loading it. Details about the signature:\r\n\r\n";
+                                    warning += $"Signer: {pluginSig.SigningCertificate.Subject}\r\n";
+                                    warning += $"Thumbprint: {pluginSig.SigningCertificate.Thumbprint}\r\n\r\n";
+                                    warning += "Do you wish to allow this signature? If you accept this signature, all plugins with this signature will be accepted and you will not be asked again.\r\n\r\n";
+
+                                    var response = MessageBox.Show(warning, "Plugin Signature Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+
+                                    if (response == DialogResult.OK)
+                                    {
+                                        pluginStatus = PluginStatus.AllowedSignature;
+                                        Properties.Core.Default.SignaturesAllowed.Add(pluginSig.SigningCertificate.Thumbprint);
+                                        SettingsManager.Save();
+                                    }
+                                    else
+                                    {
+                                        loadOkay = false;
+                                    }
+                                }
+                                else if (!Properties.Core.Default.UnsignedAllowed.Contains(pluginHash))
+                                {
+                                    // Unsigned; ask user to accept this file version (based on the file hash). Note that every time the file is updated,
+                                    // it will trigger a re-prompt as the new version will have a new hash.
+                                    warning = $"Plugin library {dllBaseName} has no signature.\r\n\r\n";
                                     warning += "Please ensure that you trust the source of this plugin before loading it.\r\n\r\n";
-                                    warning += "Do you wish to continue loading the plugin? If you load this plugin you will not be asked again for this file.";
+                                    warning += "Do you wish to continue loading the plugin? If you load this plugin you will not be asked again for this version of the plugin.";
 
                                     var response = MessageBox.Show(warning, "Plugin Signature Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
 
@@ -327,6 +362,14 @@ namespace Observatory.PluginManagement
                 }
             }
             return errorList;
+        }
+
+        private static bool RequiresUserAcceptance(PluginStatus pluginStatus)
+        {
+            return pluginStatus != PluginStatus.Signed
+                && pluginStatus != PluginStatus.SignedThirdParty
+                && pluginStatus != PluginStatus.AllowedSignature
+                && pluginStatus != PluginStatus.NoCert;
         }
 
         public void ObservatoryReady()
@@ -511,7 +554,15 @@ namespace Observatory.PluginManagement
             /// <summary>
             /// Plugin signature checks disabled.
             /// </summary>
-            SigCheckDisabled
+            SigCheckDisabled,
+            /// <summary>
+            /// Plugin is signed, but is third-party and has been allowed by the user.
+            /// </summary>
+            AllowedSignature,
+            /// <summary>
+            /// Plugin is provided by a third party and the signature is trusted.
+            /// </summary>
+            SignedThirdParty,
         }
     }
 }

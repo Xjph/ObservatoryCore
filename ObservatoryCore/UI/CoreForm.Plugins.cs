@@ -86,6 +86,12 @@ namespace Observatory.UI
                     
                 case PluginManager.PluginStatus.SigCheckDisabled:
                     return "Signature Checks Disabled";
+
+                case PluginManager.PluginStatus.AllowedSignature:
+                    return "Signed, allowed by user";
+
+                case PluginManager.PluginStatus.SignedThirdParty:
+                    return "Signed by a trusted third-party";
                     
                 default:
                     return string.Empty;
