@@ -41,11 +41,11 @@ namespace Observatory.PluginManagement
         public Guid SendNotification(NotificationArgs notificationArgs)
         {
             var guid = Guid.Empty;
+            var handler = Notification;
 
 #if DEBUG // For exercising testing notifier plugins in read-all
             if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
             {
-                var handler = Notification;
                 handler?.Invoke(this, notificationArgs);
             }
 #endif
@@ -54,22 +54,33 @@ namespace Observatory.PluginManagement
 #if !DEBUG
                 if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
                 {
-                    var handler = Notification;
                     handler?.Invoke(this, notificationArgs);
                 }
 #endif
-                if (!PluginManager.GetInstance.HasPopupOverrideNotifiers
-                    && Properties.Core.Default.NativeNotify 
-                    && (notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
+                if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
                 {
-                    guid = NativePopup.InvokeNativeNotification(notificationArgs);
+                    if (Properties.Core.Default.NativeNotify && !PluginManager.GetInstance.HasPopupOverrideNotifiers)
+                    {
+                        guid = NativePopup.InvokeNativeNotification(notificationArgs);
+                    }
+                    else if (PluginManager.GetInstance.HasPopupOverrideNotifiers)
+                    {
+                        // We have an overriding plugin for a native handler. Route it there.
+                        handler?.Invoke(this, notificationArgs);
+                    }
                 }
 
-                if (!PluginManager.GetInstance.HasAudioOverrideNotifiers
-                    && Properties.Core.Default.VoiceNotify
-                    && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
+                if ((notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
                 {
-                    NativeVoice.AudioHandlerEnqueue(notificationArgs);
+                    if (Properties.Core.Default.VoiceNotify && !PluginManager.GetInstance.HasAudioOverrideNotifiers)
+                    {
+                        NativeVoice.AudioHandlerEnqueue(notificationArgs);
+                    }
+                    else if (PluginManager.GetInstance.HasAudioOverrideNotifiers)
+                    {
+                        // We have an overriding plugin for a native handler.
+                        handler?.Invoke(this, notificationArgs);
+                    }
                 }
             }
 

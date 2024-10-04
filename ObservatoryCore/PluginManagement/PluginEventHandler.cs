@@ -101,7 +101,17 @@ namespace Observatory.PluginManagement
                 if (disabledPlugins.Contains(notifier)) continue;
                 try
                 {
-                    notifier.OnNotificationEvent(notificationArgs);
+                    // We may get notifications that are not PluginNotifier destined if we have
+                    // a plugin which overrides a native handler. Only deliver native notifications if
+                    // the plugin declares it's overriding.
+                    if ((notifier.OverrideAudioNotifications 
+                            && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
+                        || (notifier.OverridePopupNotifications
+                            && (notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
+                        || (notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
+                    {
+                        notifier.OnNotificationEvent(notificationArgs);
+                    }
                 }
                 catch (PluginException ex)
                 {
