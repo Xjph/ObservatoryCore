@@ -63,7 +63,7 @@ namespace Observatory.PluginManagement
                     {
                         guid = NativePopup.InvokeNativeNotification(notificationArgs);
                     }
-                    else if (PluginManager.GetInstance.HasPopupOverrideNotifiers)
+                    else if (PluginManager.GetInstance.HasPopupOverrideNotifiers && (notificationArgs.Rendering & NotificationRendering.PluginNotifier) == 0)
                     {
                         // We have an overriding plugin for a native handler. Route it there.
                         handler?.Invoke(this, notificationArgs);
@@ -76,7 +76,7 @@ namespace Observatory.PluginManagement
                     {
                         NativeVoice.AudioHandlerEnqueue(notificationArgs);
                     }
-                    else if (PluginManager.GetInstance.HasAudioOverrideNotifiers)
+                    else if (PluginManager.GetInstance.HasAudioOverrideNotifiers && (notificationArgs.Rendering & NotificationRendering.PluginNotifier) == 0)
                     {
                         // We have an overriding plugin for a native handler.
                         handler?.Invoke(this, notificationArgs);
