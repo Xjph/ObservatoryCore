@@ -513,9 +513,8 @@ namespace Observatory.Utils
         private static IEnumerable<FileInfo> GetJournalFilesOrdered(DirectoryInfo journalFolder)
         {
             return journalFolder.GetFiles("Journal.*.??.log")
-                .ToDictionary(f => TimestampFromFile(f), f => f)
-                .OrderBy(kvp => kvp.Key)
-                .Select(kvp => kvp.Value);
+                .ToList()
+                .OrderBy(f => TimestampFromFile(f));
         }
 
         private static DateTime TimestampFromFile(FileInfo f)
