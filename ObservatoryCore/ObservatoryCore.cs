@@ -24,6 +24,8 @@ namespace Observatory
             string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
             try
             {
+
+#if !PORTABLE
                 if (Properties.Core.Default.CoreVersion != version)
                 {
                     try
@@ -37,8 +39,7 @@ namespace Observatory
                     Properties.Core.Default.CoreVersion = version;
                     SettingsManager.Save();
                 }
-
-                
+#endif
 
                 // To customize application configuration such as set high DPI settings or default font,
                 // see https://aka.ms/applicationconfiguration.
