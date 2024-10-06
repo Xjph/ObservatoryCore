@@ -45,7 +45,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         [JsonPropertyName("OnFoot_Combat_Bonds")]
         public int OnFootCombatBonds { get; init; }
         [JsonPropertyName("OnFoot_Combat_Bonds_Profits")]
-        public int OnFootCombatBondsProfits { get; init; }
+        public long OnFootCombatBondsProfits { get; init; }
         [JsonPropertyName("OnFoot_Scavs_Killed")]
         public int OnFootScavsKilled { get; init; }
         [JsonPropertyName("OnFoot_Ships_Destroyed")]
