@@ -92,6 +92,13 @@ namespace Observatory.Framework.Interfaces
         /// <param name="control">Control object to be themed.</param>
         /// <returns>Whether theme should be applied.</returns>
         public bool ApplyTheme(object control) => true;
+
+        /// <summary>
+        /// Method called when user changes the currently applied theme.
+        /// </summary>
+        /// <param name="themeName">Name of the theme being applied.</param>
+        /// <param name="theme">Theme details.</param>
+        public void ThemeChanged(string themeName, Dictionary<string, Color> theme) { }
     }
 
     /// <summary>

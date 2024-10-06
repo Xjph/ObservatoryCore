@@ -1,5 +1,6 @@
 using NAudio.Wave;
 using Observatory.Framework;
+using Observatory.PluginManagement;
 using Observatory.Utils;
 using System.Configuration;
 using System.Diagnostics;
@@ -183,6 +184,10 @@ namespace Observatory.UI
         {
             themeManager.CurrentTheme = ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
             Properties.Core.Default.Theme = themeManager.CurrentTheme;
+            foreach(var (plugin, _) in PluginManager.GetInstance.AllUIPlugins)
+            {
+                plugin.ThemeChanged(themeManager.CurrentTheme, themeManager.CurrentThemeDetails);
+            }
             SettingsManager.Save();
         }
 

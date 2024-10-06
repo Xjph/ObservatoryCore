@@ -1566,6 +1566,13 @@
             <param name="control">Control object to be themed.</param>
             <returns>Whether theme should be applied.</returns>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.ThemeChanged(System.String,System.Collections.Generic.Dictionary{System.String,System.Drawing.Color})">
+            <summary>
+            Method called when user changes the currently applied theme.
+            </summary>
+            <param name="themeName">Name of the theme being applied.</param>
+            <param name="theme">Theme details.</param>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
             <para>Interface for worker plugins which process journal data to update their UI or send notifications.</para>
