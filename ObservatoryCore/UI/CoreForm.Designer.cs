@@ -36,6 +36,7 @@
             ExportButton = new Button();
             PopupColour = new ColorDialog();
             OverrideTooltip = new ToolTip(components);
+            AboutCore = new Button();
             CoreTabControl = new ColourableTabControl();
             CoreTabPage = new TabPage();
             CoreSplitter = new SplitContainer();
@@ -97,7 +98,6 @@
             ThemeDropdown = new ComboBox();
             ButtonAddTheme = new Button();
             UpdateLink = new LinkLabel();
-            AboutCore = new Button();
             CoreTabControl.SuspendLayout();
             CoreTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)CoreSplitter).BeginInit();
@@ -169,6 +169,21 @@
             ExportButton.Text = "Export";
             ExportButton.UseVisualStyleBackColor = false;
             ExportButton.Click += ExportButton_Click;
+            // 
+            // AboutCore
+            // 
+            AboutCore.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            AboutCore.FlatAppearance.BorderSize = 0;
+            AboutCore.FlatStyle = FlatStyle.Flat;
+            AboutCore.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            AboutCore.Location = new Point(16, 864);
+            AboutCore.Name = "AboutCore";
+            AboutCore.Size = new Size(42, 28);
+            AboutCore.TabIndex = 35;
+            AboutCore.Text = "ℹ️";
+            OverrideTooltip.SetToolTip(AboutCore, "About Elite Observatory Core");
+            AboutCore.UseVisualStyleBackColor = true;
+            AboutCore.Click += AboutCore_Click;
             // 
             // CoreTabControl
             // 
@@ -500,7 +515,7 @@
             // 
             CornerDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             CornerDropdown.FormattingEnabled = true;
-            CornerDropdown.Items.AddRange(new object[] { "Bottom-Right", "Bottom-Left", "Top-Right", "Top-Left" });
+            CornerDropdown.Items.AddRange(new object[] { "Bottom-Right", "Bottom-Left", "Top-Right", "Top-Left", "Center-Top", "Center-Bottom", "Center-Left", "Center-Right" });
             CornerDropdown.Location = new Point(117, 51);
             CornerDropdown.Name = "CornerDropdown";
             CornerDropdown.Size = new Size(121, 23);
@@ -865,21 +880,6 @@
             UpdateLink.TabStop = true;
             UpdateLink.Text = "Update Available";
             UpdateLink.Visible = false;
-            // 
-            // AboutCore
-            // 
-            AboutCore.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
-            AboutCore.FlatAppearance.BorderSize = 0;
-            AboutCore.FlatStyle = FlatStyle.Flat;
-            AboutCore.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            AboutCore.Location = new Point(16, 864);
-            AboutCore.Name = "AboutCore";
-            AboutCore.Size = new Size(42, 28);
-            AboutCore.TabIndex = 35;
-            AboutCore.Text = "ℹ️";
-            OverrideTooltip.SetToolTip(AboutCore, "About Elite Observatory Core");
-            AboutCore.UseVisualStyleBackColor = true;
-            AboutCore.Click += AboutCore_Click;
             // 
             // CoreForm
             // 

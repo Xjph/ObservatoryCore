@@ -68,11 +68,6 @@ namespace Observatory.UI
                 {
                     DwmHelper.WindowEnableBlurBehind(Handle);
                 }
-
-                // For some reason this causes the window to become all white on my own
-                // PC. Looks very similar to strange system-specific all-white behaviour
-                // of Avalonia.
-                // DwmHelper.WindowBorderlessDropShadow(Handle, 2);
             }
 
             var scale = Properties.Core.Default.NativeNotifyScale / 100.0f;
@@ -156,25 +151,45 @@ namespace Observatory.UI
                 switch (corner)
                 {
                     default:
-                    case 0:
+                    case 0: // Bottom Right
                         Location = Point.Add(
                             new Point(screenBounds.Right, screenBounds.Bottom),
                             new Size(-(Width + 50), -(Height + 50)));
                         break;
-                    case 1:
+                    case 1: // Bottom Left
                         Location = Point.Add(
                             new Point(screenBounds.Left, screenBounds.Bottom),
                             new Size(50, -(Height + 50)));
                         break;
-                    case 2:
+                    case 2: // Top Right
                         Location = Point.Add(
                             new Point(screenBounds.Right, screenBounds.Top),
                             new Size(-(Width + 50), 50));
                         break;
-                    case 3:
+                    case 3: // Top Left
                         Location = Point.Add(
                             new Point(screenBounds.Left, screenBounds.Top),
-                            new Size(50, 00));
+                            new Size(50, 50));
+                        break;
+                    case 4: // Top
+                        Location = Point.Add(
+                            new Point(screenBounds.Right / 2, screenBounds.Top),
+                            new Size(-Width / 2, 50));
+                        break;
+                    case 5: // Bottom
+                        Location = Point.Add(
+                            new Point(screenBounds.Right / 2, screenBounds.Bottom),
+                            new Size(-Width / 2, -(Height + 50)));
+                        break;
+                    case 6: // Left
+                        Location = Point.Add(
+                            new Point(screenBounds.Left, screenBounds.Bottom / 2),
+                            new Size(50, -(Height) / 2));
+                        break;
+                    case 7: // Right
+                        Location = Point.Add(
+                            new Point(screenBounds.Right, screenBounds.Bottom / 2),
+                            new Size(-(Width + 50), -(Height) / 2));
                         break;
                 }
                 _originalLocation = new Point(Location.X, Location.Y);
