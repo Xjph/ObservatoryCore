@@ -25,13 +25,17 @@ namespace Observatory.UI
         public PluginListView(IObservatoryPlugin plugin, List<ColumnSizing> columnSizings)
         {
             View = View.Details;
+#if PROTON
+            GridLines = true;
+#else
             OwnerDraw = true;
             GridLines = false;
             DrawSubItem += PluginListView_DrawSubItem;
             // DrawItem += PluginListView_DrawItem;
             DrawColumnHeader += PluginListView_DrawColumnHeader;
+#endif
             DoubleBuffered = true;
-            GridLines = false;
+            
             _columnSizing = columnSizings;
 
             FullRowSelect = true;

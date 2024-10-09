@@ -6,10 +6,14 @@ namespace Observatory.NativeNotification
 {
     public class NativeVoice
     {
-        public void EnqueueAndAnnounce(NotificationArgs eventArgs)
+        public NativeVoice(Object _) { }
+
+        public void AudioHandlerEnqueue(NotificationArgs eventArgs)
         {
             // stub
         }
+
+        
     }
 }
 

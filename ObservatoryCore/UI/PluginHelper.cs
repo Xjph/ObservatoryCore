@@ -73,8 +73,11 @@ namespace Observatory.UI
                 Size = panel.Size,
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(64, 64, 64),
-                ForeColor = Color.LightGray,
+                ForeColor = Color.LightGray
+#if !PROTON
+                ,
                 Font = new Font(new FontFamily("Segoe UI"), 10, FontStyle.Regular)
+#endif
             };
             panel.Controls.Add(listView);
 
