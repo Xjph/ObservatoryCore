@@ -1,4 +1,5 @@
 using Observatory.Utils;
+using System.Diagnostics;
 
 namespace Observatory
 {
@@ -12,44 +13,59 @@ namespace Observatory
         {
             SettingsManager.Load();
 
-            if (args.Length > 0 && File.Exists(args[0]))
+            if (args.Length > 0 && args[0].ToLower() == "/nomin")
             {
-                var fileInfo = new FileInfo(args[0]);
-                if (fileInfo.Extension == ".eop" || fileInfo.Extension == ".zip")
-                    File.Copy(
-                        fileInfo.FullName,
-                         $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{fileInfo.Name}");
+                ProcessStartInfo startInfo = new ProcessStartInfo();
+                startInfo.FileName = Application.ExecutablePath;
+                startInfo.WorkingDirectory = Path.GetDirectoryName(startInfo.FileName);
+                startInfo.Arguments = "";
+                startInfo.UseShellExecute = false;
+                startInfo.RedirectStandardOutput = true;
+                startInfo.RedirectStandardError = true;
+                startInfo.WindowStyle = ProcessWindowStyle.Normal;
+                Process.Start(startInfo);
             }
-
-            string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
-            try
+            else
             {
+                if (args.Length > 0 && File.Exists(args[0]))
+                {
+                    var fileInfo = new FileInfo(args[0]);
+                    if (fileInfo.Extension == ".eop" || fileInfo.Extension == ".zip")
+                        File.Copy(
+                            fileInfo.FullName,
+                             $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{fileInfo.Name}");
+                }
+
+                string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
+                try
+                {
 
 #if !PORTABLE
-                if (Properties.Core.Default.CoreVersion != version)
-                {
-                    try
+                    if (Properties.Core.Default.CoreVersion != version)
                     {
-                        Properties.Core.Default.Upgrade();
+                        try
+                        {
+                            Properties.Core.Default.Upgrade();
+                        }
+                        catch
+                        {
+                            // Silently ignore properties upgrade failure.
+                        }
+                        Properties.Core.Default.CoreVersion = version;
+                        SettingsManager.Save();
                     }
-                    catch 
-                    {
-                        // Silently ignore properties upgrade failure.
-                    }
-                    Properties.Core.Default.CoreVersion = version;
-                    SettingsManager.Save();
-                }
 #endif
 
-                // To customize application configuration such as set high DPI settings or default font,
-                // see https://aka.ms/applicationconfiguration.
-                ApplicationConfiguration.Initialize();
-                Application.Run(new UI.CoreForm());
-                PluginManagement.PluginManager.GetInstance.Shutdown();
-            }
-            catch (Exception ex)
-            {
-                LogError(ex, version);
+                    // To customize application configuration such as set high DPI settings or default font,
+                    // see https://aka.ms/applicationconfiguration.
+                    ApplicationConfiguration.Initialize();
+                    Application.Run(new UI.CoreForm());
+                    PluginManagement.PluginManager.GetInstance.Shutdown();
+                }
+                catch (Exception ex)
+                {
+                    LogError(ex, version);
+                }
             }
         }
 
