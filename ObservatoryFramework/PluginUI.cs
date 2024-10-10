@@ -38,10 +38,9 @@ namespace Observatory.Framework
 
         /// <summary>
         /// Instantiate PluginUI of specified UIType.
-        /// <para>(Untested/not implemented)</para>
         /// </summary>
         /// <param name="uiType">UIType for plugin.</param>
-        /// <param name="UI">Avalonia control to place in plugin tab.</param>
+        /// <param name="UI">Control to place in plugin tab.</param>
         public PluginUI(UIType uiType, object UI)
         {
             PluginUIType = uiType;
