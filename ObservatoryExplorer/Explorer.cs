@@ -234,8 +234,6 @@ namespace Observatory.Explorer
 
             if (results.Count > 0)
             {
-                StringBuilder notificationDetail = new();
-                StringBuilder notificationExtendedDetail = new();
                 foreach (var result in results)
                 {
                     if (result.Description.Contains('\n') || result.Detail.Contains('\n'))
@@ -252,7 +250,7 @@ namespace Observatory.Explorer
                         };
                         explorerUIResults.Add(lineOne);
 
-                        for (int i = 1; i < Math.Max(descriptionLines.Length, descriptionLines.Length); i++)
+                        for (int i = 1; i < Math.Max(descriptionLines.Length, detailLines.Length); i++)
                         {
                             explorerUIResults.Add(new()
                             {
@@ -265,8 +263,6 @@ namespace Observatory.Explorer
                     }
                     else
                     {
-                        
-
                         var scanResult = new ExplorerUIResults()
                         {
                             BodyName = result.SystemWide ? scanEvent.StarSystem : scanEvent.BodyName,
@@ -276,58 +272,61 @@ namespace Observatory.Explorer
                         };
                         ObservatoryCore.AddGridItem(ExplorerWorker, scanResult);
                     }
-                    notificationDetail.AppendLine(result.Description);
-                    notificationExtendedDetail.AppendLine(result.Detail);
+
+                    SendNotification(scanEvent, result.Description, result.Detail);
                 }
-
-                string bodyAffix;
-
-                if (scanEvent.StarSystem != null && scanEvent.BodyName.StartsWith(scanEvent.StarSystem))
-                {
-                    bodyAffix = scanEvent.BodyName.Replace(scanEvent.StarSystem, string.Empty);
-                }
-                else
-                {
-                    bodyAffix = string.Empty;
-                }
-
-                string bodyLabel = System.Security.SecurityElement.Escape(scanEvent.PlanetClass == "Barycentre" ? "Barycentre" : "Body");
-
-                string spokenAffix;
-
-                if (bodyAffix.Length > 0)
-                {
-                    if (bodyAffix.Contains("Ring"))
-                    {
-                        int ringIndex = bodyAffix.Length - 6;
-                        spokenAffix =
-                            "<say-as interpret-as=\"spell-out\">" + bodyAffix[..ringIndex]
-                            + "</say-as><break strength=\"weak\"/>" + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
-                            + bodyAffix[(ringIndex + 1)..];
-                    }
-                    else
-                    {
-                        spokenAffix = SplitOrdinalForSsml(bodyAffix);
-                    }
-                }
-                else
-                {
-                    bodyLabel = "Primary Star";
-                    spokenAffix = string.Empty;
-                }
-
-                NotificationArgs args = new()
-                {
-                    Title = bodyLabel + bodyAffix,
-                    TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
-                    Detail = notificationDetail.ToString(),
-                    Sender = ExplorerWorker.AboutInfo.ShortName,
-                    ExtendedDetails = notificationExtendedDetail.ToString(),
-                    CoalescingId = scanEvent.BodyID,
-                };
-
-                ObservatoryCore.SendNotification(args);
             }
+        }
+
+        private void SendNotification(Scan scanEvent, string detail, string extendedDetail)
+        {
+            string bodyAffix;
+
+            if (scanEvent.StarSystem != null && scanEvent.BodyName.StartsWith(scanEvent.StarSystem))
+            {
+                bodyAffix = scanEvent.BodyName.Replace(scanEvent.StarSystem, string.Empty);
+            }
+            else
+            {
+                bodyAffix = string.Empty;
+            }
+
+            string bodyLabel = System.Security.SecurityElement.Escape(scanEvent.PlanetClass == "Barycentre" ? "Barycentre" : "Body");
+
+            string spokenAffix;
+
+            if (bodyAffix.Length > 0)
+            {
+                if (bodyAffix.Contains("Ring"))
+                {
+                    int ringIndex = bodyAffix.Length - 6;
+                    spokenAffix =
+                        "<say-as interpret-as=\"spell-out\">" + bodyAffix[..ringIndex]
+                        + "</say-as><break strength=\"weak\"/>" + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
+                        + bodyAffix[(ringIndex + 1)..];
+                }
+                else
+                {
+                    spokenAffix = SplitOrdinalForSsml(bodyAffix);
+                }
+            }
+            else
+            {
+                bodyLabel = "Primary Star";
+                spokenAffix = string.Empty;
+            }
+
+            NotificationArgs args = new()
+            {
+                Title = bodyLabel + bodyAffix,
+                TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
+                Detail = detail,
+                Sender = ExplorerWorker.AboutInfo.ShortName,
+                ExtendedDetails = extendedDetail,
+                CoalescingId = scanEvent.BodyID,
+            };
+
+            ObservatoryCore.SendNotification(args);
         }
 
         private static string SplitOrdinalForSsml(string ordinalString)
