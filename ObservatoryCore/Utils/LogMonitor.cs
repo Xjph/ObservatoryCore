@@ -491,6 +491,11 @@ namespace Observatory.Utils
 
         private static string GetSavedGamesPath()
         {
+#if PROTON
+            return $"Z:\\home\\{
+                Environment.UserName
+                }\\.steam\\debian-installation\\steamapps\\compatdata\\359320\\pfx\\drive_c\\users\\steamuser\\Saved Games";
+#else
             if (Environment.OSVersion.Version.Major < 6) throw new NotSupportedException();
             IntPtr pathPtr = IntPtr.Zero;
             try
@@ -505,6 +510,7 @@ namespace Observatory.Utils
             {
                 Marshal.FreeCoTaskMem(pathPtr);
             }
+#endif
         }
 
         private static Regex datePartRe = new(@"Journal\.(.+)\.\d+\.log", RegexOptions.Compiled);
@@ -549,6 +555,6 @@ namespace Observatory.Utils
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
         private static extern int SHGetKnownFolderPath(ref Guid id, int flags, IntPtr token, out IntPtr path);
 
-        #endregion
+#endregion
     }
 }
