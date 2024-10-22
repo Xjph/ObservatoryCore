@@ -410,10 +410,11 @@ namespace Observatory.UI
                     }
                     else
                     {
-                        var firstLines = _groupedItems.Values.Select(v => v.First());
-                        var thisGroup = _groupedItems.Values.Where(v => v.Contains(e.Item)).FirstOrDefault([e.Item]);
+                        var currentGroupedItems = new Dictionary<Guid, List<ListViewItem>>(_groupedItems);
+                        var firstLines = currentGroupedItems.Values.Select(v => v.First()).ToList();
+                        var thisGroup = currentGroupedItems.Values.Where(v => v.Contains(e.Item)).FirstOrDefault([e.Item]);
                         
-                        if (firstLines.Contains(e.Item) || !_groupedItems.Values.Where(v => v.Contains(e.Item)).Any())
+                        if (firstLines.Contains(e.Item) || !currentGroupedItems.Values.Where(v => v.Contains(e.Item)).Any())
                         {
                             e.Item.BackColor = AlternatedColor(
                                 BackColor,
