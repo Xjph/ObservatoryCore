@@ -1,4 +1,4 @@
-﻿#if PORTABLE
+﻿#if PORTABLE || PROTON
 using System.Collections.Specialized;
 using System.Reflection;
 using System.Text.Json;
@@ -12,7 +12,7 @@ namespace Observatory.Utils
         {
 #if DEBUG || RELEASE
             Properties.Core.Default.Save();
-#elif PORTABLE
+#elif PORTABLE || PROTON
 
             Dictionary<string, object?> settings = new();
 
@@ -36,7 +36,7 @@ namespace Observatory.Utils
 
         internal static void Load()
         {
-#if PORTABLE
+#if PORTABLE || PROTON
             if (File.Exists("Observatory.config"))
             {
                 string savedSettings = File.ReadAllText("Observatory.config");
