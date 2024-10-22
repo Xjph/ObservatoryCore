@@ -40,7 +40,7 @@ namespace Observatory
                 try
                 {
 
-#if !PORTABLE
+#if !PORTABLE && !PROTON
                     if (Properties.Core.Default.CoreVersion != version)
                     {
                         try
@@ -65,6 +65,9 @@ namespace Observatory
                 catch (Exception ex)
                 {
                     LogError(ex, version);
+
+                    // Re-throw to avoid masking error at OS level.
+                    throw;
                 }
             }
         }
