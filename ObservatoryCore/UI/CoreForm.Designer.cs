@@ -70,6 +70,9 @@
             DisplayDropdown = new ComboBox();
             PopupCheckbox = new CheckBox();
             PopupDisabledPanel = new Panel();
+            LabelFontScale = new Label();
+            PopupTransparentCheckBox = new CheckBox();
+            FontScaleSpinner = new NumericUpDown();
             PopupDisabledLabel = new Label();
             VoiceSettingsPanel = new Panel();
             VoiceSpeedSlider = new TrackBar();
@@ -111,6 +114,7 @@
             ((System.ComponentModel.ISupportInitialize)DurationSpinner).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ScaleSpinner).BeginInit();
             PopupDisabledPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)FontScaleSpinner).BeginInit();
             VoiceSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).BeginInit();
             VoiceDisabledPanel.SuspendLayout();
@@ -376,6 +380,9 @@
             PopupSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             PopupSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             PopupSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
+            PopupSettingsPanel.Controls.Add(FontScaleSpinner);
+            PopupSettingsPanel.Controls.Add(PopupTransparentCheckBox);
+            PopupSettingsPanel.Controls.Add(LabelFontScale);
             PopupSettingsPanel.Controls.Add(DurationSpinner);
             PopupSettingsPanel.Controls.Add(DisplayLabel);
             PopupSettingsPanel.Controls.Add(CornerLabel);
@@ -404,7 +411,7 @@
             DurationSpinner.Maximum = new decimal(new int[] { 60000, 0, 0, 0 });
             DurationSpinner.Minimum = new decimal(new int[] { 100, 0, 0, 0 });
             DurationSpinner.Name = "DurationSpinner";
-            DurationSpinner.Size = new Size(120, 23);
+            DurationSpinner.Size = new Size(67, 23);
             DurationSpinner.TabIndex = 11;
             DurationSpinner.Value = new decimal(new int[] { 8000, 0, 0, 0 });
             DurationSpinner.ValueChanged += DurationSpinner_ValueChanged;
@@ -475,7 +482,7 @@
             ScaleSpinner.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
             ScaleSpinner.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
             ScaleSpinner.Name = "ScaleSpinner";
-            ScaleSpinner.Size = new Size(120, 23);
+            ScaleSpinner.Size = new Size(67, 23);
             ScaleSpinner.TabIndex = 10;
             ScaleSpinner.Value = new decimal(new int[] { 100, 0, 0, 0 });
             ScaleSpinner.ValueChanged += ScaleSpinner_ValueChanged;
@@ -563,6 +570,38 @@
             PopupDisabledPanel.Size = new Size(542, 218);
             PopupDisabledPanel.TabIndex = 16;
             PopupDisabledPanel.Visible = false;
+            // 
+            // LabelFontScale
+            // 
+            LabelFontScale.AutoSize = true;
+            LabelFontScale.Location = new Point(201, 111);
+            LabelFontScale.Name = "LabelFontScale";
+            LabelFontScale.Size = new Size(85, 15);
+            LabelFontScale.TabIndex = 11;
+            LabelFontScale.Text = "Font Scale (%):";
+            LabelFontScale.TextAlign = ContentAlignment.MiddleRight;
+            // 
+            // PopupTransparentCheckBox
+            // 
+            PopupTransparentCheckBox.AutoSize = true;
+            PopupTransparentCheckBox.Location = new Point(201, 140);
+            PopupTransparentCheckBox.Name = "PopupTransparentCheckBox";
+            PopupTransparentCheckBox.Size = new Size(95, 19);
+            PopupTransparentCheckBox.TabIndex = 13;
+            PopupTransparentCheckBox.Text = "Transparency";
+            PopupTransparentCheckBox.UseVisualStyleBackColor = true;
+            PopupTransparentCheckBox.CheckedChanged += PopupTransparentCheckBox_CheckedChanged;
+            // 
+            // FontScaleSpinner
+            // 
+            FontScaleSpinner.Location = new Point(292, 109);
+            FontScaleSpinner.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
+            FontScaleSpinner.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            FontScaleSpinner.Name = "FontScaleSpinner";
+            FontScaleSpinner.Size = new Size(67, 23);
+            FontScaleSpinner.TabIndex = 12;
+            FontScaleSpinner.Value = new decimal(new int[] { 100, 0, 0, 0 });
+            FontScaleSpinner.ValueChanged += FontScaleSpinner_ValueChanged;
             // 
             // PopupDisabledLabel
             // 
@@ -917,6 +956,7 @@
             ((System.ComponentModel.ISupportInitialize)ScaleSpinner).EndInit();
             PopupDisabledPanel.ResumeLayout(false);
             PopupDisabledPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)FontScaleSpinner).EndInit();
             VoiceSettingsPanel.ResumeLayout(false);
             VoiceSettingsPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).EndInit();
@@ -998,5 +1038,8 @@
         private Button AboutCore;
         private ColumnHeader AuthorColumn;
         private Button AboutPluginButton;
+        private Label LabelFontScale;
+        private NumericUpDown FontScaleSpinner;
+        private CheckBox PopupTransparentCheckBox;
     }
 }

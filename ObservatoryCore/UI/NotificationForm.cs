@@ -9,6 +9,7 @@ namespace Observatory.UI
         private readonly System.Timers.Timer _timer;
         private bool _defaultPosition = true;
         private Point _originalLocation;
+        private bool _transparent = true;
 
         protected override bool ShowWithoutActivation => true;
         protected override CreateParams CreateParams
@@ -52,11 +53,19 @@ namespace Observatory.UI
         {
             _guid = guid;
             _color = Color.FromArgb((int)Properties.Core.Default.NativeNotifyColour);
+            _transparent = Properties.Core.Default.NativeNotifyTransparent;
             CreationTime = DateTime.Now;
             InitializeComponent();
 
             Title.Paint += DrawText;
             Body.Paint += DrawText;
+
+            if (!Properties.Core.Default.NativeNotifyTransparent)
+            {
+                BackColor = Color.FromArgb(25, 30, 30);
+                Title.BackColor = BackColor;
+                Body.BackColor = BackColor;
+            }
 
             if (System.Environment.OSVersion.Version.Major >= 6 && DwmHelper.IsCompositionEnabled())
             {
@@ -73,12 +82,17 @@ namespace Observatory.UI
             var scale = Properties.Core.Default.NativeNotifyScale / 100.0f;
             Scale(new SizeF(scale, scale));
 
+            var fontScale = Properties.Core.Default.NativeNotifyFontScale / 100.0f;
+
             Title.ForeColor = _color;
             Title.Text = args.Title;
-            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 18 * scale);
+            Title.Font = new Font(Properties.Core.Default.NativeNotifyFont, 18 * scale * fontScale);
             Body.ForeColor = _color;
             Body.Text = args.Detail;
-            Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14 * scale);
+            Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14 * scale * fontScale);
+            Body.Location = new Point(
+                Body.Location.X, 
+                (int)Math.Round(Body.Location.Y + (Title.Height * fontScale - Title.Height)));
             Paint += DrawBorder;
 
             AdjustPosition(args.XPos / 100, args.YPos / 100);
@@ -215,15 +229,19 @@ namespace Observatory.UI
             if (sender != null)
             {
                 var label = (Label)sender;
-                e.Graphics.Clear(Color.FromArgb(64, 64, 64));
+                if (_transparent)
+                    e.Graphics.Clear(Color.FromArgb(64, 64, 64));
                 using (var sf = new StringFormat())
                 using (var brush = new SolidBrush(label.ForeColor))
                 {
                     sf.Alignment = sf.LineAlignment = StringAlignment.Near;
                     // Transparency breaks antialiasing :(
-                    e.Graphics.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit;
+                    e.Graphics.TextRenderingHint = _transparent
+                        ? System.Drawing.Text.TextRenderingHint.SingleBitPerPixelGridFit
+                        : System.Drawing.Text.TextRenderingHint.SystemDefault;
                     e.Graphics.DrawString(label.Text, label.Font, brush, label.ClientRectangle, sf);
                 }
+                
             }
         }
 

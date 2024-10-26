@@ -39,9 +39,15 @@ namespace Observatory.UI
             SettingsManager.Save();
         }
 
+        private void FontScaleSpinner_ValueChanged(object sender, EventArgs e)
+        {
+            Properties.Core.Default.NativeNotifyFontScale = (int)FontScaleSpinner.Value;
+            SettingsManager.Save();
+        }
+
         private void FontDropdown_SelectedIndexChanged(object _, EventArgs e)
         {
-            Properties.Core.Default.NativeNotifyFont = FontDropdown.SelectedItem.ToString();
+            Properties.Core.Default.NativeNotifyFont = FontDropdown.SelectedItem?.ToString();
             SettingsManager.Save();
         }
 
@@ -54,6 +60,12 @@ namespace Observatory.UI
         private void DisplayDropdown_SelectedIndexChanged(object _, EventArgs e)
         {
             Properties.Core.Default.NativeNotifyScreen = DisplayDropdown.SelectedIndex - 1;
+            SettingsManager.Save();
+        }
+
+        private void PopupTransparentCheckBox_CheckedChanged(object sender, EventArgs e)
+        {
+            Properties.Core.Default.NativeNotifyTransparent = PopupTransparentCheckBox.Checked;
             SettingsManager.Save();
         }
 
@@ -78,8 +90,26 @@ namespace Observatory.UI
 
         private void VoiceDropdown_SelectedIndexChanged(object _, EventArgs e)
         {
-            Properties.Core.Default.VoiceSelected = VoiceDropdown.SelectedItem.ToString();
+            Properties.Core.Default.VoiceSelected = VoiceDropdown.SelectedItem?.ToString();
             SettingsManager.Save();
+        }
+
+        private void AudioDeviceDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (AudioDeviceDropdown.SelectedItem == null)
+                // Shouldn't happen but default to the Windows built-in device (always exists at -1)
+                Properties.Core.Default.AudioDevice = AudioHandler.GetFirstDevice(); 
+            else
+                // Stores the current selected device
+                Properties.Core.Default.AudioDevice = AudioDeviceDropdown.SelectedItem.ToString(); 
+            SettingsManager.Save();
+        }
+        private void AudioDeviceDropdown_Focused(object sender, EventArgs e)
+        {
+            AudioDeviceDropdown.Items.Clear();
+            foreach (var device in AudioHandler.GetDevices())
+                AudioDeviceDropdown.Items.Add(device);
+            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
         }
 
         private void PopulateDropdownOptions()
@@ -123,6 +153,8 @@ namespace Observatory.UI
             TryLoadSetting(StartMonitorCheckbox, "Checked", settings.StartMonitor);
             TryLoadSetting(StartReadallCheckbox, "Checked", settings.StartReadAll);
             TryLoadSetting(ExportFormatDropdown, "SelectedIndex", settings.ExportFormat);
+            TryLoadSetting(PopupTransparentCheckBox, "Checked", settings.NativeNotifyTransparent);
+            TryLoadSetting(FontScaleSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyFontScale, 1, 500), 100);
 
 #if PROTON
             VoiceCheckbox.Checked = false;
