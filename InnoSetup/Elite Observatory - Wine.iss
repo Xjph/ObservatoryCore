@@ -5,7 +5,7 @@
 #define MyAppPublisher "Jonathan Miller"
 #define MyAppURL "https://github.com/xjph/ObservatoryCore"
 #define MyAppExeName "ObservatoryCore.exe"
-#define MyAppVersion GetVersionNumbersString('..\ObservatoryCore\bin\Portable\net8.0-windows7.0\publish\unpacked\ObservatoryCore.exe')
+#define MyAppVersion GetVersionNumbersString('..\ObservatoryCore\bin\Proton\publish\ObservatoryCore.exe')
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application. Do not use the same AppId value in installers for other applications.
@@ -27,7 +27,7 @@ LicenseFile=C:\Users\Xjph\Repos\MIT.txt
 ;PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=.\bundle\wine\{#MyAppVersion}
-OutputBaseFilename=ObservatorySetup
+OutputBaseFilename=WINE-ObservatorySetup
 SetupIconFile=..\ObservatoryCore\Assets\EOCIcon-Presized.ico
 Compression=lzma
 SolidCompression=yes
@@ -56,8 +56,8 @@ Name: "Plugins\Herald"; Description: "Herald: Plugin for cloud-based high qualit
 Name: "{app}\plugins"; Permissions: users-modify
 
 [Files]
-Source: "..\ObservatoryCore\bin\Portable\net8.0-windows7.0\publish\unpacked\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\ObservatoryCore\bin\Portable\net8.0-windows7.0\publish\unpacked\*"; Excludes: "\plugins\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\ObservatoryCore\bin\Proton\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\ObservatoryCore\bin\Proton\publish\*"; Excludes: "\plugins\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryExplorer.dll"; DestDir: "{app}\plugins"; Components: Plugins\Explorer
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\lua54.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\KeraLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
