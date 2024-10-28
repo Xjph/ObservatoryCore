@@ -365,6 +365,10 @@ FodyWeavers.xsd
 # InnoSetup Output
 InnoSetup/ObservatorySetup.exe
 
+# Local Scripts
+BuildObservatoryRelease.ps1
+SignObservatory.ps1
+
 *.snk
 ObservatoryFramework/ObservatoryFramework.xml
 InnoSetup/ObservatoryCore.zip
