@@ -1891,10 +1891,9 @@
         <member name="M:Observatory.Framework.PluginUI.#ctor(Observatory.Framework.PluginUI.UIType,System.Object)">
             <summary>
             Instantiate PluginUI of specified UIType.
-            <para>(Untested/not implemented)</para>
             </summary>
             <param name="uiType">UIType for plugin.</param>
-            <param name="UI">Avalonia control to place in plugin tab.</param>
+            <param name="UI">Control to place in plugin tab.</param>
         </member>
         <member name="T:Observatory.Framework.PluginUI.UIType">
             <summary>

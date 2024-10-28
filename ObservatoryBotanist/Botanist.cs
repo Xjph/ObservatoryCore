@@ -132,6 +132,7 @@ namespace Observatory.Botanist
                                 );
                             }
                         }
+                        UpdateUIGrid();
                     }
                     break;
                 case ScanOrganic scanOrganic:
