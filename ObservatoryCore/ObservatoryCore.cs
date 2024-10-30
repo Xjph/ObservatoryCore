@@ -64,7 +64,7 @@ namespace Observatory
                 }
                 catch (Exception ex)
                 {
-                    LogError(ex, version);
+                    LogError(ex, version, true);
 
                     // Re-throw to avoid masking error at OS level.
                     throw;
@@ -72,12 +72,12 @@ namespace Observatory
             }
         }
 
-        internal static void LogError(Exception ex, string context)
+        internal static void LogError(Exception ex, string context, bool fatal = false)
         {
 #if PORTABLE
             var docPath = Application.StartupPath;
 #else
-            var docPath = System.Environment.GetFolderPath(System.Environment.SpecialFolder.MyDocuments);
+            var docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
             var errorMessage = new System.Text.StringBuilder();
             var timestamp = DateTime.Now.ToString("G");
@@ -85,7 +85,7 @@ namespace Observatory
                 .AppendLine($"[{timestamp}] Error encountered in Elite Observatory {context}")
                 .AppendLine(FormatExceptionMessage(ex))
                 .AppendLine();
-            System.IO.File.AppendAllText(docPath + System.IO.Path.DirectorySeparatorChar + "ObservatoryCrashLog.txt", errorMessage.ToString());
+            File.AppendAllText(docPath + Path.DirectorySeparatorChar + $"Observatory{(fatal ? "Crash" : "Error")}Log.txt", errorMessage.ToString());
         }
 
         static string FormatExceptionMessage(Exception ex, bool inner = false)
