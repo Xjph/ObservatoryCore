@@ -1,5 +1,6 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using Observatory.Framework;
 using Observatory.Framework.Files;
@@ -338,11 +339,27 @@ namespace Observatory.Utils
         private JournalEventArgs DeserializeToEventArgs(string eventType, string line)
         {
 
-            var eventClass = journalTypes[eventType];
-            MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
-            MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
-            object entry = journalGeneric.Invoke(null, new object[] { line });
-            return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
+            
+            
+            try
+            {
+                var eventClass = journalTypes[eventType];
+                MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
+                MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
+                object entry = journalGeneric.Invoke(null, new object[] { line });
+                return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
+            }
+            catch (JsonException ex)
+            {
+                // Log error and try to process as base journal object.
+                ObservatoryCore.LogError(ex, "Unable to deserialize journal event into specific event type.");
+
+                var eventClass = journalTypes["JournalBase"];
+                MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
+                MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
+                object entry = journalGeneric.Invoke(null, new object[] { line });
+                return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
+            }
         }
 
         private void HandleAncillaryFile(string eventType)
@@ -457,9 +474,18 @@ namespace Observatory.Utils
             var statusLines = ReadAllLines(eventArgs.FullPath);
             if (statusLines.Count > 0)
             {
-                var status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
-                Status = status;
-                handler?.Invoke(this, new JournalEventArgs() { journalType = typeof(Status), journalEvent = status });
+                Status status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
+                try
+                {
+                    status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
+                    Status = status;
+                    handler?.Invoke(this, new JournalEventArgs() { journalType = typeof(Status), journalEvent = status });
+                }
+                catch (JsonException ex) 
+                {
+                    // Proceed without updating status and log error.
+                    ObservatoryCore.LogError(ex, "Status file could not be deserialized to Status object.");
+                }
             }
         }
 
