@@ -50,5 +50,6 @@ namespace Observatory.Framework.Files.Journal
         public bool Taxi { get; init; }
         public bool Multicrew { get; init; }
         public ThargoidWar ThargoidWar { get; init; }
+        public string Power { get; init; }
     }
 }

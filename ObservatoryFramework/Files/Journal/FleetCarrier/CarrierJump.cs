@@ -23,5 +23,6 @@ namespace Observatory.Framework.Files.Journal
         public string StationEconomy { get; init; }
         public string StationEconomy_Localised { get; init; }
         public ImmutableList<StationEconomy> StationEconomies { get; init; }
+        public string Power { get; init; }
     }
 }

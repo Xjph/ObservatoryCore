@@ -72,5 +72,6 @@ namespace Observatory.Framework.Files.Journal
         public bool OnFoot { get; init; }
         public bool InSRV { get; init; }
         public ThargoidWar ThargoidWar { get; init; }
+        public string Power { get; init; }
     }
 }
