@@ -60,10 +60,7 @@ namespace Observatory
                     // see https://aka.ms/applicationconfiguration.
                     ApplicationConfiguration.Initialize();
                     Application.Run(new UI.CoreForm());
-#if DEBUG
-                    LogError(new NotImplementedException("Debug Exit"), "Debug Exiting normally", false);
-                    LogError(new NotImplementedException("Debug Exit Part Deux"), "Logged but not shown", false);
-#endif
+
                     PluginManagement.PluginManager.GetInstance.Shutdown();
                 }
                 catch (Exception ex)
@@ -85,15 +82,8 @@ namespace Observatory
 #endif
             var errFile = docPath + Path.DirectorySeparatorChar + $"Observatory{(fatal ? "Crash" : "Error")}Log.txt";
 
-            if (!fatal && File.Exists(errFile) && File.GetLastWriteTime(errFile) < Process.GetCurrentProcess().StartTime) 
-            {
-                MessageBox.Show(
-                    $"An error of type {ex.GetType().Name} with context \"{context}\" has been encountered and details have been logged to {errFile}.{Environment.NewLine}" +
-                    "You will not be informed of further non-fatal errors this session.",
-                    $"Observatory Non-Fatal Error Encountered", 
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
+            var showMessage = !fatal && File.Exists(errFile) && File.GetLastWriteTime(errFile) < Process.GetCurrentProcess().StartTime;
+            
             var errorMessage = new System.Text.StringBuilder();
             var timestamp = DateTime.Now.ToString("G");
             errorMessage
@@ -102,6 +92,14 @@ namespace Observatory
                 .AppendLine();
             File.AppendAllText(errFile, errorMessage.ToString());
 
+            if (showMessage)
+            {
+                Task.Run(() => MessageBox.Show(
+                    $"An error of type {ex.GetType().Name} with context \"{context}\" has been encountered and details have been logged to {errFile}.{Environment.NewLine}" +
+                    "You will not be informed of further non-fatal errors this session.",
+                    $"Observatory Non-Fatal Error Encountered",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error));
+            }
 
         }
 
