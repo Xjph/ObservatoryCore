@@ -54,6 +54,9 @@
             PluginFolderButton = new Button();
             CoreSettingsLayoutPanel = new FlowLayoutPanel();
             PopupSettingsPanel = new Panel();
+            FontScaleSpinner = new NumericUpDown();
+            PopupTransparentCheckBox = new CheckBox();
+            LabelFontScale = new Label();
             DurationSpinner = new NumericUpDown();
             DisplayLabel = new Label();
             CornerLabel = new Label();
@@ -70,9 +73,6 @@
             DisplayDropdown = new ComboBox();
             PopupCheckbox = new CheckBox();
             PopupDisabledPanel = new Panel();
-            LabelFontScale = new Label();
-            PopupTransparentCheckBox = new CheckBox();
-            FontScaleSpinner = new NumericUpDown();
             PopupDisabledLabel = new Label();
             VoiceSettingsPanel = new Panel();
             VoiceSpeedSlider = new TrackBar();
@@ -111,10 +111,10 @@
             PluginListButtonsLayoutPanel.SuspendLayout();
             CoreSettingsLayoutPanel.SuspendLayout();
             PopupSettingsPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)FontScaleSpinner).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DurationSpinner).BeginInit();
             ((System.ComponentModel.ISupportInitialize)ScaleSpinner).BeginInit();
             PopupDisabledPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)FontScaleSpinner).BeginInit();
             VoiceSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).BeginInit();
             VoiceDisabledPanel.SuspendLayout();
@@ -404,6 +404,38 @@
             PopupSettingsPanel.Size = new Size(550, 240);
             PopupSettingsPanel.TabIndex = 29;
             // 
+            // FontScaleSpinner
+            // 
+            FontScaleSpinner.Location = new Point(292, 109);
+            FontScaleSpinner.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
+            FontScaleSpinner.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
+            FontScaleSpinner.Name = "FontScaleSpinner";
+            FontScaleSpinner.Size = new Size(67, 23);
+            FontScaleSpinner.TabIndex = 12;
+            FontScaleSpinner.Value = new decimal(new int[] { 100, 0, 0, 0 });
+            FontScaleSpinner.ValueChanged += FontScaleSpinner_ValueChanged;
+            // 
+            // PopupTransparentCheckBox
+            // 
+            PopupTransparentCheckBox.AutoSize = true;
+            PopupTransparentCheckBox.Location = new Point(201, 140);
+            PopupTransparentCheckBox.Name = "PopupTransparentCheckBox";
+            PopupTransparentCheckBox.Size = new Size(95, 19);
+            PopupTransparentCheckBox.TabIndex = 13;
+            PopupTransparentCheckBox.Text = "Transparency";
+            PopupTransparentCheckBox.UseVisualStyleBackColor = true;
+            PopupTransparentCheckBox.CheckedChanged += PopupTransparentCheckBox_CheckedChanged;
+            // 
+            // LabelFontScale
+            // 
+            LabelFontScale.AutoSize = true;
+            LabelFontScale.Location = new Point(201, 111);
+            LabelFontScale.Name = "LabelFontScale";
+            LabelFontScale.Size = new Size(85, 15);
+            LabelFontScale.TabIndex = 11;
+            LabelFontScale.Text = "Font Scale (%):";
+            LabelFontScale.TextAlign = ContentAlignment.MiddleRight;
+            // 
             // DurationSpinner
             // 
             DurationSpinner.Increment = new decimal(new int[] { 25, 0, 0, 0 });
@@ -571,38 +603,6 @@
             PopupDisabledPanel.TabIndex = 16;
             PopupDisabledPanel.Visible = false;
             // 
-            // LabelFontScale
-            // 
-            LabelFontScale.AutoSize = true;
-            LabelFontScale.Location = new Point(201, 111);
-            LabelFontScale.Name = "LabelFontScale";
-            LabelFontScale.Size = new Size(85, 15);
-            LabelFontScale.TabIndex = 11;
-            LabelFontScale.Text = "Font Scale (%):";
-            LabelFontScale.TextAlign = ContentAlignment.MiddleRight;
-            // 
-            // PopupTransparentCheckBox
-            // 
-            PopupTransparentCheckBox.AutoSize = true;
-            PopupTransparentCheckBox.Location = new Point(201, 140);
-            PopupTransparentCheckBox.Name = "PopupTransparentCheckBox";
-            PopupTransparentCheckBox.Size = new Size(95, 19);
-            PopupTransparentCheckBox.TabIndex = 13;
-            PopupTransparentCheckBox.Text = "Transparency";
-            PopupTransparentCheckBox.UseVisualStyleBackColor = true;
-            PopupTransparentCheckBox.CheckedChanged += PopupTransparentCheckBox_CheckedChanged;
-            // 
-            // FontScaleSpinner
-            // 
-            FontScaleSpinner.Location = new Point(292, 109);
-            FontScaleSpinner.Maximum = new decimal(new int[] { 500, 0, 0, 0 });
-            FontScaleSpinner.Minimum = new decimal(new int[] { 1, 0, 0, 0 });
-            FontScaleSpinner.Name = "FontScaleSpinner";
-            FontScaleSpinner.Size = new Size(67, 23);
-            FontScaleSpinner.TabIndex = 12;
-            FontScaleSpinner.Value = new decimal(new int[] { 100, 0, 0, 0 });
-            FontScaleSpinner.ValueChanged += FontScaleSpinner_ValueChanged;
-            // 
             // PopupDisabledLabel
             // 
             PopupDisabledLabel.AutoSize = true;
@@ -633,7 +633,7 @@
             // VoiceSpeedSlider
             // 
             VoiceSpeedSlider.Location = new Point(117, 20);
-            VoiceSpeedSlider.Minimum = 1;
+            VoiceSpeedSlider.Minimum = -10;
             VoiceSpeedSlider.Name = "VoiceSpeedSlider";
             VoiceSpeedSlider.Size = new Size(242, 45);
             VoiceSpeedSlider.TabIndex = 15;
@@ -952,11 +952,11 @@
             CoreSettingsLayoutPanel.ResumeLayout(false);
             PopupSettingsPanel.ResumeLayout(false);
             PopupSettingsPanel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)FontScaleSpinner).EndInit();
             ((System.ComponentModel.ISupportInitialize)DurationSpinner).EndInit();
             ((System.ComponentModel.ISupportInitialize)ScaleSpinner).EndInit();
             PopupDisabledPanel.ResumeLayout(false);
             PopupDisabledPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)FontScaleSpinner).EndInit();
             VoiceSettingsPanel.ResumeLayout(false);
             VoiceSettingsPanel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)VoiceSpeedSlider).EndInit();
