@@ -177,6 +177,14 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         public bool OverridePopupNotifications
         { get => false; }
+
+        /// <summary>
+        /// A property set by notification plugins to indicate to Core
+        /// that it would like to receive notifications during batch read
+        /// operations (eg. pre-read and read-all).
+        /// </summary>
+        public bool OverrideAcceptNotificationsDuringBatch
+        { get => false; }
     }
 
     /// <summary>

@@ -1641,6 +1641,13 @@
             that native popup notifications should be disabled/suppressed.
             </summary>
         </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryNotifier.OverrideAcceptNotificationsDuringBatch">
+            <summary>
+            A property set by notification plugins to indicate to Core
+            that it would like to receive notifications during batch read
+            operations (eg. pre-read and read-all).
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryCore">
             <summary>
             Interface passed by Observatory Core to plugins. Primarily used for sending notifications and UI updates back to Core.
