@@ -43,20 +43,15 @@ namespace Observatory.PluginManagement
             var guid = Guid.Empty;
             var handler = Notification;
 
-#if DEBUG // For exercising testing notifier plugins in read-all
+            // Always send notifications to plugins. PluginEventHandler filters out plugins
+            // which have not explicitly allowed batch-mode notifications.
             if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
             {
                 handler?.Invoke(this, notificationArgs);
             }
-#endif
+
             if (!IsLogMonitorBatchReading)
             {
-#if !DEBUG
-                if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
-                {
-                    handler?.Invoke(this, notificationArgs);
-                }
-#endif
                 if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
                 {
                     if (Properties.Core.Default.NativeNotify && !PluginManager.GetInstance.HasPopupOverrideNotifiers)

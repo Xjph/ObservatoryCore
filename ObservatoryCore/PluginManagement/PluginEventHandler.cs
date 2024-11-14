@@ -99,6 +99,9 @@ namespace Observatory.PluginManagement
             foreach (var notifier in observatoryNotifiers)
             {
                 if (disabledPlugins.Contains(notifier)) continue;
+                if (LogMonitorStateChangedEventArgs.IsBatchRead(LogMonitor.GetInstance.CurrentState)
+                    && !notifier.OverrideAcceptNotificationsDuringBatch) continue;
+
                 try
                 {
                     // We may get notifications that are not PluginNotifier destined if we have
