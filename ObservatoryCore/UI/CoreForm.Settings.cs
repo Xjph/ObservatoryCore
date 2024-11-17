@@ -185,6 +185,28 @@ namespace Observatory.UI
             }
         }
 
+        private void ApplySelectedTheme()
+        {
+            try
+            {
+                themeManager.CurrentTheme = ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
+                Properties.Core.Default.Theme = themeManager.CurrentTheme;
+                foreach (var (plugin, _) in PluginManager.GetInstance.AllUIPlugins)
+                {
+                    plugin.ThemeChanged(themeManager.CurrentTheme, themeManager.CurrentThemeDetails);
+                }
+                SettingsManager.Save();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    ex.Message,
+                    "Error applying theme",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
         private void TestButton_Click(object sender, EventArgs e)
         {
             NotificationArgs args = new()
@@ -214,13 +236,7 @@ namespace Observatory.UI
 
         private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            themeManager.CurrentTheme = ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
-            Properties.Core.Default.Theme = themeManager.CurrentTheme;
-            foreach(var (plugin, _) in PluginManager.GetInstance.AllUIPlugins)
-            {
-                plugin.ThemeChanged(themeManager.CurrentTheme, themeManager.CurrentThemeDetails);
-            }
-            SettingsManager.Save();
+            ApplySelectedTheme();
         }
 
         private void ButtonAddTheme_Click(object sender, EventArgs e)
@@ -236,7 +252,10 @@ namespace Observatory.UI
                 {
                     var fileContent = File.ReadAllText(fileBrowse.FileName);
                     var themeName = themeManager.AddTheme(fileContent);
-                    ThemeDropdown.Items.Add(themeName);
+                    if (!ThemeDropdown.Items.Contains(themeName))
+                        ThemeDropdown.Items.Add(themeName);
+                    if (themeName.Equals(ThemeDropdown.SelectedItem?.ToString()))
+                        ApplySelectedTheme();
                 }
                 catch (Exception ex)
                 {
