@@ -384,54 +384,6 @@ namespace Observatory.UI
             }
         }
 
-        private void CoreTabControl_DrawItem(object sender, DrawItemEventArgs e)
-        {
-            e.Graphics.FillRectangle(new SolidBrush(BackColor), CoreTabControl.ClientRectangle);
-
-            for (int i = 0; i < CoreTabControl.TabPages.Count; i++)
-            {
-                var tab = CoreTabControl.TabPages[i];
-                var selected = CoreTabControl.SelectedIndex == i;
-                var tabArea = CoreTabControl.GetTabRect(i);
-                var stringFormat = new StringFormat()
-                {
-                    LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Center
-                };
-                if (selected)
-                {
-                    try
-                    {
-                        e.Graphics.FillRectangle(new SolidBrush(CoreTabControl.SelectedTabColor), tabArea);
-                    }
-                    catch (ExternalException ex) // A generic error occurred in GDI+.
-                    {
-                        // This happens sometimes randomly when resizing things a bunch, but doesn't seem to break anything.
-                    }
-                    tabArea.Offset(-1, -1);
-                }
-                else
-                {
-                    try
-                    {
-                        e.Graphics.FillRectangle(new SolidBrush(CoreTabControl.TabColor), tabArea);
-                    }
-                    catch (ExternalException ex) // A generic error occurred in GDI+.
-                    {
-                        // This happens sometimes randomly when resizing things a bunch, but doesn't seem to break anything.
-                    }
-                    tabArea.Offset(1, 1);
-                }
-
-                if (CoreTabControl.Alignment == TabAlignment.Left)
-                {
-                    stringFormat.FormatFlags = StringFormatFlags.DirectionVertical;
-                }
-
-                e.Graphics.DrawString(tab.Text, e.Font ?? new Font("Segoe UI", 9), new SolidBrush(tab.ForeColor), tabArea, stringFormat);
-            }
-        }
-
         private void RestoreSavedTab()
         {
             CoreTabControl.SelectedIndex = Properties.Core.Default.LastTabIndex < CoreTabControl.TabPages.Count

@@ -203,7 +203,6 @@
             CoreTabControl.Size = new Size(833, 851);
             CoreTabControl.TabColor = Color.Empty;
             CoreTabControl.TabIndex = 1;
-            CoreTabControl.DrawItem += CoreTabControl_DrawItem;
             CoreTabControl.SelectedIndexChanged += CoreTabControl_SelectedIndexChanged;
             // 
             // CoreTabPage
@@ -890,7 +889,7 @@
             ThemeDropdown.FormattingEnabled = true;
             ThemeDropdown.Location = new Point(117, 83);
             ThemeDropdown.Name = "ThemeDropdown";
-            ThemeDropdown.Size = new Size(121, 23);
+            ThemeDropdown.Size = new Size(214, 23);
             ThemeDropdown.TabIndex = 22;
             ThemeDropdown.SelectedIndexChanged += ThemeDropdown_SelectedIndexChanged;
             // 
@@ -898,7 +897,7 @@
             // 
             ButtonAddTheme.FlatAppearance.BorderSize = 0;
             ButtonAddTheme.FlatStyle = FlatStyle.Flat;
-            ButtonAddTheme.Location = new Point(271, 82);
+            ButtonAddTheme.Location = new Point(344, 81);
             ButtonAddTheme.Name = "ButtonAddTheme";
             ButtonAddTheme.Size = new Size(88, 23);
             ButtonAddTheme.TabIndex = 23;

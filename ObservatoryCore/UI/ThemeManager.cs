@@ -1,9 +1,18 @@
 ﻿using Observatory.Utils;
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace Observatory.UI
 {
     internal class ThemeManager
     {
+        private HashSet<string> _knownControlKeys = new();
+        JsonSerializerOptions _jsonOptions = new()
+        {
+            AllowTrailingCommas = true,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+        };
+
         #region Constructor
         private ThemeManager()
         {
@@ -165,7 +174,7 @@ namespace Observatory.UI
                 {
                     savedThemeContainers = System.Text.Json.JsonSerializer.Deserialize
                         <List<ThemeSerializationContainer>>
-                        (savedThemes) ?? [];
+                        (savedThemes, _jsonOptions) ?? [];
                 }
                 else
                 {
@@ -188,7 +197,7 @@ namespace Observatory.UI
                 savedThemeContainers.Add(theme);
             }
 
-            Properties.Core.Default.SavedThemes = System.Text.Json.JsonSerializer.Serialize(savedThemeContainers);
+            Properties.Core.Default.SavedThemes = System.Text.Json.JsonSerializer.Serialize(savedThemeContainers, _jsonOptions);
             SettingsManager.Save();
         }
 
@@ -213,12 +222,16 @@ namespace Observatory.UI
 
                 foreach (var property in controlType.GetProperties().Where(p => p.PropertyType == typeof(Color)))
                 {
-                    string themeControl = Themes[SelectedTheme].ContainsKey(controlType.Name + "." + property.Name)
+                    var controlKey = $"{controlType.Name}.{property.Name}";
+                    _knownControlKeys.Add(controlKey);
+
+                    string themeControl = Themes[SelectedTheme].ContainsKey(controlKey)
                         ? controlType.Name
                         : "Default";
 
-                    if (Themes[SelectedTheme].ContainsKey(themeControl + "." + property.Name))
-                        property.SetValue(control, Themes[SelectedTheme][themeControl + "." + property.Name]);
+                    var effectiveKey = $"{themeControl}.{property.Name}";
+                    if (Themes[SelectedTheme].ContainsKey(effectiveKey))
+                        property.SetValue(control, Themes[SelectedTheme][effectiveKey]);
                 }
 
                 if (control.GetType().IsSubclassOf(typeof(Control)))
@@ -274,6 +287,9 @@ namespace Observatory.UI
                     {
                         ApplyTheme(control.Key, control.Value);
                     }
+#if DEBUG
+                    Debug.WriteLine(string.Join(Environment.NewLine, _knownControlKeys));
+#endif
                     Properties.Core.Default.Theme = value;
                     SettingsManager.Save();
                 }
@@ -315,7 +331,7 @@ namespace Observatory.UI
             {
                 themeContainer = System.Text.Json.JsonSerializer.Deserialize
                     <ThemeSerializationContainer>
-                    (themeJson);
+                    (themeJson, _jsonOptions);
             }
             catch (Exception ex)
             {
