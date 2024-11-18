@@ -414,6 +414,7 @@
             ExportFormatDropdown.Name = "ExportFormatDropdown";
             ExportFormatDropdown.Size = new Size(214, 23);
             ExportFormatDropdown.TabIndex = 21;
+            ExportFormatDropdown.SelectedIndexChanged += ExportFormatDropdown_SelectedIndexChanged;
             // 
             // CoreSettingsLabel
             // 
@@ -433,6 +434,7 @@
             StartReadallCheckbox.TabIndex = 27;
             StartReadallCheckbox.Text = "Read All On Launch";
             StartReadallCheckbox.UseVisualStyleBackColor = true;
+            StartReadallCheckbox.CheckedChanged += StartReadallCheckbox_CheckedChanged;
             // 
             // StartMonitorCheckbox
             // 
@@ -443,6 +445,7 @@
             StartMonitorCheckbox.TabIndex = 26;
             StartMonitorCheckbox.Text = "Start Monitor On Launch";
             StartMonitorCheckbox.UseVisualStyleBackColor = true;
+            StartMonitorCheckbox.CheckedChanged += StartMonitorCheckbox_CheckedChanged;
             // 
             // LabelJournal
             // 
@@ -490,6 +493,7 @@
             ThemeDropdown.Name = "ThemeDropdown";
             ThemeDropdown.Size = new Size(214, 23);
             ThemeDropdown.TabIndex = 22;
+            ThemeDropdown.SelectedIndexChanged += ThemeDropdown_SelectedIndexChanged;
             // 
             // ButtonAddTheme
             // 
@@ -501,6 +505,7 @@
             ButtonAddTheme.TabIndex = 23;
             ButtonAddTheme.Text = "Add Theme";
             ButtonAddTheme.UseVisualStyleBackColor = true;
+            ButtonAddTheme.Click += ButtonAddTheme_Click;
             // 
             // VoiceSettingsPanel
             // 
@@ -541,6 +546,7 @@
             VoiceTestButton.TabIndex = 13;
             VoiceTestButton.Text = "Test";
             VoiceTestButton.UseVisualStyleBackColor = false;
+            VoiceTestButton.Click += VoiceTestButton_Click;
             // 
             // VoiceCheckbox
             // 
