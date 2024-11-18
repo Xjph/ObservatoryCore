@@ -3,24 +3,16 @@ using Observatory.Framework;
 using Observatory.NativeNotification;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Configuration;
 using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Observatory.UI
 {
     public partial class CoreSettings : Form
     {
-        private NativeNotification.NativePopup? nativePopup;
-        private NativeNotification.NativeVoice? nativeVoice;
+        private NativePopup? nativePopup;
+        private NativeVoice? nativeVoice;
 
         public CoreSettings()
         {
@@ -144,7 +136,18 @@ namespace Observatory.UI
                 for (int i = 0; i < Screen.AllScreens.Length; i++)
                     DisplayDropdown.Items.Add((i + 1).ToString());
 #if !PROTON
-            var voices = new System.Speech.Synthesis.SpeechSynthesizer().GetInstalledVoices();
+            var speech = new System.Speech.Synthesis.SpeechSynthesizer();
+            try
+            {
+                speech.InjectOneCoreVoices();
+            }
+            catch 
+            {
+                // injection does some wacky reflection stuff
+                // silently proceed if it fails with original voices
+            }
+            
+            var voices = speech.GetInstalledVoices();
             foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
                 VoiceDropdown.Items.Add(voice);
 
