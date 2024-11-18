@@ -10,7 +10,7 @@ namespace Observatory.Framework.Files.Journal
         public string StarSystem { get; init; }
         public ulong SystemAddress { get; init; }
         [JsonConverter(typeof(Converters.StarPosConverter))]
-        public (double x, double y, double z) StarPos { get; init; }
+        public StarPosition StarPos { get; init; }
         public string Body { get; init; }
         public int BodyID { get; init; }
         public string BodyType { get; init; }

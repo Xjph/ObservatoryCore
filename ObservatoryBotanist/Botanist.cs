@@ -72,6 +72,11 @@ namespace Observatory.Botanist
         ObservableCollection<object> GridCollection;
         private PluginUI pluginUI;
         private Guid? samplerStatusNotification = null;
+        private NotificationArgs currentNotificationArgs = null;
+        private (double lat, double lon) firstScanLocation = INVALID_LOCATION;
+        private (double lat, double lon) secondScanLocation = INVALID_LOCATION;
+        private static (double lat, double lon) INVALID_LOCATION = (200, 200);
+        private double currentBodyRadius = 0;
         private BotanistSettings botanistSettings = new()
         {
             OverlayEnabled = true,
@@ -172,23 +177,34 @@ namespace Observatory.Botanist
                                     {
                                         var colonyDistance = GetColonyDistance(scanOrganic);
                                         var sampleNum = scanOrganic.ScanType == ScanOrganicType.Log ? 1 : 2;
-                                        NotificationArgs args = new()
+                                        var status = Core.GetStatus();
+                                        
+                                        if (sampleNum == 1)
+                                        {
+                                            firstScanLocation = (status.Latitude, status.Longitude);
+                                            secondScanLocation = INVALID_LOCATION;
+                                        }
+                                        else if (sampleNum == 2)
+                                            secondScanLocation = (status.Latitude, status.Longitude);
+                                        
+                                        currentBodyRadius = status.PlanetRadius;
+                                        currentNotificationArgs = new()
                                         {
                                             Title = scanOrganic.Species_Localised,
-                                            Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance} m",
+                                            Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance}m{Environment.NewLine}{GetDistanceText(status)}",
                                             Rendering = NotificationRendering.NativeVisual,
-                                            Timeout = (botanistSettings.OverlayIsSticky ? 0 : -1),
+                                            Timeout = botanistSettings.OverlayIsSticky ? 0 : -1,
                                             Sender = AboutInfo.ShortName,
                                         };
                                         if (samplerStatusNotification == null)
                                         {
-                                            var notificationId = Core.SendNotification(args);
+                                            var notificationId = Core.SendNotification(currentNotificationArgs);
                                             if (botanistSettings.OverlayIsSticky)
                                                 samplerStatusNotification = notificationId;
                                         }
                                         else
                                         {
-                                            Core.UpdateNotification(samplerStatusNotification.Value, args);
+                                            Core.UpdateNotification(samplerStatusNotification.Value, currentNotificationArgs);
                                         }
                                     }
 
@@ -207,6 +223,7 @@ namespace Observatory.Botanist
                                         bioPlanet.SpeciesFound[scanOrganic.Species_Localised].Analysed = true;
                                     }
                                     MaybeCloseSamplerStatusNotification();
+                                    firstScanLocation = INVALID_LOCATION; secondScanLocation = INVALID_LOCATION;
                                     break;
                             }
                         }
@@ -223,6 +240,47 @@ namespace Observatory.Botanist
                     break;
             }
         }
+
+        public void StatusChange(Status status)
+        {
+            if (samplerStatusNotification != null)
+            {
+                var currentNotificationDetail = currentNotificationArgs.Detail.Split(Environment.NewLine);
+
+                currentNotificationDetail[2] = GetDistanceText(status);
+                
+                currentNotificationArgs.Detail = string.Join(Environment.NewLine, currentNotificationDetail);
+                Core.UpdateNotification(samplerStatusNotification.Value, currentNotificationArgs);
+            }
+        }
+
+        private string GetDistanceText(Status status)
+        {
+            double? firstDistance = null;
+            double? secondDistance = null;
+
+            if (firstScanLocation != INVALID_LOCATION)
+                firstDistance = CalculateGreatCircleDistance(firstScanLocation, (status.Latitude, status.Longitude), currentBodyRadius);
+
+            if (secondScanLocation != INVALID_LOCATION)
+                secondDistance = CalculateGreatCircleDistance(secondScanLocation, (status.Latitude, status.Longitude), currentBodyRadius);
+            var bothDistances = firstDistance != null && secondDistance != null;
+            return $"Current distance{(bothDistances ? 's' : string.Empty)}: "
+                    + (firstDistance != null ? $"{firstDistance:N0}m" : string.Empty)
+                    + (bothDistances ? " - " : string.Empty)
+                    + (secondDistance != null ? $"{secondDistance:N0}m" : string.Empty);
+        }
+
+        private static double CalculateGreatCircleDistance((double lat, double lon) location1, (double lat, double lon) location2, double radius)
+        {
+            var latDeltaSin = Math.Sin(ToRadians(location1.lat - location2.lat) / 2);
+            var longDeltaSin = Math.Sin(ToRadians(location1.lon - location2.lon) / 2);
+            
+            var hSin = latDeltaSin * latDeltaSin + Math.Cos(ToRadians(location1.lat)) * Math.Cos(ToRadians(location1.lat)) * longDeltaSin * longDeltaSin;
+            return 2 * radius * Math.Asin(Math.Sqrt(hSin));
+        }
+
+        private static double ToRadians(double degrees) => degrees * 0.0174533;
 
         private object GetColonyDistance(ScanOrganic scan)
         {

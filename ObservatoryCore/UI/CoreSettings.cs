@@ -1,15 +1,37 @@
-using NAudio.Wave;
+﻿using Observatory.Assets;
 using Observatory.Framework;
+using Observatory.NativeNotification;
 using Observatory.PluginManagement;
 using Observatory.Utils;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Configuration;
+using System.Data;
 using System.Diagnostics;
-using System.Reflection;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Observatory.UI
 {
-    partial class CoreForm
+    public partial class CoreSettings : Form
     {
+        private NativeNotification.NativePopup? nativePopup;
+        private NativeNotification.NativeVoice? nativeVoice;
+
+        public CoreSettings()
+        {
+            InitializeComponent();
+            PopulateDropdownOptions();
+            PopulateNativeSettings();
+            Icon = Resources.EOCIcon_Presized;
+        }
+
+
+        #region Settings
         private void ColourButton_Click(object _, EventArgs e)
         {
             var selectionResult = PopupColour.ShowDialog();
@@ -98,10 +120,10 @@ namespace Observatory.UI
         {
             if (AudioDeviceDropdown.SelectedItem == null)
                 // Shouldn't happen but default to the Windows built-in device (always exists at -1)
-                Properties.Core.Default.AudioDevice = AudioHandler.GetFirstDevice(); 
+                Properties.Core.Default.AudioDevice = AudioHandler.GetFirstDevice();
             else
                 // Stores the current selected device
-                Properties.Core.Default.AudioDevice = AudioDeviceDropdown.SelectedItem.ToString(); 
+                Properties.Core.Default.AudioDevice = AudioDeviceDropdown.SelectedItem.ToString();
             SettingsManager.Save();
         }
         private void AudioDeviceDropdown_Focused(object sender, EventArgs e)
@@ -185,28 +207,6 @@ namespace Observatory.UI
             }
         }
 
-        private void ApplySelectedTheme()
-        {
-            try
-            {
-                themeManager.CurrentTheme = ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
-                Properties.Core.Default.Theme = themeManager.CurrentTheme;
-                foreach (var (plugin, _) in PluginManager.GetInstance.AllUIPlugins)
-                {
-                    plugin.ThemeChanged(themeManager.CurrentTheme, themeManager.CurrentThemeDetails);
-                }
-                SettingsManager.Save();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    ex.Message,
-                    "Error applying theme",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Error);
-            }
-        }
-
         private void TestButton_Click(object sender, EventArgs e)
         {
             NotificationArgs args = new()
@@ -236,7 +236,14 @@ namespace Observatory.UI
 
         private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ApplySelectedTheme();
+            var themeManager = ThemeManager.GetInstance;
+            themeManager.CurrentTheme = ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
+            Properties.Core.Default.Theme = themeManager.CurrentTheme;
+            foreach (var (plugin, _) in PluginManager.GetInstance.AllUIPlugins)
+            {
+                plugin.ThemeChanged(themeManager.CurrentTheme, themeManager.CurrentThemeDetails);
+            }
+            SettingsManager.Save();
         }
 
         private void ButtonAddTheme_Click(object sender, EventArgs e)
@@ -251,11 +258,8 @@ namespace Observatory.UI
                 try
                 {
                     var fileContent = File.ReadAllText(fileBrowse.FileName);
-                    var themeName = themeManager.AddTheme(fileContent);
-                    if (!ThemeDropdown.Items.Contains(themeName))
-                        ThemeDropdown.Items.Add(themeName);
-                    if (themeName.Equals(ThemeDropdown.SelectedItem?.ToString()))
-                        ApplySelectedTheme();
+                    var themeName = ThemeManager.GetInstance.AddTheme(fileContent);
+                    ThemeDropdown.Items.Add(themeName);
                 }
                 catch (Exception ex)
                 {
@@ -271,7 +275,7 @@ namespace Observatory.UI
         private void LabelJournalPath_DoubleClick(object sender, EventArgs e)
         {
             var folderBrowse = new FolderBrowserDialog()
-            { 
+            {
                 Description = "Select Elite Dangerous Journal Location",
                 InitialDirectory = LogMonitor.GetJournalFolder().FullName,
                 UseDescriptionForTitle = true
@@ -323,5 +327,8 @@ namespace Observatory.UI
             var fileExplorerInfo = new ProcessStartInfo() { FileName = configDir, UseShellExecute = true };
             Process.Start(fileExplorerInfo);
         }
+        #endregion
+
+
     }
 }

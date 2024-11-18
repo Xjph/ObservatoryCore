@@ -26,7 +26,7 @@ namespace Observatory.Explorer
             ExplorerWorker = explorerWorker;
             ObservatoryCore = core;
             Results = results;
-            CustomCriteriaManager = new(core.GetPluginErrorLogger(explorerWorker));
+            CustomCriteriaManager = new(core.GetPluginErrorLogger(explorerWorker), SendNotification);
             CriteriaLastModified = new DateTime(0);
         }
 
@@ -278,6 +278,14 @@ namespace Observatory.Explorer
             }
         }
 
+        public void ProcessDiscovery(FSSDiscoveryScan discoveryScan) => CustomCriteriaManager.CustomDiscovery(discoveryScan);
+
+        public void ProcessAllBodies(FSSAllBodiesFound allBodies) => CustomCriteriaManager.CustomAllBodies(allBodies);
+
+        public void ProcessSignalScan(SAASignalsFound signalsFound) => CustomCriteriaManager.CustomSignals(signalsFound);
+
+        public void ProcessJump(FSDJump jump) => CustomCriteriaManager.CustomJump(jump);
+
         private void SendNotification(Scan scanEvent, string detail, string extendedDetail)
         {
             string bodyAffix;
@@ -324,6 +332,21 @@ namespace Observatory.Explorer
                 Sender = ExplorerWorker.AboutInfo.ShortName,
                 ExtendedDetails = extendedDetail,
                 CoalescingId = scanEvent.BodyID,
+            };
+
+            ObservatoryCore.SendNotification(args);
+        }
+
+        private void SendNotification(string title, string detail, string extendedDetail)
+        {
+            NotificationArgs args = new()
+            {
+                Title = title,
+                TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{title}</voice></speak>",
+                Detail = detail,
+                Sender = ExplorerWorker.AboutInfo.ShortName,
+                ExtendedDetails = extendedDetail,
+                CoalescingId = -1,
             };
 
             ObservatoryCore.SendNotification(args);

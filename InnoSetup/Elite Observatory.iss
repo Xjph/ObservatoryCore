@@ -80,6 +80,11 @@ Root: HKA; Subkey: "Software\Classes\ObservatoryPlugin.eop\DefaultIcon"; ValueTy
 Root: HKA; Subkey: "Software\Classes\ObservatoryPlugin.eop\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".eop"; ValueData: ""
 
+[InstallDelete]
+Type: files; Name: "{app}\Observatory*.pdb"
+Type: files; Name: "{app}\Avalonia*.dll"
+Type: files; Name: "{app}\Egorozh*.dll"
+
 [Code]
 
 type

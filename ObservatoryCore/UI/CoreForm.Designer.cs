@@ -101,6 +101,7 @@
             ThemeDropdown = new ComboBox();
             ButtonAddTheme = new Button();
             UpdateLink = new LinkLabel();
+            SettingsButton = new Button();
             CoreTabControl.SuspendLayout();
             CoreTabPage.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)CoreSplitter).BeginInit();
@@ -204,6 +205,7 @@
             CoreTabControl.TabColor = Color.Empty;
             CoreTabControl.TabIndex = 1;
             CoreTabControl.SelectedIndexChanged += CoreTabControl_SelectedIndexChanged;
+            CoreTabControl.MouseClick += CoreTabControl_MouseClick;
             // 
             // CoreTabPage
             // 
@@ -919,11 +921,22 @@
             UpdateLink.Text = "Update Available";
             UpdateLink.Visible = false;
             // 
+            // SettingsButton
+            // 
+            SettingsButton.Location = new Point(383, 875);
+            SettingsButton.Name = "SettingsButton";
+            SettingsButton.Size = new Size(75, 23);
+            SettingsButton.TabIndex = 36;
+            SettingsButton.Text = "Settings";
+            SettingsButton.UseVisualStyleBackColor = true;
+            SettingsButton.Click += SettingsButton_Click;
+            // 
             // CoreForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(857, 904);
+            Controls.Add(SettingsButton);
             Controls.Add(AboutCore);
             Controls.Add(UpdateLink);
             Controls.Add(CoreTabControl);
@@ -1040,5 +1053,6 @@
         private Label LabelFontScale;
         private NumericUpDown FontScaleSpinner;
         private CheckBox PopupTransparentCheckBox;
+        private Button SettingsButton;
     }
 }

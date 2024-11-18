@@ -2,7 +2,7 @@
 {
     internal class CriteriaLoadException : Exception
     {
-        public CriteriaLoadException(string message, string script)
+        public CriteriaLoadException(string message, string script = "")
         {
             Message = message;
             OriginalScript = script;

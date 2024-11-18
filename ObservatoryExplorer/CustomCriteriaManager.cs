@@ -1,23 +1,36 @@
 ﻿using System.Text;
 using Observatory.Framework.Files.Journal;
 using NLua;
+using System.Runtime.CompilerServices;
 
 namespace Observatory.Explorer
 {
     internal class CustomCriteriaManager
     {
         private Lua LuaState;
+        private LuaFunction DiscoveryFunction;
+        private LuaFunction BodySignalsFunction;
+        private LuaFunction AllBodiesFunction;
+        private LuaFunction JumpFunction;
+        private bool hasAllBodiesFunc = false;
+        private bool hasDiscoveryFunc = false;
+        private bool hasJumpFunc = false;
+        private bool hasBodySignalsFunc = false;
         private Dictionary<String,LuaFunction> CriteriaFunctions;
         private Dictionary<string, string> CriteriaWithErrors = new();
         Action<Exception, String> ErrorLogger;
+        private Action<string, string, string> NotificationMethod;
         private uint ScanCount;
 
-        public CustomCriteriaManager(Action<Exception, String> errorLogger)
+        public CustomCriteriaManager(Action<Exception, String> errorLogger, Action<string, string, string> notificationMethod)
         {
             ErrorLogger = errorLogger;
             CriteriaFunctions = new();
             ScanCount = 0;
+            NotificationMethod = notificationMethod;
         }
+
+        public void SendNotification(string title, string detail, string extendedDetail) => NotificationMethod(title, detail, extendedDetail);
 
         public void RefreshCriteria(string criteriaPath)
         {
@@ -141,6 +154,8 @@ namespace Observatory.Explorer
             #endregion
 
             #region Convenience Functions
+
+            LuaState.RegisterFunction("notify", this, typeof(CustomCriteriaManager).GetMethod("SendNotification"));
 
             // Body type related functions and tests
 
@@ -274,7 +289,7 @@ namespace Observatory.Explorer
                             do
                             {
                                 if (i >= criteria.Length)
-                                    throw new Exception("Unterminated multi-line criteria.\r\nAre you missing an ::End::?");
+                                    throw new Exception("Unterminated multi-line criteria.\r\nAre you missing an End annotation?");
 
                                 script.AppendLine(criteria[i]);
                                 i++;
@@ -294,6 +309,90 @@ namespace Observatory.Explorer
                                 i++;
                             } while (!IsEndAnnotation(criteria[i]));
                             LuaState.DoString(script.ToString());
+                            script.Clear();
+                        }
+                        else if (annotation.type == AnnotationType.AllBodies)
+                        {
+                            if (hasAllBodiesFunc) throw new CriteriaLoadException("Multiple AllBodies annotations found.");
+                            hasAllBodiesFunc = true;
+                            
+                            script.AppendLine($"function ObservatoryAllBodiesHandler (allBodies)");
+                            i++;
+                            do
+                            {
+                                if (i >= criteria.Length)
+                                    throw new Exception("Unterminated AllBodies handler.\r\nAre you missing an End annotation?");
+
+                                script.AppendLine(criteria[i]);
+                                i++;
+                            } while (!IsEndAnnotation(criteria[i]));
+                            script.AppendLine("end");
+
+                            LuaState.DoString(script.ToString());
+                            AllBodiesFunction = LuaState["ObservatoryAllBodiesHandler"] as LuaFunction;
+                            script.Clear();
+                        }
+                        else if (annotation.type == AnnotationType.Jump)
+                        {
+                            if (hasJumpFunc) throw new CriteriaLoadException("Multiple Jump annotations found.");
+                            hasJumpFunc = true;
+
+                            script.AppendLine($"function ObservatoryJumpHandler (jump)");
+                            i++;
+                            do
+                            {
+                                if (i >= criteria.Length)
+                                    throw new Exception("Unterminated Jump handler.\r\nAre you missing an End annotation?");
+
+                                script.AppendLine(criteria[i]);
+                                i++;
+                            } while (!IsEndAnnotation(criteria[i]));
+                            script.AppendLine("end");
+
+                            LuaState.DoString(script.ToString());
+                            JumpFunction = LuaState["ObservatoryJumpHandler"] as LuaFunction;
+                            script.Clear();
+                        }
+                        else if (annotation.type == AnnotationType.BodySignals)
+                        {
+                            if (hasBodySignalsFunc) throw new CriteriaLoadException("Multiple BodySignals annotations found.");
+                            hasBodySignalsFunc = true;
+
+                            script.AppendLine($"function ObservatoryBodySignalsHandler (bodySignals)");
+                            i++;
+                            do
+                            {
+                                if (i >= criteria.Length)
+                                    throw new Exception("Unterminated BodySignals handler.\r\nAre you missing an End annotation?");
+
+                                script.AppendLine(criteria[i]);
+                                i++;
+                            } while (!IsEndAnnotation(criteria[i]));
+                            script.AppendLine("end");
+
+                            LuaState.DoString(script.ToString());
+                            BodySignalsFunction = LuaState["ObservatoryBodySignalsHandler"] as LuaFunction;
+                            script.Clear();
+                        }
+                        else if (annotation.type == AnnotationType.Discovery)
+                        {
+                            if (hasDiscoveryFunc) throw new CriteriaLoadException("Multiple Discovery annotations found.");
+                            hasDiscoveryFunc = true;
+
+                            script.AppendLine($"function ObservatoryDiscoveryHandler (discovery)");
+                            i++;
+                            do
+                            {
+                                if (i >= criteria.Length)
+                                    throw new Exception("Unterminated Discovery handler.\r\nAre you missing an End annotation?");
+
+                                script.AppendLine(criteria[i]);
+                                i++;
+                            } while (!IsEndAnnotation(criteria[i]));
+                            script.AppendLine("end");
+
+                            LuaState.DoString(script.ToString());
+                            DiscoveryFunction = LuaState["ObservatoryDiscoveryHandler"] as LuaFunction;
                             script.Clear();
                         }
                         else
@@ -436,6 +535,32 @@ namespace Observatory.Explorer
             return results;
         }
 
+        public void CustomDiscovery(FSSDiscoveryScan scan) 
+        {
+            if (hasDiscoveryFunc)
+                DiscoveryFunction.Call(scan);
+        }
+        
+
+        public void CustomAllBodies(FSSAllBodiesFound allBodies)
+        {
+            if (hasAllBodiesFunc) 
+                AllBodiesFunction.Call(allBodies);
+        }
+        
+
+        public void CustomJump(FSDJump jump)
+        {
+            if (hasJumpFunc) 
+                JumpFunction.Call(jump);
+        }
+
+        public void CustomSignals(SAASignalsFound signalsFound)
+        {
+            if (hasBodySignalsFunc) 
+                BodySignalsFunction.Call(signalsFound);
+        }
+
         private class Annotation
         {
             public AnnotationType type { get; init; }
@@ -478,6 +603,18 @@ namespace Observatory.Explorer
                         }
                         annotation = new() { type = AnnotationType.Complex, value = debugLabel };
                         return true;
+                    case "allbodies":
+                        annotation = new() { type = AnnotationType.AllBodies, value = string.Empty };
+                        return true;
+                    case "jump":
+                        annotation = new() { type = AnnotationType.Jump, value = string.Empty };
+                        return true;
+                    case "bodysignals":
+                        annotation = new() { type = AnnotationType.BodySignals, value = string.Empty };
+                        return true;
+                    case "discovery":
+                        annotation = new() { type = AnnotationType.Discovery, value = string.Empty };
+                        return true;
                     default:
                         string simpleDescription;
                         if (annotationRaw.ToLower().StartsWith("simple "))
@@ -504,7 +641,11 @@ namespace Observatory.Explorer
             Detail,
             Global,
             End,
-            None
+            None,
+            AllBodies,
+            Jump,
+            BodySignals,
+            Discovery
         }
 
         private string GetUniqueDescription(string functionName, string scriptDescription)

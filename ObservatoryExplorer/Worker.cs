@@ -75,6 +75,7 @@ namespace Observatory.Explorer
                     break;
                 case FSSBodySignals signals:
                     explorer.RecordSignal(signals);
+                    explorer.ProcessSignalScan(signals);
                     break;
                 case ScanBaryCentre barycentre:
                     explorer.RecordBarycentre(barycentre);
@@ -83,21 +84,19 @@ namespace Observatory.Explorer
                     if (fsdjump is CarrierJump && !((CarrierJump)fsdjump).Docked)
                         break;
                     explorer.SetSystem(fsdjump.StarSystem);
+                    explorer.ProcessJump(fsdjump);
                     break;
                 case Location location:
                     explorer.SetSystem(location.StarSystem);
                     break;
-                case DiscoveryScan discoveryScan:
-                    break;
                 case FSSDiscoveryScan discoveryScan:
-                    break;
-                case FSSSignalDiscovered signalDiscovered:
-                    break;
-                case NavBeaconScan beaconScan:
-                    break;
-                case SAAScanComplete scanComplete:
+                    explorer.ProcessDiscovery(discoveryScan);
                     break;
                 case SAASignalsFound signalsFound:
+                    explorer.ProcessSignalScan(signalsFound);
+                    break;
+                case FSSAllBodiesFound allBodiesFound:
+                    explorer.ProcessAllBodies(allBodiesFound);
                     break;
             }
             
