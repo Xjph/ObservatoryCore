@@ -148,12 +148,12 @@ namespace Observatory.UI
             {
                 speech.InjectOneCoreVoices();
             }
-            catch 
+            catch
             {
                 // injection does some wacky reflection stuff
                 // silently proceed if it fails with original voices
             }
-            
+
             var voices = speech.GetInstalledVoices();
             foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
                 VoiceDropdown.Items.Add(voice);
@@ -340,5 +340,9 @@ namespace Observatory.UI
         #endregion
 
 
+        private void CoreSettingsOK_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
     }
 }
