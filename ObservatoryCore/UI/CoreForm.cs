@@ -83,9 +83,11 @@ namespace Observatory.UI
         private void CreatePluginList()
         {
             var pluginList = new PluginList(PluginManager.GetInstance.AllPlugins);
-            pluginList.Dock = DockStyle.Top;
-            pluginList.AutoSize = true;
-            // pluginList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+
+            pluginList.Location = new(0, 0);
+            pluginList.Size = CoreTabPanel.Size;
+            pluginList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pluginList.AutoScroll = true;
             ThemeManager.GetInstance.RegisterControl(pluginList);
             CoreTabPanel.Controls.Add(pluginList);
         }

@@ -44,30 +44,42 @@
             // 
             // ClearButton
             // 
+            ClearButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            ClearButton.FlatAppearance.BorderSize = 0;
+            ClearButton.FlatStyle = FlatStyle.Flat;
             ClearButton.Location = new Point(713, 415);
             ClearButton.Name = "ClearButton";
             ClearButton.Size = new Size(75, 23);
             ClearButton.TabIndex = 1;
             ClearButton.Text = "Clear";
             ClearButton.UseVisualStyleBackColor = true;
+            ClearButton.Click += ClearButton_Click;
             // 
             // ExportButton
             // 
+            ExportButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            ExportButton.FlatAppearance.BorderSize = 0;
+            ExportButton.FlatStyle = FlatStyle.Flat;
             ExportButton.Location = new Point(632, 415);
             ExportButton.Name = "ExportButton";
             ExportButton.Size = new Size(75, 23);
             ExportButton.TabIndex = 2;
             ExportButton.Text = "Export";
             ExportButton.UseVisualStyleBackColor = true;
+            ExportButton.Click += ExportButton_Click;
             // 
             // SettingsButton
             // 
+            SettingsButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            SettingsButton.FlatAppearance.BorderSize = 0;
+            SettingsButton.FlatStyle = FlatStyle.Flat;
             SettingsButton.Location = new Point(12, 415);
             SettingsButton.Name = "SettingsButton";
             SettingsButton.Size = new Size(75, 23);
             SettingsButton.TabIndex = 3;
             SettingsButton.Text = "Settings";
             SettingsButton.UseVisualStyleBackColor = true;
+            SettingsButton.Click += SettingsButton_Click;
             // 
             // PopoutForm
             // 
@@ -79,6 +91,7 @@
             Controls.Add(ClearButton);
             Controls.Add(PopoutPanel);
             Name = "PopoutForm";
+            StartPosition = FormStartPosition.Manual;
             Text = "PopoutForm";
             FormClosing += PopoutForm_FormClosing;
             ResumeLayout(false);

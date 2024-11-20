@@ -382,5 +382,16 @@ namespace Observatory.Properties {
                 this["NativeNotifyFontScale"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::System.Collections.Specialized.StringCollection PopoutLocation {
+            get {
+                return ((global::System.Collections.Specialized.StringCollection)(this["PopoutLocation"]));
+            }
+            set {
+                this["PopoutLocation"] = value;
+            }
+        }
     }
 }

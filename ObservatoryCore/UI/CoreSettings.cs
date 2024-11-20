@@ -135,6 +135,13 @@ namespace Observatory.UI
             if (Screen.AllScreens.Length > 1)
                 for (int i = 0; i < Screen.AllScreens.Length; i++)
                     DisplayDropdown.Items.Add((i + 1).ToString());
+
+            foreach (var theme in ThemeManager.GetInstance.GetThemes)
+            {
+                ThemeDropdown.Items.Add(theme);
+            }
+            ThemeDropdown.SelectedItem = ThemeManager.GetInstance.CurrentTheme;
+
 #if !PROTON
             var speech = new System.Speech.Synthesis.SpeechSynthesizer();
             try

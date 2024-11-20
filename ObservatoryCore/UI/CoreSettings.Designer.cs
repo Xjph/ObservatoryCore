@@ -385,12 +385,13 @@
             CoreConfigFolder.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             CoreConfigFolder.FlatAppearance.BorderSize = 0;
             CoreConfigFolder.FlatStyle = FlatStyle.Flat;
-            CoreConfigFolder.Location = new Point(721, 3);
+            CoreConfigFolder.Location = new Point(373, 200);
             CoreConfigFolder.Name = "CoreConfigFolder";
             CoreConfigFolder.Size = new Size(90, 23);
             CoreConfigFolder.TabIndex = 19;
             CoreConfigFolder.Text = "Config Folder";
             CoreConfigFolder.UseVisualStyleBackColor = true;
+            CoreConfigFolder.Click += CoreConfigFolder_Click;
             // 
             // AudioVolumeSlider
             // 
@@ -530,7 +531,7 @@
             VoiceSpeedSlider.Location = new Point(117, 20);
             VoiceSpeedSlider.Minimum = -10;
             VoiceSpeedSlider.Name = "VoiceSpeedSlider";
-            VoiceSpeedSlider.Size = new Size(242, 45);
+            VoiceSpeedSlider.Size = new Size(214, 45);
             VoiceSpeedSlider.TabIndex = 15;
             VoiceSpeedSlider.TickStyle = TickStyle.Both;
             VoiceSpeedSlider.Value = 10;
@@ -594,7 +595,7 @@
             VoiceDropdown.FormattingEnabled = true;
             VoiceDropdown.Location = new Point(117, 71);
             VoiceDropdown.Name = "VoiceDropdown";
-            VoiceDropdown.Size = new Size(121, 23);
+            VoiceDropdown.Size = new Size(214, 23);
             VoiceDropdown.TabIndex = 16;
             VoiceDropdown.SelectedIndexChanged += VoiceDropdown_SelectedIndexChanged;
             // 
@@ -642,7 +643,7 @@
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "CoreSettings";
-            StartPosition = FormStartPosition.CenterParent;
+            StartPosition = FormStartPosition.CenterScreen;
             Text = "Observatory Core Settings";
             PopupSettingsPanel.ResumeLayout(false);
             PopupSettingsPanel.PerformLayout();

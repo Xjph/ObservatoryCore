@@ -44,7 +44,7 @@ namespace Observatory.UI
                     }
                     else
                     {
-                        var popoutForm = new PopoutForm(pluginTab, plugin.Name);
+                        var popoutForm = new PopoutForm(pluginTab, plugin);
                         ThemeManager.GetInstance.RegisterControl(popoutForm);
                         popoutForm.Show();
                     }
