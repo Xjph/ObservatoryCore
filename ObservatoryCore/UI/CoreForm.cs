@@ -64,6 +64,9 @@ namespace Observatory.UI
             CreatePluginList();
             RestoreSavedTab();
             CheckUpdate();
+
+            LogMonitor.GetInstance.SetLastEventLabel(LastEvent);
+            LogMonitor.GetInstance.SetTotalEventLabel(TotalEvents);
         }
 
         public void FocusPlugin(string pluginShortName)
@@ -107,11 +110,13 @@ namespace Observatory.UI
             {
                 LogMonitor.GetInstance.Stop();
                 ToggleMonitorButton.Text = "Start Monitor";
+                MonitorStatus.Text = "Current Monitor Status: Stopped";
             }
             else
             {
                 LogMonitor.GetInstance.Start();
                 ToggleMonitorButton.Text = "Stop Monitor";
+                MonitorStatus.Text = "Current Monitor Status: Active";
             }
         }
 

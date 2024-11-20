@@ -42,6 +42,9 @@
             SettingsButton = new Button();
             CoreTabPanel = new Panel();
             UpdateLink = new LinkLabel();
+            MonitorStatus = new Label();
+            LastEvent = new Label();
+            TotalEvents = new Label();
             CoreTabControl.SuspendLayout();
             CoreTabPage.SuspendLayout();
             SuspendLayout();
@@ -134,6 +137,9 @@
             // 
             CoreTabPage.BackColor = SystemColors.Control;
             CoreTabPage.BorderStyle = BorderStyle.FixedSingle;
+            CoreTabPage.Controls.Add(TotalEvents);
+            CoreTabPage.Controls.Add(LastEvent);
+            CoreTabPage.Controls.Add(MonitorStatus);
             CoreTabPage.Controls.Add(SettingsButton);
             CoreTabPage.Controls.Add(CoreTabPanel);
             CoreTabPage.Location = new Point(4, 24);
@@ -161,7 +167,7 @@
             CoreTabPanel.Dock = DockStyle.Top;
             CoreTabPanel.Location = new Point(3, 3);
             CoreTabPanel.Name = "CoreTabPanel";
-            CoreTabPanel.Size = new Size(817, 783);
+            CoreTabPanel.Size = new Size(817, 764);
             CoreTabPanel.TabIndex = 0;
             // 
             // UpdateLink
@@ -177,6 +183,36 @@
             UpdateLink.TabStop = true;
             UpdateLink.Text = "Update Available";
             UpdateLink.Visible = false;
+            // 
+            // MonitorStatus
+            // 
+            MonitorStatus.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            MonitorStatus.AutoSize = true;
+            MonitorStatus.Location = new Point(6, 770);
+            MonitorStatus.Name = "MonitorStatus";
+            MonitorStatus.Size = new Size(178, 15);
+            MonitorStatus.TabIndex = 37;
+            MonitorStatus.Text = "Current Monitor Status: Stopped";
+            // 
+            // LastEvent
+            // 
+            LastEvent.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            LastEvent.AutoSize = true;
+            LastEvent.Location = new Point(6, 785);
+            LastEvent.Name = "LastEvent";
+            LastEvent.Size = new Size(192, 15);
+            LastEvent.TabIndex = 38;
+            LastEvent.Text = "Last Journal Event Processed: None";
+            // 
+            // TotalEvents
+            // 
+            TotalEvents.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            TotalEvents.AutoSize = true;
+            TotalEvents.Location = new Point(6, 800);
+            TotalEvents.Name = "TotalEvents";
+            TotalEvents.Size = new Size(171, 15);
+            TotalEvents.TabIndex = 39;
+            TotalEvents.Text = "Total Journal Lines Processed: 0";
             // 
             // CoreForm
             // 
@@ -201,6 +237,7 @@
             ResizeEnd += CoreForm_ResizeEnd;
             CoreTabControl.ResumeLayout(false);
             CoreTabPage.ResumeLayout(false);
+            CoreTabPage.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -218,5 +255,8 @@
         private Button AboutCore;
         private Button SettingsButton;
         private Panel CoreTabPanel;
+        private Label TotalEvents;
+        private Label LastEvent;
+        private Label MonitorStatus;
     }
 }
