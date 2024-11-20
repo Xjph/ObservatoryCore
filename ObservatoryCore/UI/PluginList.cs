@@ -103,22 +103,6 @@ namespace Observatory.UI
                 Label pluginType = createLineLabel(typeString);
                 Label pluginStatus = createLineLabel(PluginStatusString(pluginStatusValue));
                 
-                Button pluginSettings = new() 
-                { 
-                    Text = "Settings", 
-                    Dock = DockStyle.Left,
-                    FlatStyle = FlatStyle.Flat                    
-                };
-                pluginSettings.FlatAppearance.BorderSize = 0;
-                
-                Button pluginAbout = new()
-                {
-                    Text = "About",
-                    Dock = DockStyle.Left,
-                    FlatStyle = FlatStyle.Flat
-                };
-                pluginAbout.FlatAppearance.BorderSize = 0;
-
                 bool enable = true;
                 if (enabledPlugins.TryGetValue(plugin.Name, out bool value))
                 {
@@ -147,7 +131,6 @@ namespace Observatory.UI
                 Button pluginMenu = new()
                 {
                     Text = "▾",
-                    Dock = DockStyle.Left,
                     FlatStyle = FlatStyle.Flat,
                     Size = new(25,25),
                     Enabled = pluginStatusValue != PluginManager.PluginStatus.Errored
