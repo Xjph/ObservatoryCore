@@ -37,18 +37,6 @@ namespace Observatory.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool AllowUnsigned {
-            get {
-                return ((bool)(this["AllowUnsigned"]));
-            }
-            set {
-                this["AllowUnsigned"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
         public bool NativeNotify {
             get {
@@ -277,17 +265,6 @@ namespace Observatory.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Specialized.StringCollection UnsignedAllowed {
-            get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["UnsignedAllowed"]));
-            }
-            set {
-                this["UnsignedAllowed"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Dark")]
         public string Theme {
             get {
@@ -336,18 +313,6 @@ namespace Observatory.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("250")]
-        public int CoreSplitterDistance {
-            get {
-                return ((int)(this["CoreSplitterDistance"]));
-            }
-            set {
-                this["CoreSplitterDistance"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("0")]
         public int LastTabIndex {
             get {
@@ -391,17 +356,6 @@ namespace Observatory.Properties {
             }
             set {
                 this["AudioDevice"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Specialized.StringCollection SignaturesAllowed {
-            get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["SignaturesAllowed"]));
-            }
-            set {
-                this["SignaturesAllowed"] = value;
             }
         }
         

@@ -242,7 +242,7 @@ namespace Observatory.UI
             var themeManager = ThemeManager.GetInstance;
             themeManager.CurrentTheme = ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
             Properties.Core.Default.Theme = themeManager.CurrentTheme;
-            foreach (var (plugin, _) in PluginManager.GetInstance.AllUIPlugins)
+            foreach (var plugin in PluginManager.GetInstance.AllUIPlugins)
             {
                 plugin.ThemeChanged(themeManager.CurrentTheme, themeManager.CurrentThemeDetails);
             }

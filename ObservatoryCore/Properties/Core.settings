@@ -5,9 +5,6 @@
     <Setting Name="JournalFolder" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="AllowUnsigned" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
     <Setting Name="NativeNotify" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
@@ -65,9 +62,6 @@
     <Setting Name="StartReadAll" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="UnsignedAllowed" Type="System.Collections.Specialized.StringCollection" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
     <Setting Name="Theme" Type="System.String" Scope="User">
       <Value Profile="(Default)">Dark</Value>
     </Setting>
@@ -80,9 +74,6 @@
     <Setting Name="SavedThemes" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="CoreSplitterDistance" Type="System.Int32" Scope="User">
-      <Value Profile="(Default)">250</Value>
-    </Setting>
     <Setting Name="LastTabIndex" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
@@ -93,9 +84,6 @@
       <Value Profile="(Default)">0.75</Value>
     </Setting>
     <Setting Name="AudioDevice" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="SignaturesAllowed" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="NativeNotifyTransparent" Type="System.Boolean" Scope="User">

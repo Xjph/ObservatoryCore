@@ -4,7 +4,6 @@ using Observatory.Framework.Interfaces;
 using Observatory.Framework;
 using System.Text.Json;
 using Observatory.Utils;
-using Microsoft.Security.Extensions;
 
 namespace Observatory.PluginManagement
 {
@@ -29,8 +28,9 @@ namespace Observatory.PluginManagement
         public readonly List<(string error, string? detail)> errorList;
         public readonly List<Panel> pluginPanels;
         public readonly List<DataTable> pluginTables;
-        private readonly List<(IObservatoryWorker plugin, PluginStatus signed)> _workerPlugins;
-        private readonly List<(IObservatoryNotifier plugin, PluginStatus signed)> _notifyPlugins;
+        private readonly List<IObservatoryWorker> _workerPlugins;
+        private readonly List<IObservatoryNotifier> _notifyPlugins;
+        private readonly Dictionary<IObservatoryPlugin, PluginStatus> _pluginStatus = [];
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
         
@@ -38,41 +38,42 @@ namespace Observatory.PluginManagement
 
 
         // Intended for rendering Tabs. Includes Disabled plugins.
-        public List<(IObservatoryWorker plugin, PluginStatus signed)> AllUIPlugins
+        public List<IObservatoryWorker> AllUIPlugins
         {
-            get => _workerPlugins.Where(p => p.plugin.PluginUI.PluginUIType != Framework.PluginUI.UIType.None).ToList();
+            get => _workerPlugins.Where(p => p.PluginUI.PluginUIType != Framework.PluginUI.UIType.None).ToList();
         }
 
-        public List<(IObservatoryWorker plugin, PluginStatus signed)> EnabledWorkerPlugins
+        public List<IObservatoryWorker> EnabledWorkerPlugins
         {
-            get => _workerPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p.plugin)).ToList();
+            get => _workerPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList();
         }
 
-        public List<(IObservatoryNotifier plugin, PluginStatus signed)> EnabledNotifyPlugins
+        public List<IObservatoryNotifier> EnabledNotifyPlugins
         {
-            get => _notifyPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p.plugin)).ToList();
+            get => _notifyPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList();
         }
+
+        public List<IObservatoryPlugin> AllPlugins
+        {
+            get => _workerPlugins.Cast<IObservatoryPlugin>().Concat(_notifyPlugins.Cast<IObservatoryPlugin>()).ToList();
+        }
+
+        public PluginStatus GetPluginStatus(IObservatoryPlugin plugin) => _pluginStatus[plugin];
 
         public bool HasPopupOverrideNotifiers
         {
-            get => EnabledNotifyPlugins.Any(n => n.plugin.OverridePopupNotifications);
+            get => EnabledNotifyPlugins.Any(n => n.OverridePopupNotifications);
         }
         public bool HasAudioOverrideNotifiers
         {
-            get => EnabledNotifyPlugins.Any(n => n.plugin.OverrideAudioNotifications);
+            get => EnabledNotifyPlugins.Any(n => n.OverrideAudioNotifications);
         }
 
         private PluginManager()
         {
-
-            if (Properties.Core.Default.UnsignedAllowed == null)
-                Properties.Core.Default.UnsignedAllowed = new();
-            if (Properties.Core.Default.SignaturesAllowed == null)
-                Properties.Core.Default.SignaturesAllowed = new();
-
             errorList = LoadPlugins(out _workerPlugins, out _notifyPlugins);
 
-            pluginHandler = new PluginEventHandler(_workerPlugins.Select(p => p.plugin), _notifyPlugins.Select(p => p.plugin));
+            pluginHandler = new PluginEventHandler(_workerPlugins, _notifyPlugins);
             var logMonitor = LogMonitor.GetInstance;
             pluginPanels = new();
             pluginTables = new();
@@ -83,9 +84,7 @@ namespace Observatory.PluginManagement
 
             core = new PluginCore();
 
-            List<IObservatoryPlugin> errorPlugins = new();
-            
-            foreach (var plugin in _workerPlugins.Select(p => p.plugin))
+            foreach (var plugin in _workerPlugins)
             {
                 try
                 {
@@ -95,14 +94,11 @@ namespace Observatory.PluginManagement
                 catch (PluginException ex)
                 {
                     errorList.Add((FormatErrorMessage(ex), ex.StackTrace));
-                    errorPlugins.Add(plugin);
+                    _pluginStatus[plugin] = PluginStatus.Errored;
                 }
             }
 
-            _workerPlugins.RemoveAll(w => errorPlugins.Contains(w.plugin));
-            errorPlugins.Clear();
-
-            foreach (var plugin in _notifyPlugins.Select(p => p.plugin))
+            foreach (var plugin in _notifyPlugins)
             {
                 // Notifiers which are also workers need not be loaded again (they are the same instance).
                 if (!plugin.GetType().IsAssignableTo(typeof(IObservatoryWorker)))
@@ -115,17 +111,15 @@ namespace Observatory.PluginManagement
                     catch (PluginException ex)
                     {
                         errorList.Add((FormatErrorMessage(ex), ex.StackTrace));
-                        errorPlugins.Add(plugin);
+                        _pluginStatus[plugin] = PluginStatus.Errored;
                     }
                     catch (Exception ex)
                     {
                         errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
-                        errorPlugins.Add(plugin);
+                        _pluginStatus[plugin] = PluginStatus.Errored;
                     }
                 }
             }
-
-            _notifyPlugins.RemoveAll(n => errorPlugins.Contains(n.plugin));
 
             core.Notification += pluginHandler.OnNotificationEvent;
             core.PluginMessage += pluginHandler.OnPluginMessageEvent;
@@ -230,21 +224,13 @@ namespace Observatory.PluginManagement
             pluginHandler.SetPluginEnabled(plugin, enabled);
         }
 
-        private static List<(string, string?)> LoadPlugins(out List<(IObservatoryWorker plugin, PluginStatus signed)> observatoryWorkers, out List<(IObservatoryNotifier plugin, PluginStatus signed)> observatoryNotifiers)
+        private List<(string, string?)> LoadPlugins(out List<IObservatoryWorker> observatoryWorkers, out List<IObservatoryNotifier> observatoryNotifiers)
         {
             observatoryWorkers = new();
             observatoryNotifiers = new();
             var errorList = new List<(string, string?)>();
 
             string pluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
-
-            string? ownExe = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
-            FileSignatureInfo ownSig;
-
-            // This will throw if ownExe is null, but that's an error condition regardless.
-            using (var stream = File.OpenRead(ownExe ?? String.Empty)) 
-                ownSig = FileSignatureInfo.GetFromFileStream(stream);
-            
 
             if (Directory.Exists(pluginPath))
             {
@@ -255,127 +241,26 @@ namespace Observatory.PluginManagement
                 {
                     try
                     {
-                        PluginStatus pluginStatus = PluginStatus.SigCheckDisabled;
-                        bool loadOkay = true;
-
-                        if (!Properties.Core.Default.AllowUnsigned)
+                        string error = LoadPluginAssembly(dll, observatoryWorkers, observatoryNotifiers);
+                        if (!string.IsNullOrWhiteSpace(error))
                         {
-                            FileSignatureInfo pluginSig = null;
-                            if (ownSig.SigningCertificate != null)
-                            {
-                                using (var stream = File.OpenRead(dll))
-                                    pluginSig = FileSignatureInfo.GetFromFileStream(stream);
-
-                                if (pluginSig.SigningCertificate != null)
-                                {
-                                    if (pluginSig.SigningCertificate.Thumbprint == ownSig.SigningCertificate.Thumbprint)
-                                    {
-                                        pluginStatus = PluginStatus.Signed;
-                                    }
-                                    else if (pluginSig.State == SignatureState.SignedAndTrusted)
-                                    {
-                                        pluginStatus = PluginStatus.SignedThirdParty;
-                                    }
-                                    else if (Properties.Core.Default.SignaturesAllowed.Contains(pluginSig.SigningCertificate.Thumbprint))
-                                    {
-                                        pluginStatus = PluginStatus.AllowedSignature;
-                                    }
-                                    else
-                                    {
-                                        pluginStatus = PluginStatus.InvalidSignature;
-                                    }
-                                }
-                                else
-                                {
-                                    pluginStatus = PluginStatus.Unsigned;
-                                }
-                            }
-                            else
-                            {
-                                pluginStatus = PluginStatus.NoCert;
-                            }
-
-                            if (RequiresUserAcceptance(pluginStatus))
-                            {
-                                string pluginHash = ComputeSha512Hash(dll);
-                                var dllBaseName = Path.GetFileName(dll);
-                                string warning;
-                                if (pluginSig?.SigningCertificate != null)
-                                {
-                                    // We have a cert but its thumbprint is not the same as Core's -- so it's third party; ask if we should allow ALL plugins with this thumbprint.
-                                    warning = $"Unable to confirm signature of plugin library {dllBaseName}.\r\n\r\n";
-                                    warning += "Please ensure that you trust the source of this plugin before loading it. Details about the signature:\r\n\r\n";
-                                    warning += $"Signer: {pluginSig.SigningCertificate.Subject}\r\n";
-                                    warning += $"Thumbprint: {pluginSig.SigningCertificate.Thumbprint}\r\n\r\n";
-                                    warning += "Do you wish to allow this signature? If you accept this signature, all plugins with this signature will be accepted and you will not be asked again.\r\n\r\n";
-
-                                    var response = MessageBox.Show(warning, "Plugin Signature Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-
-                                    if (response == DialogResult.OK)
-                                    {
-                                        pluginStatus = PluginStatus.AllowedSignature;
-                                        Properties.Core.Default.SignaturesAllowed.Add(pluginSig.SigningCertificate.Thumbprint);
-                                        SettingsManager.Save();
-                                    }
-                                    else
-                                    {
-                                        loadOkay = false;
-                                    }
-                                }
-                                else if (!Properties.Core.Default.UnsignedAllowed.Contains(pluginHash))
-                                {
-                                    // Unsigned; ask user to accept this file version (based on the file hash). Note that every time the file is updated,
-                                    // it will trigger a re-prompt as the new version will have a new hash.
-                                    warning = $"Plugin library {dllBaseName} has no signature.\r\n\r\n";
-                                    warning += "Please ensure that you trust the source of this plugin before loading it.\r\n\r\n";
-                                    warning += "Do you wish to continue loading the plugin? If you load this plugin you will not be asked again for this version of the plugin.";
-
-                                    var response = MessageBox.Show(warning, "Plugin Signature Warning", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
-
-                                    if (response == DialogResult.OK)
-                                    {
-                                        Properties.Core.Default.UnsignedAllowed.Add(pluginHash);
-                                        SettingsManager.Save();
-                                    }
-                                    else
-                                    {
-                                        loadOkay = false;
-                                    }
-                                }
-                            }
-                        }
-
-                        if (loadOkay)
-                        {
-                            string error = LoadPluginAssembly(dll, observatoryWorkers, observatoryNotifiers, pluginStatus);
-                            if (!string.IsNullOrWhiteSpace(error))
-                            {
-                                errorList.Add((error, string.Empty));
-                            }
+                            errorList.Add((error, string.Empty));
                         }
                     }
                     catch (Exception ex)
                     {
                         errorList.Add(($"ERROR: {new FileInfo(dll).Name}, {ex.Message}", ex.StackTrace ?? String.Empty));
-                        LoadPlaceholderPlugin(dll, PluginStatus.InvalidLibrary, observatoryNotifiers);
+                        _pluginStatus.Add(LoadPlaceholderPlugin(dll, observatoryNotifiers), PluginStatus.InvalidLibrary);
                     }
                 }
             }
             return errorList;
         }
 
-        private static bool RequiresUserAcceptance(PluginStatus pluginStatus)
-        {
-            return pluginStatus != PluginStatus.Signed
-                && pluginStatus != PluginStatus.SignedThirdParty
-                && pluginStatus != PluginStatus.AllowedSignature
-                && pluginStatus != PluginStatus.NoCert;
-        }
-
         public void ObservatoryReady()
         {
-            var workers = EnabledWorkerPlugins.Select(p => p.plugin);
-            var notifiers = EnabledNotifyPlugins.Select(p => p.plugin);
+            var workers = EnabledWorkerPlugins;
+            var notifiers = EnabledNotifyPlugins;
 
             foreach (IObservatoryPlugin plugin in workers.Concat<IObservatoryPlugin>(notifiers))
             {
@@ -418,7 +303,7 @@ namespace Observatory.PluginManagement
             }
         }
 
-        private static string LoadPluginAssembly(string dllPath, List<(IObservatoryWorker plugin, PluginStatus signed)> workers, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers, PluginStatus pluginStatus)
+        private string LoadPluginAssembly(string dllPath, List<IObservatoryWorker> workers, List<IObservatoryNotifier> notifiers)
         {
             string recursionGuard = string.Empty;
 
@@ -470,43 +355,58 @@ namespace Observatory.PluginManagement
                 types = Array.Empty<Type>();
             }
 
-            IEnumerable<Type> workerTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryWorker)));
-            foreach (Type worker in workerTypes)
+            var frameworkRef = pluginAssembly.GetReferencedAssemblies().Where(a => a.Name == "ObservatoryFramework");
+
+            if (frameworkRef.Any())
             {
-                ConstructorInfo? constructor = worker.GetConstructor(Array.Empty<Type>());
-                if (constructor != null)
+                var status = frameworkRef.First().Version?.Major >= 1 ? PluginStatus.OK : PluginStatus.Outdated;
+
+                IEnumerable<Type> workerTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryWorker)));
+                foreach (Type worker in workerTypes)
                 {
-                    object instance = constructor.Invoke(Array.Empty<object>());
-                    workers.Add(((instance as IObservatoryWorker)!, pluginStatus));
-                    if (instance is IObservatoryNotifier)
+                    ConstructorInfo? constructor = worker.GetConstructor(Array.Empty<Type>());
+                    if (constructor != null)
                     {
-                        // This is also a notifier; add to the notifier list as well, so the work and notifier are
-                        // the same instance and can share state.
-                        notifiers.Add(((instance as IObservatoryNotifier)!, pluginStatus));
+                        object instance = constructor.Invoke(Array.Empty<object>());
+                        workers.Add((instance as IObservatoryWorker)!);
+                        if (instance is IObservatoryNotifier)
+                        {
+                            // This is also a notifier; add to the notifier list as well, so the work and notifier are
+                            // the same instance and can share state.
+                            notifiers.Add((instance as IObservatoryNotifier)!);
+                        }
+                        _pluginStatus.Add(instance as IObservatoryPlugin, status);
+                        pluginCount++;
                     }
-                    pluginCount++;
                 }
-            }
 
-            // Filter out items which are also workers as we've already created them above.
-            var notifyTypes = types.Where(t =>
-                    t.IsAssignableTo(typeof(IObservatoryNotifier)) && !t.IsAssignableTo(typeof(IObservatoryWorker)));
-            foreach (Type notifier in notifyTypes)
-            {
-                ConstructorInfo? constructor = notifier.GetConstructor(Array.Empty<Type>());
-                if (constructor != null)
+                // Filter out items which are also workers as we've already created them above.
+                var notifyTypes = types.Where(t =>
+                        t.IsAssignableTo(typeof(IObservatoryNotifier)) && !t.IsAssignableTo(typeof(IObservatoryWorker)));
+                foreach (Type notifier in notifyTypes)
                 {
-                    object instance = constructor.Invoke(Array.Empty<object>());
-                    notifiers.Add(((instance as IObservatoryNotifier)!, pluginStatus));
-                    pluginCount++;
+                    ConstructorInfo? constructor = notifier.GetConstructor(Array.Empty<Type>());
+                    if (constructor != null)
+                    {
+                        object instance = constructor.Invoke(Array.Empty<object>());
+                        notifiers.Add((instance as IObservatoryNotifier)!);
+                        _pluginStatus.Add(instance as IObservatoryPlugin, status);
+                        pluginCount++;
+                    }
+                }
+
+                if (pluginCount == 0)
+                {
+                    err += $"ERROR: Library '{dllPath}' contains no suitable interfaces.";
+                    _pluginStatus.Add(LoadPlaceholderPlugin(dllPath, notifiers), PluginStatus.InvalidPlugin);
                 }
             }
-
-            if (pluginCount == 0)
+            else
             {
-                err += $"ERROR: Library '{dllPath}' contains no suitable interfaces.";
-                LoadPlaceholderPlugin(dllPath, PluginStatus.InvalidPlugin, notifiers);
+                err += $"ERROR: Library '{dllPath}' is not an Observatory Plugin.";
+                _pluginStatus.Add(LoadPlaceholderPlugin(dllPath, notifiers), PluginStatus.InvalidPlugin);
             }
+            
 
             return err;
         }
@@ -516,29 +416,22 @@ namespace Observatory.PluginManagement
             core.Shutdown();
         }
 
-        private static void LoadPlaceholderPlugin(string dllPath, PluginStatus pluginStatus, List<(IObservatoryNotifier plugin, PluginStatus signed)> notifiers)
+        private static IObservatoryPlugin LoadPlaceholderPlugin(string dllPath, List<IObservatoryNotifier> notifiers)
         {
             PlaceholderPlugin placeholder = new(new FileInfo(dllPath).Name);
-            notifiers.Add((placeholder, pluginStatus));
+            notifiers.Add(placeholder);
+            return placeholder;
         }
 
         /// <summary>
-        /// Possible plugin load results and signature statuses.
+        /// Possible plugin load results.
         /// </summary>
         public enum PluginStatus
         {
             /// <summary>
-            /// Plugin valid and signed with matching certificate.
+            /// Plugin valid.
             /// </summary>
-            Signed,
-            /// <summary>
-            /// Plugin valid but not signed with any certificate.
-            /// </summary>
-            Unsigned,
-            /// <summary>
-            /// Plugin valid but not signed with valid certificate.
-            /// </summary>
-            InvalidSignature,
+            OK,
             /// <summary>
             /// Plugin invalid and cannot be loaded. Possible version mismatch.
             /// </summary>
@@ -548,21 +441,11 @@ namespace Observatory.PluginManagement
             /// </summary>
             InvalidLibrary,
             /// <summary>
-            /// Plugin valid but executing assembly has no certificate to match against.
+            /// Plugin was built using an older Framwork with breaking changes.
             /// </summary>
-            NoCert,
-            /// <summary>
-            /// Plugin signature checks disabled.
-            /// </summary>
-            SigCheckDisabled,
-            /// <summary>
-            /// Plugin is signed, but is third-party and has been allowed by the user.
-            /// </summary>
-            AllowedSignature,
-            /// <summary>
-            /// Plugin is provided by a third party and the signature is trusted.
-            /// </summary>
-            SignedThirdParty,
+            Outdated,
+            Errored
+                
         }
     }
 }
