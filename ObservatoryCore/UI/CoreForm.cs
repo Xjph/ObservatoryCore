@@ -10,7 +10,6 @@ namespace Observatory.UI
 {
     public partial class CoreForm : Form
     {
-
         private AboutInfo _aboutCore = new AboutInfo()
         {
             FullName = "Elite Observatory Core",
@@ -18,7 +17,12 @@ namespace Observatory.UI
             Description = "A tool for reading/monitoring Elite Dangerous journals for interesting objects."
                 + Environment.NewLine
                 + Environment.NewLine
-                + "If you like this tool, consider making a one-time donation via PayPal, or ongoing via Patreon!",
+                + "If you like this tool, consider making a one-time donation via PayPal, or ongoing via Patreon!"
+                + Environment.NewLine
+                + Environment.NewLine
+                + "With special thanks to my Patrons:"
+                + Environment.NewLine
+                + string.Join(Environment.NewLine, _patrons),
             AuthorName = "Vithigar",
             Links = new()
             {
@@ -28,6 +32,19 @@ namespace Observatory.UI
                 new AboutLink("Donate via Patreon", "https://www.patreon.com/vithigar"),
             }
         };
+
+        private static string[] _patrons = 
+        [
+            "  Slegnor",
+            "  ObediahJoel",
+            "  Doctor Nozimo",
+            "  Arx", 
+            "  pepčok", 
+            "  Seffyroff",
+            "  KPTRamius",
+            "  Markus H", 
+            "  McMuttons"
+        ];
 
         private readonly ThemeManager themeManager;
 
@@ -53,29 +70,20 @@ namespace Observatory.UI
             DoubleBuffered = true;
             InitializeComponent();
 
-            PopulateDropdownOptions();
-            PopulateNativeSettings();
-
-            ColourListHeader(ref PluginList, Color.DarkSlateGray, Color.LightGray);
-            PopulatePluginList();
-            FitColumns();
             string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0";
             Text += $" - v{version}";
-
-            DisableOverriddenNotification();
 
             themeManager = ThemeManager.GetInstance;
             themeManager.CurrentTheme = Properties.Core.Default.Theme;
             themeManager.RegisterControl(this);
-
-            foreach (var theme in themeManager.GetThemes)
-            {
-                ThemeDropdown.Items.Add(theme);
-            }
-            ThemeDropdown.SelectedItem = themeManager.CurrentTheme;
+            
             CreatePluginTabs();
+            CreatePluginList();
             RestoreSavedTab();
             CheckUpdate();
+
+            LogMonitor.GetInstance.SetLastEventLabel(LastEvent);
+            LogMonitor.GetInstance.SetTotalEventLabel(TotalEvents);
         }
 
         public void FocusPlugin(string pluginShortName)
@@ -87,6 +95,18 @@ namespace Observatory.UI
                 CoreTabControl.SelectedTab = pluginTab;
                 ResumeDrawing(this);
             }
+        }
+
+        private void CreatePluginList()
+        {
+            var pluginList = new PluginList(PluginManager.GetInstance.AllPlugins);
+
+            pluginList.Location = new(0, 0);
+            pluginList.Size = CoreTabPanel.Size;
+            pluginList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pluginList.AutoScroll = true;
+            ThemeManager.GetInstance.RegisterControl(pluginList);
+            CoreTabPanel.Controls.Add(pluginList);
         }
 
         private TabPage? FindMenuItemForPlugin(string pluginShortName)
@@ -109,74 +129,13 @@ namespace Observatory.UI
             {
                 LogMonitor.GetInstance.Stop();
                 ToggleMonitorButton.Text = "Start Monitor";
+                MonitorStatus.Text = "Current Monitor Status: Stopped";
             }
             else
             {
                 LogMonitor.GetInstance.Start();
                 ToggleMonitorButton.Text = "Stop Monitor";
-            }
-        }
-
-        private static void ColourListHeader(ref NoHScrollList list, Color backColor, Color foreColor)
-        {
-            list.OwnerDraw = true;
-
-            list.DrawColumnHeader +=
-                new DrawListViewColumnHeaderEventHandler
-                (
-                    (sender, e) => HeaderDraw(sender, e, backColor, foreColor)
-                );
-            list.DrawItem += new DrawListViewItemEventHandler(BodyDraw);
-        }
-
-        private static void HeaderDraw(object? _, DrawListViewColumnHeaderEventArgs e, Color backColor, Color foreColor)
-        {
-            using (SolidBrush backBrush = new(backColor))
-            {
-                e.Graphics.FillRectangle(backBrush, e.Bounds);
-            }
-
-            using (Pen borderBrush = new(Color.Black))
-            {
-                e.Graphics.DrawLine(borderBrush, e.Bounds.Left, e.Bounds.Top, e.Bounds.Left, e.Bounds.Bottom);
-                e.Graphics.DrawLine(borderBrush, e.Bounds.Right, e.Bounds.Top, e.Bounds.Right, e.Bounds.Bottom);
-            }
-
-            if (e.Font != null && e.Header != null)
-                using (SolidBrush foreBrush = new(foreColor))
-                {
-                    var format = new StringFormat
-                    {
-                        Alignment = (StringAlignment)e.Header.TextAlign,
-                        LineAlignment = StringAlignment.Center
-                    };
-
-                    var paddedBounds = new Rectangle(e.Bounds.X + 2, e.Bounds.Y + 2, e.Bounds.Width - 4, e.Bounds.Height - 4);
-
-                    e.Graphics.DrawString(e.Header?.Text, e.Font, foreBrush, paddedBounds, format);
-                }
-        }
-
-        private static void BodyDraw(object? _, DrawListViewItemEventArgs e)
-        {
-            e.DrawDefault = true;
-        }
-
-        private void PluginList_Resize(object sender, EventArgs e)
-        {
-            FitColumns();
-        }
-
-        private void FitColumns()
-        {
-            // Might be uninitialised if user hasn't visited the Core tab this session.
-            if (PluginList.Columns.Count > 0)
-            {
-                int totalWidth = 0;
-                foreach (ColumnHeader col in PluginList.Columns)
-                    totalWidth += col.Width;
-
-                PluginList.Columns[3].Width += PluginList.Width - totalWidth; // - SystemInformation.VerticalScrollBarWidth;
+                MonitorStatus.Text = "Current Monitor Status: Active";
             }
         }
 
@@ -332,34 +291,16 @@ namespace Observatory.UI
                 ToggleMonitorButton_Click(ToggleMonitorButton, EventArgs.Empty);
         }
 
-        private void PluginFolderButton_Click(object sender, EventArgs e)
-        {
-            var pluginDir = Application.StartupPath + "plugins";
-
-            if (!Directory.Exists(pluginDir))
-            {
-                Directory.CreateDirectory(pluginDir);
-            }
-
-            var fileExplorerInfo = new ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
-            Process.Start(fileExplorerInfo);
-        }
-
         private void CoreForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             // Save location
             Properties.Core.Default.MainWindowPosition = Location;
             Properties.Core.Default.MainWindowSize = Size;
-            Properties.Core.Default.CoreSplitterDistance = CoreSplitter.SplitterDistance;
             SettingsManager.Save();
         }
 
         private void CoreForm_Load(object sender, EventArgs e)
         {
-            CoreSplitter.SplitterDistance = Math.Clamp(
-                Properties.Core.Default.CoreSplitterDistance,
-                20,
-                Math.Max(CoreSplitter.Height - 20, 20)); // Edge case exception.
             var savedLocation = Properties.Core.Default.MainWindowPosition;
             var savedSize = Properties.Core.Default.MainWindowSize;
 
@@ -423,6 +364,137 @@ namespace Observatory.UI
         private void CoreForm_ResizeEnd(object sender, EventArgs e)
         {
             ResumeLayout();
+        }
+
+        #region Plugins
+        private Dictionary<ListViewItem, IObservatoryPlugin>? ListedPlugins;
+        private bool loading = true; // Suppress settings updates due to initializing the listview.
+
+        
+        private void CreatePluginTabs()
+        {
+            var uiPlugins = PluginManager.GetInstance.AllUIPlugins;
+            string colSize = Properties.Core.Default.ColumnSizing;
+            List<ColumnSizing>? columnSizing = null;
+            if (!string.IsNullOrWhiteSpace(colSize))
+            {
+                try
+                {
+                    columnSizing = JsonSerializer.Deserialize<List<ColumnSizing>>(colSize);
+                }
+                catch
+                {
+                    // Failed deserialization means bad value, blow it away.
+                    Properties.Core.Default.ColumnSizing = string.Empty;
+                    SettingsManager.Save();
+                }
+            }
+
+            PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList, columnSizing ?? []);
+        }
+
+        internal void OpenSettings(IObservatoryPlugin plugin)
+        {
+            if (SettingsForms.ContainsKey(plugin))
+            {
+                SettingsForms[plugin].Activate();
+            }
+            else
+            {
+                SettingsForm settingsForm = new(plugin);
+                SettingsForms.Add(plugin, settingsForm);
+                settingsForm.FormClosed += (_, _) => SettingsForms.Remove(plugin);
+                settingsForm.Show();
+            }
+        }
+
+        private void PluginsEnabledStateFromSettings()
+        {
+            if (ListedPlugins == null) return;
+
+            string pluginsEnabledStr = Properties.Core.Default.PluginsEnabled;
+            Dictionary<string, bool>? pluginsEnabled = null;
+            if (!string.IsNullOrWhiteSpace(pluginsEnabledStr))
+            {
+                try
+                {
+                    pluginsEnabled = JsonSerializer.Deserialize<Dictionary<string, bool>>(pluginsEnabledStr);
+                }
+                catch
+                {
+                    // Failed deserialization means bad value, blow it away.
+                    Properties.Core.Default.PluginsEnabled = string.Empty;
+                    SettingsManager.Save();
+                }
+            }
+
+            if (pluginsEnabled == null) return;
+
+            foreach (var p in ListedPlugins)
+            {
+                if (pluginsEnabled.ContainsKey(p.Value.Name) && !pluginsEnabled[p.Value.Name])
+                {
+                    // Plugin is disabled.
+                    p.Key.Checked = false; // This may trigger the listview ItemChecked event.
+                    PluginManager.GetInstance.SetPluginEnabled(p.Value, false);
+                }
+            }
+        }
+
+        private Dictionary<IObservatoryPlugin, SettingsForm> SettingsForms = [];
+
+        private static void PluginExport(IObservatoryPlugin plugin)
+        {
+            if (plugin != null)
+            {
+                // Custom export method handled inside ExportCSV
+                if (Properties.Core.Default.ExportFormat == 0 || HasCustomExport(plugin))
+                    ExportHandler.ExportCSV(plugin);
+                else
+                    ExportHandler.ExportXlsx(plugin);
+            }
+        }
+
+        private void PluginClear(IObservatoryPlugin plugin)
+        {
+            if (plugin != null && plugin.PluginUI.PluginUIType == PluginUI.UIType.Basic)
+            {
+                plugin.PluginUI.DataGrid.Clear();
+            }
+        }
+
+        private void CoreTabControl_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                for (int i = 0; i < pluginList.Count; i++)
+                {
+                    if (CoreTabControl.GetTabRect(i + 1).Contains(e.Location))
+                    {
+                        var pluginPanel = CoreTabControl.TabPages[i + 1];
+                        var clickedPlugin = pluginList[pluginPanel];
+
+                        PluginContextMenu pluginContextMenu = new(clickedPlugin, pluginPanel);
+                        pluginContextMenu.Show((Control)sender, e.Location);
+
+                    }
+                }
+            }
+        }
+        #endregion
+
+        private CoreSettings? _coreSettings;
+
+        private void SettingsButton_Click(object sender, EventArgs e)
+        {
+            if (_coreSettings == null || _coreSettings.IsDisposed)
+            {
+                _coreSettings = new();
+                ThemeManager.GetInstance.RegisterControl(_coreSettings);
+            }
+
+            _coreSettings.Show();
+            _coreSettings.Activate();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Observatory.Framework;
 using Observatory.Framework.Interfaces;
+using System.Net;
 using System.Text.Json;
 
 namespace Observatory.Herald
@@ -66,6 +67,7 @@ namespace Observatory.Herald
         public void Load(IObservatoryCore observatoryCore)
         {
             Core = observatoryCore;
+            heraldSettings.ApiEndpoint = "https://api.observatory.xjph.net/NotARealEndpoint";
             var speechManager = new SpeechRequestManager(
                 heraldSettings, observatoryCore.HttpClient, observatoryCore.PluginStorageFolder, observatoryCore.GetPluginErrorLogger(this));
             heraldSpeech = new HeraldQueue(speechManager, observatoryCore.GetPluginErrorLogger(this), observatoryCore);

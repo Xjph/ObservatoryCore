@@ -55,6 +55,7 @@ namespace Observatory.NativeNotification
                         Volume = Properties.Core.Default.VoiceVolume,
                         Rate = Properties.Core.Default.VoiceRate
                     };
+                    speech.InjectOneCoreVoices();
                     speech.SelectVoice(voice);
                     string filename = Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav";
                     speech.SetOutputToWaveFile(filename);

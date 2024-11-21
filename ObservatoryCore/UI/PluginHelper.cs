@@ -10,21 +10,21 @@ namespace Observatory.UI
 {
     internal class PluginHelper
     {
-        internal static void CreatePluginTabs(TabControl tabs, IEnumerable<(IObservatoryWorker plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<TabPage, IObservatoryPlugin> pluginList, List<ColumnSizing> columnSizings)
+        internal static void CreatePluginTabs(TabControl tabs, IEnumerable<IObservatoryWorker> plugins, Dictionary<TabPage, IObservatoryPlugin> pluginList, List<ColumnSizing> columnSizings)
         {
-            foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
+            foreach (var plugin in plugins.OrderBy(p => p.ShortName))
             {
-                var newTab = AddPlugin(tabs, plugin.plugin, columnSizings);
-                pluginList.Add(newTab, plugin.plugin);
+                var newTab = AddPlugin(tabs, plugin, columnSizings);
+                pluginList.Add(newTab, plugin);
             }
         }
 
-        internal static void CreatePluginTabs(TabControl tabs, IEnumerable<(IObservatoryNotifier plugin, PluginManager.PluginStatus signed)> plugins, Dictionary<TabPage, IObservatoryPlugin> pluginList, List<ColumnSizing> columnSizings)
+        internal static void CreatePluginTabs(TabControl tabs, IEnumerable<IObservatoryNotifier> plugins, Dictionary<TabPage, IObservatoryPlugin> pluginList, List<ColumnSizing> columnSizings)
         {
-            foreach (var plugin in plugins.OrderBy(p => p.plugin.ShortName))
+            foreach (var plugin in plugins.OrderBy(p => p.ShortName))
             {
-                var newTab = AddPlugin(tabs, plugin.plugin, columnSizings);
-                pluginList.Add(newTab, plugin.plugin);
+                var newTab = AddPlugin(tabs, plugin, columnSizings);
+                pluginList.Add(newTab, plugin);
             }
         }
 

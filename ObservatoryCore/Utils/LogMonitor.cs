@@ -109,6 +109,7 @@ namespace Observatory.Utils
 
                 ReportErrors(readErrors);
                 SetLogMonitorState(currentState & ~LogMonitorState.Batch & ~LogMonitorState.BatchCancelled);
+                UpdateEventLabels();
             };
 
             return ReadAllJournals;
@@ -176,6 +177,7 @@ namespace Observatory.Utils
 
             ReportErrors(ProcessLines(linesToRead, "Pre-read"));
             SetLogMonitorState(currentState & ~LogMonitorState.PreRead);
+            UpdateEventLabels();
         }
 
         public JournalEventArgs DeserializeAndInvoke(string line, bool invoke = true)
@@ -185,6 +187,8 @@ namespace Observatory.Utils
             {
                 eventType = "JournalBase";
             }
+            lastEvent = eventType;
+            totalEvents++;
 
             var journalEvent = DeserializeToEventArgs(eventType, line);
 
@@ -250,6 +254,10 @@ namespace Observatory.Utils
             return logDirectory;
         }
 
+        public void SetLastEventLabel(Label label) => lastLabel = label;
+
+        public void SetTotalEventLabel(Label label) => totalLabel = label;
+
         #endregion
 
         #region Public Events
@@ -282,10 +290,20 @@ namespace Observatory.Utils
             "ModuleInfo",
             "ShipLocker"
         ];
+        private string lastEvent = "None";
+        private ulong totalEvents = 0;
+        private Label? lastLabel = null;
+        private Label? totalLabel = null;
 
         #endregion
 
         #region Private Methods
+
+        private void UpdateEventLabels()
+        {
+            lastLabel?.Invoke(() => lastLabel.Text = $"Last Journal Event Processed: {lastEvent}");
+            totalLabel?.Invoke(() => totalLabel.Text = $"Total Journal Lines Processed: {totalEvents:N0}");
+        }
 
         private void SetLogMonitorState(LogMonitorState newState)
         {
@@ -338,9 +356,6 @@ namespace Observatory.Utils
 
         private JournalEventArgs DeserializeToEventArgs(string eventType, string line)
         {
-
-            
-            
             try
             {
                 var eventClass = journalTypes[eventType];
@@ -440,6 +455,8 @@ namespace Observatory.Utils
                     ReportErrors([(ex, eventArgs.Name ?? string.Empty, line)]);
                 }
             }
+
+            UpdateEventLabels();
 
             currentLine[eventArgs.FullPath] = fileContent.Count;
         }

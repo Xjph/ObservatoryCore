@@ -46,7 +46,7 @@ namespace Observatory.Framework.Files.Journal
         public ulong SystemAddress { get; init; }
 
         [JsonConverter(typeof(StarPosConverter))]
-        public (double x, double y, double z) StarPos { get; init; }
+        public StarPosition StarPos { get; init; }
         public string SystemAllegiance { get; init; }
         public string SystemEconomy { get; init; }
         public string SystemEconomy_Localised { get; init; }

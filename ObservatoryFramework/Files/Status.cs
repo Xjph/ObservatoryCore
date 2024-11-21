@@ -22,7 +22,7 @@ namespace Observatory.Framework.Files
         /// Current allocation of power distribution (pips) between SYS, ENG, and WEP, in "half pip" increments.
         /// </summary>
         [JsonConverter(typeof(PipConverter))]
-        public (int Sys, int Eng, int Wep) Pips { get; init; }
+        public Pips Pips { get; init; }
         /// <summary>
         /// Currently selected fire group.
         /// </summary>
