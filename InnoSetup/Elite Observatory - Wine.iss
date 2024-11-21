@@ -50,7 +50,7 @@ Name: "Core"; Description: "Core Elite Observatory Application"; Flags: fixed; T
 Name: "Plugins"; Description: "Optional Observatory Plugins"; Types: Full
 Name: "Plugins\Explorer"; Description: "Explorer: Plugin for finding interesting objects while exploring."; Types: Full
 Name: "Plugins\Botanist"; Description: "Botanist: Plugin for tracking surface biological signals scanned while on foot."; Types: Full
-Name: "Plugins\Herald"; Description: "Herald: Plugin for cloud-based high quality speech notifications via Microsoft Azure Cognitive Services."; Types: Full
+;Name: "Plugins\Herald"; Description: "Herald: Plugin for cloud-based high quality speech notifications via Microsoft Azure Cognitive Services."; Types: Full
 
 [Dirs]
 Name: "{app}\plugins"; Permissions: users-modify
@@ -62,7 +62,7 @@ Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryExp
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\lua54.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\KeraLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\NLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
+;Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryBotanist.dll"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
 
 [Icons]
