@@ -26,7 +26,7 @@ namespace Observatory.Explorer
             ExplorerWorker = explorerWorker;
             ObservatoryCore = core;
             Results = results;
-            CustomCriteriaManager = new(core.GetPluginErrorLogger(explorerWorker), SendNotification);
+            CustomCriteriaManager = new(core.GetPluginErrorLogger(explorerWorker), HandleCustomNotification);
             CriteriaLastModified = new DateTime(0);
         }
 
@@ -342,7 +342,6 @@ namespace Observatory.Explorer
             NotificationArgs args = new()
             {
                 Title = title,
-                TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{title}</voice></speak>",
                 Detail = detail,
                 Sender = ExplorerWorker.AboutInfo.ShortName,
                 ExtendedDetails = extendedDetail,
@@ -350,6 +349,25 @@ namespace Observatory.Explorer
             };
 
             ObservatoryCore.SendNotification(args);
+        }
+
+        private void AddGridItem(string eventTime, string title, string detail, string extendedDetail)
+        {
+            ExplorerUIResults results = new()
+            {
+                BodyName = title,
+                Time = eventTime,
+                Description = detail,
+                Details = extendedDetail
+            };
+
+            ObservatoryCore.AddGridItem(ExplorerWorker, results);
+        }
+
+        private void HandleCustomNotification(string eventTime, string title, string detail, string extendedDetail)
+        {
+            SendNotification(title, detail, extendedDetail);
+            AddGridItem(eventTime, title, detail, extendedDetail);
         }
 
         private static string SplitOrdinalForSsml(string ordinalString)

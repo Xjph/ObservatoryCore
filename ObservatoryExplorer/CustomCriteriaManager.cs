@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Observatory.Framework.Files.Journal;
 using NLua;
-using System.Runtime.CompilerServices;
 
 namespace Observatory.Explorer
 {
@@ -19,10 +18,11 @@ namespace Observatory.Explorer
         private Dictionary<String,LuaFunction> CriteriaFunctions;
         private Dictionary<string, string> CriteriaWithErrors = new();
         Action<Exception, String> ErrorLogger;
-        private Action<string, string, string> NotificationMethod;
+        private Action<string, string, string, string> NotificationMethod;
         private uint ScanCount;
+        private string eventTime = string.Empty;
 
-        public CustomCriteriaManager(Action<Exception, String> errorLogger, Action<string, string, string> notificationMethod)
+        public CustomCriteriaManager(Action<Exception, String> errorLogger, Action<string, string, string, string> notificationMethod)
         {
             ErrorLogger = errorLogger;
             CriteriaFunctions = new();
@@ -30,7 +30,7 @@ namespace Observatory.Explorer
             NotificationMethod = notificationMethod;
         }
 
-        public void SendNotification(string title, string detail, string extendedDetail) => NotificationMethod(title, detail, extendedDetail);
+        public void SendNotification(string title, string detail, string extendedDetail) => NotificationMethod(eventTime, title, detail, extendedDetail);
 
         public void RefreshCriteria(string criteriaPath)
         {
@@ -538,27 +538,44 @@ namespace Observatory.Explorer
         public void CustomDiscovery(FSSDiscoveryScan scan) 
         {
             if (hasDiscoveryFunc)
+            {
+                StoreTimeString(scan);
                 DiscoveryFunction.Call(scan);
+            }
         }
         
-
         public void CustomAllBodies(FSSAllBodiesFound allBodies)
         {
-            if (hasAllBodiesFunc) 
+            if (hasAllBodiesFunc)
+            {
+                StoreTimeString(allBodies);
                 AllBodiesFunction.Call(allBodies);
+            }
+                
         }
-        
 
         public void CustomJump(FSDJump jump)
         {
-            if (hasJumpFunc) 
+            if (hasJumpFunc)
+            {
+                StoreTimeString(jump);
                 JumpFunction.Call(jump);
+            }
         }
 
         public void CustomSignals(SAASignalsFound signalsFound)
         {
-            if (hasBodySignalsFunc) 
+            if (hasBodySignalsFunc)
+            {
+                StoreTimeString(signalsFound);
                 BodySignalsFunction.Call(signalsFound);
+            }
+                
+        }
+
+        private void StoreTimeString(JournalBase journal)
+        {
+            eventTime = journal.TimestampDateTime.ToString("s").Replace('T', ' ');
         }
 
         private class Annotation
