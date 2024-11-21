@@ -158,11 +158,16 @@ namespace Observatory.UI
             foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
                 VoiceDropdown.Items.Add(voice);
 
-            foreach (var device in AudioHandler.GetDevices())
-                AudioDeviceDropdown.Items.Add(device);
-            var deviceIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
-            // Select first device if not found.
-            AudioDeviceDropdown.SelectedIndex = Math.Max(0, deviceIndex);
+            var audioDevices = AudioHandler.GetDevices();
+
+            if (audioDevices.Count > 0)
+            {
+                foreach (var device in AudioHandler.GetDevices())
+                    AudioDeviceDropdown.Items.Add(device);
+                var deviceIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
+                // Select first device if not found.
+                AudioDeviceDropdown.SelectedIndex = Math.Max(0, deviceIndex);
+            }
 #endif
         }
 
