@@ -2,7 +2,6 @@
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System.Configuration;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
