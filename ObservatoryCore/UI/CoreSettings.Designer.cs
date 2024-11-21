@@ -627,8 +627,9 @@
             CoreSettingsOK.Name = "CoreSettingsOK";
             CoreSettingsOK.Size = new Size(75, 23);
             CoreSettingsOK.TabIndex = 36;
-            CoreSettingsOK.Text = "OK";
+            CoreSettingsOK.Text = "Close";
             CoreSettingsOK.UseVisualStyleBackColor = false;
+            CoreSettingsOK.Click += CoreSettingsOK_Click;
             // 
             // CoreSettings
             // 

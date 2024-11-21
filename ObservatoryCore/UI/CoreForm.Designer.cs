@@ -45,6 +45,7 @@
             MonitorStatus = new Label();
             SettingsButton = new Button();
             UpdateLink = new LinkLabel();
+            BorderLabel = new Label();
             CoreTabControl.SuspendLayout();
             CoreTabPage.SuspendLayout();
             SuspendLayout();
@@ -54,7 +55,7 @@
             ReadAllButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ReadAllButton.FlatAppearance.BorderSize = 0;
             ReadAllButton.FlatStyle = FlatStyle.Flat;
-            ReadAllButton.Location = new Point(770, 869);
+            ReadAllButton.Location = new Point(770, 564);
             ReadAllButton.Name = "ReadAllButton";
             ReadAllButton.Size = new Size(75, 23);
             ReadAllButton.TabIndex = 33;
@@ -67,7 +68,7 @@
             ToggleMonitorButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ToggleMonitorButton.FlatAppearance.BorderSize = 0;
             ToggleMonitorButton.FlatStyle = FlatStyle.Flat;
-            ToggleMonitorButton.Location = new Point(667, 869);
+            ToggleMonitorButton.Location = new Point(667, 564);
             ToggleMonitorButton.Name = "ToggleMonitorButton";
             ToggleMonitorButton.Size = new Size(97, 23);
             ToggleMonitorButton.TabIndex = 32;
@@ -80,7 +81,7 @@
             ClearButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ClearButton.FlatAppearance.BorderSize = 0;
             ClearButton.FlatStyle = FlatStyle.Flat;
-            ClearButton.Location = new Point(586, 869);
+            ClearButton.Location = new Point(586, 564);
             ClearButton.Name = "ClearButton";
             ClearButton.Size = new Size(75, 23);
             ClearButton.TabIndex = 31;
@@ -93,7 +94,7 @@
             ExportButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ExportButton.FlatAppearance.BorderSize = 0;
             ExportButton.FlatStyle = FlatStyle.Flat;
-            ExportButton.Location = new Point(505, 869);
+            ExportButton.Location = new Point(505, 564);
             ExportButton.Name = "ExportButton";
             ExportButton.Size = new Size(75, 23);
             ExportButton.TabIndex = 30;
@@ -107,7 +108,7 @@
             AboutCore.FlatAppearance.BorderSize = 0;
             AboutCore.FlatStyle = FlatStyle.Flat;
             AboutCore.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            AboutCore.Location = new Point(16, 864);
+            AboutCore.Location = new Point(16, 559);
             AboutCore.Name = "AboutCore";
             AboutCore.Size = new Size(42, 28);
             AboutCore.TabIndex = 35;
@@ -127,7 +128,7 @@
             CoreTabControl.Name = "CoreTabControl";
             CoreTabControl.SelectedIndex = 0;
             CoreTabControl.SelectedTabColor = Color.Empty;
-            CoreTabControl.Size = new Size(833, 851);
+            CoreTabControl.Size = new Size(833, 546);
             CoreTabControl.TabColor = Color.Empty;
             CoreTabControl.TabIndex = 1;
             CoreTabControl.SelectedIndexChanged += CoreTabControl_SelectedIndexChanged;
@@ -142,26 +143,27 @@
             CoreTabPage.Controls.Add(LastEvent);
             CoreTabPage.Controls.Add(MonitorStatus);
             CoreTabPage.Controls.Add(SettingsButton);
+            CoreTabPage.Controls.Add(BorderLabel);
             CoreTabPage.Location = new Point(4, 24);
             CoreTabPage.Name = "CoreTabPage";
             CoreTabPage.Padding = new Padding(3);
-            CoreTabPage.Size = new Size(825, 823);
+            CoreTabPage.Size = new Size(825, 518);
             CoreTabPage.TabIndex = 0;
             CoreTabPage.Text = "Core";
             // 
             // CoreTabPanel
             // 
             CoreTabPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            CoreTabPanel.Location = new Point(3, 3);
+            CoreTabPanel.Location = new Point(6, 6);
             CoreTabPanel.Name = "CoreTabPanel";
-            CoreTabPanel.Size = new Size(817, 764);
+            CoreTabPanel.Size = new Size(811, 454);
             CoreTabPanel.TabIndex = 0;
             // 
             // TotalEvents
             // 
             TotalEvents.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             TotalEvents.AutoSize = true;
-            TotalEvents.Location = new Point(6, 800);
+            TotalEvents.Location = new Point(6, 495);
             TotalEvents.Name = "TotalEvents";
             TotalEvents.Size = new Size(171, 15);
             TotalEvents.TabIndex = 39;
@@ -171,7 +173,7 @@
             // 
             LastEvent.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             LastEvent.AutoSize = true;
-            LastEvent.Location = new Point(6, 785);
+            LastEvent.Location = new Point(6, 480);
             LastEvent.Name = "LastEvent";
             LastEvent.Size = new Size(192, 15);
             LastEvent.TabIndex = 38;
@@ -181,7 +183,7 @@
             // 
             MonitorStatus.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             MonitorStatus.AutoSize = true;
-            MonitorStatus.Location = new Point(6, 770);
+            MonitorStatus.Location = new Point(6, 465);
             MonitorStatus.Name = "MonitorStatus";
             MonitorStatus.Size = new Size(178, 15);
             MonitorStatus.TabIndex = 37;
@@ -192,7 +194,7 @@
             SettingsButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             SettingsButton.FlatAppearance.BorderSize = 0;
             SettingsButton.FlatStyle = FlatStyle.Flat;
-            SettingsButton.Location = new Point(717, 792);
+            SettingsButton.Location = new Point(717, 487);
             SettingsButton.Name = "SettingsButton";
             SettingsButton.Size = new Size(100, 23);
             SettingsButton.TabIndex = 36;
@@ -206,7 +208,7 @@
             UpdateLink.AutoSize = true;
             UpdateLink.Enabled = false;
             UpdateLink.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            UpdateLink.Location = new Point(60, 865);
+            UpdateLink.Location = new Point(60, 560);
             UpdateLink.Name = "UpdateLink";
             UpdateLink.Size = new Size(207, 32);
             UpdateLink.TabIndex = 34;
@@ -214,11 +216,20 @@
             UpdateLink.Text = "Update Available";
             UpdateLink.Visible = false;
             // 
+            // BorderLabel
+            // 
+            BorderLabel.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            BorderLabel.BorderStyle = BorderStyle.FixedSingle;
+            BorderLabel.Location = new Point(-5, 463);
+            BorderLabel.Name = "BorderLabel";
+            BorderLabel.Size = new Size(833, 60);
+            BorderLabel.TabIndex = 40;
+            // 
             // CoreForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(857, 904);
+            ClientSize = new Size(857, 599);
             Controls.Add(AboutCore);
             Controls.Add(UpdateLink);
             Controls.Add(CoreTabControl);
@@ -227,7 +238,7 @@
             Controls.Add(ToggleMonitorButton);
             Controls.Add(ReadAllButton);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MinimumSize = new Size(600, 300);
+            MinimumSize = new Size(595, 283);
             Name = "CoreForm";
             Text = "Elite Observatory Core";
             FormClosing += CoreForm_FormClosing;
@@ -258,5 +269,6 @@
         private Label TotalEvents;
         private Label LastEvent;
         private Label MonitorStatus;
+        private Label BorderLabel;
     }
 }
