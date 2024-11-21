@@ -269,6 +269,10 @@ namespace Observatory.Explorer
 
             CriteriaFunctions.Clear();
             CriteriaWithErrors.Clear();
+            hasAllBodiesFunc = false;
+            hasBodySignalsFunc = false;
+            hasDiscoveryFunc = false;
+            hasJumpFunc = false;
             var criteria = File.Exists(criteriaPath) ? File.ReadAllLines(criteriaPath) : Array.Empty<string>();
             StringBuilder script = new();
 
