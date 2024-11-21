@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Observatory.Framework.Files.Journal;
 using NLua;
-using System.Runtime.CompilerServices;
 
 namespace Observatory.Explorer
 {
