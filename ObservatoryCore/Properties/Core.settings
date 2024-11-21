@@ -92,7 +92,7 @@
     <Setting Name="NativeNotifyFontScale" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">100</Value>
     </Setting>
-    <Setting Name="PopoutLocation" Type="System.Collections.Specialized.StringCollection" Scope="User">
+    <Setting Name="PopoutLocation" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

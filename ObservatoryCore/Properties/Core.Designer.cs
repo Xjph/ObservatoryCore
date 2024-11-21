@@ -385,9 +385,10 @@ namespace Observatory.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        public global::System.Collections.Specialized.StringCollection PopoutLocation {
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string PopoutLocation {
             get {
-                return ((global::System.Collections.Specialized.StringCollection)(this["PopoutLocation"]));
+                return ((string)(this["PopoutLocation"]));
             }
             set {
                 this["PopoutLocation"] = value;
