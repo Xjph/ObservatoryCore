@@ -2,7 +2,6 @@
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System.Configuration;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -18,7 +17,12 @@ namespace Observatory.UI
             Description = "A tool for reading/monitoring Elite Dangerous journals for interesting objects."
                 + Environment.NewLine
                 + Environment.NewLine
-                + "If you like this tool, consider making a one-time donation via PayPal, or ongoing via Patreon!",
+                + "If you like this tool, consider making a one-time donation via PayPal, or ongoing via Patreon!"
+                + Environment.NewLine
+                + Environment.NewLine
+                + "With special thanks to my Patrons:"
+                + Environment.NewLine
+                + string.Join(Environment.NewLine, _patrons),
             AuthorName = "Vithigar",
             Links = new()
             {
@@ -28,6 +32,19 @@ namespace Observatory.UI
                 new AboutLink("Donate via Patreon", "https://www.patreon.com/vithigar"),
             }
         };
+
+        private static string[] _patrons = 
+        [
+            "  Slegnor",
+            "  ObediahJoel",
+            "  Doctor Nozimo",
+            "  Arx", 
+            "  pepčok", 
+            "  Seffyroff",
+            "  KPTRamius",
+            "  Markus H", 
+            "  McMuttons"
+        ];
 
         private readonly ThemeManager themeManager;
 
@@ -466,15 +483,15 @@ namespace Observatory.UI
         }
         #endregion
 
-        private CoreSettings _coreSettings = new();
+        private CoreSettings? _coreSettings;
 
         private void SettingsButton_Click(object sender, EventArgs e)
         {
             if (_coreSettings == null || _coreSettings.IsDisposed)
             {
                 _coreSettings = new();
+                ThemeManager.GetInstance.RegisterControl(_coreSettings);
             }
-            ThemeManager.GetInstance.RegisterControl(_coreSettings);
 
             _coreSettings.Show();
             _coreSettings.Activate();
