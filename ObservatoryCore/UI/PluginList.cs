@@ -21,7 +21,8 @@ namespace Observatory.UI
             { 
                 Text = "Plugins",
                 TextAlign = ContentAlignment.MiddleLeft,
-                Font = new Font(Font.FontFamily, Font.Size * 1.2f, FontStyle.Bold)
+                Font = new Font(Font.FontFamily, Font.Size * 1.2f, FontStyle.Bold),
+                AutoSize = true
             };
             AddWithLocation(_title, 0, 0);
             SetColumnSpan(_title, 2);
@@ -32,7 +33,8 @@ namespace Observatory.UI
                 {
                     Text = text,
                     Font = new Font(Font, FontStyle.Bold),
-                    TextAlign = ContentAlignment.MiddleLeft
+                    TextAlign = ContentAlignment.MiddleLeft,
+                    AutoSize = true
                 };
             };
 
@@ -177,6 +179,7 @@ namespace Observatory.UI
             {
                 ColumnStyles[3].SizeType = SizeType.AutoSize;
             }
+            
         }
 
         private void AddWithLocation(Control control, int row, int column)
