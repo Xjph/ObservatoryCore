@@ -2,6 +2,7 @@
 using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.Utils;
+using System.Text.Json;
 
 namespace Observatory.UI
 {
@@ -73,31 +74,25 @@ namespace Observatory.UI
 
         private void RestorePosition()
         {
-            var savedPositions = Properties.Core.Default.PopoutLocation;
-            if (savedPositions != null)
+            Dictionary<string, PopoutPosition> savedPositions;
+            try
             {
-                foreach (var position in savedPositions)
-                {
-                    if (position?.StartsWith(Text) ?? false)
-                    {
-                        var values = position.Split('\u001f');
-                        if (values.Length == 5
-                            && int.TryParse(values[1], out int locationX)
-                            && int.TryParse(values[2], out int locationY)
-                            && int.TryParse(values[3], out int sizeW)
-                            && int.TryParse(values[4], out int sizeH))
-                        {
+                savedPositions = JsonSerializer.Deserialize<Dictionary<string, PopoutPosition>>
+                    (Properties.Core.Default.PopoutLocation) ?? [];
+            }
+            catch
+            {
+                savedPositions = [];
+            }
 
-                            Point savedLocation = new(locationX, locationY);
-                            Size savedSize = new(sizeW, sizeH);
-                            if (WithinScreenBounds(savedLocation, savedSize))
-                            {
-                                Size = savedSize;
-                                Location = savedLocation;
-                            }
-                        }
-                        break;
-                    }
+            if (savedPositions.TryGetValue(Text, out PopoutPosition? value) && value != null)
+            {
+                Point savedLocation = new(value.X, value.Y);
+                Size savedSize = new(value.Width, value.Height);
+                if (WithinScreenBounds(savedLocation, savedSize))
+                {
+                    Size = savedSize;
+                    Location = savedLocation;
                 }
             }
         }
@@ -123,23 +118,21 @@ namespace Observatory.UI
 
         private void SavePosition()
         {
-            var positionString = $"{Text}\u001f{Location.X}\u001f{Location.Y}\u001f{Width}\u001f{Height}";
-            bool found = false;
-            var savedPositions = Properties.Core.Default.PopoutLocation;
-            for (int i = 0; i < savedPositions?.Count; i++)
+            var position = new PopoutPosition(Location.X, Location.Y, Width, Height);
+
+            Dictionary<string, PopoutPosition> savedPositions;
+            try
             {
-                if (savedPositions[i]?.StartsWith(Text) ?? false)
-                {
-                    savedPositions[i] = positionString;
-                    found = true;
-                }
+                savedPositions = JsonSerializer.Deserialize<Dictionary<string, PopoutPosition>>
+                    (Properties.Core.Default.PopoutLocation) ?? [];
             }
-            if (!found)
+            catch
             {
-                savedPositions ??= [];
-                savedPositions.Add(positionString);
+                savedPositions = [];
             }
-            Properties.Core.Default.PopoutLocation = savedPositions;
+            savedPositions[Text] = position;
+
+            Properties.Core.Default.PopoutLocation = JsonSerializer.Serialize(savedPositions);
             SettingsManager.Save();
         }
 
@@ -196,6 +189,22 @@ namespace Observatory.UI
                     return form;
             }
             return null;
+        }
+
+        private class PopoutPosition
+        {
+            public PopoutPosition(int x, int y, int width, int height) 
+            {
+                X = x;
+                Y = y;
+                Width = width;
+                Height = height;
+            }
+
+            public int X { get; set; }
+            public int Y { get; set; }
+            public int Width { get; set; }
+            public int Height { get; set; }
         }
     }
 }
