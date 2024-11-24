@@ -13,7 +13,7 @@ using System.Text;
 
 namespace Observatory.UI
 {
-    internal partial class PluginListView : ListView
+    internal partial class PluginUIGrid : ListView
     {
         private bool _suspend = false;
         private Dictionary<Guid, List<ListViewItem>> _groupedItems = [];
@@ -22,7 +22,7 @@ namespace Observatory.UI
         private ColumnSizing _pluginColumnSizing;
         private bool _selectionInProgress = false;
 
-        public PluginListView(IObservatoryPlugin plugin, List<ColumnSizing> columnSizings)
+        public PluginUIGrid(IObservatoryPlugin plugin, List<ColumnSizing> columnSizings)
         {
             View = View.Details;
 #if PROTON

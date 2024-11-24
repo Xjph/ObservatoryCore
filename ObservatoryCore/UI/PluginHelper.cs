@@ -67,7 +67,7 @@ namespace Observatory.UI
             };
             plugin.PluginUI.UI = panel;
 
-            PluginListView listView = new(plugin, columnSizings)
+            PluginUIGrid listView = new(plugin, columnSizings)
             {
                 Location = new Point(0, 0),
                 Size = panel.Size,
