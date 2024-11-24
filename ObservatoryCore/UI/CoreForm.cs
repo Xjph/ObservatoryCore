@@ -242,17 +242,19 @@ namespace Observatory.UI
 
         private void AboutCore_Click(object sender, EventArgs e)
         {
-            OpenAbout(_aboutCore);
-        }
-
-        // Also used for plugins.
-        internal void OpenAbout(AboutInfo aboutInfo)
-        {
-            if (aboutInfo != null)
+            string coreSettingsTitle = "Core Settings";
+            Form? coreAbout = FormsManager.GetFormByTitle(coreSettingsTitle);
+            
+            if (coreAbout == null)
             {
-                var aboutForm = new AboutForm(aboutInfo);
-                ThemeManager.GetInstance.RegisterControl(aboutForm);
-                aboutForm.Show();
+                coreAbout = new AboutForm(_aboutCore);
+                coreAbout.Text = coreSettingsTitle;
+                ThemeManager.GetInstance.RegisterControl(coreAbout);
+                coreAbout.Show();
+            }
+            else
+            {
+                coreAbout.Activate();
             }
         }
 
@@ -402,23 +404,6 @@ namespace Observatory.UI
 
             PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList, columnSizing ?? []);
         }
-
-        internal void OpenSettings(IObservatoryPlugin plugin)
-        {
-            if (SettingsForms.ContainsKey(plugin))
-            {
-                SettingsForms[plugin].Activate();
-            }
-            else
-            {
-                SettingsForm settingsForm = new(plugin);
-                SettingsForms.Add(plugin, settingsForm);
-                settingsForm.FormClosed += (_, _) => SettingsForms.Remove(plugin);
-                settingsForm.Show();
-            }
-        }
-
-        private Dictionary<IObservatoryPlugin, SettingsForm> SettingsForms = [];
 
         private static void PluginExport(IObservatoryPlugin plugin)
         {
