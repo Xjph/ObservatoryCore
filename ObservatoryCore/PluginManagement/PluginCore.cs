@@ -166,7 +166,7 @@ namespace Observatory.PluginManagement
 
         public void ExecuteOnUIThread(Action action)
         {
-            FindCoreForm()?.Invoke(action);
+            FormsManager.FindCoreForm()?.Invoke(action);
         }
 
         public System.Net.Http.HttpClient HttpClient
@@ -264,7 +264,7 @@ namespace Observatory.PluginManagement
         {
             ExecuteOnUIThread(() =>
             {
-                FindCoreForm()?.OpenSettings(plugin);
+                FormsManager.OpenPluginSettingsForm(plugin);
             });
         }
 
@@ -272,7 +272,7 @@ namespace Observatory.PluginManagement
         {
             ExecuteOnUIThread(() =>
             {
-                FindCoreForm()?.OpenAbout(plugin.AboutInfo);
+                FormsManager.OpenAboutForm(plugin.AboutInfo);
             });
         }
 
@@ -286,7 +286,7 @@ namespace Observatory.PluginManagement
         {
             ExecuteOnUIThread(() =>
             {
-                FindCoreForm()?.FocusPlugin(pluginName);
+                FormsManager.FocusPluginTabOrWindow(pluginName);
             });
         }
 
@@ -327,18 +327,6 @@ namespace Observatory.PluginManagement
                         return listView;
                     }
                 }
-            return null;
-        }
-
-        private static CoreForm? FindCoreForm()
-        {
-            foreach (var f in Application.OpenForms)
-            {
-                if (f is CoreForm form)
-                {
-                    return form;
-                }
-            }
             return null;
         }
     }

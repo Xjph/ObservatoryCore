@@ -1,4 +1,5 @@
-﻿using Observatory.Framework.Interfaces;
+﻿using Observatory.Framework;
+using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using System.Diagnostics;
 
@@ -37,49 +38,15 @@ namespace Observatory.UI
             {
                 if (e.ClickedItem == popout)
                 {
-                    var form = GetFormByTitle(plugin.Name);
-                    if (form != null)
-                    {
-                        form.Activate();
-                    }
-                    else
-                    {
-                        var popoutForm = new PopoutForm(pluginTab, plugin);
-                        ThemeManager.GetInstance.RegisterControl(popoutForm);
-                        popoutForm.Show();
-                    }
+                    FormsManager.OpenPluginPopoutForm(plugin, pluginTab);
                 }
                 if (e.ClickedItem == settings)
                 {
-                    var settingsTitle = $"{plugin.Name} Settings";
-                    var form = GetFormByTitle(settingsTitle);
-                    if (form != null)
-                    {
-                        form.Activate();
-                    }
-                    else
-                    {
-                        var settingsForm = new SettingsForm(plugin);
-                        settingsForm.Show();
-                    }
+                    FormsManager.OpenPluginSettingsForm(plugin);
                 }
                 if (e.ClickedItem == about)
                 {
-                    if (plugin.AboutInfo != null)
-                    {
-                        var form = GetFormByTitle($"About {plugin.AboutInfo.FullName}");
-                        if (form != null)
-                        {
-                            form.Activate();
-                        }
-                        else
-                        {
-                            var aboutForm = new AboutForm(plugin.AboutInfo);
-                            ThemeManager.GetInstance.RegisterControl(aboutForm);
-                            aboutForm.FormClosing += (_, _) => ThemeManager.GetInstance.UnregisterControl(aboutForm);
-                            aboutForm.Show();
-                        }
-                    }
+                    FormsManager.OpenAboutForm(plugin.AboutInfo);
                 }
                 if (e.ClickedItem == folder)
                 {
@@ -92,16 +59,6 @@ namespace Observatory.UI
                     }
                 }
             };
-        }
-
-        private Form? GetFormByTitle(string title)
-        {
-            foreach (Form form in Application.OpenForms)
-            {
-                if (form.Text == title)
-                    return form;
-            }
-            return null;
         }
     }
 }
