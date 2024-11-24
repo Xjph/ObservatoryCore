@@ -32,13 +32,11 @@ namespace Observatory.NativeNotification
     internal class NativeVoice
     {
         private readonly Queue<NotificationArgs> notificationEvents;
-        private bool processing;
         private readonly AudioHandler audioHandler;
 
         public NativeVoice(AudioHandler audiohandler)
         {
             notificationEvents = new();
-            processing = false;
             audioHandler = audiohandler;
         }
 
