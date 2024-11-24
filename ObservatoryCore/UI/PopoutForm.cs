@@ -32,6 +32,7 @@ namespace Observatory.UI
                     Text = plugin.Name + " is currently in a different window."
                     + Environment.NewLine + "You can click this text to switch to it.",
                     Size = _tab.ClientSize,
+                    Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                     Padding = new(20),
                     BorderStyle = BorderStyle.FixedSingle
                 };
