@@ -297,7 +297,7 @@ namespace Observatory.PluginManagement
 
         private void BeginBulkUpdate(IObservatoryWorker worker)
         {
-            PluginListView? listView = FindPluginListView(worker);
+            PluginUIGrid? listView = FindPluginListView(worker);
             if (listView == null) return;
 
             ExecuteOnUIThread(() => { listView.SuspendDrawing(); });
@@ -305,25 +305,25 @@ namespace Observatory.PluginManagement
 
         private void EndBulkUpdate(IObservatoryWorker worker)
         {
-            PluginListView? listView = FindPluginListView(worker);
+            PluginUIGrid? listView = FindPluginListView(worker);
             if (listView == null) return;
 
             ExecuteOnUIThread(() => { listView.ResumeDrawing(); });
         }
 
-        private static PluginListView? FindPluginListView(IObservatoryWorker worker)
+        private static PluginUIGrid? FindPluginListView(IObservatoryWorker worker)
         {
             if (worker.PluginUI.PluginUIType != PluginUI.UIType.Basic
                 || worker.PluginUI.UI is not Panel) return null;
 
-            PluginListView? listView;
+            PluginUIGrid? listView;
 
             if (worker.PluginUI.UI is Panel panel)
                 foreach (var control in panel.Controls)
                 {
-                    if (control?.GetType() == typeof(PluginListView))
+                    if (control?.GetType() == typeof(PluginUIGrid))
                     {
-                        listView = (PluginListView)control;
+                        listView = (PluginUIGrid)control;
                         return listView;
                     }
                 }
