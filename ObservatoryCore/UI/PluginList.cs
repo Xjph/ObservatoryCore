@@ -104,7 +104,8 @@ namespace Observatory.UI
                     enable = value;
                 }
 
-                if (pluginStatusValue == PluginManager.PluginStatus.Outdated ||
+                if (!enable ||
+                    pluginStatusValue == PluginManager.PluginStatus.Outdated ||
                     pluginStatusValue == PluginManager.PluginStatus.Errored)
                 {
                     enable = false;
@@ -123,6 +124,7 @@ namespace Observatory.UI
                 pluginEnabled.CheckedChanged += (_, _) =>
                 {
                     PluginManager.GetInstance.SetPluginEnabled(plugin, pluginEnabled.Checked);
+                    SaveEnabledPluginChange(plugin.Name, pluginEnabled.Checked);
                 };
 
                 Button pluginMenu = new()
@@ -204,6 +206,15 @@ namespace Observatory.UI
                 }
             }
             return enabledPlugins;
+        }
+
+        private void SaveEnabledPluginChange(string plugin, bool enabled)
+        {
+            var enabledPlugins = GetEnabledPlugins();
+            enabledPlugins[plugin] = enabled;
+            var enabledJson = JsonSerializer.Serialize(enabledPlugins);
+            Properties.Core.Default.PluginsEnabled = enabledJson;
+            SettingsManager.Save();
         }
 
         private static string PluginStatusString(PluginManager.PluginStatus status)
