@@ -113,8 +113,6 @@ namespace Observatory.UI
                     PluginManager.GetInstance.SetPluginEnabled(plugin, false);
                 }
 
-                
-
                 CheckBox pluginEnabled = new()
                 {
                     CheckAlign = ContentAlignment.MiddleCenter,
