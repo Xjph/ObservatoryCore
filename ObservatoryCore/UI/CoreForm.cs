@@ -370,7 +370,6 @@ namespace Observatory.UI
         #region Plugins
         private Dictionary<ListViewItem, IObservatoryPlugin>? ListedPlugins;
         private bool loading = true; // Suppress settings updates due to initializing the listview.
-
         
         private void CreatePluginTabs()
         {
@@ -406,39 +405,6 @@ namespace Observatory.UI
                 SettingsForms.Add(plugin, settingsForm);
                 settingsForm.FormClosed += (_, _) => SettingsForms.Remove(plugin);
                 settingsForm.Show();
-            }
-        }
-
-        private void PluginsEnabledStateFromSettings()
-        {
-            if (ListedPlugins == null) return;
-
-            string pluginsEnabledStr = Properties.Core.Default.PluginsEnabled;
-            Dictionary<string, bool>? pluginsEnabled = null;
-            if (!string.IsNullOrWhiteSpace(pluginsEnabledStr))
-            {
-                try
-                {
-                    pluginsEnabled = JsonSerializer.Deserialize<Dictionary<string, bool>>(pluginsEnabledStr);
-                }
-                catch
-                {
-                    // Failed deserialization means bad value, blow it away.
-                    Properties.Core.Default.PluginsEnabled = string.Empty;
-                    SettingsManager.Save();
-                }
-            }
-
-            if (pluginsEnabled == null) return;
-
-            foreach (var p in ListedPlugins)
-            {
-                if (pluginsEnabled.ContainsKey(p.Value.Name) && !pluginsEnabled[p.Value.Name])
-                {
-                    // Plugin is disabled.
-                    p.Key.Checked = false; // This may trigger the listview ItemChecked event.
-                    PluginManager.GetInstance.SetPluginEnabled(p.Value, false);
-                }
             }
         }
 
