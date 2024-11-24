@@ -153,7 +153,7 @@ namespace Observatory.UI
             ResumeDrawing(this);
         }
 
-        private Dictionary<PluginListView, object> PluginComparer;
+        private Dictionary<PluginUIGrid, object> PluginComparer;
 
         private void SuspendSorting()
         {
@@ -162,9 +162,9 @@ namespace Observatory.UI
             {
                 foreach (var control in tab.Controls)
                 {
-                    if (control?.GetType() == typeof(PluginListView))
+                    if (control?.GetType() == typeof(PluginUIGrid))
                     {
-                        var listView = (PluginListView)control;
+                        var listView = (PluginUIGrid)control;
                         PluginComparer.Add(listView, listView.ListViewItemSorter);
                         listView.ListViewItemSorter = null;
                     }
