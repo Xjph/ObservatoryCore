@@ -298,6 +298,16 @@ namespace Observatory.UI
             Properties.Core.Default.MainWindowPosition = Location;
             Properties.Core.Default.MainWindowSize = Size;
             SettingsManager.Save();
+
+            // Create new collection to iterate while modifying OpenForms
+            var openWindows = Application.OpenForms.Cast<Form>().ToList();
+
+            // Call close event of popouts so locations get saved
+            foreach (Form window in openWindows)
+            {
+                if (window != this)
+                    window.Close();
+            }
         }
 
         private void CoreForm_Load(object sender, EventArgs e)
