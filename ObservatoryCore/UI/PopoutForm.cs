@@ -27,8 +27,8 @@ namespace Observatory.UI
                 _panel.Location = new(0, 0);
                 _panel.Size = PopoutPanel.Size;
                 PopoutPanel.Controls.Add(_panel);
-                _label = new Label() 
-                { 
+                _label = new Label()
+                {
                     Text = plugin.Name + " is currently in a different window."
                     + Environment.NewLine + "You can click this text to switch to it.",
                     Size = _tab.ClientSize,
@@ -55,7 +55,7 @@ namespace Observatory.UI
                     ClearButton.Enabled = false;
                     ClearButton.Visible = false;
                     ExportButton.Location = ClearButton.Location;
-            }
+                }
 
                 if (!canExport)
                 {
@@ -113,7 +113,7 @@ namespace Observatory.UI
                 {
                     return true;
                 }
-        }
+            }
             return false;
         }
 

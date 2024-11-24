@@ -399,27 +399,6 @@ namespace Observatory.Explorer
                             DiscoveryFunction = LuaState["ObservatoryDiscoveryHandler"] as LuaFunction;
                             script.Clear();
                         }
-                        else if (annotation.type == AnnotationType.BodySignals)
-                        {
-                            if (hasBodySignalsFunc) throw new CriteriaLoadException("Multiple BodySignals annotations found.");
-                            hasBodySignalsFunc = true;
-
-                            script.AppendLine($"function ObservatoryBodySignalsHandler (bodySignals)");
-                            i++;
-                            do
-                            {
-                                if (i >= criteria.Length)
-                                    throw new Exception("Unterminated BodySignals handler.\r\nAre you missing an End annotation?");
-
-                                script.AppendLine(criteria[i]);
-                                i++;
-                            } while (!IsEndAnnotation(criteria[i]));
-                            script.AppendLine("end");
-
-                            LuaState.DoString(script.ToString());
-                            BodySignalsFunction = LuaState["ObservatoryBodySignalsHandler"] as LuaFunction;
-                            script.Clear();
-                        }
                         else if (annotation.type == AnnotationType.Discovery)
                         {
                             if (hasDiscoveryFunc) throw new CriteriaLoadException("Multiple Discovery annotations found.");
