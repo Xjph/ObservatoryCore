@@ -166,7 +166,7 @@ namespace Observatory.PluginManagement
 
         public void ExecuteOnUIThread(Action action)
         {
-            FindCoreForm()?.Invoke(action);
+            FormsManager.FindCoreForm()?.Invoke(action);
         }
 
         public System.Net.Http.HttpClient HttpClient
@@ -264,7 +264,7 @@ namespace Observatory.PluginManagement
         {
             ExecuteOnUIThread(() =>
             {
-                FindCoreForm()?.OpenSettings(plugin);
+                FormsManager.OpenPluginSettingsForm(plugin);
             });
         }
 
@@ -272,7 +272,7 @@ namespace Observatory.PluginManagement
         {
             ExecuteOnUIThread(() =>
             {
-                FindCoreForm()?.OpenAbout(plugin.AboutInfo);
+                FormsManager.OpenAboutForm(plugin.AboutInfo);
             });
         }
 
@@ -286,7 +286,7 @@ namespace Observatory.PluginManagement
         {
             ExecuteOnUIThread(() =>
             {
-                FindCoreForm()?.FocusPlugin(pluginName);
+                FormsManager.FocusPluginTabOrWindow(pluginName);
             });
         }
 
@@ -297,7 +297,7 @@ namespace Observatory.PluginManagement
 
         private void BeginBulkUpdate(IObservatoryWorker worker)
         {
-            PluginListView? listView = FindPluginListView(worker);
+            PluginUIGrid? listView = FindPluginListView(worker);
             if (listView == null) return;
 
             ExecuteOnUIThread(() => { listView.SuspendDrawing(); });
@@ -305,40 +305,28 @@ namespace Observatory.PluginManagement
 
         private void EndBulkUpdate(IObservatoryWorker worker)
         {
-            PluginListView? listView = FindPluginListView(worker);
+            PluginUIGrid? listView = FindPluginListView(worker);
             if (listView == null) return;
 
             ExecuteOnUIThread(() => { listView.ResumeDrawing(); });
         }
 
-        private static PluginListView? FindPluginListView(IObservatoryWorker worker)
+        private static PluginUIGrid? FindPluginListView(IObservatoryWorker worker)
         {
             if (worker.PluginUI.PluginUIType != PluginUI.UIType.Basic
                 || worker.PluginUI.UI is not Panel) return null;
 
-            PluginListView? listView;
+            PluginUIGrid? listView;
 
             if (worker.PluginUI.UI is Panel panel)
                 foreach (var control in panel.Controls)
                 {
-                    if (control?.GetType() == typeof(PluginListView))
+                    if (control?.GetType() == typeof(PluginUIGrid))
                     {
-                        listView = (PluginListView)control;
+                        listView = (PluginUIGrid)control;
                         return listView;
                     }
                 }
-            return null;
-        }
-
-        private static CoreForm? FindCoreForm()
-        {
-            foreach (var f in Application.OpenForms)
-            {
-                if (f is CoreForm form)
-                {
-                    return form;
-                }
-            }
             return null;
         }
     }

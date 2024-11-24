@@ -135,6 +135,9 @@ namespace Observatory.Utils
                     // -1 potentially not present, ignore and continue
                 }
             }
+
+            if (devices.Count == 0)
+                devices.Add("--No Audio Devices Present--");
                 
             return devices;
         }

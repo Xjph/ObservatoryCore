@@ -32,6 +32,7 @@ namespace Observatory.UI
                     Text = plugin.Name + " is currently in a different window."
                     + Environment.NewLine + "You can click this text to switch to it.",
                     Size = _tab.ClientSize,
+                    Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
                     Padding = new(20),
                     BorderStyle = BorderStyle.FixedSingle
                 };
@@ -168,27 +169,7 @@ namespace Observatory.UI
 
         private void SettingsButton_Click(object sender, EventArgs e)
         {
-            var settingsTitle = $"{_plugin.Name} Settings";
-            var form = GetFormByTitle(settingsTitle);
-            if (form != null)
-            {
-                form.Activate();
-            }
-            else
-            {
-                var settingsForm = new SettingsForm(_plugin);
-                settingsForm.Show();
-            }
-        }
-
-        private static Form? GetFormByTitle(string title)
-        {
-            foreach (Form form in Application.OpenForms)
-            {
-                if (form.Text == title)
-                    return form;
-            }
-            return null;
+            FormsManager.OpenPluginSettingsForm(_plugin);
         }
 
         private class PopoutPosition

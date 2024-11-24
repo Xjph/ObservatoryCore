@@ -35,15 +35,16 @@ namespace Observatory.UI
 
         private static string[] _patrons = 
         [
-            "  Slegnor",
-            "  ObediahJoel",
-            "  Doctor Nozimo",
             "  Arx", 
-            "  pepčok", 
-            "  Seffyroff",
+            "  Doctor Nozimo",
             "  KPTRamius",
             "  Markus H", 
-            "  McMuttons"
+            "  McMuttons",
+            "  NirevS",
+            "  ObediahJoel",
+            "  PaganPilot",
+            "  pepčok", 
+            "  Slegnor"
         ];
 
         private readonly ThemeManager themeManager;
@@ -152,7 +153,7 @@ namespace Observatory.UI
             ResumeDrawing(this);
         }
 
-        private Dictionary<PluginListView, object> PluginComparer;
+        private Dictionary<PluginUIGrid, object> PluginComparer;
 
         private void SuspendSorting()
         {
@@ -161,9 +162,9 @@ namespace Observatory.UI
             {
                 foreach (var control in tab.Controls)
                 {
-                    if (control?.GetType() == typeof(PluginListView))
+                    if (control?.GetType() == typeof(PluginUIGrid))
                     {
-                        var listView = (PluginListView)control;
+                        var listView = (PluginUIGrid)control;
                         PluginComparer.Add(listView, listView.ListViewItemSorter);
                         listView.ListViewItemSorter = null;
                     }
@@ -241,18 +242,7 @@ namespace Observatory.UI
 
         private void AboutCore_Click(object sender, EventArgs e)
         {
-            OpenAbout(_aboutCore);
-        }
-
-        // Also used for plugins.
-        internal void OpenAbout(AboutInfo aboutInfo)
-        {
-            if (aboutInfo != null)
-            {
-                var aboutForm = new AboutForm(aboutInfo);
-                ThemeManager.GetInstance.RegisterControl(aboutForm);
-                aboutForm.Show();
-            }
+            FormsManager.OpenAboutForm(_aboutCore);
         }
 
         private static void OpenURL(string url)
@@ -297,6 +287,16 @@ namespace Observatory.UI
             Properties.Core.Default.MainWindowPosition = Location;
             Properties.Core.Default.MainWindowSize = Size;
             SettingsManager.Save();
+
+            // Create new collection to iterate while modifying OpenForms
+            var openWindows = Application.OpenForms.Cast<Form>().ToList();
+
+            // Call close event of popouts so locations get saved
+            foreach (Form window in openWindows)
+            {
+                if (window != this)
+                    window.Close();
+            }
         }
 
         private void CoreForm_Load(object sender, EventArgs e)
@@ -369,7 +369,6 @@ namespace Observatory.UI
         #region Plugins
         private Dictionary<ListViewItem, IObservatoryPlugin>? ListedPlugins;
         private bool loading = true; // Suppress settings updates due to initializing the listview.
-
         
         private void CreatePluginTabs()
         {
@@ -392,56 +391,6 @@ namespace Observatory.UI
 
             PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList, columnSizing ?? []);
         }
-
-        internal void OpenSettings(IObservatoryPlugin plugin)
-        {
-            if (SettingsForms.ContainsKey(plugin))
-            {
-                SettingsForms[plugin].Activate();
-            }
-            else
-            {
-                SettingsForm settingsForm = new(plugin);
-                SettingsForms.Add(plugin, settingsForm);
-                settingsForm.FormClosed += (_, _) => SettingsForms.Remove(plugin);
-                settingsForm.Show();
-            }
-        }
-
-        private void PluginsEnabledStateFromSettings()
-        {
-            if (ListedPlugins == null) return;
-
-            string pluginsEnabledStr = Properties.Core.Default.PluginsEnabled;
-            Dictionary<string, bool>? pluginsEnabled = null;
-            if (!string.IsNullOrWhiteSpace(pluginsEnabledStr))
-            {
-                try
-                {
-                    pluginsEnabled = JsonSerializer.Deserialize<Dictionary<string, bool>>(pluginsEnabledStr);
-                }
-                catch
-                {
-                    // Failed deserialization means bad value, blow it away.
-                    Properties.Core.Default.PluginsEnabled = string.Empty;
-                    SettingsManager.Save();
-                }
-            }
-
-            if (pluginsEnabled == null) return;
-
-            foreach (var p in ListedPlugins)
-            {
-                if (pluginsEnabled.ContainsKey(p.Value.Name) && !pluginsEnabled[p.Value.Name])
-                {
-                    // Plugin is disabled.
-                    p.Key.Checked = false; // This may trigger the listview ItemChecked event.
-                    PluginManager.GetInstance.SetPluginEnabled(p.Value, false);
-                }
-            }
-        }
-
-        private Dictionary<IObservatoryPlugin, SettingsForm> SettingsForms = [];
 
         private static void PluginExport(IObservatoryPlugin plugin)
         {

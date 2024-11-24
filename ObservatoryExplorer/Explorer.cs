@@ -67,7 +67,7 @@ namespace Observatory.Explorer
         {
             char ordChar = ordinal.ToCharArray().Last();
 
-            if (new char[] {'Z', '9'}.Contains(ordChar))
+            if (new char[] { 'Z', '9' }.Contains(ordChar))
             {
                 ordinal = IncrementOrdinal(ordinal.Length == 1 ? " " : String.Empty + ordinal[..^1]);
                 ordChar = (char)(ordChar - 10);
@@ -104,7 +104,7 @@ namespace Observatory.Explorer
                 bool lowChild = childScan.BodyID - barycentre.BodyID == 1;
 
                 string baryAffix;
-                
+
                 // Barycentre ordinal always labelled as low before high, e.g. "AB"
                 if (lowChild)
                 {
@@ -163,7 +163,7 @@ namespace Observatory.Explorer
             if (!readAll)
             {
                 string criteriaFilePath = ExplorerWorker.settings.CustomCriteriaFile;
-                
+
                 if (File.Exists(criteriaFilePath))
                 {
                     DateTime fileModified = new FileInfo(criteriaFilePath).LastWriteTime;
@@ -185,7 +185,7 @@ namespace Observatory.Explorer
                             };
                             ObservatoryCore.AddGridItem(ExplorerWorker, exceptionResult);
                         }
-                        
+
                         CriteriaLastModified = fileModified;
                     }
                 }
@@ -278,13 +278,30 @@ namespace Observatory.Explorer
             }
         }
 
-        public void ProcessDiscovery(FSSDiscoveryScan discoveryScan) => CustomCriteriaManager.CustomDiscovery(discoveryScan);
+        public void ProcessDiscovery(FSSDiscoveryScan discoveryScan)
+        {
+            if (ExplorerWorker.settings.EnableCustomCriteria)
+                CustomCriteriaManager.CustomDiscovery(discoveryScan);
+        }
 
-        public void ProcessAllBodies(FSSAllBodiesFound allBodies) => CustomCriteriaManager.CustomAllBodies(allBodies);
 
-        public void ProcessSignalScan(SAASignalsFound signalsFound) => CustomCriteriaManager.CustomSignals(signalsFound);
+        public void ProcessAllBodies(FSSAllBodiesFound allBodies)
+        { 
+            if (ExplorerWorker.settings.EnableCustomCriteria)
+                CustomCriteriaManager.CustomAllBodies(allBodies); 
+        }
 
-        public void ProcessJump(FSDJump jump) => CustomCriteriaManager.CustomJump(jump);
+        public void ProcessSignalScan(SAASignalsFound signalsFound)
+        {
+            if (ExplorerWorker.settings.EnableCustomCriteria)
+                CustomCriteriaManager.CustomSignals(signalsFound);
+        }
+
+        public void ProcessJump(FSDJump jump)
+        {
+            if (ExplorerWorker.settings.EnableCustomCriteria)
+                CustomCriteriaManager.CustomJump(jump);
+        }
 
         private void SendNotification(Scan scanEvent, string detail, string extendedDetail)
         {

@@ -1,12 +1,8 @@
 ﻿using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Speech.Synthesis.TtsEngine;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Observatory.UI
 {
@@ -109,7 +105,8 @@ namespace Observatory.UI
                     enable = value;
                 }
 
-                if (pluginStatusValue == PluginManager.PluginStatus.Outdated ||
+                if (!enable ||
+                    pluginStatusValue == PluginManager.PluginStatus.Outdated ||
                     pluginStatusValue == PluginManager.PluginStatus.Errored)
                 {
                     enable = false;
@@ -125,7 +122,19 @@ namespace Observatory.UI
 
                 pluginEnabled.CheckedChanged += (_, _) =>
                 {
+                    if (pluginEnabled.Checked && pluginStatusValue == PluginManager.PluginStatus.Outdated)
+                    {
+                        var response = MessageBox.Show(
+                            $"Version {plugin.Version} of {plugin.Name} is made for an older version of Observatory and may break things in spectacular fashion if enabled.", 
+                            "Outdated Plugin", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                        if (response == DialogResult.Cancel)
+                        {
+                            pluginEnabled.Checked = false;
+                            return;
+                        }
+                    }
                     PluginManager.GetInstance.SetPluginEnabled(plugin, pluginEnabled.Checked);
+                    SaveEnabledPluginChange(plugin.Name, pluginEnabled.Checked);
                 };
 
                 Button pluginMenu = new()
@@ -207,6 +216,15 @@ namespace Observatory.UI
                 }
             }
             return enabledPlugins;
+        }
+
+        private void SaveEnabledPluginChange(string plugin, bool enabled)
+        {
+            var enabledPlugins = GetEnabledPlugins();
+            enabledPlugins[plugin] = enabled;
+            var enabledJson = JsonSerializer.Serialize(enabledPlugins);
+            Properties.Core.Default.PluginsEnabled = enabledJson;
+            SettingsManager.Save();
         }
 
         private static string PluginStatusString(PluginManager.PluginStatus status)

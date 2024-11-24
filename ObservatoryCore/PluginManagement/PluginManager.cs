@@ -55,7 +55,9 @@ namespace Observatory.PluginManagement
 
         public List<IObservatoryPlugin> AllPlugins
         {
-            get => _workerPlugins.Cast<IObservatoryPlugin>().Concat(_notifyPlugins.Cast<IObservatoryPlugin>()).ToList();
+            get => _workerPlugins.Cast<IObservatoryPlugin>()
+                .Concat(_notifyPlugins.Cast<IObservatoryPlugin>())
+                .Distinct().ToList();
         }
 
         public PluginStatus GetPluginStatus(IObservatoryPlugin plugin) => _pluginStatus[plugin];

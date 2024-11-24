@@ -65,7 +65,14 @@ namespace Observatory
                 }
                 catch (Exception ex)
                 {
-                    LogError(ex, version, true);
+                    try
+                    {
+                        LogError(ex, version, true);
+                    }
+                    catch
+                    {
+                        // Ignore. Errors while logging might mask actual error.
+                    }
 
                     // Re-throw to avoid masking error at OS level.
                     throw;
