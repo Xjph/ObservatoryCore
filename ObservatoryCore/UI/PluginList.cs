@@ -1,12 +1,7 @@
 ﻿using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace Observatory.UI
 {
@@ -115,6 +110,8 @@ namespace Observatory.UI
                     enable = false;
                     PluginManager.GetInstance.SetPluginEnabled(plugin, false);
                 }
+
+                
 
                 CheckBox pluginEnabled = new()
                 {
