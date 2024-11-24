@@ -1,4 +1,5 @@
-﻿using Observatory.Framework.Interfaces;
+﻿using Observatory.Framework;
+using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using System.Diagnostics;
 
@@ -45,7 +46,7 @@ namespace Observatory.UI
                 }
                 if (e.ClickedItem == about)
                 {
-                    FormsManager.OpenPluginAboutForm(plugin);
+                    FormsManager.OpenAboutForm(plugin.AboutInfo);
                 }
                 if (e.ClickedItem == folder)
                 {

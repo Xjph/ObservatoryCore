@@ -242,20 +242,7 @@ namespace Observatory.UI
 
         private void AboutCore_Click(object sender, EventArgs e)
         {
-            string coreSettingsTitle = "Core Settings";
-            Form? coreAbout = FormsManager.GetFormByTitle(coreSettingsTitle);
-            
-            if (coreAbout == null)
-            {
-                coreAbout = new AboutForm(_aboutCore);
-                coreAbout.Text = coreSettingsTitle;
-                ThemeManager.GetInstance.RegisterControl(coreAbout);
-                coreAbout.Show();
-            }
-            else
-            {
-                coreAbout.Activate();
-            }
+            FormsManager.OpenAboutForm(_aboutCore);
         }
 
         private static void OpenURL(string url)

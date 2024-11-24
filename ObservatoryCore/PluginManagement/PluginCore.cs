@@ -272,7 +272,7 @@ namespace Observatory.PluginManagement
         {
             ExecuteOnUIThread(() =>
             {
-                FormsManager.OpenPluginAboutForm(plugin);
+                FormsManager.OpenAboutForm(plugin.AboutInfo);
             });
         }
 

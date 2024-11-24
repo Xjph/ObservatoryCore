@@ -1,4 +1,5 @@
-﻿using Observatory.Framework.Interfaces;
+﻿using Observatory.Framework;
+using Observatory.Framework.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,18 +32,18 @@ namespace Observatory.UI
             return null;
         }
 
-        public static void OpenPluginAboutForm(IObservatoryPlugin plugin)
+        public static void OpenAboutForm(AboutInfo? aboutInfo)
         {
-            if (plugin.AboutInfo != null)
+            if (aboutInfo != null)
             {
-                var form = GetFormByTitle($"About {plugin.AboutInfo.FullName}");
+                var form = GetFormByTitle($"About {aboutInfo.FullName}");
                 if (form != null)
                 {
                     form.Activate();
                 }
                 else
                 {
-                    var aboutForm = new AboutForm(plugin.AboutInfo);
+                    var aboutForm = new AboutForm(aboutInfo);
                     ThemeManager.GetInstance.RegisterControl(aboutForm);
                     aboutForm.FormClosing += (_, _) => ThemeManager.GetInstance.UnregisterControl(aboutForm);
                     aboutForm.Show();
