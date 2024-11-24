@@ -1,6 +1,7 @@
 ﻿using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
+using System.Speech.Synthesis.TtsEngine;
 using System.Text.Json;
 
 namespace Observatory.UI
@@ -123,6 +124,17 @@ namespace Observatory.UI
 
                 pluginEnabled.CheckedChanged += (_, _) =>
                 {
+                    if (pluginEnabled.Checked && pluginStatusValue == PluginManager.PluginStatus.Outdated)
+                    {
+                        var response = MessageBox.Show(
+                            $"Version {plugin.Version} of {plugin.Name} is made for an older version of Observatory and may break things in spectacular fashion if enabled.", 
+                            "Outdated Plugin", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                        if (response == DialogResult.Cancel)
+                        {
+                            pluginEnabled.Checked = false;
+                            return;
+                        }
+                    }
                     PluginManager.GetInstance.SetPluginEnabled(plugin, pluginEnabled.Checked);
                     SaveEnabledPluginChange(plugin.Name, pluginEnabled.Checked);
                 };
