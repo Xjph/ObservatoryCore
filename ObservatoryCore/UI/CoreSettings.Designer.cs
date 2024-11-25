@@ -485,6 +485,7 @@
             LabelJournalPath.Size = new Size(327, 13);
             LabelJournalPath.TabIndex = 20;
             LabelJournalPath.Text = "X:\\Journal";
+            LabelJournalPath.DoubleClick += LabelJournalPath_DoubleClick;
             // 
             // ThemeDropdown
             // 
