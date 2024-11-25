@@ -54,10 +54,9 @@
             ReadAllButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ReadAllButton.FlatAppearance.BorderSize = 0;
             ReadAllButton.FlatStyle = FlatStyle.Flat;
-            ReadAllButton.Location = new Point(1100, 943);
-            ReadAllButton.Margin = new Padding(4, 5, 4, 5);
+            ReadAllButton.Location = new Point(543, 326);
             ReadAllButton.Name = "ReadAllButton";
-            ReadAllButton.Size = new Size(107, 38);
+            ReadAllButton.Size = new Size(75, 23);
             ReadAllButton.TabIndex = 33;
             ReadAllButton.Text = "Read All";
             ReadAllButton.UseVisualStyleBackColor = false;
@@ -68,10 +67,9 @@
             ToggleMonitorButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ToggleMonitorButton.FlatAppearance.BorderSize = 0;
             ToggleMonitorButton.FlatStyle = FlatStyle.Flat;
-            ToggleMonitorButton.Location = new Point(953, 943);
-            ToggleMonitorButton.Margin = new Padding(4, 5, 4, 5);
+            ToggleMonitorButton.Location = new Point(440, 326);
             ToggleMonitorButton.Name = "ToggleMonitorButton";
-            ToggleMonitorButton.Size = new Size(139, 38);
+            ToggleMonitorButton.Size = new Size(97, 23);
             ToggleMonitorButton.TabIndex = 32;
             ToggleMonitorButton.Text = "Start Monitor";
             ToggleMonitorButton.UseVisualStyleBackColor = false;
@@ -82,10 +80,9 @@
             ClearButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ClearButton.FlatAppearance.BorderSize = 0;
             ClearButton.FlatStyle = FlatStyle.Flat;
-            ClearButton.Location = new Point(837, 943);
-            ClearButton.Margin = new Padding(4, 5, 4, 5);
+            ClearButton.Location = new Point(359, 326);
             ClearButton.Name = "ClearButton";
-            ClearButton.Size = new Size(107, 38);
+            ClearButton.Size = new Size(75, 23);
             ClearButton.TabIndex = 31;
             ClearButton.Text = "Clear";
             ClearButton.UseVisualStyleBackColor = false;
@@ -96,10 +93,9 @@
             ExportButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             ExportButton.FlatAppearance.BorderSize = 0;
             ExportButton.FlatStyle = FlatStyle.Flat;
-            ExportButton.Location = new Point(721, 943);
-            ExportButton.Margin = new Padding(4, 5, 4, 5);
+            ExportButton.Location = new Point(278, 326);
             ExportButton.Name = "ExportButton";
-            ExportButton.Size = new Size(107, 38);
+            ExportButton.Size = new Size(75, 23);
             ExportButton.TabIndex = 30;
             ExportButton.Text = "Export";
             ExportButton.UseVisualStyleBackColor = false;
@@ -111,10 +107,9 @@
             AboutCore.FlatAppearance.BorderSize = 0;
             AboutCore.FlatStyle = FlatStyle.Flat;
             AboutCore.Font = new Font("Segoe UI", 10F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            AboutCore.Location = new Point(23, 935);
-            AboutCore.Margin = new Padding(4, 5, 4, 5);
+            AboutCore.Location = new Point(16, 321);
             AboutCore.Name = "AboutCore";
-            AboutCore.Size = new Size(60, 47);
+            AboutCore.Size = new Size(42, 28);
             AboutCore.TabIndex = 35;
             AboutCore.Text = "ℹ️";
             OverrideTooltip.SetToolTip(AboutCore, "About Elite Observatory Core");
@@ -126,13 +121,13 @@
             CoreTabControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             CoreTabControl.Controls.Add(CoreTabPage);
             CoreTabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
-            CoreTabControl.Location = new Point(17, 20);
+            CoreTabControl.Location = new Point(12, 12);
             CoreTabControl.Margin = new Padding(0);
             CoreTabControl.Multiline = true;
             CoreTabControl.Name = "CoreTabControl";
             CoreTabControl.SelectedIndex = 0;
             CoreTabControl.SelectedTabColor = Color.Empty;
-            CoreTabControl.Size = new Size(1190, 913);
+            CoreTabControl.Size = new Size(606, 308);
             CoreTabControl.TabColor = Color.Empty;
             CoreTabControl.TabIndex = 1;
             CoreTabControl.SelectedIndexChanged += CoreTabControl_SelectedIndexChanged;
@@ -147,11 +142,10 @@
             CoreTabPage.Controls.Add(LastEvent);
             CoreTabPage.Controls.Add(MonitorStatus);
             CoreTabPage.Controls.Add(SettingsButton);
-            CoreTabPage.Location = new Point(4, 34);
-            CoreTabPage.Margin = new Padding(4, 5, 4, 5);
+            CoreTabPage.Location = new Point(4, 24);
             CoreTabPage.Name = "CoreTabPage";
-            CoreTabPage.Padding = new Padding(4, 5, 4, 5);
-            CoreTabPage.Size = new Size(1182, 875);
+            CoreTabPage.Padding = new Padding(3, 3, 3, 3);
+            CoreTabPage.Size = new Size(598, 280);
             CoreTabPage.TabIndex = 0;
             CoreTabPage.Text = "Core";
             // 
@@ -159,20 +153,18 @@
             // 
             CoreTabPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             CoreTabPanel.BorderStyle = BorderStyle.Fixed3D;
-            CoreTabPanel.Location = new Point(9, 10);
-            CoreTabPanel.Margin = new Padding(4, 5, 4, 5);
+            CoreTabPanel.Location = new Point(6, 6);
             CoreTabPanel.Name = "CoreTabPanel";
-            CoreTabPanel.Size = new Size(1158, 762);
+            CoreTabPanel.Size = new Size(585, 219);
             CoreTabPanel.TabIndex = 0;
             // 
             // TotalEvents
             // 
             TotalEvents.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             TotalEvents.AutoSize = true;
-            TotalEvents.Location = new Point(9, 828);
-            TotalEvents.Margin = new Padding(4, 0, 4, 0);
+            TotalEvents.Location = new Point(6, 257);
             TotalEvents.Name = "TotalEvents";
-            TotalEvents.Size = new Size(258, 25);
+            TotalEvents.Size = new Size(171, 15);
             TotalEvents.TabIndex = 39;
             TotalEvents.Text = "Total Journal Lines Processed: 0";
             // 
@@ -180,10 +172,9 @@
             // 
             LastEvent.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             LastEvent.AutoSize = true;
-            LastEvent.Location = new Point(9, 803);
-            LastEvent.Margin = new Padding(4, 0, 4, 0);
+            LastEvent.Location = new Point(6, 242);
             LastEvent.Name = "LastEvent";
-            LastEvent.Size = new Size(289, 25);
+            LastEvent.Size = new Size(192, 15);
             LastEvent.TabIndex = 38;
             LastEvent.Text = "Last Journal Event Processed: None";
             // 
@@ -191,10 +182,9 @@
             // 
             MonitorStatus.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             MonitorStatus.AutoSize = true;
-            MonitorStatus.Location = new Point(9, 778);
-            MonitorStatus.Margin = new Padding(4, 0, 4, 0);
+            MonitorStatus.Location = new Point(6, 227);
             MonitorStatus.Name = "MonitorStatus";
-            MonitorStatus.Size = new Size(269, 25);
+            MonitorStatus.Size = new Size(178, 15);
             MonitorStatus.TabIndex = 37;
             MonitorStatus.Text = "Current Monitor Status: Stopped";
             // 
@@ -203,10 +193,9 @@
             SettingsButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             SettingsButton.FlatAppearance.BorderSize = 0;
             SettingsButton.FlatStyle = FlatStyle.Flat;
-            SettingsButton.Location = new Point(1024, 815);
-            SettingsButton.Margin = new Padding(4, 5, 4, 5);
+            SettingsButton.Location = new Point(490, 249);
             SettingsButton.Name = "SettingsButton";
-            SettingsButton.Size = new Size(143, 38);
+            SettingsButton.Size = new Size(100, 23);
             SettingsButton.TabIndex = 36;
             SettingsButton.Text = "Core Settings";
             SettingsButton.UseVisualStyleBackColor = true;
@@ -218,10 +207,9 @@
             UpdateLink.AutoSize = true;
             UpdateLink.Enabled = false;
             UpdateLink.Font = new Font("Segoe UI", 18F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            UpdateLink.Location = new Point(86, 937);
-            UpdateLink.Margin = new Padding(4, 0, 4, 0);
+            UpdateLink.Location = new Point(60, 322);
             UpdateLink.Name = "UpdateLink";
-            UpdateLink.Size = new Size(304, 48);
+            UpdateLink.Size = new Size(207, 32);
             UpdateLink.TabIndex = 34;
             UpdateLink.TabStop = true;
             UpdateLink.Text = "Update Available";
@@ -229,9 +217,9 @@
             // 
             // CoreForm
             // 
-            AutoScaleDimensions = new SizeF(10F, 25F);
+            AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1224, 1002);
+            ClientSize = new Size(630, 361);
             Controls.Add(AboutCore);
             Controls.Add(UpdateLink);
             Controls.Add(CoreTabControl);
@@ -240,8 +228,7 @@
             Controls.Add(ToggleMonitorButton);
             Controls.Add(ReadAllButton);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            Margin = new Padding(4, 5, 4, 5);
-            MinimumSize = new Size(839, 423);
+            MinimumSize = new Size(592, 269);
             Name = "CoreForm";
             Text = "Elite Observatory Core";
             FormClosing += CoreForm_FormClosing;
