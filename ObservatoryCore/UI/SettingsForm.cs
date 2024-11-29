@@ -117,6 +117,21 @@ namespace Observatory.UI
                         Controls.Add(pathButton);
                         trackBottomEdge(pathButton);
                         break;
+                    case DirectoryInfo:
+                        var dirLabel = CreateSettingLabel(setting.Value);
+                        var dirTextBox = CreateDirPathSetting(setting.Key);
+                        var dirButton = CreateDirBrowseSetting(setting.Key, dirTextBox);
+
+                        dirLabel.Location = GetSettingPosition();
+                        dirTextBox.Location = GetSettingPosition(true);
+                        _colHeight.Add(addedHeight);
+                        dirButton.Location = GetSettingPosition(true);
+
+                        Controls.Add(dirLabel);
+                        Controls.Add(dirTextBox);
+                        Controls.Add(dirButton);
+                        trackBottomEdge(dirButton);
+                        break;
                     case int:
                         // We have two options for integer values:
                         // 1) A slider (explicit by way of the SettingNumericUseSlider attribute and bounded to 0..100 by default)
@@ -434,6 +449,58 @@ namespace Observatory.UI
                 if (browseResult == DialogResult.OK)
                 {
                     textBox.Text = ofd.FileName;
+                }
+            };
+
+            return button;
+        }
+
+        private TextBox CreateDirPathSetting(PropertyInfo setting)
+        {
+            var dirInfo = (DirectoryInfo?)setting.GetValue(_plugin.Settings);
+
+            TextBox textBox = new()
+            {
+                Text = dirInfo?.FullName ?? string.Empty,
+                Width = _colWidth,
+            };
+
+            textBox.TextChanged += (object? sender, EventArgs e) =>
+            {
+                setting.SetValue(_plugin.Settings, new DirectoryInfo(textBox.Text));
+                SaveSettings();
+            };
+
+            return textBox;
+        }
+
+        private Button CreateDirBrowseSetting(PropertyInfo setting, TextBox textBox)
+        {
+            Button button = new()
+            {
+                Text = "Browse",
+                Height = (int)(35 * _scale),
+                Width = _colWidth / 2,
+                FlatStyle = FlatStyle.Flat,
+            };
+
+            button.FlatAppearance.BorderSize = 0;
+            button.Click += (object? sender, EventArgs e) =>
+            {
+                var currentDir = ((DirectoryInfo?)setting.GetValue(_plugin.Settings))?.FullName;
+
+                FolderBrowserDialog fbd = new FolderBrowserDialog()
+                {
+                    Description = "Select File...",
+                    InitialDirectory = currentDir ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    UseDescriptionForTitle = true                    
+                };
+
+                var browseResult = fbd.ShowDialog();
+
+                if (browseResult == DialogResult.OK)
+                {
+                    textBox.Text = fbd.SelectedPath;
                 }
             };
 
