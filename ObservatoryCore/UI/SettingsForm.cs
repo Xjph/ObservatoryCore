@@ -310,7 +310,7 @@ namespace Observatory.UI
                 Maximum = maxBound,
             };
 
-            trackBar.Value = (int?)setting.GetValue(_plugin.Settings) ?? 0;
+            trackBar.Value = Math.Clamp((int?)setting.GetValue(_plugin.Settings) ?? 0, minBound, maxBound);
 
             trackBar.ValueChanged += (sender, e) =>
             {
@@ -332,7 +332,7 @@ namespace Observatory.UI
                 Increment = Convert.ToInt32(bounds?.Increment ?? 1)
             };
 
-            numericUpDown.Value = (int?)setting.GetValue(_plugin.Settings) ?? 0;
+            numericUpDown.Value = Math.Clamp((int?)setting.GetValue(_plugin.Settings) ?? 0, numericUpDown.Minimum, numericUpDown.Maximum);
             numericUpDown.ValueChanged += (sender, e) =>
             {
                 setting.SetValue(_plugin.Settings, Convert.ToInt32(numericUpDown.Value));
@@ -354,7 +354,7 @@ namespace Observatory.UI
                 DecimalPlaces = bounds?.Precision ?? 1,
             };
 
-            numericUpDown.Value = Convert.ToDecimal(setting.GetValue(_plugin.Settings) ?? 0);
+            numericUpDown.Value = Math.Clamp(Convert.ToDecimal(setting.GetValue(_plugin.Settings) ?? 0), numericUpDown.Minimum, numericUpDown.Maximum);
             numericUpDown.ValueChanged += (sender, e) =>
             {
                 setting.SetValue(_plugin.Settings, Convert.ToDouble(numericUpDown.Value));
