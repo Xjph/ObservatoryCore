@@ -81,10 +81,10 @@ namespace Observatory.UI
             }
         }
 
-        public static void FocusPluginTabOrWindow(string pluginName)
+        public static void FocusPluginTabOrWindow(IObservatoryPlugin plugin)
         {
             // Check first if the plugin is popped out and activate/raise that window.
-            Form? pluginPopout = FormsManager.GetFormByTitle(pluginName);
+            Form? pluginPopout = FormsManager.GetFormByTitle(plugin.Name);
             if (pluginPopout != null)
             {
                 pluginPopout.Activate();
@@ -92,7 +92,7 @@ namespace Observatory.UI
             else
             {
                 // Otherwise, switch the main window to that tab.
-                FindCoreForm()?.FocusPlugin(pluginName);
+                FindCoreForm()?.FocusPlugin(plugin.ShortName);
             }
         }
     }
