@@ -9,18 +9,19 @@ namespace Observatory.PluginManagement
 {
     class PluginEventHandler
     {
-        private IEnumerable<IObservatoryWorker> observatoryWorkers;
-        private IEnumerable<IObservatoryNotifier> observatoryNotifiers;
+        private readonly IEnumerable<IObservatoryWorker> observatoryWorkers;
+        private readonly IEnumerable<IObservatoryNotifier> observatoryNotifiers;
         private readonly HashSet<IObservatoryPlugin> disabledPlugins;
-        private List<(string error, string detail)> errorList;
+        private readonly List<(string error, string detail)> errorList;
         private System.Timers.Timer timer;
 
         public PluginEventHandler(IEnumerable<IObservatoryWorker> observatoryWorkers, IEnumerable<IObservatoryNotifier> observatoryNotifiers)
         {
             this.observatoryWorkers = observatoryWorkers;
             this.observatoryNotifiers = observatoryNotifiers;
-            disabledPlugins = new();
-            errorList = new();
+            disabledPlugins = [];
+            errorList = [];
+            timer = new();
 
             InitializeTimer();
         }
@@ -31,12 +32,11 @@ namespace Observatory.PluginManagement
         {
             // Use a timer to delay error reporting until incoming errors are "quiet" for one full second.
             // Should resolve issue where repeated plugin errors open hundreds of error windows.
-            timer = new();
             timer.Interval = 1000;
             timer.Elapsed += ReportErrorsIfAny;
         }
 
-        public void OnJournalEvent(object source, JournalEventArgs journalEventArgs)
+        public void OnJournalEvent(object? _, JournalEventArgs journalEventArgs)
         {
             foreach (var worker in observatoryWorkers)
             {
@@ -57,7 +57,7 @@ namespace Observatory.PluginManagement
             }
         }
 
-        public void OnStatusUpdate(object sourece, JournalEventArgs journalEventArgs)
+        public void OnStatusUpdate(object? _, JournalEventArgs journalEventArgs)
         {
             foreach (var worker in observatoryWorkers)
             {
@@ -78,7 +78,7 @@ namespace Observatory.PluginManagement
             }
         }
 
-        internal void OnLogMonitorStateChanged(object sender, LogMonitorStateChangedEventArgs e)
+        internal void OnLogMonitorStateChanged(object? _, LogMonitorStateChangedEventArgs e)
         {
             foreach (var worker in observatoryWorkers)
             {
@@ -94,7 +94,25 @@ namespace Observatory.PluginManagement
             }
         }
 
-        public void OnNotificationEvent(object source, NotificationArgs notificationArgs)
+        public void OnNotificationEvent(object? _, NotificationArgs notificationArgs)
+        {
+            UpdateOrNotify(notificationArgs, false);
+        }
+
+        public void OnNotificationUpdate(object? _, NotificationArgs notificationArgs)
+        {
+            UpdateOrNotify(notificationArgs, true);
+        }
+
+        public void OnNotificationCancel(object? _, Guid guid)
+        {
+            foreach (var notifier in observatoryNotifiers)
+            {
+                notifier.CancelNotification(guid);
+            }
+        }
+
+        private void UpdateOrNotify(NotificationArgs notificationArgs, bool update)
         {
             foreach (var notifier in observatoryNotifiers)
             {
@@ -107,13 +125,16 @@ namespace Observatory.PluginManagement
                     // We may get notifications that are not PluginNotifier destined if we have
                     // a plugin which overrides a native handler. Only deliver native notifications if
                     // the plugin declares it's overriding.
-                    if ((notifier.OverrideAudioNotifications 
+                    if ((notifier.OverrideAudioNotifications
                             && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
                         || (notifier.OverridePopupNotifications
                             && (notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
                         || (notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
                     {
-                        notifier.OnNotificationEvent(notificationArgs);
+                        if (update)
+                            notifier.UpdateNotification(notificationArgs);
+                        else
+                            notifier.OnNotificationEvent(notificationArgs);
                     }
                 }
                 catch (PluginException ex)
@@ -128,7 +149,7 @@ namespace Observatory.PluginManagement
             }
         }
 
-        public void OnPluginMessageEvent(object _, PluginMessageArgs messageArgs)
+        public void OnPluginMessageEvent(object? _, PluginMessageArgs messageArgs)
         {
             foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Concat(observatoryWorkers))
             {
@@ -181,9 +202,9 @@ namespace Observatory.PluginManagement
             errorList.Add(($"Error in {plugin} while handling {eventType}: {ex.Message}", eventDetail));
         }
 
-        private void ReportErrorsIfAny(object sender, ElapsedEventArgs e)
+        private void ReportErrorsIfAny(object? _, ElapsedEventArgs e)
         {
-            if (errorList.Any())
+            if (errorList.Count != 0)
             {
                 ErrorReporter.ShowErrorPopup($"Plugin Error{(errorList.Count > 1 ? "s" : "")}", errorList);
                 

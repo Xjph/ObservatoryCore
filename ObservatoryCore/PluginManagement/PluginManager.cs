@@ -124,6 +124,8 @@ namespace Observatory.PluginManagement
             }
 
             core.Notification += pluginHandler.OnNotificationEvent;
+            core.UpdateNotificationEvent += pluginHandler.OnNotificationUpdate;
+            core.CancelNotificationEvent += pluginHandler.OnNotificationCancel;
             core.PluginMessage += pluginHandler.OnPluginMessageEvent;
 
             if (errorList.Any())

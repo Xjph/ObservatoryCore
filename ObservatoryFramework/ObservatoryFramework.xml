@@ -257,6 +257,11 @@
             A value which allows grouping of notifications together. For example, values &gt;= 0 &lt;= 1000 could be system body IDs, -1 is the system, anything else is arbitrary.
             </summary>
         </member>
+        <member name="F:Observatory.Framework.NotificationArgs.Guid">
+            <summary>
+            Unique identifier for tracking ongoing notifications.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.NotificationSuppression">
             <summary>
             Defines constants for suppression of title or detail announcement in a notification.
@@ -1628,6 +1633,18 @@
             Method called when other plugins send notification events to Observatory Core.
             </summary>
             <param name="notificationEventArgs">Details of the notification as sent from the originating worker plugin.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryNotifier.CancelNotification(System.Guid)">
+            <summary>
+            Method called when a persistent notification is to be cancelled.
+            </summary>
+            <param name="guid">Unique identifier of notification to cancel.</param>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryNotifier.UpdateNotification(Observatory.Framework.NotificationArgs)">
+            <summary>
+            Method called when the contents of a persistent notification have been changed.
+            </summary>
+            <param name="notificationEventArgs">Updated details of the notification as sent from the originating worker plugin.</param>
         </member>
         <member name="P:Observatory.Framework.Interfaces.IObservatoryNotifier.OverrideAudioNotifications">
             <summary>

@@ -72,6 +72,10 @@
         /// A value which allows grouping of notifications together. For example, values &gt;= 0 &lt;= 1000 could be system body IDs, -1 is the system, anything else is arbitrary.
         /// </summary>
         public int? CoalescingId;
+        /// <summary>
+        /// Unique identifier for tracking ongoing notifications.
+        /// </summary>
+        public Guid? Guid;
     }
 
     /// <summary>

@@ -165,6 +165,18 @@ namespace Observatory.Framework.Interfaces
         public void OnNotificationEvent(NotificationArgs notificationEventArgs);
 
         /// <summary>
+        /// Method called when a persistent notification is to be cancelled.
+        /// </summary>
+        /// <param name="guid">Unique identifier of notification to cancel.</param>
+        public void CancelNotification(Guid guid) { }
+
+        /// <summary>
+        /// Method called when the contents of a persistent notification have been changed.
+        /// </summary>
+        /// <param name="notificationEventArgs">Updated details of the notification as sent from the originating worker plugin.</param>
+        public void UpdateNotification(NotificationArgs notificationEventArgs) { }
+
+        /// <summary>
         /// Property set by notification plugins to indicate to Core 
         /// that native audio notifications should be disabled/suppressed.
         /// </summary>

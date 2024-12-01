@@ -40,7 +40,7 @@ namespace Observatory.PluginManagement
 
         public Guid SendNotification(NotificationArgs notificationArgs)
         {
-            var guid = Guid.Empty;
+            var guid = notificationArgs.Guid ?? Guid.NewGuid();
             var handler = Notification;
 
             // Always send notifications to plugins. PluginEventHandler filters out plugins
@@ -85,6 +85,8 @@ namespace Observatory.PluginManagement
         public void CancelNotification(Guid id)
         {
             ExecuteOnUIThread(() => NativePopup.CloseNotification(id));
+
+            CancelNotificationEvent?.Invoke(this, id);
         }
 
         public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
@@ -104,6 +106,8 @@ namespace Observatory.PluginManagement
                 {
                     NativeVoice.AudioHandlerEnqueue(notificationArgs);
                 }
+
+                UpdateNotificationEvent?.Invoke(this, notificationArgs);
             }
         }
 
@@ -185,6 +189,8 @@ namespace Observatory.PluginManagement
         }
 
         public event EventHandler<NotificationArgs> Notification;
+        public event EventHandler<NotificationArgs> UpdateNotificationEvent;
+        public event EventHandler<Guid> CancelNotificationEvent;
 
         internal event EventHandler<PluginMessageArgs> PluginMessage;
 

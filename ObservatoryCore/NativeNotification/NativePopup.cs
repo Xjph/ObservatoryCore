@@ -14,7 +14,7 @@ namespace Observatory.NativeNotification
 
         public Guid InvokeNativeNotification(NotificationArgs notificationArgs)
         {
-            var notificationGuid = Guid.NewGuid();
+            var notificationGuid = notificationArgs.Guid ?? Guid.NewGuid();
             Application.OpenForms[0]?.Invoke(() =>
             {
                 var notification = new NotificationForm(notificationGuid, notificationArgs);
