@@ -284,10 +284,24 @@ namespace Observatory.PluginManagement
 
         public void FocusPlugin(string pluginName)
         {
-            ExecuteOnUIThread(() =>
+            // pluginName here is based on "short name" whereas windows are named using full name.
+            // Find the plugin by short name and proceed with the full name.
+            IObservatoryPlugin? plugin = null;
+            foreach (var p in PluginManager.GetInstance.AllUIPlugins)
             {
-                FormsManager.FocusPluginTabOrWindow(pluginName);
-            });
+                if (p.ShortName == pluginName)
+                {
+                    plugin = p;
+                    break;
+                }
+            }
+            if (plugin != null)
+            {
+                ExecuteOnUIThread(() =>
+                {
+                    FormsManager.FocusPluginTabOrWindow(plugin);
+                });
+            }
         }
 
         internal void Shutdown()
