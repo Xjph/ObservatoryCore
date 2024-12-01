@@ -33,17 +33,17 @@ namespace Observatory.UI
             }
         };
 
-        private static string[] _patrons = 
+        private static string[] _patrons =
         [
-            "  Arx", 
+            "  Arx",
             "  Doctor Nozimo",
             "  KPTRamius",
-            "  Markus H", 
+            "  Markus H",
             "  McMuttons",
             "  NirevS",
             "  ObediahJoel",
             "  PaganPilot",
-            "  pepčok", 
+            "  pepčok",
             "  Slegnor"
         ];
 
@@ -77,7 +77,7 @@ namespace Observatory.UI
             themeManager = ThemeManager.GetInstance;
             themeManager.CurrentTheme = Properties.Core.Default.Theme;
             themeManager.RegisterControl(this);
-            
+
             CreatePluginTabs();
             CreatePluginList();
             RestoreSavedTab();
@@ -369,7 +369,7 @@ namespace Observatory.UI
         #region Plugins
         private Dictionary<ListViewItem, IObservatoryPlugin>? ListedPlugins;
         private bool loading = true; // Suppress settings updates due to initializing the listview.
-        
+
         private void CreatePluginTabs()
         {
             var uiPlugins = PluginManager.GetInstance.AllUIPlugins;
@@ -444,6 +444,19 @@ namespace Observatory.UI
 
             _coreSettings.Show();
             _coreSettings.Activate();
+        }
+
+        private void PluginFolderButton_Click(object sender, EventArgs e)
+        {
+            var pluginDir = Application.StartupPath + "plugins";
+
+            if (!Directory.Exists(pluginDir))
+            {
+                Directory.CreateDirectory(pluginDir);
+            }
+
+            var fileExplorerInfo = new ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
+            Process.Start(fileExplorerInfo);
         }
     }
 }

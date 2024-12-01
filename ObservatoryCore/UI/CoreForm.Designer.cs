@@ -45,6 +45,7 @@
             MonitorStatus = new Label();
             SettingsButton = new Button();
             UpdateLink = new LinkLabel();
+            PluginFolderButton = new Button();
             CoreTabControl.SuspendLayout();
             CoreTabPage.SuspendLayout();
             SuspendLayout();
@@ -137,6 +138,7 @@
             // 
             CoreTabPage.BackColor = SystemColors.Control;
             CoreTabPage.BorderStyle = BorderStyle.FixedSingle;
+            CoreTabPage.Controls.Add(PluginFolderButton);
             CoreTabPage.Controls.Add(CoreTabPanel);
             CoreTabPage.Controls.Add(TotalEvents);
             CoreTabPage.Controls.Add(LastEvent);
@@ -144,7 +146,7 @@
             CoreTabPage.Controls.Add(SettingsButton);
             CoreTabPage.Location = new Point(4, 24);
             CoreTabPage.Name = "CoreTabPage";
-            CoreTabPage.Padding = new Padding(3, 3, 3, 3);
+            CoreTabPage.Padding = new Padding(3);
             CoreTabPage.Size = new Size(598, 280);
             CoreTabPage.TabIndex = 0;
             CoreTabPage.Text = "Core";
@@ -215,6 +217,19 @@
             UpdateLink.Text = "Update Available";
             UpdateLink.Visible = false;
             // 
+            // PluginFolderButton
+            // 
+            PluginFolderButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            PluginFolderButton.FlatAppearance.BorderSize = 0;
+            PluginFolderButton.FlatStyle = FlatStyle.Flat;
+            PluginFolderButton.Location = new Point(384, 249);
+            PluginFolderButton.Name = "PluginFolderButton";
+            PluginFolderButton.Size = new Size(100, 23);
+            PluginFolderButton.TabIndex = 40;
+            PluginFolderButton.Text = "Plugin Folder";
+            PluginFolderButton.UseVisualStyleBackColor = true;
+            PluginFolderButton.Click += PluginFolderButton_Click;
+            // 
             // CoreForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -259,5 +274,6 @@
         private Label TotalEvents;
         private Label LastEvent;
         private Label MonitorStatus;
+        private Button PluginFolderButton;
     }
 }
