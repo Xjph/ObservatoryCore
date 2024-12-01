@@ -31,9 +31,17 @@ namespace Observatory
                 {
                     var fileInfo = new FileInfo(args[0]);
                     if (fileInfo.Extension == ".eop" || fileInfo.Extension == ".zip")
+                    {
                         File.Copy(
                             fileInfo.FullName,
                              $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{fileInfo.Name}");
+                        var processes = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
+                        foreach ( var process in processes )
+                        {
+                            if (process.Id != Environment.ProcessId)
+                                process.CloseMainWindow();
+                        }
+                    }
                 }
 
                 string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
