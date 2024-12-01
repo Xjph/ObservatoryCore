@@ -1,10 +1,7 @@
 ﻿using NAudio.Wave;
-using Observatory.Framework.Files.Journal;
 using Observatory.Framework.ParameterTypes;
 using System.Collections.Concurrent;
 using System.Diagnostics;
-using System.IO;
-using System.Runtime.CompilerServices;
 
 namespace Observatory.Utils
 {
@@ -82,10 +79,17 @@ namespace Observatory.Utils
                     return;
 
                 using (var file = new AudioFileReader(audioTask.FilePath))
-                using (var output = new WaveOutEvent() { DeviceNumber = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice) - 1 })
+                using (var output = new WaveOutEvent() { DeviceNumber = GetDeviceIndex(Properties.Core.Default.AudioDevice) - 1 })
                 {
+                    file.Volume = Properties.Core.Default.AudioVolume;
                     output.Init(file);
-                    output.Volume = Properties.Core.Default.AudioVolume;
+
+                    // Correction in case output mixer volume was previously set low
+                    // by lowered volume setting.
+                    // Remove this later.
+                    if (Properties.Core.Default.AudioVolume < 1)
+                        output.Volume = 1.0f;
+
                     output.Play();
 
                     while (output.PlaybackState == PlaybackState.Playing)
