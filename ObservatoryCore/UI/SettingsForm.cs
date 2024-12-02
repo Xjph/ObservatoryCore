@@ -9,15 +9,15 @@ namespace Observatory.UI
     public partial class SettingsForm : Form
     {
         private readonly IObservatoryPlugin _plugin;
-        private readonly List<int> _colHeight = new List<int>();
-        private int _colWidth = 400;
-        private double _scale;
+        private readonly List<int> _colHeight = [];
+        private readonly int _colWidth = 400;
+        private readonly double _scale;
 
         public SettingsForm(IObservatoryPlugin plugin)
         {
             InitializeComponent();
             _plugin = plugin;
-
+            
             // Filtered to only settings without SettingIgnore attribute
             var attrib = _plugin.Settings.GetType().GetCustomAttribute<SettingSuggestedColumnWidth>();
             if (attrib != null && attrib.Width > 0)
@@ -36,103 +36,120 @@ namespace Observatory.UI
             Text = plugin.Name + " Settings";
             Icon = Resources.EOCIcon_Presized;
             ThemeManager.GetInstance.RegisterControl(this);
+
+            var vScrollMargin = SettingsFlowPanel.DisplayRectangle.Height - SettingsFlowPanel.ClientRectangle.Height;
+            var hScrollMargin = SettingsFlowPanel.DisplayRectangle.Width - SettingsFlowPanel.ClientRectangle.Width;
+            if (vScrollMargin > 0)
+            {
+                Height = Math.Min(Height + vScrollMargin, Screen.FromControl(this).WorkingArea.Height);
+            }
+            if (hScrollMargin > 0)
+            {
+                Width = Math.Min(Width + hScrollMargin, Screen.FromControl(this).WorkingArea.Width);
+            }    
+            
+        }
+
+        private static TableLayoutPanel WrapToSingleRow(Control[] controls)
+        {
+            var table = new TableLayoutPanel()
+            {
+                Height = 30,
+                Width = 50,
+                AutoSize = true
+            };
+            for (int i = 0; i < controls.Length; i++)
+            {
+                controls[i].Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+                table.Controls.Add(controls[i]);
+                table.SetRow(controls[i], 0);
+                table.SetColumn(controls[i], i);
+            }
+            return table;
+        }
+
+        private static void AlignControls(List<Control> controls)
+        {
+            var maxWidth = controls.Max(control => control.Width);
+            foreach (var control in controls)
+            {
+                control.AutoSize = false;
+                control.Width = maxWidth;
+            }
+            controls.Clear();
+        }
+
+        private static void InsertFlowBreak(FlowLayoutPanel flowLayoutPanel)
+        {
+            var lastControl = flowLayoutPanel.Controls[flowLayoutPanel.Controls.Count - 1];
+            flowLayoutPanel.SetFlowBreak(lastControl, true);
         }
 
         private void CreateControls(IEnumerable<KeyValuePair<PropertyInfo, string>> settings)
         {
-            bool recentHalfCol = false;
-
-            int settingsHeight = 0;
-            
-            var trackBottomEdge = (Control control) =>
-            {
-                var controlBottom = control.Location.Y + control.Height;
-                if (controlBottom > settingsHeight)
-                    settingsHeight = controlBottom;
-            };
-
+            List<Control> groupedControls = [];
 
             foreach (var setting in settings)
             {
-                // Reset the column tracking for checkboxes if this isn't a checkbox or explicitly requested
-                // to start a new grouping of settings.
-                int addedHeight = (int)(35 * _scale);
-                var newGroup = Attribute.GetCustomAttribute(setting.Key, typeof(SettingNewGroup)) as SettingNewGroup;
-
-                if (setting.Key.PropertyType.Name != "Boolean" || newGroup != null)
+                SettingNewGroup? newGroup = Attribute.GetCustomAttribute(setting.Key, typeof(SettingNewGroup)) as SettingNewGroup;
+                if (newGroup != null)
                 {
-                    if (recentHalfCol) _colHeight.Add(addedHeight);
-                    recentHalfCol = false;
-
-                    if (newGroup != null)
+                    if (groupedControls.Count > 0)
                     {
-                        if (!string.IsNullOrEmpty(newGroup.Label))
-                        {
-                            var label = CreateGroupLabel(newGroup.Label);
-                            label.Location = GetSettingPosition();
+                        AlignControls(groupedControls);
+                    }
 
-                            Controls.Add(label);
-                            trackBottomEdge(label);
-                            _colHeight.Add(label.Height);
+                    if (!string.IsNullOrEmpty(newGroup.Label))
+                    {
+                        var label = CreateGroupLabel(newGroup.Label);
+              
+                        if (SettingsFlowPanel.Controls.Count > 0)
+                        {
+                            InsertFlowBreak(SettingsFlowPanel);
                         }
-                        else
-                            _colHeight.Add(10);
+
+                        SettingsFlowPanel.Controls.Add(label);
+                        InsertFlowBreak(SettingsFlowPanel);
                     }
                 }
+
+                bool handled = true;
 
                 switch (setting.Key.GetValue(_plugin.Settings))
                 {
                     case bool:
                         var checkBox = CreateBoolSetting(setting);
-                        addedHeight = recentHalfCol ? addedHeight : 0;
-                        checkBox.Location = GetSettingPosition(recentHalfCol);
-
-                        recentHalfCol = !recentHalfCol;
-
-                        Controls.Add(checkBox);
-                        trackBottomEdge(checkBox);
+                        SettingsFlowPanel.Controls.Add(checkBox);
                         break;
                     case string:
+                        InsertFlowBreak(SettingsFlowPanel);
                         var stringLabel = CreateSettingLabel(setting.Value);
                         var textBox = CreateStringSetting(setting.Key);
-                        stringLabel.Location = GetSettingPosition();
-                        textBox.Location = GetSettingPosition(true);
-
-                        Controls.Add(stringLabel);
-                        Controls.Add(textBox);
-                        trackBottomEdge(textBox);
+                        SettingsFlowPanel.Controls.Add(WrapToSingleRow([stringLabel, textBox]));
+                        InsertFlowBreak(SettingsFlowPanel);
                         break;
                     case FileInfo:
+                        InsertFlowBreak(SettingsFlowPanel);
                         var fileLabel = CreateSettingLabel(setting.Value);
                         var pathTextBox = CreateFilePathSetting(setting.Key);
                         var pathButton = CreateFileBrowseSetting(setting.Key, pathTextBox);
-
-                        fileLabel.Location = GetSettingPosition();
-                        pathTextBox.Location = GetSettingPosition(true);
-                        _colHeight.Add(addedHeight);
-                        pathButton.Location = GetSettingPosition(true);
-
-                        Controls.Add(fileLabel);
-                        Controls.Add(pathTextBox);
-                        Controls.Add(pathButton);
-                        trackBottomEdge(pathButton);
+                        fileLabel.Height = pathTextBox.Height;
+                        fileLabel.TextAlign = ContentAlignment.MiddleRight;
+                        SettingsFlowPanel.Controls.Add(WrapToSingleRow([fileLabel, pathTextBox]));
+                        SettingsFlowPanel.Controls.Add(pathButton);
+                        InsertFlowBreak(SettingsFlowPanel);
                         break;
                     case DirectoryInfo:
+                        InsertFlowBreak(SettingsFlowPanel);
                         var dirLabel = CreateSettingLabel(setting.Value);
                         var dirTextBox = CreateDirPathSetting(setting.Key);
                         var dirButton = CreateDirBrowseSetting(setting.Key, dirTextBox);
-
-                        dirLabel.Location = GetSettingPosition();
-                        dirTextBox.Location = GetSettingPosition(true);
-                        _colHeight.Add(addedHeight);
-                        dirButton.Location = GetSettingPosition(true);
-
-                        Controls.Add(dirLabel);
-                        Controls.Add(dirTextBox);
-                        Controls.Add(dirButton);
-                        trackBottomEdge(dirButton);
+                        SettingsFlowPanel.Controls.Add(WrapToSingleRow([dirLabel, dirTextBox]));
+                        SettingsFlowPanel.Controls.Add(dirButton);
+                        InsertFlowBreak(SettingsFlowPanel);
                         break;
                     case int:
+                        InsertFlowBreak(SettingsFlowPanel);
                         // We have two options for integer values:
                         // 1) A slider (explicit by way of the SettingNumericUseSlider attribute and bounded to 0..100 by default)
                         // 2) A numeric up/down (default otherwise, and is unbounded by default).
@@ -147,92 +164,74 @@ namespace Observatory.UI
                         {
                             intControl = CreateSettingNumericUpDownForInt(setting.Key);
                         }
-                        intLabel.Location = GetSettingPosition();
-                        intControl.Location = GetSettingPosition(true);
-
-                        addedHeight = intControl.Height + 2;
-                        intLabel.Height = intControl.Height;
+                        intLabel.AutoSize = true;
+                        intControl.Height = intLabel.Height;
                         intLabel.TextAlign = ContentAlignment.MiddleRight;
-
-                        Controls.Add(intLabel);
-                        Controls.Add(intControl);
-                        trackBottomEdge(intControl);
+                        SettingsFlowPanel.Controls.Add(WrapToSingleRow([intLabel, intControl]));
+                        InsertFlowBreak(SettingsFlowPanel);
                         break;
                     case double:
+                        InsertFlowBreak(SettingsFlowPanel);
                         // We have one options for double values:
                         // 1) A numeric up/down (default otherwise, and is unbounded by default).
                         // Bounds can be set via the SettingNumericBounds attribute.
                         var doubleLabel = CreateSettingLabel(setting.Value);
                         Control doubleControl = CreateSettingNumericUpDownForDouble(setting.Key);
-                        doubleLabel.Location = GetSettingPosition();
-                        doubleControl.Location = GetSettingPosition(true);
-
-                        addedHeight = doubleControl.Height + 2;
+                        doubleLabel.AutoSize = true;
                         doubleLabel.Height = doubleControl.Height;
                         doubleLabel.TextAlign = ContentAlignment.MiddleRight;
-
-                        Controls.Add(doubleLabel);
-                        Controls.Add(doubleControl);
-                        trackBottomEdge(doubleControl);
+                        SettingsFlowPanel.Controls.Add(WrapToSingleRow([doubleLabel, doubleControl]));
+                        InsertFlowBreak(SettingsFlowPanel);
                         break;
                     case Action action:
                         var button = CreateSettingButton(setting.Value, action);
-
-                        button.Location = GetSettingPosition();
-
-                        Controls.Add(button);
-                        addedHeight = button.Height;
-                        trackBottomEdge(button);
+                        SettingsFlowPanel.Controls.Add(button);
                         break;
                     case Dictionary<string, object> dictSetting:
+                        InsertFlowBreak(SettingsFlowPanel);
                         var dictLabel = CreateSettingLabel(setting.Value);
                         var dropdown = CreateSettingDropdown(setting.Key, dictSetting);
-                       
-                        dictLabel.Location = GetSettingPosition();
-                        dropdown.Location = GetSettingPosition(true);
-                        Controls.Add(dictLabel);
-                        Controls.Add(dropdown);
-                        trackBottomEdge(dropdown);
+
+                        SettingsFlowPanel.Controls.Add(WrapToSingleRow([dictLabel, dropdown]));
+                        InsertFlowBreak(SettingsFlowPanel);
                         break;
                     default:
+                        handled = false;
                         break;
                 }
-                _colHeight.Add(addedHeight);
+                if (handled)
+                    groupedControls.Add(SettingsFlowPanel.Controls[SettingsFlowPanel.Controls.Count - 1]);
             }
-            Height = settingsHeight + 160;
-            Width = _colWidth * 2 + 80;
+            if (groupedControls.Count > 0)
+            {
+                AlignControls(groupedControls);
+            }
         }
 
-        private Point GetSettingPosition(bool secondCol = false)
-        {
-            return new Point(20 + (secondCol ? _colWidth + 20 : 0), 15 + _colHeight.Sum());
-        }
-
-
-        private Label CreateSettingLabel(string settingName)
+        private static Label CreateSettingLabel(string settingName)
         {
             Label label = new()
             {
                 Text = settingName + ": ",
                 TextAlign = System.Drawing.ContentAlignment.MiddleRight,
-                Width = _colWidth,
-                ForeColor = Color.LightGray
+                ForeColor = Color.LightGray,
+                AutoSize = true
             };
 
             return label;
         }
 
-        private Label CreateGroupLabel(string groupLabel)
+        private static Label CreateGroupLabel(string groupLabel)
         {
             Label label = new()
             {
                 Text = groupLabel,
-                TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
-                Width = _colWidth * 2,
+                TextAlign = System.Drawing.ContentAlignment.BottomLeft,
                 ForeColor = Color.LightGray,
+                AutoSize = true,
+                Padding = new Padding(0, 5, 0, 0)
             };
             label.Font = new Font(label.Font.FontFamily, label.Font.Size + 1, FontStyle.Bold);
-            label.Height += (int)(10 * _scale); // Add spacing.
             return label;
         }
 
@@ -249,7 +248,7 @@ namespace Observatory.UI
 
             ComboBox comboBox = new()
             {
-                Width = _colWidth,
+                AutoSize = true,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
 
@@ -276,8 +275,7 @@ namespace Observatory.UI
             Button button = new()
             {
                 Text = settingName,
-                Width = Convert.ToInt32(_colWidth * 0.8),
-                Height = (int)(35 * _scale),
+                AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
             };
 
@@ -305,7 +303,7 @@ namespace Observatory.UI
                 Orientation = Orientation.Horizontal,
                 TickStyle = TickStyle.Both,
                 TickFrequency = tickFrequency,
-                Width = _colWidth,
+                AutoSize = true,
                 Minimum = minBound,
                 Maximum = maxBound,
             };
@@ -326,7 +324,7 @@ namespace Observatory.UI
             SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
             NumericUpDown numericUpDown = new()
             {
-                Width = _colWidth,
+                AutoSize = true,
                 Minimum = Convert.ToInt32(bounds?.Minimum ?? Int32.MinValue),
                 Maximum = Convert.ToInt32(bounds?.Maximum ?? Int32.MaxValue),
                 Increment = Convert.ToInt32(bounds?.Increment ?? 1)
@@ -347,7 +345,7 @@ namespace Observatory.UI
             SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
             NumericUpDown numericUpDown = new()
             {
-                Width = _colWidth,
+                AutoSize = true,
                 Minimum = Convert.ToDecimal(bounds?.Minimum ?? Double.MinValue),
                 Maximum = Convert.ToDecimal(bounds?.Maximum ?? Double.MaxValue),
                 Increment = Convert.ToDecimal(bounds?.Increment ?? 1.0),
@@ -371,8 +369,7 @@ namespace Observatory.UI
                 Text = setting.Value,
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
                 Checked = (bool?)setting.Key.GetValue(_plugin.Settings) ?? false,
-                Height = (int)(30 * _scale),
-                Width = _colWidth,
+                AutoSize = true,
                 ForeColor = Color.LightGray
             };
 
@@ -390,7 +387,7 @@ namespace Observatory.UI
             TextBox textBox = new()
             {
                 Text = (setting.GetValue(_plugin.Settings) ?? String.Empty).ToString(),
-                Width = _colWidth,
+                AutoSize = true
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -409,7 +406,8 @@ namespace Observatory.UI
             TextBox textBox = new()
             {
                 Text = fileInfo?.FullName ?? string.Empty,
-                Width = _colWidth,
+                AutoSize = true,
+                Width = 200
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -426,8 +424,7 @@ namespace Observatory.UI
             Button button = new()
             {
                 Text = "Browse",
-                Height = (int)(35 * _scale),
-                Width = _colWidth / 2,
+                AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
             };
 
@@ -462,7 +459,8 @@ namespace Observatory.UI
             TextBox textBox = new()
             {
                 Text = dirInfo?.FullName ?? string.Empty,
-                Width = _colWidth,
+                AutoSize = true,
+                Width = 200
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -479,8 +477,7 @@ namespace Observatory.UI
             Button button = new()
             {
                 Text = "Browse",
-                Height = (int)(35 * _scale),
-                Width = _colWidth / 2,
+                AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
             };
 

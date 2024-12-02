@@ -29,6 +29,7 @@ namespace Observatory.UI
         private void InitializeComponent()
         {
             PluginSettingsCloseButton = new Button();
+            SettingsFlowPanel = new FlowLayoutPanel();
             SuspendLayout();
             // 
             // PluginSettingsCloseButton
@@ -36,7 +37,7 @@ namespace Observatory.UI
             PluginSettingsCloseButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             PluginSettingsCloseButton.FlatAppearance.BorderSize = 0;
             PluginSettingsCloseButton.FlatStyle = FlatStyle.Flat;
-            PluginSettingsCloseButton.Location = new Point(339, 5);
+            PluginSettingsCloseButton.Location = new Point(302, 101);
             PluginSettingsCloseButton.Name = "PluginSettingsCloseButton";
             PluginSettingsCloseButton.Size = new Size(75, 23);
             PluginSettingsCloseButton.TabIndex = 0;
@@ -44,13 +45,22 @@ namespace Observatory.UI
             PluginSettingsCloseButton.UseVisualStyleBackColor = true;
             PluginSettingsCloseButton.Click += PluginSettingsCloseButton_Click;
             // 
+            // SettingsFlowPanel
+            // 
+            SettingsFlowPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            SettingsFlowPanel.AutoScroll = true;
+            SettingsFlowPanel.Location = new Point(12, 12);
+            SettingsFlowPanel.Name = "SettingsFlowPanel";
+            SettingsFlowPanel.Size = new Size(365, 83);
+            SettingsFlowPanel.TabIndex = 1;
+            // 
             // SettingsForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(426, 40);
+            ClientSize = new Size(389, 136);
+            Controls.Add(SettingsFlowPanel);
             Controls.Add(PluginSettingsCloseButton);
-            FormBorderStyle = FormBorderStyle.FixedSingle;
             Name = "SettingsForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "SettingsForm";
@@ -60,5 +70,6 @@ namespace Observatory.UI
         #endregion
 
         private Button PluginSettingsCloseButton;
+        private FlowLayoutPanel SettingsFlowPanel;
     }
 }
