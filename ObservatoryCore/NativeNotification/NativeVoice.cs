@@ -48,7 +48,7 @@ namespace Observatory.NativeNotification
 
                 if (Properties.Core.Default.ChimeEnabled)
                 {
-                    filename = Path.GetTempPath() + "ObservatoryNotification.wav";
+                    filename = Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav";
                     using UnmanagedMemoryStream ms = Properties.Core.Default.ChimeSelected switch
                     {
                         1 => Resources.ObservatoryNotification1,
