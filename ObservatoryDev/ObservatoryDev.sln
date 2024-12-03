@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObservatoryExplorer", "..\O
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObservatoryFramework", "..\ObservatoryFramework\ObservatoryFramework.csproj", "{27ABA3B7-AB3C-465F-BA40-4F06BD803811}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObservatoryHerald", "..\ObservatoryHerald\ObservatoryHerald.csproj", "{BC57225F-D89B-4853-A816-9AB4865E7AC5}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -53,14 +51,6 @@ Global
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Proton|Any CPU.Build.0 = Proton|Any CPU
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{27ABA3B7-AB3C-465F-BA40-4F06BD803811}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Portable|Any CPU.ActiveCfg = Portable|Any CPU
-		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Portable|Any CPU.Build.0 = Portable|Any CPU
-		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Proton|Any CPU.ActiveCfg = Proton|Any CPU
-		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Proton|Any CPU.Build.0 = Proton|Any CPU
-		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC57225F-D89B-4853-A816-9AB4865E7AC5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
