@@ -24,8 +24,8 @@ using System.Xml;
 using System.Speech.Synthesis;
 using System.Runtime.InteropServices;
 using System.Diagnostics;
-using System.IO;
 using Observatory.Utils;
+using Observatory.Assets;
 
 namespace Observatory.NativeNotification
 {
@@ -44,7 +44,26 @@ namespace Observatory.NativeNotification
         {
             try
             {
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                string filename;
+
+                if (Properties.Core.Default.ChimeEnabled)
+                {
+                    filename = Path.GetTempPath() + "ObservatoryNotification.wav";
+                    using UnmanagedMemoryStream ms = Properties.Core.Default.ChimeSelected switch
+                    {
+                        1 => Resources.ObservatoryNotification1,
+                        2 => Resources.ObservatoryNotification2,
+                        3 => Resources.ObservatoryNotification3,
+                        4 => Resources.ObservatoryNotification4,
+                        5 => Resources.ObservatoryNotification5,
+                        _ => Resources.ObservatoryNotification0,
+                    };
+                    byte[] wavData = new byte[ms.Length];
+                    ms.Read(wavData, 0, wavData.Length);
+                    ms.Close();
+                    File.WriteAllBytes(filename, wavData);
+                }
+                else
                 {
                     string voice = Properties.Core.Default.VoiceSelected;
 
@@ -55,7 +74,7 @@ namespace Observatory.NativeNotification
                     };
                     speech.InjectOneCoreVoices();
                     speech.SelectVoice(voice);
-                    string filename = Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav";
+                    filename = Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav";
                     speech.SetOutputToWaveFile(filename);
                     var notification = eventArgs;
 
@@ -79,8 +98,10 @@ namespace Observatory.NativeNotification
                         speech.Speak(notification.Detail);
                     }
                     speech.Dispose();
-                    audioHandler.EnqueueAndPlay(filename, new() { DeleteAfterPlay = true });
                 }
+                
+                audioHandler.EnqueueAndPlay(filename, new() { DeleteAfterPlay = true });
+                
             }
             catch (Exception ex)
             {

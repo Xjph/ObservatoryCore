@@ -69,5 +69,59 @@ namespace Observatory.Assets {
                 return ((System.Drawing.Icon)(obj));
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream ObservatoryNotification0 {
+            get {
+                return ResourceManager.GetStream("ObservatoryNotification0", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream ObservatoryNotification1 {
+            get {
+                return ResourceManager.GetStream("ObservatoryNotification1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream ObservatoryNotification2 {
+            get {
+                return ResourceManager.GetStream("ObservatoryNotification2", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream ObservatoryNotification3 {
+            get {
+                return ResourceManager.GetStream("ObservatoryNotification3", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream ObservatoryNotification4 {
+            get {
+                return ResourceManager.GetStream("ObservatoryNotification4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.IO.UnmanagedMemoryStream similar to System.IO.MemoryStream.
+        /// </summary>
+        internal static System.IO.UnmanagedMemoryStream ObservatoryNotification5 {
+            get {
+                return ResourceManager.GetStream("ObservatoryNotification5", resourceCulture);
+            }
+        }
     }
 }

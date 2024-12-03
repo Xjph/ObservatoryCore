@@ -66,12 +66,14 @@
             ThemeDropdown = new ComboBox();
             ButtonAddTheme = new Button();
             VoiceSettingsPanel = new Panel();
-            VoiceSpeedSlider = new TrackBar();
             VoiceTestButton = new Button();
-            VoiceCheckbox = new CheckBox();
-            VoiceLabel = new Label();
-            VoiceSpeedLabel = new Label();
             AudioLabel = new Label();
+            VoiceCheckbox = new CheckBox();
+            VoiceSpeedSlider = new TrackBar();
+            AudioTypeLabel = new Label();
+            VoiceSpeedLabel = new Label();
+            AudioTypeDropdown = new ComboBox();
+            VoiceLabel = new Label();
             VoiceDropdown = new ComboBox();
             VoiceDisabledPanel = new Panel();
             VoiceDisabledLabel = new Label();
@@ -514,22 +516,56 @@
             VoiceSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             VoiceSettingsPanel.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             VoiceSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
-            VoiceSettingsPanel.Controls.Add(VoiceSpeedSlider);
             VoiceSettingsPanel.Controls.Add(VoiceTestButton);
-            VoiceSettingsPanel.Controls.Add(VoiceCheckbox);
-            VoiceSettingsPanel.Controls.Add(VoiceLabel);
-            VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
             VoiceSettingsPanel.Controls.Add(AudioLabel);
+            VoiceSettingsPanel.Controls.Add(VoiceCheckbox);
+            VoiceSettingsPanel.Controls.Add(VoiceSpeedSlider);
+            VoiceSettingsPanel.Controls.Add(AudioTypeLabel);
+            VoiceSettingsPanel.Controls.Add(VoiceSpeedLabel);
+            VoiceSettingsPanel.Controls.Add(AudioTypeDropdown);
+            VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceDropdown);
             VoiceSettingsPanel.Controls.Add(VoiceDisabledPanel);
             VoiceSettingsPanel.Location = new Point(12, 480);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
-            VoiceSettingsPanel.Size = new Size(468, 131);
+            VoiceSettingsPanel.Size = new Size(468, 173);
             VoiceSettingsPanel.TabIndex = 35;
+            // 
+            // VoiceTestButton
+            // 
+            VoiceTestButton.FlatAppearance.BorderSize = 0;
+            VoiceTestButton.FlatStyle = FlatStyle.Flat;
+            VoiceTestButton.Location = new Point(188, 130);
+            VoiceTestButton.Name = "VoiceTestButton";
+            VoiceTestButton.Size = new Size(51, 23);
+            VoiceTestButton.TabIndex = 13;
+            VoiceTestButton.Text = "Test";
+            VoiceTestButton.UseVisualStyleBackColor = false;
+            VoiceTestButton.Click += VoiceTestButton_Click;
+            // 
+            // AudioLabel
+            // 
+            AudioLabel.AutoSize = true;
+            AudioLabel.Location = new Point(0, 0);
+            AudioLabel.Name = "AudioLabel";
+            AudioLabel.Size = new Size(110, 15);
+            AudioLabel.TabIndex = 31;
+            AudioLabel.Text = "Audio Notifications";
+            // 
+            // VoiceCheckbox
+            // 
+            VoiceCheckbox.AutoSize = true;
+            VoiceCheckbox.Location = new Point(118, 133);
+            VoiceCheckbox.Name = "VoiceCheckbox";
+            VoiceCheckbox.Size = new Size(68, 19);
+            VoiceCheckbox.TabIndex = 11;
+            VoiceCheckbox.Text = "Enabled";
+            VoiceCheckbox.UseVisualStyleBackColor = true;
+            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
             // 
             // VoiceSpeedSlider
             // 
-            VoiceSpeedSlider.Location = new Point(117, 20);
+            VoiceSpeedSlider.Location = new Point(117, 85);
             VoiceSpeedSlider.Minimum = -10;
             VoiceSpeedSlider.Name = "VoiceSpeedSlider";
             VoiceSpeedSlider.Size = new Size(214, 45);
@@ -538,63 +574,51 @@
             VoiceSpeedSlider.Value = 10;
             VoiceSpeedSlider.Scroll += VoiceSpeedSlider_Scroll;
             // 
-            // VoiceTestButton
+            // AudioTypeLabel
             // 
-            VoiceTestButton.FlatAppearance.BorderSize = 0;
-            VoiceTestButton.FlatStyle = FlatStyle.Flat;
-            VoiceTestButton.Location = new Point(191, 97);
-            VoiceTestButton.Name = "VoiceTestButton";
-            VoiceTestButton.Size = new Size(51, 23);
-            VoiceTestButton.TabIndex = 13;
-            VoiceTestButton.Text = "Test";
-            VoiceTestButton.UseVisualStyleBackColor = false;
-            VoiceTestButton.Click += VoiceTestButton_Click;
-            // 
-            // VoiceCheckbox
-            // 
-            VoiceCheckbox.AutoSize = true;
-            VoiceCheckbox.Location = new Point(117, 100);
-            VoiceCheckbox.Name = "VoiceCheckbox";
-            VoiceCheckbox.Size = new Size(68, 19);
-            VoiceCheckbox.TabIndex = 11;
-            VoiceCheckbox.Text = "Enabled";
-            VoiceCheckbox.UseVisualStyleBackColor = true;
-            VoiceCheckbox.CheckedChanged += VoiceCheckbox_CheckedChanged;
-            // 
-            // VoiceLabel
-            // 
-            VoiceLabel.AutoSize = true;
-            VoiceLabel.Location = new Point(65, 74);
-            VoiceLabel.Name = "VoiceLabel";
-            VoiceLabel.Size = new Size(38, 15);
-            VoiceLabel.TabIndex = 4;
-            VoiceLabel.Text = "Voice:";
-            VoiceLabel.TextAlign = ContentAlignment.MiddleRight;
+            AudioTypeLabel.AutoSize = true;
+            AudioTypeLabel.Location = new Point(69, 27);
+            AudioTypeLabel.Name = "AudioTypeLabel";
+            AudioTypeLabel.Size = new Size(34, 15);
+            AudioTypeLabel.TabIndex = 1;
+            AudioTypeLabel.Text = "Type:";
             // 
             // VoiceSpeedLabel
             // 
             VoiceSpeedLabel.AutoSize = true;
-            VoiceSpeedLabel.Location = new Point(61, 32);
+            VoiceSpeedLabel.Location = new Point(62, 98);
             VoiceSpeedLabel.Name = "VoiceSpeedLabel";
             VoiceSpeedLabel.Size = new Size(42, 15);
             VoiceSpeedLabel.TabIndex = 1;
             VoiceSpeedLabel.Text = "Speed:";
             VoiceSpeedLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
-            // AudioLabel
+            // AudioTypeDropdown
             // 
-            AudioLabel.AutoSize = true;
-            AudioLabel.Location = new Point(0, 0);
-            AudioLabel.Name = "AudioLabel";
-            AudioLabel.Size = new Size(106, 15);
-            AudioLabel.TabIndex = 31;
-            AudioLabel.Text = "Voice Notifications";
+            AudioTypeDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
+            AudioTypeDropdown.FormattingEnabled = true;
+            AudioTypeDropdown.Items.AddRange(new object[] { "Voice", "Chime" });
+            AudioTypeDropdown.Location = new Point(118, 24);
+            AudioTypeDropdown.Name = "AudioTypeDropdown";
+            AudioTypeDropdown.Size = new Size(213, 23);
+            AudioTypeDropdown.TabIndex = 2;
+            AudioTypeDropdown.SelectedIndexChanged += AudioTypeDropdown_SelectedIndexChanged;
+            // 
+            // VoiceLabel
+            // 
+            VoiceLabel.AutoSize = true;
+            VoiceLabel.Location = new Point(65, 56);
+            VoiceLabel.Name = "VoiceLabel";
+            VoiceLabel.Size = new Size(38, 15);
+            VoiceLabel.TabIndex = 4;
+            VoiceLabel.Text = "Voice:";
+            VoiceLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // VoiceDropdown
             // 
             VoiceDropdown.DropDownStyle = ComboBoxStyle.DropDownList;
             VoiceDropdown.FormattingEnabled = true;
-            VoiceDropdown.Location = new Point(117, 71);
+            VoiceDropdown.Location = new Point(117, 53);
             VoiceDropdown.Name = "VoiceDropdown";
             VoiceDropdown.Size = new Size(214, 23);
             VoiceDropdown.TabIndex = 16;
@@ -605,9 +629,9 @@
             VoiceDisabledPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             VoiceDisabledPanel.Controls.Add(VoiceDisabledLabel);
             VoiceDisabledPanel.Enabled = false;
-            VoiceDisabledPanel.Location = new Point(3, 18);
+            VoiceDisabledPanel.Location = new Point(4, 18);
             VoiceDisabledPanel.Name = "VoiceDisabledPanel";
-            VoiceDisabledPanel.Size = new Size(460, 108);
+            VoiceDisabledPanel.Size = new Size(460, 150);
             VoiceDisabledPanel.TabIndex = 16;
             VoiceDisabledPanel.Visible = false;
             // 
@@ -624,7 +648,7 @@
             // 
             CoreSettingsOK.FlatAppearance.BorderSize = 0;
             CoreSettingsOK.FlatStyle = FlatStyle.Flat;
-            CoreSettingsOK.Location = new Point(405, 617);
+            CoreSettingsOK.Location = new Point(405, 659);
             CoreSettingsOK.Name = "CoreSettingsOK";
             CoreSettingsOK.Size = new Size(75, 23);
             CoreSettingsOK.TabIndex = 36;
@@ -636,7 +660,7 @@
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(492, 651);
+            ClientSize = new Size(492, 695);
             Controls.Add(CoreSettingsOK);
             Controls.Add(VoiceSettingsPanel);
             Controls.Add(CoreSettingsPanel);
@@ -716,5 +740,7 @@
         private Label VoiceDisabledLabel;
         private Button CoreSettingsOK;
         private ColorDialog PopupColour;
+        private ComboBox AudioTypeDropdown;
+        private Label AudioTypeLabel;
     }
 }

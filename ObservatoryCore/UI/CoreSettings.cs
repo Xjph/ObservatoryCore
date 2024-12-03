@@ -23,7 +23,6 @@ namespace Observatory.UI
         }
 
 
-        #region Settings
         private void ColourButton_Click(object _, EventArgs e)
         {
             var selectionResult = PopupColour.ShowDialog();
@@ -104,7 +103,14 @@ namespace Observatory.UI
 
         private void VoiceDropdown_SelectedIndexChanged(object _, EventArgs e)
         {
-            Properties.Core.Default.VoiceSelected = VoiceDropdown.SelectedItem?.ToString();
+            if (Properties.Core.Default.ChimeEnabled)
+            {
+                Properties.Core.Default.ChimeSelected = VoiceDropdown.SelectedIndex;
+            }
+            else
+            {
+                Properties.Core.Default.VoiceSelected = VoiceDropdown.SelectedItem?.ToString();
+            }
             SettingsManager.Save();
         }
 
@@ -126,49 +132,63 @@ namespace Observatory.UI
             AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
         }
 
-        private void PopulateDropdownOptions()
+        private void PopulateDropdownOptions(bool voiceOnly = false)
         {
-            var fonts = new System.Drawing.Text.InstalledFontCollection().Families;
-            FontDropdown.Items.AddRange(fonts.Select(f => f.Name).ToArray());
-
-            DisplayDropdown.Items.Add("Primary");
-            if (Screen.AllScreens.Length > 1)
-                for (int i = 0; i < Screen.AllScreens.Length; i++)
-                    DisplayDropdown.Items.Add((i + 1).ToString());
-
-            foreach (var theme in ThemeManager.GetInstance.GetThemes)
+            if (!voiceOnly)
             {
-                ThemeDropdown.Items.Add(theme);
-            }
-            ThemeDropdown.SelectedItem = ThemeManager.GetInstance.CurrentTheme;
+                var fonts = new System.Drawing.Text.InstalledFontCollection().Families;
+                FontDropdown.Items.AddRange(fonts.Select(f => f.Name).ToArray());
 
+                DisplayDropdown.Items.Add("Primary");
+                if (Screen.AllScreens.Length > 1)
+                    for (int i = 0; i < Screen.AllScreens.Length; i++)
+                        DisplayDropdown.Items.Add((i + 1).ToString());
+
+                foreach (var theme in ThemeManager.GetInstance.GetThemes)
+                {
+                    ThemeDropdown.Items.Add(theme);
+                }
+                ThemeDropdown.SelectedItem = ThemeManager.GetInstance.CurrentTheme;
+
+                var audioDevices = AudioHandler.GetDevices();
+
+                if (audioDevices.Count > 0)
+                {
+                    foreach (var device in AudioHandler.GetDevices())
+                        AudioDeviceDropdown.Items.Add(device);
+                    var deviceIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
+                    // Select first device if not found.
+                    AudioDeviceDropdown.SelectedIndex = Math.Max(0, deviceIndex);
+                }
+            }
+
+            if (Properties.Core.Default.ChimeEnabled)
+            {
+                VoiceDropdown.Items.AddRange([1,2,3,4,5,6]);
+                TryLoadSetting(VoiceDropdown, "SelectedIndex", Properties.Core.Default.ChimeSelected);
+            }
+            else
+            {
 #if !PROTON
-            var speech = new System.Speech.Synthesis.SpeechSynthesizer();
-            try
-            {
-                speech.InjectOneCoreVoices();
-            }
-            catch
-            {
-                // injection does some wacky reflection stuff
-                // silently proceed if it fails with original voices
-            }
+                var speech = new System.Speech.Synthesis.SpeechSynthesizer();
+                try
+                {
+                    speech.InjectOneCoreVoices();
+                }
+                catch
+                {
+                    // injection does some wacky reflection stuff
+                    // silently proceed if it fails with original voices
+                }
 
-            var voices = speech.GetInstalledVoices();
-            foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
-                VoiceDropdown.Items.Add(voice);
-
-            var audioDevices = AudioHandler.GetDevices();
-
-            if (audioDevices.Count > 0)
-            {
-                foreach (var device in AudioHandler.GetDevices())
-                    AudioDeviceDropdown.Items.Add(device);
-                var deviceIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
-                // Select first device if not found.
-                AudioDeviceDropdown.SelectedIndex = Math.Max(0, deviceIndex);
-            }
+                var voices = speech.GetInstalledVoices();
+                foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
+                    VoiceDropdown.Items.Add(voice);
+                TryLoadSetting(VoiceDropdown, "SelectedItem", Properties.Core.Default.VoiceSelected);
 #endif
+            }
+
+
         }
 
         private void PopulateNativeSettings()
@@ -184,7 +204,6 @@ namespace Observatory.UI
             TryLoadSetting(PopupCheckbox, "Checked", settings.NativeNotify);
             TryLoadSetting(AudioVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100), 100); // Also controls AudioVolume setting
             TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, -10, 10));
-            TryLoadSetting(VoiceDropdown, "SelectedItem", settings.VoiceSelected);
             TryLoadSetting(VoiceCheckbox, "Checked", settings.VoiceNotify);
             TryLoadSetting(LabelJournalPath, "Text", LogMonitor.GetJournalFolder().FullName);
             TryLoadSetting(StartMonitorCheckbox, "Checked", settings.StartMonitor);
@@ -192,6 +211,7 @@ namespace Observatory.UI
             TryLoadSetting(ExportFormatDropdown, "SelectedIndex", settings.ExportFormat);
             TryLoadSetting(PopupTransparentCheckBox, "Checked", settings.NativeNotifyTransparent);
             TryLoadSetting(FontScaleSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyFontScale, 1, 500), 100);
+            TryLoadSetting(AudioTypeDropdown, "SelectedIndex", settings.ChimeEnabled ? 1 : 0);
 
 #if PROTON
             VoiceCheckbox.Checked = false;
@@ -342,12 +362,22 @@ namespace Observatory.UI
             var fileExplorerInfo = new ProcessStartInfo() { FileName = configDir, UseShellExecute = true };
             Process.Start(fileExplorerInfo);
         }
-        #endregion
 
 
         private void CoreSettingsOK_Click(object sender, EventArgs e)
         {
             Close();
+        }
+
+        private void AudioTypeDropdown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            Properties.Core.Default.ChimeEnabled = AudioTypeDropdown.SelectedItem?.ToString() == "Chime";
+            SettingsManager.Save();
+            
+            VoiceLabel.Text = Properties.Core.Default.ChimeEnabled ? "Chime:" : "Voice:";
+            VoiceSpeedSlider.Enabled = !Properties.Core.Default.ChimeEnabled;
+            VoiceDropdown.Items.Clear();
+            PopulateDropdownOptions(true);
         }
     }
 }

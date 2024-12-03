@@ -121,4 +121,22 @@
   <data name="EOCIcon_Presized" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>EOCIcon-Presized.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
+  <data name="ObservatoryNotification0" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>ObservatoryNotification0.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ObservatoryNotification1" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>ObservatoryNotification1.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ObservatoryNotification2" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>ObservatoryNotification2.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ObservatoryNotification3" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>ObservatoryNotification3.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ObservatoryNotification4" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>ObservatoryNotification4.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="ObservatoryNotification5" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>ObservatoryNotification5.wav;System.IO.MemoryStream, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
 </root>
