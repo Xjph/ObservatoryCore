@@ -1,5 +1,6 @@
 ﻿using System.Data;
 using System.Reflection;
+using System.Windows.Forms;
 using Observatory.Assets;
 using Observatory.Framework;
 using Observatory.Framework.Interfaces;
@@ -9,25 +10,13 @@ namespace Observatory.UI
     public partial class SettingsForm : Form
     {
         private readonly IObservatoryPlugin _plugin;
-        private readonly List<int> _colHeight = [];
-        private readonly int _colWidth = 400;
         private readonly double _scale;
 
         public SettingsForm(IObservatoryPlugin plugin)
         {
             InitializeComponent();
             _plugin = plugin;
-            
-            // Filtered to only settings without SettingIgnore attribute
-            var attrib = _plugin.Settings.GetType().GetCustomAttribute<SettingSuggestedColumnWidth>();
-            if (attrib != null && attrib.Width > 0)
-            {
-                int minScreenWidth = Screen.AllScreens.Min(s => s.Bounds.Width);
-                _colWidth = Math.Min(attrib.Width, minScreenWidth / 2);
-            }
-
             _scale = (double)DeviceDpi / 96;
-            _colWidth = (int)(_scale * _colWidth);
 
             var settings = PluginManagement.PluginManager.GetSettingDisplayNames(plugin.Settings).Where(s => !Attribute.IsDefined(s.Key, typeof(SettingIgnore)));
             CreateControls(settings);
@@ -37,30 +26,35 @@ namespace Observatory.UI
             Icon = Resources.EOCIcon_Presized;
             ThemeManager.GetInstance.RegisterControl(this);
 
+            var currentScreen = Screen.FromControl(this);
+
             var vScrollMargin = SettingsFlowPanel.DisplayRectangle.Height - SettingsFlowPanel.ClientRectangle.Height;
             var hScrollMargin = SettingsFlowPanel.DisplayRectangle.Width - SettingsFlowPanel.ClientRectangle.Width;
             if (vScrollMargin > 0)
             {
-                Height = Math.Min(Height + vScrollMargin, Screen.FromControl(this).WorkingArea.Height);
+                Height = Math.Min(Height + vScrollMargin, currentScreen.WorkingArea.Height);
             }
             if (hScrollMargin > 0)
             {
-                Width = Math.Min(Width + hScrollMargin, Screen.FromControl(this).WorkingArea.Width);
-            }    
+                Width = Math.Min(Width + hScrollMargin, currentScreen.WorkingArea.Width);
+            }   
+
+            // Recenter after size modified by adding controls.
+            var midPoint = new Point(currentScreen.WorkingArea.Width / 2, currentScreen.WorkingArea.Height / 2);
+            Location = new Point(midPoint.X - Width / 2, midPoint.Y - Height / 2);
             
         }
 
-        private static TableLayoutPanel WrapToSingleRow(Control[] controls)
+        private TableLayoutPanel WrapToSingleRow(Control[] controls)
         {
             var table = new TableLayoutPanel()
             {
-                Height = 30,
-                Width = 50,
+                Height = (int)(33 * _scale),
                 AutoSize = true
             };
             for (int i = 0; i < controls.Length; i++)
             {
-                controls[i].Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+                controls[i].Anchor = AnchorStyles.Right;
                 table.Controls.Add(controls[i]);
                 table.SetRow(controls[i], 0);
                 table.SetColumn(controls[i], i);
@@ -81,14 +75,18 @@ namespace Observatory.UI
 
         private static void InsertFlowBreak(FlowLayoutPanel flowLayoutPanel)
         {
-            var lastControl = flowLayoutPanel.Controls[flowLayoutPanel.Controls.Count - 1];
-            flowLayoutPanel.SetFlowBreak(lastControl, true);
+            if (flowLayoutPanel.Controls.Count > 0)
+            {
+                var lastControl = flowLayoutPanel.Controls[flowLayoutPanel.Controls.Count - 1];
+                flowLayoutPanel.SetFlowBreak(lastControl, true);
+            }
         }
 
         private void CreateControls(IEnumerable<KeyValuePair<PropertyInfo, string>> settings)
         {
             List<Control> groupedControls = [];
-
+            bool largeGroup = false;
+            int largeWidth = 0;
             foreach (var setting in settings)
             {
                 SettingNewGroup? newGroup = Attribute.GetCustomAttribute(setting.Key, typeof(SettingNewGroup)) as SettingNewGroup;
@@ -96,6 +94,13 @@ namespace Observatory.UI
                 {
                     if (groupedControls.Count > 0)
                     {
+                        if (groupedControls.Count > 5)
+                        {
+                            largeGroup = true;
+                            var maxWidth = groupedControls.Max(control => control.Width);
+                            if (maxWidth > largeWidth)
+                                largeWidth = maxWidth;
+                        }
                         AlignControls(groupedControls);
                     }
 
@@ -166,7 +171,6 @@ namespace Observatory.UI
                         }
                         intLabel.AutoSize = true;
                         intControl.Height = intLabel.Height;
-                        intLabel.TextAlign = ContentAlignment.MiddleRight;
                         SettingsFlowPanel.Controls.Add(WrapToSingleRow([intLabel, intControl]));
                         InsertFlowBreak(SettingsFlowPanel);
                         break;
@@ -179,7 +183,6 @@ namespace Observatory.UI
                         Control doubleControl = CreateSettingNumericUpDownForDouble(setting.Key);
                         doubleLabel.AutoSize = true;
                         doubleLabel.Height = doubleControl.Height;
-                        doubleLabel.TextAlign = ContentAlignment.MiddleRight;
                         SettingsFlowPanel.Controls.Add(WrapToSingleRow([doubleLabel, doubleControl]));
                         InsertFlowBreak(SettingsFlowPanel);
                         break;
@@ -202,18 +205,46 @@ namespace Observatory.UI
                 if (handled)
                     groupedControls.Add(SettingsFlowPanel.Controls[SettingsFlowPanel.Controls.Count - 1]);
             }
+
             if (groupedControls.Count > 0)
             {
+                if (groupedControls.Count > 5)
+                {
+                    largeGroup = true;
+                    var maxWidth = groupedControls.Max(control => control.Width);
+                    if (maxWidth > largeWidth)
+                        largeWidth = maxWidth;
+                }
                 AlignControls(groupedControls);
+            }
+
+            // If we have a group with a lot of items allow for multiple columns
+            if (largeGroup)
+            {
+                Width = largeWidth * 2 // Two columns
+                    + Width - SettingsFlowPanel.Width // Plus margin
+                    + 40; // And allowance for scrollbar
             }
         }
 
         private static Label CreateSettingLabel(string settingName)
         {
+            // If this is long, add a line-break
+            bool ohLawd = settingName.Length > 30;
+            if (ohLawd)
+            {
+                var settingWords = settingName.Split(' ');
+
+                var halfwayIndex = settingWords.Length / 2;
+
+                settingName = string.Join(' ', settingWords[0..halfwayIndex])
+                    + Environment.NewLine
+                    + string.Join(' ', settingWords[halfwayIndex..^0]);
+            }
+
             Label label = new()
             {
                 Text = settingName + ": ",
-                TextAlign = System.Drawing.ContentAlignment.MiddleRight,
                 ForeColor = Color.LightGray,
                 AutoSize = true
             };
@@ -221,12 +252,12 @@ namespace Observatory.UI
             return label;
         }
 
-        private static Label CreateGroupLabel(string groupLabel)
+        private Label CreateGroupLabel(string groupLabel)
         {
             Label label = new()
             {
                 Text = groupLabel,
-                TextAlign = System.Drawing.ContentAlignment.BottomLeft,
+                TextAlign = ContentAlignment.BottomLeft,
                 ForeColor = Color.LightGray,
                 AutoSize = true,
                 Padding = new Padding(0, 5, 0, 0)
@@ -251,6 +282,11 @@ namespace Observatory.UI
                 AutoSize = true,
                 DropDownStyle = ComboBoxStyle.DropDownList
             };
+
+            var comboWidth = dropdownItems.Max(item => TextRenderer.MeasureText(item.Key, comboBox.Font).Width);
+
+            // Slightly wider to account for arrow at end of dropdown.
+            comboBox.Width = comboWidth + (int)(20 * _scale);
 
             comboBox.Items.AddRange(dropdownItems.OrderBy(s => s.Key).Select(s => s.Key).ToArray());
 
@@ -277,6 +313,7 @@ namespace Observatory.UI
                 Text = settingName,
                 AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
+                MinimumSize = new Size(0, (int)(25 * _scale))
             };
 
             button.FlatAppearance.BorderSize = 0;
@@ -370,7 +407,8 @@ namespace Observatory.UI
                 TextAlign = System.Drawing.ContentAlignment.MiddleLeft,
                 Checked = (bool?)setting.Key.GetValue(_plugin.Settings) ?? false,
                 AutoSize = true,
-                ForeColor = Color.LightGray
+                ForeColor = Color.LightGray,
+                MinimumSize = new(0, (int)(25 * _scale))
             };
 
             checkBox.CheckedChanged += (sender, e) =>
@@ -426,6 +464,7 @@ namespace Observatory.UI
                 Text = "Browse",
                 AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
+                MinimumSize = new Size(0, (int)(25 * _scale))
             };
 
             button.FlatAppearance.BorderSize = 0;
@@ -479,6 +518,7 @@ namespace Observatory.UI
                 Text = "Browse",
                 AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
+                MinimumSize = new Size(0, (int)(25 * _scale))
             };
 
             button.FlatAppearance.BorderSize = 0;

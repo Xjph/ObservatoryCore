@@ -37,9 +37,10 @@ namespace Observatory.UI
             PluginSettingsCloseButton.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             PluginSettingsCloseButton.FlatAppearance.BorderSize = 0;
             PluginSettingsCloseButton.FlatStyle = FlatStyle.Flat;
-            PluginSettingsCloseButton.Location = new Point(302, 101);
+            PluginSettingsCloseButton.Location = new Point(453, 185);
+            PluginSettingsCloseButton.Margin = new Padding(4, 5, 4, 5);
             PluginSettingsCloseButton.Name = "PluginSettingsCloseButton";
-            PluginSettingsCloseButton.Size = new Size(75, 23);
+            PluginSettingsCloseButton.Size = new Size(107, 38);
             PluginSettingsCloseButton.TabIndex = 0;
             PluginSettingsCloseButton.Text = "Close";
             PluginSettingsCloseButton.UseVisualStyleBackColor = true;
@@ -49,18 +50,20 @@ namespace Observatory.UI
             // 
             SettingsFlowPanel.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             SettingsFlowPanel.AutoScroll = true;
-            SettingsFlowPanel.Location = new Point(12, 12);
+            SettingsFlowPanel.Location = new Point(17, 20);
+            SettingsFlowPanel.Margin = new Padding(4, 5, 4, 5);
             SettingsFlowPanel.Name = "SettingsFlowPanel";
-            SettingsFlowPanel.Size = new Size(365, 83);
+            SettingsFlowPanel.Size = new Size(543, 155);
             SettingsFlowPanel.TabIndex = 1;
             // 
             // SettingsForm
             // 
-            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleDimensions = new SizeF(10F, 25F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(389, 136);
+            ClientSize = new Size(578, 244);
             Controls.Add(SettingsFlowPanel);
             Controls.Add(PluginSettingsCloseButton);
+            Margin = new Padding(4, 5, 4, 5);
             Name = "SettingsForm";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "SettingsForm";

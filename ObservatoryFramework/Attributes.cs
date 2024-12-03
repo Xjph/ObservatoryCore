@@ -6,6 +6,7 @@
     /// Specifies the width of a settings column in the settings view. There are two columns.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [Obsolete("This Attribute no longer has any effect as of Observatory Core 1.2.3")]
     public class SettingSuggestedColumnWidth : Attribute
     {
         /// <summary>
