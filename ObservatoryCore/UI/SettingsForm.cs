@@ -41,7 +41,7 @@ namespace Observatory.UI
 
             // Recenter after size modified by adding controls.
             var midPoint = new Point(currentScreen.WorkingArea.Width / 2, currentScreen.WorkingArea.Height / 2);
-            Location = new Point(midPoint.X - Width / 2, midPoint.Y - Height / 2);
+            Location = new Point(currentScreen.Bounds.X + (midPoint.X - Width / 2), currentScreen.Bounds.Y + (midPoint.Y - Height / 2));
             
         }
 
