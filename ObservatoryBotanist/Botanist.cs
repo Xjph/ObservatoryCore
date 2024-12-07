@@ -177,7 +177,12 @@ namespace Observatory.Botanist
                                     {
                                         var colonyDistance = GetColonyDistance(scanOrganic);
                                         var sampleNum = scanOrganic.ScanType == ScanOrganicType.Log ? 1 : 2;
-                                        var status = Core.GetStatus();
+                                        var status = Core.GetStatus() ?? new() 
+                                        { 
+                                            Latitude = 200, 
+                                            Longitude = 200,
+                                            PlanetRadius = 0
+                                        }; // INVALID_LOCATION
                                         
                                         if (sampleNum == 1)
                                         {
