@@ -103,13 +103,13 @@ namespace Observatory.UI
             var windowRect = new Rectangle(location, size);
 
             // Shrink slightly to give some wiggle room
-            windowRect.Height -= 10;
-            windowRect.Width -= 10;
-            windowRect.Offset(5, 5);
+            windowRect.Height -= 40;
+            windowRect.Width -= 40;
+            windowRect.Offset(20, 20);
 
             foreach (Screen screen in Screen.AllScreens)
             {
-                if (screen.Bounds.Contains(windowRect))
+                if (screen.WorkingArea.Contains(windowRect))
                 {
                     return true;
                 }
