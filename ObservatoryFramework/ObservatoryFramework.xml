@@ -1790,6 +1790,12 @@
             Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendPluginMessage(Observatory.Framework.Interfaces.IObservatoryPlugin,System.String,System.Object)">
+            <summary>
+            Sends arbitrary data to a specific plugin, identified by ShortName. 
+            The full name and version of the sending plugin will be used to identify the sender to recipient.
+            </summary>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.RegisterControl(System.Object)">
             <summary>
             Register a UI control for themeing.
