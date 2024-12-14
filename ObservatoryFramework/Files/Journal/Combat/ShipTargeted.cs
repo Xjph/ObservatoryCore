@@ -1,4 +1,6 @@
-﻿namespace Observatory.Framework.Files.Journal
+﻿using Observatory.Framework.Files.ParameterTypes;
+
+namespace Observatory.Framework.Files.Journal
 {
     public class ShipTargeted : JournalBase
     {
@@ -12,7 +14,7 @@
         public float ShieldHealth { get; init; }
         public float HullHealth { get; init; }
         public string Faction { get; init; }
-        public string LegalStatus { get; init; }
+        public LegalStatus LegalStatus { get; init; }
         public long Bounty { get; init; }
         public string Subsystem { get; init; }
         public string Subsystem_Localised { get; init; }

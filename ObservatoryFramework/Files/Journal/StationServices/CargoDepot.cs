@@ -6,7 +6,6 @@ namespace Observatory.Framework.Files.Journal
     public class CargoDepot : JournalBase
     {
         public ulong MissionID { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public UpdateType UpdateType { get; init; }
         public string CargoType { get; init; }
         public string CargoType_Localised { get; init; }

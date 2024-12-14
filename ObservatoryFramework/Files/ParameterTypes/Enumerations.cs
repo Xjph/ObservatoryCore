@@ -1,48 +1,66 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace Observatory.Framework.Files.ParameterTypes
 {
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum CargoTransferDirection
     {
         ToShip,
         ToSRV,
-        ToCarrier
+        ToCarrier,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum CarrierCrewOperation
     {
         Activate,
         Deactivate,
         Pause,
         Resume,
-        Replace
+        Replace,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum CarrierDockingAccess
     {
         All,
         None,
         Friends,
         Squadron,
-        SquadronFriends
+        SquadronFriends,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum CarrierOperation
     {
         BuyPack,
         SellPack,
-        RestockPack
+        RestockPack,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum ContributionType
     {
         Commodity,
         Materials,
         Credits,
         Bond,
-        Bounty
+        Bounty,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum CrimeType
     {
         Assault,
@@ -85,9 +103,12 @@ namespace Observatory.Framework.Files.ParameterTypes
         onFoot_eBreachUse,
         onFoot_breakingAndEntering,
         shuttleDestruction,
-        collidedWithDamage
+        collidedWithDamage,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum LimpetDrone
     {
         Hatchbreaker,
@@ -97,9 +118,12 @@ namespace Observatory.Framework.Files.ParameterTypes
         Repair,
         Research,
         Decontamination,
-        Recon
+        Recon,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum FriendStatus
     {
         Requested,
@@ -107,9 +131,12 @@ namespace Observatory.Framework.Files.ParameterTypes
         Added,
         Lost,
         Offline,
-        Online
+        Online,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: Unknown)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum MicroCategory
     {
         Encoded,
@@ -118,37 +145,50 @@ namespace Observatory.Framework.Files.ParameterTypes
         Item,
         Component,
         Data,
-        Consumable
+        Consumable,
+        Unknown
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum MicroTransferDirection
     {
         ToBackpack,
-        ToShipLocker
+        ToShipLocker,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum MissionEffect
     {
         None,
         Low,
         Med,
-        High
+        High,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum ParentType
     {
         Null,
         Planet,
-        Star
+        Star,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum Progress
     {
         Invited,
         Acquainted,
         Unlocked,
         Barred,
-        Known
+        Known,
+        UnrecognisedValue
     }
 
     public enum RankCombat
@@ -297,6 +337,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         King = 14
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum Reason
     {
         NoSpace,
@@ -308,16 +350,22 @@ namespace Observatory.Framework.Files.ParameterTypes
         JumpImminent,
         RestrictedAccess,
         NoReason,
-        DockOffline
+        DockOffline,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum ScanOrganicType
     {
         Log,
         Sample, 
-        Analyse
+        Analyse,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum ScanType
     {
         Cargo,
@@ -325,7 +373,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         Cabin,
         Data,
         Unknown,
-        Xeno
+        Xeno,
+        UnrecognisedValue
     }
 
     [System.Flags]
@@ -376,6 +425,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         FrontlineSolutions = 1L << 40
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum TextChannel
     {
         Wing,
@@ -386,32 +437,44 @@ namespace Observatory.Framework.Files.ParameterTypes
         Npc,
         Squadron,
         SquadLeaders,
-        Starsystem
+        Starsystem,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum TrendValue
     {
         UpGood,
         UpBad,
         DownGood,
         DownBad,
-        None
+        None,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum UpdateType
     {
         Collect,
         Deliver,
-        WingUpdate
+        WingUpdate,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum VehicleSwitchTo
     {
         Mothership,
         Fighter,
-        SRV
+        SRV,
+        UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum VoucherType
     {
         CombatBond,
@@ -420,7 +483,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         Settlement,
         Scannable,
         Codex,
-        None
+        None,
+        UnrecognisedValue
     }
 
     [Flags]
@@ -488,6 +552,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         FsdHyperdriveCharging = 1 << 19
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     public enum LegalStatus
     {
         Clean,
@@ -498,7 +564,12 @@ namespace Observatory.Framework.Files.ParameterTypes
         PassengerWanted,
         Warrant,
         Thargoid,
-        Allied
+        Allied,
+        Lawless,
+        Enemy,
+        Unknown,
+        Hunter,
+        UnrecognisedValue
     }
 
     public enum FocusStatus

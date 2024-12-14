@@ -13,7 +13,6 @@ namespace Observatory.Framework.Files.Journal
         public string StationName { get; init; }
         public string StationType { get; init; }
         public string StarSystem { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public CarrierDockingAccess CarrierDockingAccess { get; init; }
     }
 }

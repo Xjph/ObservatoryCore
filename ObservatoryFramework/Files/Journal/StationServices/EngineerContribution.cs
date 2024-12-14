@@ -7,7 +7,6 @@ namespace Observatory.Framework.Files.Journal
     {
         public string Engineer { get; init; }
         public ulong EngineerID { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ContributionType Type { get; init; }
         public string Commodity { get; init; }
         public string Commodity_Localised { get; init; }

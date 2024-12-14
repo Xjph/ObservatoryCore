@@ -9,7 +9,6 @@ namespace Observatory.Framework.Files.Journal
         public ulong CarrierID { get; init; }
         public string Callsign { get; init; }
         public string Name { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public CarrierDockingAccess DockingAccess { get; init; }
         public bool AllowNotorious { get; init; }
         public int FuelLevel { get; init; }

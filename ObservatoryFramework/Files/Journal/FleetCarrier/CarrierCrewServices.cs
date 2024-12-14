@@ -9,7 +9,6 @@ namespace Observatory.Framework.Files.Journal
         public ulong CarrierID { get; init; }
         public string CrewRole { get; init; }
         public string CrewName { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public CarrierCrewOperation Operation { get; init; }
     }
 }

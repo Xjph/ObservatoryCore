@@ -9,7 +9,6 @@ namespace Observatory.Framework.Files.Journal
         public string From_Localised { get; init; }
         public string Message { get; init; }
         public string Message_Localised { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public TextChannel Channel { get; init; }
     }
 }

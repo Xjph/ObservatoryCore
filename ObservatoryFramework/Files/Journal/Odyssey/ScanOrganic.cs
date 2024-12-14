@@ -5,7 +5,6 @@ namespace Observatory.Framework.Files.Journal
 {
     public class ScanOrganic : JournalBase
     {
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ScanOrganicType ScanType { get; init; }
         public string Genus { get; init; }
         public string Genus_Localised { get; init; }

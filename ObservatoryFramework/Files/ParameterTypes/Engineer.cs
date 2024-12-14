@@ -8,7 +8,6 @@ namespace Observatory.Framework.Files.ParameterTypes
         public ulong EngineerID { get; init; }
         public int Rank { get; init; }
         public int RankProgress { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public Progress Progress { get; init; }
     }
 }

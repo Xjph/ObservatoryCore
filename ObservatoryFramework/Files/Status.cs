@@ -42,7 +42,6 @@ namespace Observatory.Framework.Files
         /// <summary>
         /// Legal status in the current jurisdiction.
         /// </summary>
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public LegalStatus LegalState { get; init; }
         /// <summary>
         /// <para>Current altitude.</para>

@@ -1945,5 +1945,145 @@
             Not intended for use by plugins.
             </summary>
         </member>
+        <member name="T:System.Text.Json.Serialization.JsonStringEnumMemberConverter">
+            <summary>
+            <see cref="T:System.Text.Json.Serialization.JsonConverterFactory"/> to convert enums to and from strings, respecting <see cref="T:System.Runtime.Serialization.EnumMemberAttribute"/> decorations. Supports nullable enums.
+            </summary>
+        </member>
+        <member name="M:System.Text.Json.Serialization.JsonStringEnumMemberConverter.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverter"/> class.
+            </summary>
+        </member>
+        <member name="M:System.Text.Json.Serialization.JsonStringEnumMemberConverter.#ctor(System.Text.Json.JsonNamingPolicy,System.Boolean)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverter"/> class.
+            </summary>
+            <param name="namingPolicy">
+            Optional naming policy for writing enum values.
+            </param>
+            <param name="allowIntegerValues">
+            True to allow undefined enum values. When true, if an enum value isn't
+            defined it will output as a number rather than a string.
+            </param>
+        </member>
+        <member name="M:System.Text.Json.Serialization.JsonStringEnumMemberConverter.#ctor(System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions,System.Type[])">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverter"/> class.
+            </summary>
+            <param name="options"><see cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions"/>.</param>
+            <param name="targetEnumTypes">Optional list of supported enum types to be converted. Specify <see langword="null"/> or empty to convert all enums.</param>
+        </member>
+        <member name="M:System.Text.Json.Serialization.JsonStringEnumMemberConverter.CanConvert(System.Type)">
+            <inheritdoc/>
+        </member>
+        <member name="M:System.Text.Json.Serialization.JsonStringEnumMemberConverter.CreateConverter(System.Type,System.Text.Json.JsonSerializerOptions)">
+            <inheritdoc/>
+        </member>
+        <member name="T:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions">
+            <summary>
+            Stores options for <see cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverter"/>.
+            </summary>
+        </member>
+        <member name="P:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions.NamingPolicy">
+            <summary>
+            Gets or sets the optional <see cref="T:System.Text.Json.JsonNamingPolicy"/> for writing
+            enum values.
+            </summary>
+        </member>
+        <member name="P:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions.AllowIntegerValues">
+            <summary>
+            Gets or sets a value indicating whether integer values are allowed
+            for reading enum values. Default value: <see langword="true"/>.
+            </summary>
+        </member>
+        <member name="P:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions.DeserializationFailureFallbackValue">
+            <summary>
+            Gets or sets the optional default value to use when a json string
+            does not match anything defined on the target enum. If not specified
+            a <see cref="T:System.Text.Json.JsonException"/> is thrown for all failures.
+            </summary>
+        </member>
+        <member name="M:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions.#ctor(System.Text.Json.JsonNamingPolicy,System.Boolean,System.Object)">
+            <summary>
+            Initializes a new instance of the <see cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions"/> class.
+            </summary>
+            <param name="namingPolicy">
+            Optional naming policy for writing enum values.
+            </param>
+            <param name="allowIntegerValues">
+            True to allow undefined enum values. When true, if an enum value isn't
+            defined it will output as a number rather than a string.
+            </param>
+            <param name="deserializationFailureFallbackValue">
+            Optional default value to use when a json string does not match
+            anything defined on the target enum. If not specified a <see
+            cref="T:System.Text.Json.JsonException"/> is thrown for all failures.
+            </param>
+        </member>
+        <member name="T:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptionsAttribute">
+            <summary>
+            When placed on an enum type specifies the options for the <see
+            cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverter"/>.
+            </summary>
+        </member>
+        <member name="P:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptionsAttribute.Options">
+            <summary>
+            Gets the <see cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptions"/>
+            generated for the attribute.
+            </summary>
+        </member>
+        <member name="M:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptionsAttribute.#ctor(System.Type,System.Boolean,System.Object)">
+            <summary>
+            Initializes a new instance of the <see
+            cref="T:System.Text.Json.Serialization.JsonStringEnumMemberConverterOptionsAttribute"/> class.
+            </summary>
+            <param name="namingPolicyType">
+            Optional type of a <see cref="T:System.Text.Json.JsonNamingPolicy"/> to use for writing
+            enum values. Type must expose a public parameterless constructor.
+            </param>
+            <param name="allowIntegerValues">
+            True to allow undefined enum values. When true, if an enum value
+            isn't defined it will output as a number rather than a string.
+            </param>
+            <param name="deserializationFailureFallbackValue">
+            Optional default value to use when a json string does not match
+            anything defined on the target enum. If not specified a <see
+            cref="T:System.Text.Json.JsonException"/> is thrown for all failures.
+            </param>
+        </member>
+        <member name="M:Macross.Json.Extensions.ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(System.Type)">
+            <summary>
+            Generate a <see cref="T:System.Text.Json.JsonException"/> using the internal
+            <c>JsonException.AppendPathInformation</c> property that will
+            eventually include the JSON path, line number, and byte position in
+            line.
+            <para>
+            The final message of the exception looks like: The JSON value could
+            not be converted to {0}. Path: $.{JSONPath} | LineNumber:
+            {LineNumber} | BytePositionInLine: {BytePositionInLine}.
+            </para>
+            </summary>
+            <param name="propertyType">Property type.</param>
+            <returns><see cref="T:System.Text.Json.JsonException"/>.</returns>
+        </member>
+        <member name="M:Macross.Json.Extensions.ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(System.Type,System.String,System.Exception)">
+            <summary>
+            Generate a <see cref="T:System.Text.Json.JsonException"/> using the internal
+            <c>JsonException.AppendPathInformation</c> property that will
+            eventually include the JSON path, line number, and byte position in
+            line.
+            <para>
+            The final message of the exception looks like: The JSON value '{1}'
+            could not be converted to {0}. Path: $.{JSONPath} | LineNumber:
+            {LineNumber} | BytePositionInLine: {BytePositionInLine}.
+            </para>
+            </summary>
+            <param name="propertyType">Property type.</param>
+            <param name="propertyValue">Value that could not be parsed into
+            property type.</param>
+            <param name="innerException">Optional inner <see cref="T:System.Exception"/>.</param>
+            <returns><see cref="T:System.Text.Json.JsonException"/>.</returns>
+        </member>
     </members>
 </doc>

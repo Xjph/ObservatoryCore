@@ -10,7 +10,6 @@ namespace Observatory.Framework.Files.Journal
         public ulong EngineerID { get; init; }
         public int Rank { get; init; }
         public int RankProgress { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public ParameterTypes.Progress Progress { get; init; }
         public ImmutableList<EngineerType> Engineers { get; init; }
     }

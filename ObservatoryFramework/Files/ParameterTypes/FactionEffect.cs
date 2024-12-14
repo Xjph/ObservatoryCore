@@ -11,7 +11,6 @@ namespace Observatory.Framework.Files.ParameterTypes
         public ImmutableList<InfluenceType> Influence { get; init; }
         [JsonConverter(typeof(RepInfConverter))]
         public int Reputation { get; init; }
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public TrendValue ReputationTrend { get; init; }
     }
 }

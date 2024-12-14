@@ -5,7 +5,6 @@ namespace Observatory.Framework.Files.Journal
 {
     public class LaunchDrone : JournalBase
     {
-        [JsonConverter(typeof(JsonStringEnumConverter))]
         public LimpetDrone Type { get; init; }
     }
 }
