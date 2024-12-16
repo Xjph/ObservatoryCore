@@ -151,7 +151,9 @@ namespace Observatory.PluginManagement
 
         public void OnPluginMessageEvent(object? _, PluginMessageArgs messageArgs)
         {
-            foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Concat(observatoryWorkers))
+            foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
+                .Where(x => String.IsNullOrEmpty(messageArgs.TargetShortName) || x.ShortName == messageArgs.TargetShortName)
+                .Where(x => x.Name != messageArgs.SourceName))
             {
                 if (disabledPlugins.Contains(plugin)) continue;
 
@@ -217,12 +219,14 @@ namespace Observatory.PluginManagement
     {
         internal string SourceName;
         internal string SourceVersion;
+        internal string TargetShortName;
         internal object Message;
 
-        internal PluginMessageArgs(string sourceName, string sourceVersion, object message)
+        internal PluginMessageArgs(string sourceName, string sourceVersion, string targetShortName, object message)
         {
             SourceName = sourceName;
             SourceVersion = sourceVersion;
+            TargetShortName = targetShortName;
             Message = message;
         }
     }

@@ -237,7 +237,11 @@ namespace Observatory.PluginManagement
 
         public void SendPluginMessage(IObservatoryPlugin plugin, object message)
         {
-            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, message));
+            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, String.Empty, message));
+        }
+        public void SendPluginMessage(IObservatoryPlugin plugin, string targetShortName, object message)
+        {
+            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, targetShortName, message));
         }
 
         public void RegisterControl(object control, Func<object, bool> applyTheme)
