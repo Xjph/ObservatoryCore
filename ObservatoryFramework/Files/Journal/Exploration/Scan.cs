@@ -27,19 +27,22 @@ namespace Observatory.Framework.Files.Journal
             {
                 _Parents = value;
                 var ParentList = new System.Collections.Generic.List<(ParentType ParentType, int Body)>();
-                foreach (var parent in value)
+                if (value != null)
                 {
-                    if (parent.Null != null)
+                    foreach (var parent in value)
                     {
-                        ParentList.Add((ParentType.Null, parent.Null.GetValueOrDefault(0)));
-                    }
-                    else if (parent.Planet != null)
-                    {
-                        ParentList.Add((ParentType.Planet, parent.Planet.GetValueOrDefault(0)));
-                    }
-                    else if (parent.Star != null)
-                    {
-                        ParentList.Add((ParentType.Star, parent.Star.GetValueOrDefault(0)));
+                        if (parent.Null != null)
+                        {
+                            ParentList.Add((ParentType.Null, parent.Null.GetValueOrDefault(0)));
+                        }
+                        else if (parent.Planet != null)
+                        {
+                            ParentList.Add((ParentType.Planet, parent.Planet.GetValueOrDefault(0)));
+                        }
+                        else if (parent.Star != null)
+                        {
+                            ParentList.Add((ParentType.Star, parent.Star.GetValueOrDefault(0)));
+                        }
                     }
                 }
                 Parent = ParentList.ToImmutableList();
@@ -78,6 +81,7 @@ namespace Observatory.Framework.Files.Journal
         /// <summary>
         /// List containing full breakdown of atmospheric components and their relative percentages.
         /// </summary>
+        [JsonConverter(typeof(MaterialCompositionConverter))]
         public ImmutableList<MaterialComposition> AtmosphereComposition { get; init; }
         /// <summary>
         /// Descriptive string for type of volcanism present, or an empty string for none, e.g. "major silicate vapour geysers volcanism".

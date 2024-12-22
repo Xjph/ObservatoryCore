@@ -48,7 +48,7 @@ namespace Observatory.Framework.Files.Converters
 
         public override void Write(Utf8JsonWriter writer, ImmutableList<MaterialComposition> value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            if (value.Count != 0) JsonSerializer.Serialize(writer, value, options);
         }
     }
 }

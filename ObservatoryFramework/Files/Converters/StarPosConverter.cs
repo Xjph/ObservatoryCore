@@ -18,7 +18,8 @@ namespace Observatory.Framework.Files.Converters
 
         public override void Write(Utf8JsonWriter writer, StarPosition value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            double[] values = { value.x, value.y, value.z };
+            JsonSerializer.Serialize(writer, values, options);
         }
     }
 }
