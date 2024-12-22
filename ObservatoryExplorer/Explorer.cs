@@ -313,7 +313,8 @@ namespace Observatory.Explorer
             }
             else
             {
-                bodyAffix = string.Empty;
+                // Use the body name un-modified -- probably an overridden name (ie. Earth in Sol)
+                bodyAffix = " " + scanEvent.BodyName;
             }
 
             string bodyLabel = System.Security.SecurityElement.Escape(scanEvent.PlanetClass == "Barycentre" ? "Barycentre" : "Body");
@@ -329,6 +330,11 @@ namespace Observatory.Explorer
                         "<say-as interpret-as=\"spell-out\">" + bodyAffix[..ringIndex]
                         + "</say-as><break strength=\"weak\"/>" + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
                         + bodyAffix[(ringIndex + 1)..];
+                }
+                else if (bodyAffix.Contains(scanEvent.BodyName))
+                {
+                    // This contains the entire body name (ie. an override); Speak it out as-is.
+                    spokenAffix = scanEvent.BodyName;
                 }
                 else
                 {
