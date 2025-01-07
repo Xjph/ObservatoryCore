@@ -78,14 +78,17 @@ namespace Observatory.NativeNotification
                     speech.SetOutputToWaveFile(filename);
                     var notification = eventArgs;
 
-                    if (notification.TitleSsml?.Length > 0)
+                    if (!audioHandler.HasMatching(notification))
                     {
-                        string ssml = AddVoiceToSsml(notification.TitleSsml, voice);
-                        speech.SpeakSsml(ssml);
-                    }
-                    else
-                    {
-                        speech.Speak(notification.Title);
+                        if (notification.TitleSsml?.Length > 0)
+                        {
+                            string ssml = AddVoiceToSsml(notification.TitleSsml, voice);
+                            speech.SpeakSsml(ssml);
+                        }
+                        else
+                        {
+                            speech.Speak(notification.Title);
+                        }
                     }
 
                     if (notification.DetailSsml?.Length > 0)
@@ -100,7 +103,7 @@ namespace Observatory.NativeNotification
                     speech.Dispose();
                 }
                 
-                audioHandler.EnqueueAndPlay(filename, new() { DeleteAfterPlay = true });
+                audioHandler.EnqueueAndPlay(filename, new() { DeleteAfterPlay = true }, eventArgs);
                 
             }
             catch (Exception ex)
