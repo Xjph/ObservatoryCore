@@ -1,4 +1,5 @@
 ﻿using NAudio.Wave;
+using Observatory.Framework;
 using Observatory.Framework.ParameterTypes;
 using System.Collections.Concurrent;
 using System.Diagnostics;
@@ -11,7 +12,7 @@ namespace Observatory.Utils
 
         private ConcurrentDictionary<Guid, AudioTaskData> audioTasks = new();
 
-        internal Task EnqueueAndPlay(string filePath, AudioOptions options)
+        internal Task EnqueueAndPlay(string filePath, AudioOptions options, NotificationArgs args = null)
         {
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             {
@@ -26,6 +27,7 @@ namespace Observatory.Utils
                     Id = Guid.NewGuid(),
                     FilePath = filePath,
                     Options = options,
+                    Args = args,
                 };
                 audioTasks.TryAdd(taskData.Id, taskData);
                 Enqueue(taskData);
@@ -33,6 +35,8 @@ namespace Observatory.Utils
                 {
                     try
                     {
+                        Thread.Sleep(250); // Allow time for other notifications to arrive for de-duplicating by title.
+
                         if (!processingQueue)
                         {
                             processingQueue = true;
@@ -53,6 +57,7 @@ namespace Observatory.Utils
                     }
                     catch (Exception ex)
                     {
+                        processingQueue = false;
                         ErrorReporter.ShowErrorPopup("Audio Playback Error (queued)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
                     }
                 });
@@ -66,9 +71,17 @@ namespace Observatory.Utils
                         Id = Guid.Empty,
                         FilePath = filePath,
                         Options = options,
+                        Args = args,
                     });
                 });
             }
+        }
+
+        internal bool HasMatching(NotificationArgs arg)
+        {
+            return audioTasks.Values
+                .Where(d => d.Args != null && d.Args.Title.Trim().ToLower() == arg.Title.Trim().ToLower())
+                .Any();
         }
 
         private void PlayAudioFile(AudioTaskData audioTask)
@@ -165,5 +178,6 @@ namespace Observatory.Utils
         public Guid Id { get; set; }
         public string FilePath { get; set; }
         public AudioOptions Options { get; set; }
+        public NotificationArgs Args { get; set; }
     }
 }
