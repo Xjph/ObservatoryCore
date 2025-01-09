@@ -328,6 +328,12 @@ namespace Observatory.Framework.Interfaces
         public void SendPluginMessage(IObservatoryPlugin plugin, object message);
 
         /// <summary>
+        /// Sends arbitrary data to a specific plugin, identified by ShortName. 
+        /// The full name and version of the sending plugin will be used to identify the sender to recipient.
+        /// </summary>
+        public void SendPluginMessage(IObservatoryPlugin plugin, string targetShortName, object message);
+
+        /// <summary>
         /// Register a UI control for themeing.
         /// </summary>
         /// <param name="control">UI Control object or ToolStripMenuItem</param>
