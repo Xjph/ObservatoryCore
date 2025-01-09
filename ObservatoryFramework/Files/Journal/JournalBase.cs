@@ -7,6 +7,7 @@ namespace Observatory.Framework.Files.Journal
     public class JournalBase
     {
         [JsonPropertyName("timestamp")]
+        [JsonPropertyOrder(-2)]
         public string Timestamp { get; init; }
 
         [JsonIgnore]
@@ -16,6 +17,7 @@ namespace Observatory.Framework.Files.Journal
         }
 
         [JsonPropertyName("event")]
+        [JsonPropertyOrder(-1)]
         public string Event { get;  init; }
 
         [JsonExtensionData]

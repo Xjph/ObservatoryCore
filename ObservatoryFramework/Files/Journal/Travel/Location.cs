@@ -17,7 +17,7 @@ namespace Observatory.Framework.Files.Journal
         {
             get
             {
-                return SystemFaction.FactionState;
+                return SystemFaction?.FactionState ?? string.Empty;
             }
             init
             {
