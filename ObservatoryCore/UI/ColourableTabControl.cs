@@ -1,17 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Runtime.InteropServices;
 
 namespace Observatory.UI
 {
     public class ColourableTabControl : TabControl
     {
+        private TabPage? _draggedPage;
+
+        public Color TabColor { get; set; }
+        public Color SelectedTabColor { get; set; }
+        public override Color BackColor { get; set; }
+
         public ColourableTabControl() : base()
         {
             DrawMode = TabDrawMode.OwnerDrawFixed;
+            MouseDown += OnMouseDown;
+            MouseMove += OnMouseMove;
         }
 
         override protected void OnDrawItem(DrawItemEventArgs e)
@@ -63,9 +66,54 @@ namespace Observatory.UI
             }
         }
 
-        public Color TabColor { get; set; }
-        public Color SelectedTabColor { get; set; }
+        // Tab reordering from 
+        // https://stackoverflow.com/questions/4352781/is-it-possible-to-make-the-winforms-tab-control-be-able-to-do-tab-reordering-lik/11361257#11361257
 
-        public override Color BackColor { get; set; }
+        private void OnMouseDown(object? sender, MouseEventArgs e)
+        {
+            _draggedPage = TabAt(e.Location);
+        }
+
+        private void OnMouseMove(object? sender, MouseEventArgs e)
+        {
+            if (e.Button != MouseButtons.Left || _draggedPage == null)
+            {
+                return;
+            }
+
+            TabPage? tab = TabAt(e.Location);
+
+            if (tab == null || tab == _draggedPage)
+            {
+                return;
+            }
+
+            Swap(_draggedPage, tab);
+            SelectedTab = _draggedPage;
+        }
+
+        private TabPage? TabAt(Point position)
+        {
+            int count = TabCount;
+
+            for (int i = 0; i < count; i++)
+            {
+                if (GetTabRect(i).Contains(position))
+                {
+                    return TabPages[i];
+                }
+            }
+
+            return null;
+        }
+
+        private void Swap(TabPage a, TabPage b)
+        {
+            int i = TabPages.IndexOf(a);
+            int j = TabPages.IndexOf(b);
+            TabPages[i] = b;
+            TabPages[j] = a;
+        }
+
     }
 }
