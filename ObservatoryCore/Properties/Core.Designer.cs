@@ -418,5 +418,17 @@ namespace Observatory.Properties {
                 this["ChimeSelected"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string OpenPopouts {
+            get {
+                return ((string)(this["OpenPopouts"]));
+            }
+            set {
+                this["OpenPopouts"] = value;
+            }
+        }
     }
 }

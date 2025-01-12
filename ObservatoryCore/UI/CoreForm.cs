@@ -81,6 +81,7 @@ namespace Observatory.UI
             CreatePluginTabs();
             CreatePluginList();
             RestoreSavedTab();
+            RestoreSavedPopouts();
             CheckUpdate();
 
             LogMonitor.GetInstance.SetLastEventLabel(LastEvent);
@@ -271,14 +272,18 @@ namespace Observatory.UI
 
         private void CoreForm_Shown(object sender, EventArgs e)
         {
-            PluginManager.GetInstance.ObservatoryReady();
+            // Async task to allow UI draw to finish before doing work.
+            Task.Run(() =>
+            {
+                Thread.Sleep(500);
+                PluginManager.GetInstance.ObservatoryReady();
 
+                if (Properties.Core.Default.StartReadAll)
+                    Invoke(()=>ReadAllButton_Click(ReadAllButton, EventArgs.Empty));
 
-            if (Properties.Core.Default.StartReadAll)
-                ReadAllButton_Click(ReadAllButton, EventArgs.Empty);
-
-            if (Properties.Core.Default.StartMonitor)
-                ToggleMonitorButton_Click(ToggleMonitorButton, EventArgs.Empty);
+                if (Properties.Core.Default.StartMonitor)
+                    Invoke(()=>ToggleMonitorButton_Click(ToggleMonitorButton, EventArgs.Empty));
+            });
         }
 
         private void CoreForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -291,12 +296,23 @@ namespace Observatory.UI
             // Create new collection to iterate while modifying OpenForms
             var openWindows = Application.OpenForms.Cast<Form>().ToList();
 
+            List<string> openPopouts = [];
+
             // Call close event of popouts so locations get saved
             foreach (Form window in openWindows)
             {
                 if (window != this)
+                {
+                    if (window is PopoutForm)
+                    {
+                        openPopouts.Add(window.Text);
+                    }
                     window.Close();
+                }
             }
+
+            Properties.Core.Default.OpenPopouts = JsonSerializer.Serialize(openPopouts);
+            SettingsManager.Save();
         }
 
         private void CoreForm_Load(object sender, EventArgs e)
@@ -331,6 +347,30 @@ namespace Observatory.UI
                 ? Properties.Core.Default.LastTabIndex
                 : 0;
             CoreTabControl_SelectedIndexChanged(CoreTabControl, EventArgs.Empty);
+        }
+
+        private void RestoreSavedPopouts()
+        {
+            try
+            {
+                var openPopouts = Properties.Core.Default.OpenPopouts;
+                List<string>? popoutsToRestore = JsonSerializer.Deserialize<List<string>>(openPopouts);
+                List<IObservatoryWorker> plugins = PluginManager.GetInstance.AllUIPlugins;
+
+                foreach (var name in popoutsToRestore ?? [])
+                {
+                    var pluginTabKV = pluginList.Where(p => p.Value.Name == name).FirstOrDefault();
+                    if (pluginTabKV.Key != null)
+                    {
+                        FormsManager.OpenPluginPopoutForm(pluginTabKV.Value, pluginTabKV.Key);
+                    }
+                }
+            }
+            catch
+            {
+                // do nothing
+            }
+
         }
 
         private void CoreTabControl_SelectedIndexChanged(object sender, EventArgs e)

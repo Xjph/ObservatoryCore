@@ -13,6 +13,7 @@ namespace Observatory.UI
         private Label _label;
         private IObservatoryPlugin _plugin;
 
+
         public PopoutForm(TabPage tab, IObservatoryPlugin plugin)
         {
             _plugin = plugin;
