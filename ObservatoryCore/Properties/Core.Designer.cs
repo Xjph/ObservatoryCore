@@ -430,5 +430,17 @@ namespace Observatory.Properties {
                 this["OpenPopouts"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string TabOrder {
+            get {
+                return ((string)(this["TabOrder"]));
+            }
+            set {
+                this["TabOrder"] = value;
+            }
+        }
     }
 }

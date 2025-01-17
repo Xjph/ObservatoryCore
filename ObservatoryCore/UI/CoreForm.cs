@@ -90,7 +90,7 @@ namespace Observatory.UI
 
         public void FocusPlugin(string pluginShortName)
         {
-            var pluginTab = FindMenuItemForPlugin(pluginShortName);
+            var pluginTab = FindTabPageForPlugin(pluginShortName);
             if (pluginTab != null)
             {
                 SuspendDrawing(this);
@@ -111,7 +111,7 @@ namespace Observatory.UI
             CoreTabPanel.Controls.Add(pluginList);
         }
 
-        private TabPage? FindMenuItemForPlugin(string pluginShortName)
+        private TabPage? FindTabPageForPlugin(string pluginShortName)
         {
             foreach (TabPage tab in CoreTabControl.TabPages)
             {
@@ -343,6 +343,28 @@ namespace Observatory.UI
 
         private void RestoreSavedTab()
         {
+            List<string> tabOrder;
+            try
+            {
+                tabOrder = JsonSerializer.Deserialize<List<string>>(Properties.Core.Default.TabOrder) ?? [];
+            }
+            catch
+            {
+                tabOrder = [];
+            }
+
+            int currentIndex = 0;
+
+            foreach (var tabName in tabOrder)
+            {
+                var tab = FindTabPageForPlugin(tabName);
+                if (tab != null)
+                {
+                    CoreTabControl.SwapTabs(tab, CoreTabControl.TabPages[currentIndex]);
+                    currentIndex++;
+                }
+            }
+
             CoreTabControl.SelectedIndex = Properties.Core.Default.LastTabIndex < CoreTabControl.TabPages.Count
                 ? Properties.Core.Default.LastTabIndex
                 : 0;

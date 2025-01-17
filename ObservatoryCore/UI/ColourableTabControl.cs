@@ -1,4 +1,6 @@
-﻿using System.Runtime.InteropServices;
+﻿using Observatory.Utils;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace Observatory.UI
 {
@@ -38,7 +40,7 @@ namespace Observatory.UI
                     {
                         e.Graphics.FillRectangle(new SolidBrush(SelectedTabColor), tabArea);
                     }
-                    catch (ExternalException ex) // A generic error occurred in GDI+.
+                    catch // A generic error occurred in GDI+.
                     {
                         // This happens sometimes randomly when resizing things a bunch, but doesn't seem to break anything.
                     }
@@ -50,7 +52,7 @@ namespace Observatory.UI
                     {
                         e.Graphics.FillRectangle(new SolidBrush(TabColor), tabArea);
                     }
-                    catch (ExternalException ex) // A generic error occurred in GDI+.
+                    catch // A generic error occurred in GDI+.
                     {
                         // This happens sometimes randomly when resizing things a bunch, but doesn't seem to break anything.
                     }
@@ -88,8 +90,12 @@ namespace Observatory.UI
                 return;
             }
 
-            Swap(_draggedPage, tab);
+            SwapTabs(_draggedPage, tab);
             SelectedTab = _draggedPage;
+
+            List<string> tabOrder = TabPages.Cast<TabPage>().Select(t => t.Text).ToList();
+            Properties.Core.Default.TabOrder = JsonSerializer.Serialize(tabOrder);
+            SettingsManager.Save();
         }
 
         private TabPage? TabAt(Point position)
@@ -107,13 +113,12 @@ namespace Observatory.UI
             return null;
         }
 
-        private void Swap(TabPage a, TabPage b)
+        public void SwapTabs(TabPage a, TabPage b)
         {
             int i = TabPages.IndexOf(a);
             int j = TabPages.IndexOf(b);
             TabPages[i] = b;
             TabPages[j] = a;
         }
-
     }
 }
