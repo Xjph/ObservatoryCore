@@ -358,7 +358,7 @@ namespace Observatory.UI
             foreach (var tabName in tabOrder)
             {
                 var tab = FindTabPageForPlugin(tabName);
-                if (tab != null)
+                if (tab != null && CoreTabControl.TabPages.Count > currentIndex)
                 {
                     CoreTabControl.SwapTabs(tab, CoreTabControl.TabPages[currentIndex]);
                     currentIndex++;
