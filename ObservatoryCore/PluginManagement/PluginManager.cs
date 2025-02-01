@@ -4,6 +4,8 @@ using Observatory.Framework.Interfaces;
 using Observatory.Framework;
 using System.Text.Json;
 using Observatory.Utils;
+using System.Text.Json.Serialization;
+using System.Diagnostics;
 
 namespace Observatory.PluginManagement
 {
@@ -33,7 +35,14 @@ namespace Observatory.PluginManagement
         private readonly Dictionary<IObservatoryPlugin, PluginStatus> _pluginStatus = [];
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
+
+        private readonly JsonSerializerOptions SettingsJsonSerializerOptions = new JsonSerializerOptions()
+        {
+            UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
+        };
         
+
         public PluginCore Core { get { return core; } }
 
 
@@ -85,17 +94,32 @@ namespace Observatory.PluginManagement
             logMonitor.LogMonitorStateChanged += pluginHandler.OnLogMonitorStateChanged;
 
             core = new PluginCore();
+            var allPluginSettings = LoadAllPluginSettings();
 
             foreach (var plugin in _workerPlugins)
             {
                 try
                 {
-                    LoadSettings(plugin);
+                    LoadPluginSettings(plugin, allPluginSettings);
+                }
+                catch (Exception ex)
+                {
+                    errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
+                    _pluginStatus[plugin] = PluginStatus.SettingsReset;
+                }
+
+                try
+                {
                     plugin.Load(core);
                 }
                 catch (PluginException ex)
                 {
                     errorList.Add((FormatErrorMessage(ex), ex.StackTrace));
+                    _pluginStatus[plugin] = PluginStatus.Errored;
+                }
+                catch (Exception ex)
+                {
+                    errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
                     _pluginStatus[plugin] = PluginStatus.Errored;
                 }
             }
@@ -107,7 +131,16 @@ namespace Observatory.PluginManagement
                 {
                     try
                     {
-                        LoadSettings(plugin);
+                        LoadPluginSettings(plugin, allPluginSettings);
+                    }
+                    catch (Exception ex)
+                    {
+                        errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
+                        _pluginStatus[plugin] = PluginStatus.SettingsReset;
+                    }
+
+                    try
+                    {
                         plugin.Load(core);
                     }
                     catch (PluginException ex)
@@ -130,6 +163,8 @@ namespace Observatory.PluginManagement
 
             if (errorList.Any())
                 ErrorReporter.ShowErrorPopup("Plugin Load Error" + (errorList.Count > 1 ? "s" : String.Empty), errorList);
+            else
+                MaybePruneUnknownPluginSettings();
         }
 
         private static string FormatErrorMessage(PluginException ex)
@@ -137,14 +172,14 @@ namespace Observatory.PluginManagement
             return $"{ex.PluginName}: {ex.UserMessage}";
         }
 
-        private void LoadSettings(IObservatoryPlugin plugin)
+        private Dictionary<string, object> LoadAllPluginSettings()
         {
             string savedSettings = Properties.Core.Default.PluginSettings;
             Dictionary<string, object> pluginSettings;
 
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
-                var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings);
+                var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
                 if (settings != null)
                 {
                     pluginSettings = settings;
@@ -158,12 +193,16 @@ namespace Observatory.PluginManagement
             {
                 pluginSettings = new();
             }
+            return pluginSettings;
+        }
 
+        private void LoadPluginSettings(IObservatoryPlugin plugin, Dictionary<string, object> pluginSettings)
+        {
             if (pluginSettings.ContainsKey(plugin.Name))
             {
                 var settingsElement = (JsonElement)pluginSettings[plugin.Name];
-                var settingsObject = JsonSerializer.Deserialize(settingsElement.GetRawText(), plugin.Settings.GetType());
-                plugin.Settings = settingsObject;    
+                var settingsObject = JsonSerializer.Deserialize(settingsElement.GetRawText(), plugin.Settings.GetType(), SettingsJsonSerializerOptions);
+                plugin.Settings = settingsObject;
             }
         }
 
@@ -197,7 +236,7 @@ namespace Observatory.PluginManagement
 
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
-                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings);
+                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
                 pluginSettings ??= new();
             }
             else
@@ -214,13 +253,47 @@ namespace Observatory.PluginManagement
                 pluginSettings.Add(plugin.Name, plugin.Settings);
             }
 
-            string newSettings = JsonSerializer.Serialize(pluginSettings, new JsonSerializerOptions()
-            {
-                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve
-            });
+            string newSettings = JsonSerializer.Serialize(pluginSettings, SettingsJsonSerializerOptions);
 
             Properties.Core.Default.PluginSettings = newSettings;
             SettingsManager.Save();
+        }
+
+        private void MaybePruneUnknownPluginSettings()
+        {
+            HashSet<string> knownPluginNames = AllPlugins.Select(p => p.Name).ToHashSet();
+
+            string savedSettings = Properties.Core.Default.PluginSettings;
+            Dictionary<string, object>? pluginSettings;
+
+            if (!String.IsNullOrWhiteSpace(savedSettings))
+            {
+                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
+                pluginSettings ??= new();
+            }
+            else
+            {
+                pluginSettings = new();
+            }
+
+            bool isDirty = false;
+            foreach (string settingKey in pluginSettings.Keys.ToList()) // copy to avoid errors due to removing from the list we're iterating
+            {
+                if (!knownPluginNames.Contains(settingKey))
+                {
+                    pluginSettings.Remove(settingKey);
+                    isDirty = true;
+                    Debug.WriteLine($"Purged stale settings for unknown plugin with key {settingKey}");
+                }
+            }
+
+            if (isDirty)
+            {
+                string newSettings = JsonSerializer.Serialize(pluginSettings, SettingsJsonSerializerOptions);
+
+                Properties.Core.Default.PluginSettings = newSettings;
+                SettingsManager.Save();
+            }
         }
 
         public void SetPluginEnabled(IObservatoryPlugin plugin, bool enabled)
@@ -448,8 +521,15 @@ namespace Observatory.PluginManagement
             /// Plugin was built using an older Framwork with breaking changes.
             /// </summary>
             Outdated,
-            Errored
-                
+            /// <summary>
+            /// The plugin falied to load.
+            /// </summary>
+            Errored,
+            /// <summary>
+            /// Settings for the plugin failed to load and were reset.
+            /// </summary>
+            SettingsReset,
+            
         }
     }
 }
