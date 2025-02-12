@@ -40,7 +40,7 @@ namespace Observatory.PluginManagement
 
         public Guid SendNotification(NotificationArgs notificationArgs)
         {
-            var guid = notificationArgs.Guid ?? Guid.NewGuid();
+            notificationArgs.Guid ??= Guid.NewGuid();
             var handler = Notification;
 
             // Always send notifications to plugins. PluginEventHandler filters out plugins
@@ -56,7 +56,7 @@ namespace Observatory.PluginManagement
                 {
                     if (Properties.Core.Default.NativeNotify && !PluginManager.GetInstance.HasPopupOverrideNotifiers)
                     {
-                        guid = NativePopup.InvokeNativeNotification(notificationArgs);
+                        NativePopup.InvokeNativeNotification(notificationArgs);
                     }
                     else if (PluginManager.GetInstance.HasPopupOverrideNotifiers && (notificationArgs.Rendering & NotificationRendering.PluginNotifier) == 0)
                     {
@@ -79,7 +79,7 @@ namespace Observatory.PluginManagement
                 }
             }
 
-            return guid;
+            return notificationArgs.Guid ?? Guid.Empty();
         }
 
         public void CancelNotification(Guid id)
