@@ -88,6 +88,7 @@ namespace Observatory.Explorer
         [SettingNewGroup("Custom Criteria")]
         [SettingDisplayName("Enable Custom Criteria")]
         public bool EnableCustomCriteria { get; set; }
+
         [SettingDisplayName("Custom Criteria File")]
         [System.Text.Json.Serialization.JsonIgnore]
         public System.IO.FileInfo CustomCriteria {get => new System.IO.FileInfo(CustomCriteriaFile); set => CustomCriteriaFile = value.FullName;}

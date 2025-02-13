@@ -13,6 +13,7 @@ namespace Observatory.UI
     {
         private NativePopup? nativePopup;
         private NativeVoice? nativeVoice;
+        private bool loading = false;
 
         public CoreSettings()
         {
@@ -164,7 +165,7 @@ namespace Observatory.UI
 
             if (Properties.Core.Default.ChimeEnabled)
             {
-                VoiceDropdown.Items.AddRange([1,2,3,4,5,6]);
+                VoiceDropdown.Items.AddRange([1, 2, 3, 4, 5, 6]);
                 TryLoadSetting(VoiceDropdown, "SelectedIndex", Properties.Core.Default.ChimeSelected);
             }
             else
@@ -194,7 +195,7 @@ namespace Observatory.UI
         private void PopulateNativeSettings()
         {
             var settings = Properties.Core.Default;
-
+            loading = true;
             TryLoadSetting(DisplayDropdown, "SelectedIndex", settings.NativeNotifyScreen + 1, 0);
             TryLoadSetting(CornerDropdown, "SelectedIndex", settings.NativeNotifyCorner, 0);
             TryLoadSetting(FontDropdown, "SelectedItem", settings.NativeNotifyFont);
@@ -212,6 +213,7 @@ namespace Observatory.UI
             TryLoadSetting(PopupTransparentCheckBox, "Checked", settings.NativeNotifyTransparent);
             TryLoadSetting(FontScaleSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyFontScale, 1, 500), 100);
             TryLoadSetting(AudioTypeDropdown, "SelectedIndex", settings.ChimeEnabled ? 1 : 0);
+            TryLoadSetting(AltMonitorCheckbox, "Checked", settings.AltMonitor);
 
 #if PROTON
             VoiceCheckbox.Checked = false;
@@ -226,6 +228,7 @@ namespace Observatory.UI
 #if !DEBUG
             CoreConfigFolder.Visible = false;
 #endif
+            loading = false;
         }
 
         static private void TryLoadSetting(Control control, string property, object newValue, object? defaultValue = null)
@@ -373,11 +376,26 @@ namespace Observatory.UI
         {
             Properties.Core.Default.ChimeEnabled = AudioTypeDropdown.SelectedItem?.ToString() == "Chime";
             SettingsManager.Save();
-            
+
             VoiceLabel.Text = Properties.Core.Default.ChimeEnabled ? "Chime:" : "Voice:";
             VoiceSpeedSlider.Enabled = !Properties.Core.Default.ChimeEnabled;
             VoiceDropdown.Items.Clear();
             PopulateDropdownOptions(true);
         }
+
+        private void AltMonitorCheckbox_CheckedChanged(object sender, EventArgs e)
+        {
+            if (loading || !AltMonitorCheckbox.Checked
+                || MessageBox.Show(
+                    "This setting should only be enabled if standard log monitoring is not working correctly.",
+                    "Enabling Log Polling", 
+                    MessageBoxButtons.OKCancel, 
+                    MessageBoxIcon.Exclamation) == DialogResult.OK)
+            {
+                Properties.Core.Default.AltMonitor = AltMonitorCheckbox.Checked;
+                SettingsManager.Save();
+            }
+        }
+            
     }
 }

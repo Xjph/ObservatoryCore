@@ -29,6 +29,7 @@ namespace Observatory.Utils
         private LogMonitor()
         {
             currentLine = [];
+            currentLines = [];
             journalTypes = JournalReader.PopulateEventClasses();
             InitializeWatchers(string.Empty);
             SetLogMonitorState(LogMonitorState.Idle);
@@ -276,6 +277,7 @@ namespace Observatory.Utils
         private FileSystemWatcher? statusWatcher;
         private readonly Dictionary<string, Type> journalTypes;
         private readonly Dictionary<string, int> currentLine;
+        private readonly List<string> currentLines;
         private LogMonitorState currentState = LogMonitorState.Idle; // Change via #SetLogMonitorState
         private bool firstStartMonitor = true;
         private readonly string[] EventsWithAncillaryFile =
@@ -514,6 +516,8 @@ namespace Observatory.Utils
         {
             var journalFolder = GetJournalFolder();
 
+            bool poll = Properties.Core.Default.AltMonitor;
+
             await Task.Run(() =>
             {
                 while (IsMonitoring())
@@ -524,10 +528,21 @@ namespace Observatory.Utils
                     {
                         FileInfo fileToPoke = journals.Last();
 
-                        using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                        stream.Close();
+                        if (!poll)
+                        {
+                            using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                            stream.Close();
+                        }
+                        else
+                        {
+                            var lines = ReadAllLines(fileToPoke.FullName);
+                            if (!currentLine.TryGetValue(fileToPoke.FullName, out int value) || lines.Count > value)
+                            {
+                                LogChangedEvent(this, new(WatcherChangeTypes.Changed, fileToPoke.Directory?.FullName ?? ".", fileToPoke.Name));
+                            }
+                        }
                     }
-                    Thread.Sleep(250);
+                    Thread.Sleep(poll ? 1000 : 250); // Do this less often when polling
                 }
             });
         }

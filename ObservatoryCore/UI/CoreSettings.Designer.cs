@@ -79,6 +79,7 @@
             VoiceDisabledLabel = new Label();
             CoreSettingsOK = new Button();
             PopupColour = new ColorDialog();
+            AltMonitorCheckbox = new CheckBox();
             PopupSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)FontScaleSpinner).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DurationSpinner).BeginInit();
@@ -332,6 +333,7 @@
             // 
             CoreSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CoreSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
+            CoreSettingsPanel.Controls.Add(AltMonitorCheckbox);
             CoreSettingsPanel.Controls.Add(AudioDeviceLabel);
             CoreSettingsPanel.Controls.Add(AudioDeviceDropdown);
             CoreSettingsPanel.Controls.Add(ExportFormatLabel);
@@ -656,6 +658,17 @@
             CoreSettingsOK.UseVisualStyleBackColor = false;
             CoreSettingsOK.Click += CoreSettingsOK_Click;
             // 
+            // AltMonitorCheckbox
+            // 
+            AltMonitorCheckbox.AutoSize = true;
+            AltMonitorCheckbox.Location = new Point(253, 203);
+            AltMonitorCheckbox.Name = "AltMonitorCheckbox";
+            AltMonitorCheckbox.Size = new Size(85, 19);
+            AltMonitorCheckbox.TabIndex = 38;
+            AltMonitorCheckbox.Text = "Use Polling";
+            AltMonitorCheckbox.UseVisualStyleBackColor = true;
+            AltMonitorCheckbox.CheckedChanged += AltMonitorCheckbox_CheckedChanged;
+            // 
             // CoreSettings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -742,5 +755,6 @@
         private ColorDialog PopupColour;
         private ComboBox AudioTypeDropdown;
         private Label AudioTypeLabel;
+        private CheckBox AltMonitorCheckbox;
     }
 }

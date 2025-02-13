@@ -442,5 +442,17 @@ namespace Observatory.Properties {
                 this["TabOrder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AltMonitor {
+            get {
+                return ((bool)(this["AltMonitor"]));
+            }
+            set {
+                this["AltMonitor"] = value;
+            }
+        }
     }
 }
