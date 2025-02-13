@@ -79,7 +79,7 @@ namespace Observatory.PluginManagement
                 }
             }
 
-            return notificationArgs.Guid ?? Guid.Empty();
+            return notificationArgs.Guid ?? Guid.Empty;
         }
 
         public void CancelNotification(Guid id)
