@@ -91,24 +91,25 @@ namespace Observatory.PluginManagement
 
         public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
         {
-            if (!IsLogMonitorBatchReading)
+            if (IsLogMonitorBatchReading) return;
+
+            if (!notificationArgs.Guid.HasValue) notificationArgs.Guid = id;
+
+            if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
             {
-                if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
-                {
-                    var handler = Notification;
-                    handler?.Invoke(this, notificationArgs);
-                }
-
-                if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
-                    NativePopup.UpdateNotification(id, notificationArgs);
-
-                if (Properties.Core.Default.VoiceNotify && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
-                {
-                    NativeVoice.AudioHandlerEnqueue(notificationArgs);
-                }
-
-                UpdateNotificationEvent?.Invoke(this, notificationArgs);
+                var handler = Notification;
+                handler?.Invoke(this, notificationArgs);
             }
+
+            if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
+                NativePopup.UpdateNotification(id, notificationArgs);
+
+            if (Properties.Core.Default.VoiceNotify && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
+            {
+                NativeVoice.AudioHandlerEnqueue(notificationArgs);
+            }
+
+            UpdateNotificationEvent?.Invoke(this, notificationArgs);
         }
 
         /// <summary>
