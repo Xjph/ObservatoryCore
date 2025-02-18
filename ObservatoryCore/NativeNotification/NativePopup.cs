@@ -9,7 +9,7 @@ namespace Observatory.NativeNotification
 
         public NativePopup()
         {
-            notifications = new();
+            notifications = [];
         }
 
         public Guid InvokeNativeNotification(NotificationArgs notificationArgs)
@@ -53,17 +53,19 @@ namespace Observatory.NativeNotification
 
         public void CloseNotification(Guid guid)
         {
-            if (notifications.ContainsKey(guid))
+            if (notifications.TryGetValue(guid, out NotificationForm? value))
             {
-                notifications[guid].Close();
+                value.Close();
             }
         }
 
-        public void UpdateNotification(Guid guid, NotificationArgs notificationArgs)
+        public void UpdateNotification(NotificationArgs notificationArgs)
         {
-            if (notifications.ContainsKey(guid))
+            var guid = notificationArgs.Guid 
+                ?? throw new ArgumentNullException(nameof(notificationArgs), "Cannot update notification without Guid.");
+            if (notifications.TryGetValue(guid, out NotificationForm? value))
             {
-                notifications[guid].Update(notificationArgs);
+                value.Update(notificationArgs);
             }
         }
 

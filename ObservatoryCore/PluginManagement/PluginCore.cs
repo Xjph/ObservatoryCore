@@ -91,6 +91,13 @@ namespace Observatory.PluginManagement
 
         public void UpdateNotification(Guid id, NotificationArgs notificationArgs)
         {
+            // Always use explicitly passed Guid.
+            notificationArgs.Guid = id;
+            UpdateNotification(notificationArgs);
+        }
+
+        public void UpdateNotification(NotificationArgs notificationArgs)
+        {
             if (!IsLogMonitorBatchReading)
             {
                 if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
@@ -100,7 +107,7 @@ namespace Observatory.PluginManagement
                 }
 
                 if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
-                    NativePopup.UpdateNotification(id, notificationArgs);
+                    NativePopup.UpdateNotification(notificationArgs);
 
                 if (Properties.Core.Default.VoiceNotify && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
                 {

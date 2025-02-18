@@ -1698,6 +1698,12 @@
             <param name="notificationId">Guid of notification to be updated.</param>
             <param name="notificationEventArgs">NotificationArgs object specifying updated notification content and behaviour.</param>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.UpdateNotification(Observatory.Framework.NotificationArgs)">
+            <summary>
+            Update an active notification with a new set of NotificationsArgs. Timeout values are reset and begin counting again from zero if specified.
+            </summary>
+            <param name="notificationEventArgs">NotificationArgs object specifying updated notification content and behaviour.</param>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.AddGridItem(Observatory.Framework.Interfaces.IObservatoryWorker,System.Object)">
             <summary>
             Add an item to the bottom of the basic UI grid.

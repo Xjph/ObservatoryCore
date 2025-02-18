@@ -230,7 +230,14 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="notificationId">Guid of notification to be updated.</param>
         /// <param name="notificationEventArgs">NotificationArgs object specifying updated notification content and behaviour.</param>
+        [Obsolete("This method has been deprecated in favour of UpdateNotification(NotificationArgs notificationEventArgs)")]
         public void UpdateNotification(Guid notificationId, NotificationArgs notificationEventArgs);
+
+        /// <summary>
+        /// Update an active notification with a new set of NotificationsArgs. Timeout values are reset and begin counting again from zero if specified.
+        /// </summary>
+        /// <param name="notificationEventArgs">NotificationArgs object specifying updated notification content and behaviour.</param>
+        public void UpdateNotification(NotificationArgs notificationEventArgs);
 
         /// <summary>
         /// Add an item to the bottom of the basic UI grid.
