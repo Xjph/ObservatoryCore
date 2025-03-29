@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
@@ -11,6 +12,7 @@ namespace Observatory.Framework.Files.Journal
         /// Name of the station at which this event occurred.
         /// </summary>
         public string StationName { get; init; }
+        public string StationName_Localised { get; init; }
         public string StationType { get; init; }
         public string StarSystem { get; init; }
         public CarrierDockingAccess CarrierDockingAccess { get; init; }

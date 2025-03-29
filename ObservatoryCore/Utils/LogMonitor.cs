@@ -149,7 +149,9 @@ namespace Observatory.Utils
                         fileHeaderLines.Clear();
                         fileHeaderLines.Add(line);
                     }
-                    else if (eventType.Equals("LoadGame") || eventType.Equals("Statistics"))
+                    else if (eventType.Equals("LoadGame") ||
+                        eventType.Equals("Statistics") ||
+                        eventType.Equals("CarrierLocation"))
                     {
                         // A few header lines to collect.
                         fileHeaderLines.Add(line);
