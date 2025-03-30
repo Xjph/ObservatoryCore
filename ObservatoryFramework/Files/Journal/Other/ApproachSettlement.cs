@@ -21,7 +21,6 @@ namespace Observatory.Framework.Files.Journal
         public Faction StationFaction { get; init; }
         public string StationGovernment { get; init; }
         public string StationGovernment_Localised { get; init; }
-        [JsonConverter(typeof(StationServiceConverter))]
         public StationService StationServices { get; init; }
     }
 }

@@ -377,6 +377,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: None)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
     [System.Flags]
     public enum StationService : ulong
     {
@@ -424,6 +426,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         ApexInterstellar = 1L << 39,
         FrontlineSolutions = 1L << 40,
         RegisteringColonisation = 1L << 41,
+        ColonisationContribution = 1L << 42,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]

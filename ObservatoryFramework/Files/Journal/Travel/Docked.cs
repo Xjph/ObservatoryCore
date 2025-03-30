@@ -72,7 +72,6 @@ namespace Observatory.Framework.Files.Journal
             init { StationAllegiance = value; }
         }
 
-        [JsonConverter(typeof(Converters.StationServiceConverter))]
         public StationService StationServices { get; init; }
         public string StationEconomy { get; init; }
 
