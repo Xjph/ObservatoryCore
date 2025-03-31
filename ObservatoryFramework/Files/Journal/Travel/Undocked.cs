@@ -6,6 +6,7 @@
         /// Name of the station at which this event occurred.
         /// </summary>
         public string StationName { get; init; }
+        public string StationName_Localised { get; init; }
         public string StationType { get; init; }
         public ulong MarketID { get; init; }
         public bool Taxi { get; init; }

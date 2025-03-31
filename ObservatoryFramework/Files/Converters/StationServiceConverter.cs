@@ -4,6 +4,7 @@ using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Converters
 {
+    [Obsolete("Replaced by JsonStringEnumMemberConverter which can handle unkonwn values.")]
     public class StationServiceConverter : JsonConverter<StationService>
     {
         public override StationService Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

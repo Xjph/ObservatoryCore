@@ -11,6 +11,7 @@ namespace Observatory.Framework.Files.Journal
         /// Name of the station at which this event occurred.
         /// </summary>
         public string StationName { get; init; }
+        public string StationName_Localised { get; init; }
         public string StationType { get; init; }
         public string StarSystem { get; init; }
         public ulong SystemAddress { get; init; }
@@ -71,7 +72,6 @@ namespace Observatory.Framework.Files.Journal
             init { StationAllegiance = value; }
         }
 
-        [JsonConverter(typeof(Converters.StationServiceConverter))]
         public StationService StationServices { get; init; }
         public string StationEconomy { get; init; }
 

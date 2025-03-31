@@ -47,6 +47,10 @@ namespace Observatory.Framework.Files.Journal
         public ImmutableList<Conflict> Conflicts { get; init; }
         public ImmutableList<string> Powers { get; init; }
         public string PowerplayState { get; init; }
+        public double PowerplayStateControlProgress { get; init; }
+        public int PowerplayStateReinforcement { get; init; }
+        public int PowerplayStateUndermining { get; init; }
+        public ImmutableList<PowerplayStateConflictProgress> PowerplayConflictProgress { get; init; }
         public bool Taxi { get; init; }
         public bool Multicrew { get; init; }
         public ThargoidWar ThargoidWar { get; init; }

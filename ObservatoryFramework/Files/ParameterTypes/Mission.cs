@@ -6,6 +6,8 @@
 
         public string Name { get; init; }
 
+        public string Name_Localised { get; init; }
+
         public bool PassengerMission { get; init; }
 
         public int Expires { get; init; }

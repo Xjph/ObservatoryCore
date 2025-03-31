@@ -1256,6 +1256,11 @@
             Name of the station where the market is located.
             </summary>
         </member>
+        <member name="P:Observatory.Framework.Files.MarketFile.StationName_Localised">
+            <summary>
+            Name of the station where the market is located localised to the current language (if available).
+            </summary>
+        </member>
         <member name="P:Observatory.Framework.Files.MarketFile.StationType">
             <summary>
             Type of station where the market is located.
