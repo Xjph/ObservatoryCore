@@ -71,7 +71,6 @@ namespace Observatory.Botanist
 
         ObservableCollection<object> GridCollection;
         private PluginUI pluginUI;
-        private Guid? samplerStatusNotification = null;
         private NotificationArgs currentNotificationArgs = null;
         private (double lat, double lon) firstScanLocation = INVALID_LOCATION;
         private (double lat, double lon) secondScanLocation = INVALID_LOCATION;
@@ -166,70 +165,75 @@ namespace Observatory.Botanist
                         else
                         {
                             var bioPlanet = BioPlanets[systemBodyId];
-                            
+
                             // If this is null don't bother.
                             if (scanOrganic.Species_Localised != null)
-                            switch (scanOrganic.ScanType)
                             {
-                                case ScanOrganicType.Log:
-                                case ScanOrganicType.Sample:
-                                    if (!Core.IsLogMonitorBatchReading && botanistSettings.OverlayEnabled)
-                                    {
-                                        var colonyDistance = GetColonyDistance(scanOrganic);
-                                        var sampleNum = scanOrganic.ScanType == ScanOrganicType.Log ? 1 : 2;
-                                        var status = Core.GetStatus() ?? new() 
-                                        { 
-                                            Latitude = 200, 
-                                            Longitude = 200,
-                                            PlanetRadius = 0
-                                        }; // INVALID_LOCATION
-                                        
-                                        if (sampleNum == 1)
+                                switch (scanOrganic.ScanType)
+                                {
+                                    case ScanOrganicType.Log:
+                                    case ScanOrganicType.Sample:
+                                        if (!Core.IsLogMonitorBatchReading && botanistSettings.OverlayEnabled)
                                         {
-                                            firstScanLocation = (status.Latitude, status.Longitude);
-                                            secondScanLocation = INVALID_LOCATION;
-                                        }
-                                        else if (sampleNum == 2)
-                                            secondScanLocation = (status.Latitude, status.Longitude);
-                                        
-                                        currentBodyRadius = status.PlanetRadius;
-                                        currentNotificationArgs = new()
-                                        {
-                                            Title = scanOrganic.Species_Localised,
-                                            Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance}m{Environment.NewLine}{GetDistanceText(status)}",
-                                            Rendering = NotificationRendering.NativeVisual,
-                                            Timeout = botanistSettings.OverlayIsSticky ? 0 : -1,
-                                            Sender = AboutInfo.ShortName,
-                                        };
-                                        if (samplerStatusNotification == null)
-                                        {
-                                            var notificationId = Core.SendNotification(currentNotificationArgs);
-                                            if (botanistSettings.OverlayIsSticky)
-                                                samplerStatusNotification = notificationId;
-                                        }
-                                        else
-                                        {
-                                            Core.UpdateNotification(samplerStatusNotification.Value, currentNotificationArgs);
-                                        }
-                                    }
+                                            var colonyDistance = GetColonyDistance(scanOrganic);
+                                            var sampleNum = scanOrganic.ScanType == ScanOrganicType.Log ? 1 : 2;
+                                            var status = Core.GetStatus() ?? new()
+                                            {
+                                                Latitude = 200,
+                                                Longitude = 200,
+                                                PlanetRadius = 0
+                                            }; // INVALID_LOCATION
 
-                                    if (!bioPlanet.SpeciesFound.ContainsKey(scanOrganic.Species_Localised))
-                                    {
-                                        bioPlanet.SpeciesFound.Add(scanOrganic.Species_Localised, new()
+                                            if (sampleNum == 1)
+                                            {
+                                                firstScanLocation = (status.Latitude, status.Longitude);
+                                                secondScanLocation = INVALID_LOCATION;
+                                            }
+                                            else if (sampleNum == 2)
+                                                secondScanLocation = (status.Latitude, status.Longitude);
+
+                                            currentBodyRadius = status.PlanetRadius;
+                                            if (scanOrganic.ScanType == ScanOrganicType.Log)
+                                                MaybeCloseSamplerStatusNotification(); // Force a new notification.
+
+                                            var notificationGuid = currentNotificationArgs?.Guid ?? Guid.NewGuid();
+                                            currentNotificationArgs = new()
+                                            {
+                                                Title = scanOrganic.Species_Localised,
+                                                Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance}m{Environment.NewLine}{GetDistanceText(status)}",
+                                                Rendering = NotificationRendering.NativeVisual,
+                                                Timeout = botanistSettings.OverlayIsSticky ? 0 : -1,
+                                                Sender = AboutInfo.ShortName,
+                                                Guid = notificationGuid,
+                                            };
+                                            if (!botanistSettings.OverlayIsSticky || scanOrganic.ScanType == ScanOrganicType.Log)
+                                            {
+                                                Core.SendNotification(currentNotificationArgs);
+                                            }
+                                            else
+                                            {
+                                                Core.UpdateNotification(currentNotificationArgs);
+                                            }
+                                        }
+
+                                        if (!bioPlanet.SpeciesFound.ContainsKey(scanOrganic.Species_Localised))
                                         {
-                                            Genus = EnglishGenusByIdentifier.GetValueOrDefault(scanOrganic.Genus, scanOrganic.Genus_Localised),
-                                            Analysed = false
-                                        });
-                                    }
-                                    break;
-                                case ScanOrganicType.Analyse:
-                                    if (!bioPlanet.SpeciesFound[scanOrganic.Species_Localised].Analysed)
-                                    {
-                                        bioPlanet.SpeciesFound[scanOrganic.Species_Localised].Analysed = true;
-                                    }
-                                    MaybeCloseSamplerStatusNotification();
-                                    firstScanLocation = INVALID_LOCATION; secondScanLocation = INVALID_LOCATION;
-                                    break;
+                                            bioPlanet.SpeciesFound.Add(scanOrganic.Species_Localised, new()
+                                            {
+                                                Genus = EnglishGenusByIdentifier.GetValueOrDefault(scanOrganic.Genus, scanOrganic.Genus_Localised),
+                                                Analysed = false
+                                            });
+                                        }
+                                        break;
+                                    case ScanOrganicType.Analyse:
+                                        if (!bioPlanet.SpeciesFound[scanOrganic.Species_Localised].Analysed)
+                                        {
+                                            bioPlanet.SpeciesFound[scanOrganic.Species_Localised].Analysed = true;
+                                        }
+                                        MaybeCloseSamplerStatusNotification();
+                                        firstScanLocation = INVALID_LOCATION; secondScanLocation = INVALID_LOCATION;
+                                        break;
+                                }
                             }
                         }
                         UpdateUIGrid();
@@ -248,14 +252,14 @@ namespace Observatory.Botanist
 
         public void StatusChange(Status status)
         {
-            if (samplerStatusNotification != null)
+            if (currentNotificationArgs != null)
             {
                 var currentNotificationDetail = currentNotificationArgs.Detail.Split(Environment.NewLine);
 
                 currentNotificationDetail[2] = GetDistanceText(status);
                 
                 currentNotificationArgs.Detail = string.Join(Environment.NewLine, currentNotificationDetail);
-                Core.UpdateNotification(samplerStatusNotification.Value, currentNotificationArgs);
+                Core.UpdateNotification(currentNotificationArgs);
             }
         }
 
@@ -295,10 +299,10 @@ namespace Observatory.Botanist
 
         private void MaybeCloseSamplerStatusNotification()
         {
-            if (samplerStatusNotification != null)
+            if (currentNotificationArgs != null)
             {
-                Core.CancelNotification(samplerStatusNotification.Value);
-                samplerStatusNotification = null;
+                Core.CancelNotification(currentNotificationArgs.Guid.Value);
+                currentNotificationArgs = null;
             }
         }
 
