@@ -408,6 +408,31 @@
             List of all data currently stored by the player.
             </summary>
         </member>
+        <member name="T:Observatory.Framework.Files.Journal.Colonisation.ColonisationBeaconDeployed">
+            <summary>
+            Written when a colonisation beacon is deployed.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.Colonisation.ColonisationConstructionDepot">
+            <summary>
+            Written every 15 seconds while docked at a construction depot.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.Colonisation.ColonisationContribution">
+            <summary>
+            Written when contributing resources to a colonisation effort
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.Colonisation.ColonisationSystemClaim">
+            <summary>
+            Written when a system is claimed for colonisation by paying for the claim.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.Files.Journal.Colonisation.ColonisationSystemClaimRelease">
+            <summary>
+            Written when a colonisation claim is released.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Files.Journal.BuyExplorationData">
             <summary>
             Journal event generated when buying system data from the galaxy map while docked.
