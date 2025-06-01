@@ -31,15 +31,19 @@ namespace Observatory.Utils
                 };
                 audioTasks.TryAdd(taskData.Id, taskData);
                 Enqueue(taskData);
-                return Task.Run(() =>
-                {
-                    try
-                    {
-                        Thread.Sleep(250); // Allow time for other notifications to arrive for de-duplicating by title.
 
-                        if (!processingQueue)
+                if (!processingQueue)
+                {
+                    processingQueue = true;
+
+                    return Task.Run(() =>
+                    {
+                        try
                         {
-                            processingQueue = true;
+                            // Is this the right place for this? Herald has its own delay and Native doesn't suppress AFAIK (and if it
+                            // does, it should implement its own delay.
+                            // Thread.Sleep(250); // Allow time for other notifications to arrive for de-duplicating by title.
+
                             while (TryDequeue(out AudioTaskData audioTask))
                             {
                                 PlayAudioFile(audioTask);
@@ -47,20 +51,31 @@ namespace Observatory.Utils
 
                             processingQueue = false;
                         }
-                        else
+                        catch (Exception ex)
+                        {
+                            processingQueue = false;
+                            ErrorReporter.ShowErrorPopup("Audio Playback Error (queued)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                        }
+                    });
+                }
+                else
+                {
+                    return Task.Run(() =>
+                    {
+                        try
                         {
                             while (audioTasks.ContainsKey(taskData.Id))
                             {
                                 Thread.Sleep(250);
                             }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        processingQueue = false;
-                        ErrorReporter.ShowErrorPopup("Audio Playback Error (queued)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
-                    }
-                });
+                        catch (Exception ex)
+                        {
+                            ErrorReporter.ShowErrorPopup("Audio Playback Error (queue_wait)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                        }
+                    });
+                }
+
             }
             else
             {
@@ -90,6 +105,8 @@ namespace Observatory.Utils
             {
                 if (!File.Exists(audioTask.FilePath) || new FileInfo(audioTask.FilePath).Length == 0)
                     return;
+
+                Debug.WriteLine($"[Core AH][{Thread.CurrentThread.ManagedThreadId}; {DateTime.Now.ToString("mm:ss.ffff")}] Playing audio file: {audioTask.FilePath}");
 
                 using (var file = new AudioFileReader(audioTask.FilePath))
                 using (var output = new WaveOutEvent() { DeviceNumber = GetDeviceIndex(Properties.Core.Default.AudioDevice) - 1 })

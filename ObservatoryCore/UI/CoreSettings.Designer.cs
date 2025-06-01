@@ -50,6 +50,12 @@
             PopupDisabledPanel = new Panel();
             PopupDisabledLabel = new Label();
             CoreSettingsPanel = new Panel();
+            TestNotificationRouting = new Button();
+            PluginNotifCheckbox = new CheckBox();
+            AudioNotifCheckbox = new CheckBox();
+            PopupNotifCheckbox = new CheckBox();
+            label1 = new Label();
+            AltMonitorCheckbox = new CheckBox();
             AudioDeviceLabel = new Label();
             AudioDeviceDropdown = new ComboBox();
             ExportFormatLabel = new Label();
@@ -79,7 +85,6 @@
             VoiceDisabledLabel = new Label();
             CoreSettingsOK = new Button();
             PopupColour = new ColorDialog();
-            AltMonitorCheckbox = new CheckBox();
             PopupSettingsPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)FontScaleSpinner).BeginInit();
             ((System.ComponentModel.ISupportInitialize)DurationSpinner).BeginInit();
@@ -116,9 +121,9 @@
             PopupSettingsPanel.Controls.Add(DisplayDropdown);
             PopupSettingsPanel.Controls.Add(PopupCheckbox);
             PopupSettingsPanel.Controls.Add(PopupDisabledPanel);
-            PopupSettingsPanel.Location = new Point(13, 248);
+            PopupSettingsPanel.Location = new Point(12, 293);
             PopupSettingsPanel.Name = "PopupSettingsPanel";
-            PopupSettingsPanel.Size = new Size(467, 226);
+            PopupSettingsPanel.Size = new Size(468, 226);
             PopupSettingsPanel.TabIndex = 30;
             // 
             // FontScaleSpinner
@@ -316,7 +321,7 @@
             PopupDisabledPanel.Enabled = false;
             PopupDisabledPanel.Location = new Point(3, 17);
             PopupDisabledPanel.Name = "PopupDisabledPanel";
-            PopupDisabledPanel.Size = new Size(459, 204);
+            PopupDisabledPanel.Size = new Size(460, 204);
             PopupDisabledPanel.TabIndex = 16;
             PopupDisabledPanel.Visible = false;
             // 
@@ -333,6 +338,11 @@
             // 
             CoreSettingsPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             CoreSettingsPanel.BorderStyle = BorderStyle.FixedSingle;
+            CoreSettingsPanel.Controls.Add(TestNotificationRouting);
+            CoreSettingsPanel.Controls.Add(PluginNotifCheckbox);
+            CoreSettingsPanel.Controls.Add(AudioNotifCheckbox);
+            CoreSettingsPanel.Controls.Add(PopupNotifCheckbox);
+            CoreSettingsPanel.Controls.Add(label1);
             CoreSettingsPanel.Controls.Add(AltMonitorCheckbox);
             CoreSettingsPanel.Controls.Add(AudioDeviceLabel);
             CoreSettingsPanel.Controls.Add(AudioDeviceDropdown);
@@ -351,9 +361,78 @@
             CoreSettingsPanel.Controls.Add(ButtonAddTheme);
             CoreSettingsPanel.Location = new Point(12, 12);
             CoreSettingsPanel.Name = "CoreSettingsPanel";
-            CoreSettingsPanel.Size = new Size(468, 230);
+            CoreSettingsPanel.Size = new Size(468, 276);
             CoreSettingsPanel.TabIndex = 34;
             CoreSettingsPanel.Tag = "";
+            // 
+            // TestNotificationRouting
+            // 
+            TestNotificationRouting.FlatAppearance.BorderSize = 0;
+            TestNotificationRouting.FlatStyle = FlatStyle.Flat;
+            TestNotificationRouting.Location = new Point(117, 248);
+            TestNotificationRouting.Name = "TestNotificationRouting";
+            TestNotificationRouting.Size = new Size(90, 23);
+            TestNotificationRouting.TabIndex = 43;
+            TestNotificationRouting.Text = "Test Routing";
+            TestNotificationRouting.UseVisualStyleBackColor = true;
+            TestNotificationRouting.Click += TestNotificationRouting_Click;
+            // 
+            // PluginNotifCheckbox
+            // 
+            PluginNotifCheckbox.AutoSize = true;
+            PluginNotifCheckbox.Checked = true;
+            PluginNotifCheckbox.CheckState = CheckState.Checked;
+            PluginNotifCheckbox.Location = new Point(280, 229);
+            PluginNotifCheckbox.Name = "PluginNotifCheckbox";
+            PluginNotifCheckbox.Size = new Size(60, 19);
+            PluginNotifCheckbox.TabIndex = 42;
+            PluginNotifCheckbox.Text = "Plugin";
+            PluginNotifCheckbox.UseVisualStyleBackColor = true;
+            // 
+            // AudioNotifCheckbox
+            // 
+            AudioNotifCheckbox.AutoSize = true;
+            AudioNotifCheckbox.Checked = true;
+            AudioNotifCheckbox.CheckState = CheckState.Checked;
+            AudioNotifCheckbox.Location = new Point(200, 229);
+            AudioNotifCheckbox.Name = "AudioNotifCheckbox";
+            AudioNotifCheckbox.Size = new Size(58, 19);
+            AudioNotifCheckbox.TabIndex = 41;
+            AudioNotifCheckbox.Text = "Audio";
+            AudioNotifCheckbox.UseVisualStyleBackColor = true;
+            // 
+            // PopupNotifCheckbox
+            // 
+            PopupNotifCheckbox.AutoSize = true;
+            PopupNotifCheckbox.Checked = true;
+            PopupNotifCheckbox.CheckState = CheckState.Checked;
+            PopupNotifCheckbox.Location = new Point(117, 229);
+            PopupNotifCheckbox.Name = "PopupNotifCheckbox";
+            PopupNotifCheckbox.Size = new Size(61, 19);
+            PopupNotifCheckbox.TabIndex = 40;
+            PopupNotifCheckbox.Text = "Popup";
+            PopupNotifCheckbox.UseVisualStyleBackColor = true;
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(32, 232);
+            label1.Name = "label1";
+            label1.Size = new Size(75, 30);
+            label1.TabIndex = 39;
+            label1.Text = "Notification\r\nRouting Test:";
+            label1.TextAlign = ContentAlignment.TopRight;
+            // 
+            // AltMonitorCheckbox
+            // 
+            AltMonitorCheckbox.AutoSize = true;
+            AltMonitorCheckbox.Location = new Point(253, 203);
+            AltMonitorCheckbox.Name = "AltMonitorCheckbox";
+            AltMonitorCheckbox.Size = new Size(85, 19);
+            AltMonitorCheckbox.TabIndex = 38;
+            AltMonitorCheckbox.Text = "Use Polling";
+            AltMonitorCheckbox.UseVisualStyleBackColor = true;
+            AltMonitorCheckbox.CheckedChanged += AltMonitorCheckbox_CheckedChanged;
             // 
             // AudioDeviceLabel
             // 
@@ -528,7 +607,7 @@
             VoiceSettingsPanel.Controls.Add(VoiceLabel);
             VoiceSettingsPanel.Controls.Add(VoiceDropdown);
             VoiceSettingsPanel.Controls.Add(VoiceDisabledPanel);
-            VoiceSettingsPanel.Location = new Point(12, 480);
+            VoiceSettingsPanel.Location = new Point(12, 525);
             VoiceSettingsPanel.Name = "VoiceSettingsPanel";
             VoiceSettingsPanel.Size = new Size(468, 173);
             VoiceSettingsPanel.TabIndex = 35;
@@ -650,7 +729,7 @@
             // 
             CoreSettingsOK.FlatAppearance.BorderSize = 0;
             CoreSettingsOK.FlatStyle = FlatStyle.Flat;
-            CoreSettingsOK.Location = new Point(405, 659);
+            CoreSettingsOK.Location = new Point(405, 704);
             CoreSettingsOK.Name = "CoreSettingsOK";
             CoreSettingsOK.Size = new Size(75, 23);
             CoreSettingsOK.TabIndex = 36;
@@ -658,22 +737,11 @@
             CoreSettingsOK.UseVisualStyleBackColor = false;
             CoreSettingsOK.Click += CoreSettingsOK_Click;
             // 
-            // AltMonitorCheckbox
-            // 
-            AltMonitorCheckbox.AutoSize = true;
-            AltMonitorCheckbox.Location = new Point(253, 203);
-            AltMonitorCheckbox.Name = "AltMonitorCheckbox";
-            AltMonitorCheckbox.Size = new Size(85, 19);
-            AltMonitorCheckbox.TabIndex = 38;
-            AltMonitorCheckbox.Text = "Use Polling";
-            AltMonitorCheckbox.UseVisualStyleBackColor = true;
-            AltMonitorCheckbox.CheckedChanged += AltMonitorCheckbox_CheckedChanged;
-            // 
             // CoreSettings
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(492, 695);
+            ClientSize = new Size(492, 735);
             Controls.Add(CoreSettingsOK);
             Controls.Add(VoiceSettingsPanel);
             Controls.Add(CoreSettingsPanel);
@@ -756,5 +824,10 @@
         private ComboBox AudioTypeDropdown;
         private Label AudioTypeLabel;
         private CheckBox AltMonitorCheckbox;
+        private Label label1;
+        private CheckBox PopupNotifCheckbox;
+        private CheckBox PluginNotifCheckbox;
+        private CheckBox AudioNotifCheckbox;
+        private Button TestNotificationRouting;
     }
 }

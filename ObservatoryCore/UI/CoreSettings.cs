@@ -388,14 +388,31 @@ namespace Observatory.UI
             if (loading || !AltMonitorCheckbox.Checked
                 || MessageBox.Show(
                     "This setting should only be enabled if standard log monitoring is not working correctly.",
-                    "Enabling Log Polling", 
-                    MessageBoxButtons.OKCancel, 
+                    "Enabling Log Polling",
+                    MessageBoxButtons.OKCancel,
                     MessageBoxIcon.Exclamation) == DialogResult.OK)
             {
                 Properties.Core.Default.AltMonitor = AltMonitorCheckbox.Checked;
                 SettingsManager.Save();
             }
         }
-            
+
+        private void TestNotificationRouting_Click(object sender, EventArgs e)
+        {
+            NotificationRendering r = 0;
+            if (PopupNotifCheckbox.Checked) r |= NotificationRendering.NativeVisual;
+            if (AudioNotifCheckbox.Checked) r |= NotificationRendering.NativeVocal;
+            if (PluginNotifCheckbox.Checked) r |= NotificationRendering.PluginNotifier;
+
+            var args = new NotificationArgs()
+            {
+                Title = "Notification routing test",
+                Detail = "Please check that expected notifications were triggered.",
+                ExtendedDetails = "Ensure all expected content is present.",
+                Sender = "Core",
+                Rendering = r,
+            };
+            PluginManager.GetInstance.Core.SendNotification(args);
+        }
     }
 }
