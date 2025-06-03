@@ -505,7 +505,7 @@ namespace Observatory.UI
 
         private CoreSettings? _coreSettings;
 
-        public void OpenCoreSettings()
+        internal void OpenCoreSettings()
         {
             if (_coreSettings == null || _coreSettings.IsDisposed)
             {
@@ -517,7 +517,7 @@ namespace Observatory.UI
             _coreSettings.Activate();
         }
 
-        public void OpenPluginsFolder()
+        internal void OpenPluginsFolder()
         {
             var pluginDir = Application.StartupPath + "plugins";
 
