@@ -480,14 +480,23 @@ namespace Observatory.UI
             {
                 for (int i = 0; i < pluginList.Count; i++)
                 {
-                    if (CoreTabControl.GetTabRect(i + 1).Contains(e.Location))
+                    if (CoreTabControl.GetTabRect(i).Contains(e.Location))
                     {
-                        var pluginPanel = CoreTabControl.TabPages[i + 1];
-                        var clickedPlugin = pluginList[pluginPanel];
+                        var pluginPanel = CoreTabControl.TabPages[i];
+                        // The core tab may not be at index 0 and is not contained in the plugin list.
+                        if (pluginList.ContainsKey(pluginPanel))
+                        {
+                            var clickedPlugin = pluginList[pluginPanel];
 
-                        PluginContextMenu pluginContextMenu = new(clickedPlugin, pluginPanel);
-                        pluginContextMenu.Show((Control)sender, e.Location);
-
+                            PluginContextMenu pluginContextMenu = new(clickedPlugin, pluginPanel);
+                            pluginContextMenu.Show((Control)sender, e.Location);
+                        }
+                        else
+                        {
+                            // Assume the core tab for the moment.
+                            CoreContextMenu coreContextMenu = new(_aboutCore, OpenCoreSettings, OpenPluginsFolder);
+                            coreContextMenu.Show((Control)sender, e.Location);
+                        }
                     }
                 }
             }
@@ -496,7 +505,7 @@ namespace Observatory.UI
 
         private CoreSettings? _coreSettings;
 
-        private void SettingsButton_Click(object sender, EventArgs e)
+        public void OpenCoreSettings()
         {
             if (_coreSettings == null || _coreSettings.IsDisposed)
             {
@@ -508,7 +517,7 @@ namespace Observatory.UI
             _coreSettings.Activate();
         }
 
-        private void PluginFolderButton_Click(object sender, EventArgs e)
+        public void OpenPluginsFolder()
         {
             var pluginDir = Application.StartupPath + "plugins";
 
@@ -519,6 +528,16 @@ namespace Observatory.UI
 
             var fileExplorerInfo = new ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
             Process.Start(fileExplorerInfo);
+        }
+
+        private void SettingsButton_Click(object sender, EventArgs e)
+        {
+            OpenCoreSettings();
+        }
+
+        private void PluginFolderButton_Click(object sender, EventArgs e)
+        {
+            OpenPluginsFolder();
         }
     }
 }
