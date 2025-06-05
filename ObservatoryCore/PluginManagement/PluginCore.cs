@@ -5,6 +5,7 @@ using Observatory.Framework.ParameterTypes;
 using Observatory.NativeNotification;
 using Observatory.UI;
 using Observatory.Utils;
+using System.Diagnostics;
 using System.Dynamic;
 
 namespace Observatory.PluginManagement
@@ -42,40 +43,41 @@ namespace Observatory.PluginManagement
         {
             notificationArgs.Guid ??= Guid.NewGuid();
             var handler = Notification;
-
+            bool pluginsNotified = false;
+            
             // Always send notifications to plugins. PluginEventHandler filters out plugins
             // which have not explicitly allowed batch-mode notifications.
+            // NOTE: This will also trigger native function overriding plugins -- so we need to filter these out
+            // later to avoid duplicates.
             if ((notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
             {
                 handler?.Invoke(this, notificationArgs);
+                pluginsNotified = true;
             }
 
             if (!IsLogMonitorBatchReading)
             {
-                if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
+                if ((PluginManager.GetInstance.HasPopupOverrideNotifiers || PluginManager.GetInstance.HasAudioOverrideNotifiers)
+                    && !pluginsNotified)
                 {
-                    if (Properties.Core.Default.NativeNotify && !PluginManager.GetInstance.HasPopupOverrideNotifiers)
-                    {
-                        NativePopup.InvokeNativeNotification(notificationArgs);
-                    }
-                    else if (PluginManager.GetInstance.HasPopupOverrideNotifiers && (notificationArgs.Rendering & NotificationRendering.PluginNotifier) == 0)
-                    {
-                        // We have an overriding plugin for a native handler. Route it there.
-                        handler?.Invoke(this, notificationArgs);
-                    }
+                    // We have an overriding plugin for a native handler. Route it there, if we haven't already.
+                    handler?.Invoke(this, notificationArgs);
+                    pluginsNotified = true;
                 }
 
-                if ((notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
+                // Now trigger native handlers, if not overridden.
+                if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0
+                    && Properties.Core.Default.NativeNotify
+                    && !PluginManager.GetInstance.HasPopupOverrideNotifiers)
                 {
-                    if (Properties.Core.Default.VoiceNotify && !PluginManager.GetInstance.HasAudioOverrideNotifiers)
-                    {
-                        NativeVoice.AudioHandlerEnqueue(notificationArgs);
-                    }
-                    else if (PluginManager.GetInstance.HasAudioOverrideNotifiers && (notificationArgs.Rendering & NotificationRendering.PluginNotifier) == 0)
-                    {
-                        // We have an overriding plugin for a native handler.
-                        handler?.Invoke(this, notificationArgs);
-                    }
+                    NativePopup.InvokeNativeNotification(notificationArgs);
+                }
+
+                if ((notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0
+                    && Properties.Core.Default.VoiceNotify
+                    && !PluginManager.GetInstance.HasAudioOverrideNotifiers)
+                {
+                    NativeVoice.AudioHandlerEnqueue(notificationArgs);
                 }
             }
 
