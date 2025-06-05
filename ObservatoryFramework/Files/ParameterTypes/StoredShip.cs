@@ -4,6 +4,7 @@
     {
         public ulong ShipID { get; init; }
         public string ShipType { get; init; }
+        public string ShipType_Localised { get; init; }
         public string Name { get; init; }
         public long Value { get; init; }
         public bool Hot { get; init; }
