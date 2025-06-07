@@ -114,12 +114,6 @@ namespace Observatory.Utils
                     file.Volume = Properties.Core.Default.AudioVolume;
                     output.Init(file);
 
-                    // Correction in case output mixer volume was previously set low
-                    // by lowered volume setting.
-                    // Remove this later.
-                    if (Properties.Core.Default.AudioVolume < 1)
-                        output.Volume = 1.0f;
-
                     output.Play();
 
                     while (output.PlaybackState == PlaybackState.Playing)
