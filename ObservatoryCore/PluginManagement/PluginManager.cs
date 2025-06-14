@@ -339,7 +339,7 @@ namespace Observatory.PluginManagement
             var workers = EnabledWorkerPlugins;
             var notifiers = EnabledNotifyPlugins;
 
-            foreach (IObservatoryPlugin plugin in workers.Concat<IObservatoryPlugin>(notifiers))
+            foreach (IObservatoryPlugin plugin in workers.Union<IObservatoryPlugin>(notifiers))
             {
                 try
                 {
@@ -349,15 +349,6 @@ namespace Observatory.PluginManagement
                 {
                     core.GetPluginErrorLogger(plugin)(ex, "in ObservatoryReady()");
                 }
-            }
-        }
-
-        private static string ComputeSha512Hash(string filePath)
-        {
-            using (var SHA512 = System.Security.Cryptography.SHA512.Create())
-            {
-                using (FileStream fileStream = File.OpenRead(filePath))
-                    return BitConverter.ToString(SHA512.ComputeHash(fileStream)).Replace("-", "").ToLowerInvariant();
             }
         }
 
