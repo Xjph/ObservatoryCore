@@ -478,7 +478,9 @@ namespace Observatory.UI
         {
             if (e.Button == MouseButtons.Right)
             {
-                for (int i = 0; i < pluginList.Count; i++)
+                // Note there are pluginList.Count + 1 tabs, including Core tab -- which we can handle here.
+                // And since we're not accessing PluginList (a dictionary) by index, this is safe to do.
+                for (int i = 0; i <= pluginList.Count; i++)
                 {
                     if (CoreTabControl.GetTabRect(i).Contains(e.Location))
                     {
