@@ -65,7 +65,14 @@ namespace Observatory.Framework.Interfaces
         /// <summary>
         /// Receives data sent by other plugins.
         /// </summary>
+        [Obsolete("Deprecated in favour of HandlePluginMessage(string sourceName, Guid sourceId, string sourceVersion, PluginMessage messageArgs)")]
         public void HandlePluginMessage(string sourceName, string sourceVersion, object messageArgs)
+        { }
+
+        /// <summary>
+        /// Receives data sent by other plugins.
+        /// </summary>
+        public void HandlePluginMessage(string sourceName, Guid sourceId, string sourceVersion, PluginMessage messageArgs)
         { }
 
         /// <summary>
@@ -99,6 +106,14 @@ namespace Observatory.Framework.Interfaces
         /// <param name="themeName">Name of the theme being applied.</param>
         /// <param name="theme">Theme details.</param>
         public void ThemeChanged(string themeName, Dictionary<string, Color> theme) { }
+
+        /// <summary>
+        /// Unique identifier for the plugin. (Temporarily optional)
+        /// </summary>
+        public static Guid Guid
+        {
+            get => new("00000000-0000-0000-0000-000000000000");
+        }
     }
 
     /// <summary>
@@ -332,13 +347,26 @@ namespace Observatory.Framework.Interfaces
         /// <summary>
         /// Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
         /// </summary>
+        [Obsolete("Deprecated in favour of SendPluginMessage(IObservatoryPlugin plugin, PluginMessage message)")]
         public void SendPluginMessage(IObservatoryPlugin plugin, object message);
 
         /// <summary>
         /// Sends arbitrary data to a specific plugin, identified by ShortName. 
         /// The full name and version of the sending plugin will be used to identify the sender to recipient.
         /// </summary>
+        [Obsolete("Deprecated in favour of SendPluginMessage(IObservatoryPlugin plugin, Guid targetId, PluginMessage message)")]
         public void SendPluginMessage(IObservatoryPlugin plugin, string targetShortName, object message);
+
+        /// <summary>
+        /// Sends a message to all other plugins. The full name, id, and version of the sending plugin will be used to identify the sender to any recipients.
+        /// </summary>
+        public void SendPluginMessage(IObservatoryPlugin plugin, PluginMessage message);
+
+        /// <summary>
+        /// Sends arbitrary data to a specific plugin, identified by id. 
+        /// The full name, id, and version of the sending plugin will be used to identify the sender to recipient.
+        /// </summary>
+        public void SendPluginMessage(IObservatoryPlugin plugin, Guid targetId, PluginMessage message);
 
         /// <summary>
         /// Register a UI control for themeing.
@@ -417,5 +445,4 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         public int Order { get; set; }
     }
-
 }

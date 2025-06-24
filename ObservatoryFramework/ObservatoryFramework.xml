@@ -1580,6 +1580,11 @@
             Receives data sent by other plugins.
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.HandlePluginMessage(System.String,System.Guid,System.String,Observatory.Framework.PluginMessage)">
+            <summary>
+            Receives data sent by other plugins.
+            </summary>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.ExportContent(System.String,System.String@)">
             <summary>
             <para>Plugin specific data export implementation. Omit or return null to use Observatory's own export process.</para>
@@ -1607,6 +1612,11 @@
             </summary>
             <param name="themeName">Name of the theme being applied.</param>
             <param name="theme">Theme details.</param>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryPlugin.Guid">
+            <summary>
+            Unique identifier for the plugin. (Temporarily optional)
+            </summary>
         </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
@@ -1832,6 +1842,17 @@
             The full name and version of the sending plugin will be used to identify the sender to recipient.
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendPluginMessage(Observatory.Framework.Interfaces.IObservatoryPlugin,Observatory.Framework.PluginMessage)">
+            <summary>
+            Sends a message to all other plugins. The full name, id, and version of the sending plugin will be used to identify the sender to any recipients.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendPluginMessage(Observatory.Framework.Interfaces.IObservatoryPlugin,System.Guid,Observatory.Framework.PluginMessage)">
+            <summary>
+            Sends arbitrary data to a specific plugin, identified by id. 
+            The full name, id, and version of the sending plugin will be used to identify the sender to recipient.
+            </summary>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.RegisterControl(System.Object)">
             <summary>
             Register a UI control for themeing.
@@ -1922,6 +1943,39 @@
             <summary>
             If set to true, the provided audio file is deleted after playback finishes. Default is false (caller is responsible
             for managing audio file cleanup).
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.PluginMessage">
+            <summary>
+            Represents a message sent between plugins in the Observatory Framework.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.PluginMessage.#ctor(System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Nullable{System.Guid})">
+            <summary>
+            Initializes a new instance of the <see cref="T:Observatory.Framework.PluginMessage"/> class.
+            </summary>
+            <param name="messageType">The type of the message, used to distinguish between different messages which may be sent by the same plugin.</param>
+            <param name="messagePayload">A dictionary containing the payload of the message as key-value pairs.</param>
+            <param name="inReplyTo">An optional identifier of the message for which this message is a reply.</param>
+        </member>
+        <member name="P:Observatory.Framework.PluginMessage.MessageId">
+            <summary>
+            Gets the unique identifier for the message.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginMessage.InReplyTo">
+            <summary>
+            Gets the identifier of the message to which this message is a reply, if applicable.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginMessage.MessageType">
+            <summary>
+            Gets the type of the message represented as a string, or an empty string if the sending plugin does not specify message types.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginMessage.MessagePayload">
+            <summary>
+            Gets the payload of the message as a dictionary of key-value pairs.
             </summary>
         </member>
         <member name="T:Observatory.Framework.PluginUI">
