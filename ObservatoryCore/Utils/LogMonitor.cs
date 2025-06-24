@@ -151,7 +151,8 @@ namespace Observatory.Utils
                     }
                     else if (eventType.Equals("LoadGame") ||
                         eventType.Equals("Statistics") ||
-                        eventType.Equals("CarrierLocation"))
+                        eventType.Equals("CarrierLocation") ||
+                        eventType.Equals("Loadout"))
                     {
                         // A few header lines to collect.
                         fileHeaderLines.Add(line);
