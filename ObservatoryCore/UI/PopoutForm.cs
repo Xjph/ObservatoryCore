@@ -63,12 +63,19 @@ namespace Observatory.UI
                     ExportButton.Enabled = false;
                     ExportButton.Visible = false;
                 }
+                SystemMenu.AddAlwaysOnTop(this);
             }
             else
             {
                 MessageBox.Show("No UI panel found.");
                 Close();
             }
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+            SystemMenu.WndProcHandler(this, ref m);
         }
 
         private static bool HasCustomExport(IObservatoryPlugin? plugin) => ((Delegate)plugin.ExportContent).Method != typeof(IObservatoryPlugin).GetMethod("ExportContent");

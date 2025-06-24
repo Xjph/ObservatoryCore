@@ -86,6 +86,13 @@ namespace Observatory.UI
 
             LogMonitor.GetInstance.SetLastEventLabel(LastEvent);
             LogMonitor.GetInstance.SetTotalEventLabel(TotalEvents);
+            SystemMenu.AddAlwaysOnTop(this);
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            base.WndProc(ref m);
+            SystemMenu.WndProcHandler(this, ref m);
         }
 
         public void FocusPlugin(string pluginShortName)
