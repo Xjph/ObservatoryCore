@@ -50,6 +50,8 @@ namespace Observatory.Explorer
 
         public AboutInfo AboutInfo => _aboutInfo;
  
+        public static Guid Guid => new ("B11E8725-3F71-4445-9B09-682F9EAB8B59");
+
         public string Version => typeof(ExplorerWorker).Assembly.GetName().Version.ToString();
 
         private PluginUI pluginUI;

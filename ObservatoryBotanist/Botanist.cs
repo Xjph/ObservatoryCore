@@ -96,6 +96,8 @@ namespace Observatory.Botanist
 
         public AboutInfo AboutInfo => _aboutInfo;
 
+        public static Guid Guid => new("116D68F6-1C21-49AD-AE33-F0FEF619AF24");
+
         public string Version => typeof(Botanist).Assembly.GetName().Version.ToString();
 
         public PluginUI PluginUI => pluginUI;
