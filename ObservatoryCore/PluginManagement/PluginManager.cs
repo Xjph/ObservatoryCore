@@ -1,11 +1,12 @@
-﻿using System.Reflection;
-using System.Data;
+﻿using Observatory.Framework;
 using Observatory.Framework.Interfaces;
-using Observatory.Framework;
-using System.Text.Json;
 using Observatory.Utils;
-using System.Text.Json.Serialization;
+using System.Configuration;
+using System.Data;
 using System.Diagnostics;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Observatory.PluginManagement
 {
@@ -154,11 +155,12 @@ namespace Observatory.PluginManagement
                         _pluginStatus[plugin] = PluginStatus.Errored;
                     }
                 }
-            }
+            } 
 
             core.Notification += pluginHandler.OnNotificationEvent;
             core.UpdateNotificationEvent += pluginHandler.OnNotificationUpdate;
             core.CancelNotificationEvent += pluginHandler.OnNotificationCancel;
+            core.LegacyPluginMessage += pluginHandler.OnLegacyPluginMessageEvent;
             core.PluginMessage += pluginHandler.OnPluginMessageEvent;
 
             if (errorList.Any())
@@ -196,12 +198,36 @@ namespace Observatory.PluginManagement
             return pluginSettings;
         }
 
+        internal static Guid GetPluginGuid(IObservatoryPlugin plugin)
+        {
+            var guidProp = plugin.GetType().GetProperty("Guid");
+            var guid = guidProp?.GetValue(plugin.GetType()) as Guid?;
+            return guid ?? Guid.Empty;
+        }
+
         private void LoadPluginSettings(IObservatoryPlugin plugin, Dictionary<string, object> pluginSettings)
         {
-            if (pluginSettings.ContainsKey(plugin.Name))
+            // Temporary fallback to using plugin name for backward compatibility.
+
+            JsonElement? settingsElement = null;
+            Guid pluginGuid = GetPluginGuid(plugin);
+            string settingsKey = pluginGuid == Guid.Empty ? plugin.Name : pluginGuid.ToString();
+
+            if (pluginSettings.TryGetValue(settingsKey, out object? value))
             {
-                var settingsElement = (JsonElement)pluginSettings[plugin.Name];
-                var settingsObject = JsonSerializer.Deserialize(settingsElement.GetRawText(), plugin.Settings.GetType(), SettingsJsonSerializerOptions);
+                settingsElement = (JsonElement)value;
+            } 
+            else if (pluginSettings.TryGetValue(plugin.Name, out object? nameKeyedValue)) 
+            {
+                settingsElement = (JsonElement)nameKeyedValue;
+            }
+
+            if (settingsElement != null)
+            {
+                var settingsObject = JsonSerializer.Deserialize(
+                    settingsElement?.GetRawText()!, 
+                    plugin.Settings.GetType(), 
+                    SettingsJsonSerializerOptions);
                 plugin.Settings = settingsObject;
             }
         }
@@ -244,13 +270,22 @@ namespace Observatory.PluginManagement
                 pluginSettings = new();
             }
 
-            if (pluginSettings.ContainsKey(plugin.Name))
+            Guid pluginGuid = GetPluginGuid(plugin);
+            string settingsKey = pluginGuid == Guid.Empty ? plugin.Name : pluginGuid.ToString();
+
+            if (pluginSettings.ContainsKey(settingsKey))
             {
-                pluginSettings[plugin.Name] = plugin.Settings;
+                pluginSettings[settingsKey] = plugin.Settings;
             }
             else
             {
-                pluginSettings.Add(plugin.Name, plugin.Settings);
+                pluginSettings.Add(settingsKey, plugin.Settings);
+            }
+
+            // Remove the old name-keyed settings if they exist but plugin has GUID
+            if (pluginGuid != Guid.Empty && pluginSettings.ContainsKey(plugin.Name))
+            {
+                pluginSettings.Remove(plugin.Name);
             }
 
             string newSettings = JsonSerializer.Serialize(pluginSettings, SettingsJsonSerializerOptions);

@@ -201,40 +201,70 @@ namespace Observatory.PluginManagement
         public event EventHandler<NotificationArgs> UpdateNotificationEvent;
         public event EventHandler<Guid> CancelNotificationEvent;
 
+        internal event EventHandler<LegacyPluginMessageArgs> LegacyPluginMessage;
         internal event EventHandler<PluginMessageArgs> PluginMessage;
 
         public string PluginStorageFolder
         {
             get
             {
+                string pluginStorageKey;
+
                 var context = new System.Diagnostics.StackFrame(1).GetMethod();
-                var pluginAssemblyName = context?.DeclaringType?.Assembly.GetName().Name;
-                return GetStorageFolderForPlugin(pluginAssemblyName);
+                
+                var pluginAssemblyName = context?.DeclaringType?.Assembly.GetName().Name!;
+                var pluginTypes = context?.DeclaringType?.Assembly.GetExportedTypes();
+                var pluginType = pluginTypes?.Where(t => t.GetProperty("Guid") != null);
+
+                if (pluginType?.Any() ?? false)
+                {
+                    var plugin = pluginType.FirstOrDefault();
+                    var guidProp = plugin?.GetProperty("Guid");
+                    var pluginGuid = guidProp?.GetValue(plugin);
+                    pluginStorageKey = pluginGuid?.ToString()!;
+                    MigratePluginStorage(pluginAssemblyName, pluginStorageKey);
+                }
+                else
+                {
+                    pluginStorageKey = pluginAssemblyName;
+                }
+
+                return GetStorageFolderForPlugin(pluginStorageKey);
             }
         }
 
-        internal string GetStorageFolderForPlugin(string pluginAssemblyName = "")
+        private void MigratePluginStorage(string oldKey, string newKey)
+        {
+            var oldPath = GetStorageFolderForPlugin(oldKey, false);
+            var newPath = GetStorageFolderForPlugin(newKey, false);
+            if (Directory.Exists(oldPath) && !Directory.Exists(newPath))
+            {
+                Directory.Move(oldPath, newPath);
+            }
+        }
+
+        internal string GetStorageFolderForPlugin(string storageKey = "", bool create = true)
         {
 #if PORTABLE
             string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
             var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
             var rootdataDir = $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}";
-            string pluginDataDir = $"{rootdataDir}{pluginAssemblyName}-Data{Path.DirectorySeparatorChar}";
+            string pluginDataDir = $"{rootdataDir}{storageKey}-Data{Path.DirectorySeparatorChar}";
 #else
             var rootdataDir = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}";
-            string pluginDataDir = $"{rootdataDir}{pluginAssemblyName}{Path.DirectorySeparatorChar}";
+            string pluginDataDir = $"{rootdataDir}{storageKey}{Path.DirectorySeparatorChar}";
 #endif
             // Return the root data directory if no plugin assembly name specified.
-            if (string.IsNullOrWhiteSpace(pluginAssemblyName))
+            if (string.IsNullOrWhiteSpace(storageKey))
             {
-                if (!Directory.Exists(rootdataDir))
+                if (!Directory.Exists(rootdataDir) && create)
                     Directory.CreateDirectory(rootdataDir);
 
                 return rootdataDir;
             }
             else
             {
-                if (!Directory.Exists(pluginDataDir))
+                if (!Directory.Exists(pluginDataDir) && create)
                     Directory.CreateDirectory(pluginDataDir);
 
                 return pluginDataDir;
@@ -246,11 +276,23 @@ namespace Observatory.PluginManagement
 
         public void SendPluginMessage(IObservatoryPlugin plugin, object message)
         {
-            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, String.Empty, message));
+            LegacyPluginMessage?.Invoke(this, new LegacyPluginMessageArgs(plugin.Name, plugin.Version, String.Empty, message));
         }
         public void SendPluginMessage(IObservatoryPlugin plugin, string targetShortName, object message)
         {
-            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, plugin.Version, targetShortName, message));
+            LegacyPluginMessage?.Invoke(this, new LegacyPluginMessageArgs(plugin.Name, plugin.Version, targetShortName, message));
+        }
+
+        public void SendPluginMessage(IObservatoryPlugin plugin, PluginMessage message)
+        {
+            Guid pluginId = PluginManager.GetPluginGuid(plugin);
+            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, pluginId, plugin.Version, Guid.Empty, message));
+        }
+
+        public void SendPluginMessage(IObservatoryPlugin plugin, Guid targetId, PluginMessage message)
+        {
+            Guid pluginId = PluginManager.GetPluginGuid(plugin);
+            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, pluginId, plugin.Version, targetId, message));
         }
 
         public void RegisterControl(object control, Func<object, bool> applyTheme)

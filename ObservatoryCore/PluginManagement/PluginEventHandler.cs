@@ -149,7 +149,44 @@ namespace Observatory.PluginManagement
             }
         }
 
+        private static Guid GetPluginGuid(IObservatoryPlugin plugin)
+        {
+            var guidProp = plugin.GetType().GetProperty("Guid");
+            var pluginGuid = guidProp?.GetValue(plugin);
+            return pluginGuid is Guid guid ? guid : Guid.Empty;
+        }
+
         public void OnPluginMessageEvent(object? _, PluginMessageArgs messageArgs)
+        {
+            foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
+                .Where(p => messageArgs.TargetId == Guid.Empty || messageArgs.TargetId == GetPluginGuid(p)))
+            {
+                if (disabledPlugins.Contains(plugin)) continue;
+
+                // Clone the message properties and create new message object to prevent bad actor plugins from modifying in-flight
+                var clonedPayload = messageArgs.Message.MessagePayload.ToDictionary(item => item.Key, item => item.Value);
+                Span<char> clonedMessageType = [];
+                messageArgs.Message.MessageType.CopyTo(clonedMessageType);
+                var clonedReplyId = new Guid((messageArgs.Message.InReplyTo ?? Guid.Empty).ToString());
+
+                PluginMessage message = new(clonedMessageType.ToString(), clonedPayload, clonedReplyId);
+
+                try
+                {
+                    plugin.HandlePluginMessage(messageArgs.SourceName, messageArgs.SourceId, messageArgs.SourceVersion, message);
+                }
+                catch (PluginException ex)
+                {
+                    RecordError(ex);
+                }
+                catch(Exception ex)
+                {
+                    RecordError(ex, plugin.Name, "OnPluginMessageEvent event", "");
+                }
+            }
+        }
+
+        public void OnLegacyPluginMessageEvent(object? _, LegacyPluginMessageArgs messageArgs)
         {
             foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
                 .Where(x => String.IsNullOrEmpty(messageArgs.TargetShortName) || x.ShortName == messageArgs.TargetShortName)
@@ -160,6 +197,11 @@ namespace Observatory.PluginManagement
                 try
                 {
                     plugin.HandlePluginMessage(messageArgs.SourceName, messageArgs.SourceVersion, messageArgs.Message);
+                    PluginMessage wrappedLegacyMessage = new (
+                        "LegacyPluginMessage", 
+                        new Dictionary<string, object> { { "message", messageArgs.Message } }
+                        );
+                    plugin.HandlePluginMessage(messageArgs.SourceName, Guid.Empty, messageArgs.SourceVersion, wrappedLegacyMessage);
                 }
                 catch (PluginException ex)
                 {
@@ -218,11 +260,29 @@ namespace Observatory.PluginManagement
     internal class PluginMessageArgs
     {
         internal string SourceName;
+        internal Guid SourceId;
+        internal string SourceVersion;
+        internal Guid TargetId;
+        internal PluginMessage Message;
+
+        internal PluginMessageArgs(string sourceName, Guid sourceId, string sourceVersion, Guid targetId, PluginMessage message)
+        {
+            SourceName = sourceName;
+            SourceId = sourceId;
+            SourceVersion = sourceVersion;
+            TargetId = targetId;
+            Message = message;
+        }
+    }
+
+    internal class LegacyPluginMessageArgs
+    {
+        internal string SourceName;
         internal string SourceVersion;
         internal string TargetShortName;
         internal object Message;
 
-        internal PluginMessageArgs(string sourceName, string sourceVersion, string targetShortName, object message)
+        internal LegacyPluginMessageArgs(string sourceName, string sourceVersion, string targetShortName, object message)
         {
             SourceName = sourceName;
             SourceVersion = sourceVersion;
