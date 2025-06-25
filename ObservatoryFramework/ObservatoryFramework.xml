@@ -1580,7 +1580,7 @@
             Receives data sent by other plugins.
             </summary>
         </member>
-        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.HandlePluginMessage(System.String,System.Guid,System.String,Observatory.Framework.PluginMessage)">
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.HandlePluginMessage(Observatory.Framework.MessageSender,Observatory.Framework.PluginMessage)">
             <summary>
             Receives data sent by other plugins.
             </summary>
@@ -1927,6 +1927,31 @@
         <member name="P:Observatory.Framework.Interfaces.IObservatoryComparer.Order">
             <summary>
             Current order of sorting. Ascending = 1, Descending = -1, No sorting = 0.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.MessageSender">
+            <summary>
+            Represents the sender of a message.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.MessageSender.Guid">
+            <summary>
+            ID of the sending plugin, or Guid.Empty if the sender does not provide an ID.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.MessageSender.FullName">
+            <summary>
+            Full name of the sending plugin.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.MessageSender.ShortName">
+            <summary>
+            Short name of the sending plugin.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.MessageSender.Version">
+            <summary>
+            Version of the sending plugin.
             </summary>
         </member>
         <member name="T:Observatory.Framework.ParameterTypes.AudioOptions">

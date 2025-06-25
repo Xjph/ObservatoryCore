@@ -158,6 +158,14 @@ namespace Observatory.PluginManagement
 
         public void OnPluginMessageEvent(object? _, PluginMessageArgs messageArgs)
         {
+            MessageSender sender = new()
+            {
+                Guid = messageArgs.SourceId,
+                FullName = messageArgs.LongName,
+                ShortName = messageArgs.ShortName,
+                Version = messageArgs.SourceVersion
+            };
+
             foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
                 .Where(p => messageArgs.TargetId == Guid.Empty || messageArgs.TargetId == GetPluginGuid(p)))
             {
@@ -173,7 +181,7 @@ namespace Observatory.PluginManagement
 
                 try
                 {
-                    plugin.HandlePluginMessage(messageArgs.SourceName, messageArgs.SourceId, messageArgs.SourceVersion, message);
+                    plugin.HandlePluginMessage(sender, message);
                 }
                 catch (PluginException ex)
                 {
@@ -188,6 +196,14 @@ namespace Observatory.PluginManagement
 
         public void OnLegacyPluginMessageEvent(object? _, LegacyPluginMessageArgs messageArgs)
         {
+            MessageSender sender = new()
+            {
+                Guid = Guid.Empty,
+                FullName = messageArgs.SourceName,
+                ShortName = messageArgs.SourceName,
+                Version = messageArgs.SourceVersion
+            };
+
             foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
                 .Where(x => String.IsNullOrEmpty(messageArgs.TargetShortName) || x.ShortName == messageArgs.TargetShortName)
                 .Where(x => x.Name != messageArgs.SourceName))
@@ -201,7 +217,7 @@ namespace Observatory.PluginManagement
                         "LegacyPluginMessage", 
                         new Dictionary<string, object> { { "message", messageArgs.Message } }
                         );
-                    plugin.HandlePluginMessage(messageArgs.SourceName, Guid.Empty, messageArgs.SourceVersion, wrappedLegacyMessage);
+                    plugin.HandlePluginMessage(sender, wrappedLegacyMessage);
                 }
                 catch (PluginException ex)
                 {
@@ -259,17 +275,19 @@ namespace Observatory.PluginManagement
 
     internal class PluginMessageArgs
     {
-        internal string SourceName;
+        internal string LongName;
+        internal string ShortName;
         internal Guid SourceId;
         internal string SourceVersion;
         internal Guid TargetId;
         internal PluginMessage Message;
 
-        internal PluginMessageArgs(string sourceName, Guid sourceId, string sourceVersion, Guid targetId, PluginMessage message)
+        internal PluginMessageArgs(IObservatoryPlugin plugin, Guid targetId, PluginMessage message)
         {
-            SourceName = sourceName;
-            SourceId = sourceId;
-            SourceVersion = sourceVersion;
+            LongName = plugin.Name;
+            ShortName = plugin.ShortName;
+            SourceId = PluginManager.GetPluginGuid(plugin);
+            SourceVersion = plugin.Version;
             TargetId = targetId;
             Message = message;
         }

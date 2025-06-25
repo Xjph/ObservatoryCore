@@ -72,7 +72,7 @@ namespace Observatory.Framework.Interfaces
         /// <summary>
         /// Receives data sent by other plugins.
         /// </summary>
-        public void HandlePluginMessage(string sourceName, Guid sourceId, string sourceVersion, PluginMessage messageArgs)
+        public void HandlePluginMessage(MessageSender sender, PluginMessage messageArgs)
         { }
 
         /// <summary>

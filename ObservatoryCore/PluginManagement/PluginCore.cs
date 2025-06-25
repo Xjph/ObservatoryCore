@@ -285,14 +285,12 @@ namespace Observatory.PluginManagement
 
         public void SendPluginMessage(IObservatoryPlugin plugin, PluginMessage message)
         {
-            Guid pluginId = PluginManager.GetPluginGuid(plugin);
-            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, pluginId, plugin.Version, Guid.Empty, message));
+            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin, Guid.Empty, message));
         }
 
         public void SendPluginMessage(IObservatoryPlugin plugin, Guid targetId, PluginMessage message)
         {
-            Guid pluginId = PluginManager.GetPluginGuid(plugin);
-            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin.Name, pluginId, plugin.Version, targetId, message));
+            PluginMessage?.Invoke(this, new PluginMessageArgs(plugin, targetId, message));
         }
 
         public void RegisterControl(object control, Func<object, bool> applyTheme)
