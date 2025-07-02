@@ -167,14 +167,14 @@ namespace Observatory.PluginManagement
             };
 
             foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
-                .Where(p => messageArgs.TargetId == Guid.Empty || messageArgs.TargetId == GetPluginGuid(p)))
+                .Where(p => messageArgs.TargetId == Guid.Empty || messageArgs.TargetId == GetPluginGuid(p))
+                .Where(p => GetPluginGuid(p) != messageArgs.SourceId)
+                .Where(p => !disabledPlugins.Contains(p)))
             {
-                if (disabledPlugins.Contains(plugin)) continue;
-
                 // Clone the message properties and create new message object to prevent bad actor plugins from modifying in-flight
                 var clonedPayload = messageArgs.Message.MessagePayload.ToDictionary(item => item.Key, item => item.Value);
                 var clonedMessageType = 
-                    messageArgs.Message.MessageType.ToCharArray();
+                    new Span<char>(messageArgs.Message.MessageType.ToCharArray());
                 var clonedReplyId = new Guid((messageArgs.Message.InReplyTo ?? Guid.Empty).ToString());
 
                 PluginMessage message = new(clonedMessageType.ToString(), clonedPayload, clonedReplyId);
@@ -206,10 +206,9 @@ namespace Observatory.PluginManagement
 
             foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
                 .Where(x => String.IsNullOrEmpty(messageArgs.TargetShortName) || x.ShortName == messageArgs.TargetShortName)
-                .Where(x => x.Name != messageArgs.SourceName))
+                .Where(x => x.Name != messageArgs.SourceName)
+                .Where(x => !disabledPlugins.Contains(x)))
             {
-                if (disabledPlugins.Contains(plugin)) continue;
-
                 try
                 {
                     plugin.HandlePluginMessage(messageArgs.SourceName, messageArgs.SourceVersion, messageArgs.Message);
@@ -225,7 +224,7 @@ namespace Observatory.PluginManagement
                 }
                 catch(Exception ex)
                 {
-                    RecordError(ex, plugin.Name, "OnPluginMessageEvent event", "");
+                    RecordError(ex, plugin.Name, "OnLegacyPluginMessageEvent event", "");
                 }
             }
         }
