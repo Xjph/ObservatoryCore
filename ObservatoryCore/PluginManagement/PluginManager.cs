@@ -182,18 +182,12 @@ namespace Observatory.PluginManagement
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
                 var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
-                if (settings != null)
-                {
-                    pluginSettings = settings;
-                }
-                else
-                {
-                    pluginSettings = new();
-                }
+
+                pluginSettings = settings ?? [];
             }
             else
             {
-                pluginSettings = new();
+                pluginSettings = [];
             }
             return pluginSettings;
         }
@@ -263,11 +257,11 @@ namespace Observatory.PluginManagement
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
                 pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
-                pluginSettings ??= new();
+                pluginSettings ??= [];
             }
             else
             {
-                pluginSettings = new();
+                pluginSettings = [];
             }
 
             Guid pluginGuid = GetPluginGuid(plugin);
@@ -296,7 +290,11 @@ namespace Observatory.PluginManagement
 
         private void MaybePruneUnknownPluginSettings()
         {
-            HashSet<string> knownPluginNames = AllPlugins.Select(p => p.Name).ToHashSet();
+            HashSet<string> knownPluginNames = [.. AllPlugins.Select(p => 
+            { 
+                var guid = GetPluginGuid(p);
+                return guid == Guid.Empty ? p.Name : guid.ToString();
+            })];
 
             string savedSettings = Properties.Core.Default.PluginSettings;
             Dictionary<string, object>? pluginSettings;
@@ -304,11 +302,11 @@ namespace Observatory.PluginManagement
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
                 pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
-                pluginSettings ??= new();
+                pluginSettings ??= [];
             }
             else
             {
-                pluginSettings = new();
+                pluginSettings = [];
             }
 
             bool isDirty = false;
