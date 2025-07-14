@@ -1,7 +1,6 @@
 ﻿using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.Utils;
-using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
@@ -290,11 +289,14 @@ namespace Observatory.PluginManagement
 
         private void MaybePruneUnknownPluginSettings()
         {
+            // Get list of both names and GUIDs to preserve,
+            // migration will handle pruning if plugin present.
             HashSet<string> knownPluginNames = [.. AllPlugins.Select(p => 
             { 
                 var guid = GetPluginGuid(p);
                 return guid == Guid.Empty ? p.Name : guid.ToString();
-            })];
+            }),
+            ..AllPlugins.Select(p => p.Name)];
 
             string savedSettings = Properties.Core.Default.PluginSettings;
             Dictionary<string, object>? pluginSettings;
