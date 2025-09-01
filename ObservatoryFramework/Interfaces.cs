@@ -114,6 +114,17 @@ namespace Observatory.Framework.Interfaces
         {
             get => new("00000000-0000-0000-0000-000000000000");
         }
+
+        /// <summary>
+        /// Check if an update is available for the plugin and provide a URL for the update if available.
+        /// </summary>
+        /// <param name="url">Filled with a URL for the update, either direct download or a download site.</param>
+        /// <returns>Whether an update is available.</returns>
+        public bool UpdateAvailable(out string url)
+        {
+            url = null;
+            return false;
+        }
     }
 
     /// <summary>
@@ -428,6 +439,13 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="pluginName">The short name of the plugin which should be focused.</param>
         public void FocusPlugin(string pluginName);
+
+        /// <summary>
+        /// Displays an info message box with the specified title and message.
+        /// </summary>
+        /// <param name="title">The title text to display in the message box.</param>
+        /// <param name="message">The message text to display in the message box.</param>
+        public void DisplayMessageBox(string title, string message);
     }
 
     /// <summary>

@@ -1618,6 +1618,13 @@
             Unique identifier for the plugin. (Temporarily optional)
             </summary>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.UpdateAvailable(System.String@)">
+            <summary>
+            Check if an update is available for the plugin and provide a URL for the update if available.
+            </summary>
+            <param name="url">Filled with a URL for the update, either direct download or a download site.</param>
+            <returns>Whether an update is available.</returns>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
             <para>Interface for worker plugins which process journal data to update their UI or send notifications.</para>
