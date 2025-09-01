@@ -7,6 +7,7 @@ namespace Observatory.Framework.Files.Journal
     public class CarrierStats : JournalBase
     {
         public ulong CarrierID { get; init; }
+        public CarrierType CarrierType { get; init; }
         public string Callsign { get; init; }
         public string Name { get; init; }
         public CarrierDockingAccess DockingAccess { get; init; }

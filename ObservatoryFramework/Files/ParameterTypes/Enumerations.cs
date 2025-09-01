@@ -491,6 +491,15 @@ namespace Observatory.Framework.Files.ParameterTypes
         UnrecognisedValue
     }
 
+    [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
+    [JsonConverter(typeof(JsonStringEnumMemberConverter))]
+    public enum CarrierType
+    {
+        FleetCarrier,
+        SquadronCarrier,
+        UnrecognisedValue
+    }
+
     [Flags]
     public enum StatusFlags : uint
     {
