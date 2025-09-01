@@ -363,6 +363,14 @@ namespace Observatory.PluginManagement
             }
         }
 
+        public void DisplayMessageBox(string title, string message)
+        {
+            ExecuteOnUIThread(() =>
+            {
+                MessageBox.Show(FormsManager.FindCoreForm(), message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+            });
+        }
+
         internal void Shutdown()
         {
             NativePopup.CloseAll();
