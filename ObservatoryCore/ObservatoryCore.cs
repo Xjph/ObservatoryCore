@@ -1,3 +1,4 @@
+using Observatory.Framework;
 using Observatory.Utils;
 using System.Diagnostics;
 
@@ -107,7 +108,24 @@ namespace Observatory
                 .AppendLine();
             File.AppendAllText(errFile, errorMessage.ToString());
 
-            if (showMessage)
+            if (ex is PluginException pluginEx)
+            {
+                errorMessage
+                    .AppendLine($"Plugin: {pluginEx.PluginName}")
+                    .AppendLine($"User message: {pluginEx.UserMessage}");
+
+                if (showMessage)
+                {
+                    Task.Run(() => MessageBox.Show(
+                        $"An error has been encountered in \"{pluginEx.PluginName}\".{Environment.NewLine}" +
+                        $"{pluginEx.UserMessage}{Environment.NewLine}" +
+                        $"Details have been logged to {errFile}.{Environment.NewLine}" +
+                        "You will not be informed of further non-fatal errors this session.",
+                        $"Observatory Non-Fatal Error Encountered",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error));
+                }
+            }
+            else if (showMessage)
             {
                 Task.Run(() => MessageBox.Show(
                     $"An error of type {ex.GetType().Name} with context \"{context}\" has been encountered and details have been logged to {errFile}.{Environment.NewLine}" +
