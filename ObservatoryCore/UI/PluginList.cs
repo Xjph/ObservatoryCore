@@ -1,7 +1,7 @@
 ﻿using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System.Speech.Synthesis.TtsEngine;
+using System.Diagnostics;
 using System.Text.Json;
 
 namespace Observatory.UI
@@ -160,6 +160,30 @@ namespace Observatory.UI
                 AddWithLocation(pluginStatus, row, 4);
                 AddWithLocation(pluginEnabled, row, 5);
                 AddWithLocation(pluginMenu, row, 6);
+
+                Task.Run(() =>
+                {
+                    var thisRow = row;
+                    if (plugin.UpdateAvailable(out string url))
+                    {
+                        LinkLabel updateLink = new()
+                        {
+                            Text = "Update Available",
+                            Dock = DockStyle.Fill,
+                            Padding = new(8),
+                            AutoSize = true,
+                            Tag = url ?? ""
+                        };
+                        ThemeManager.GetInstance.RegisterControl(updateLink);
+                        updateLink.LinkClicked += (_, _) =>
+                        {
+                            var startInfo = new ProcessStartInfo(url ?? "https://observatory.xjph.net") { UseShellExecute = true };
+                            Process.Start(startInfo);
+                        };
+                        AddWithLocation(updateLink, GetRow(pluginStatus), 4);
+                        Controls.Remove(pluginStatus);
+                    }
+                });
 
                 row++;
             }
