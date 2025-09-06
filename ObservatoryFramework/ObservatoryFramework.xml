@@ -1921,6 +1921,13 @@
             </summary>
             <param name="pluginName">The short name of the plugin which should be focused.</param>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.DisplayMessageBox(System.String,System.String)">
+            <summary>
+            Displays an info message box with the specified title and message.
+            </summary>
+            <param name="title">The title text to display in the message box.</param>
+            <param name="message">The message text to display in the message box.</param>
+        </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryComparer">
             <summary>
             Extends the base IComparer interface with exposed values for the column ID and sort order to use.

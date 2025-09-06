@@ -4,6 +4,6 @@
     {
         public ulong MarketID { get; init; }
         public string CarrierName { get; init; }
-        public ulong CarrierID { get; init; }
+        public string CarrierID { get; init; }
     }
 }
