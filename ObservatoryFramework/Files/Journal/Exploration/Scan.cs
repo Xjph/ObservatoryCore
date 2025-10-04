@@ -168,5 +168,9 @@ namespace Observatory.Framework.Files.Journal
         /// Whether the body has been previously mapped by a player.
         /// </summary>
         public bool WasMapped { get; init; }
+        /// <summary>
+        /// Whether the body has been previously walked on by a player.
+        /// </summary>
+        public bool WasFootfalled { get; init; }
     }
 }

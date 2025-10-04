@@ -14,5 +14,6 @@ namespace Observatory.Framework.Files.Journal
         public string Variant_Localised { get; init; }
         public ulong SystemAddress { get; init; }
         public int Body { get; init; }
+        public bool WasLogged { get; init; }
     }
 }
