@@ -1023,6 +1023,11 @@
             Whether the body has been previously mapped by a player.
             </summary>
         </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.WasFootfalled">
+            <summary>
+            Whether the body has been previously walked on by a player.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Files.Journal.ScanBaryCentre">
             <summary>
             Barycentre orbital properties, automatically recorded when any member of a multiple-body orbital arrangement is first scanned.
@@ -1169,6 +1174,21 @@
             Name of the station at which this event occurred.
             </summary>
         </member>
+        <member name="P:Observatory.Framework.Files.Journal.Cargo.Vessel">
+            <summary>
+            Type of vehicle currently being reported. "Ship" or "SRV".
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Cargo.Count">
+            <summary>
+            Number of different types of cargo carried(?)
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Files.Journal.Cargo.Inventory">
+            <summary>
+            List of full cargo details.
+            </summary>
+        </member>
         <member name="P:Observatory.Framework.Files.Journal.Market.StationName">
             <summary>
             Name of the station at which this event occurred.
@@ -1217,21 +1237,6 @@
         <member name="T:Observatory.Framework.Files.CargoFile">
             <summary>
             Elite Dangerous cargo.json file. Describes the current cargo carried above the player's ship.
-            </summary>
-        </member>
-        <member name="P:Observatory.Framework.Files.CargoFile.Vessel">
-            <summary>
-            Type of vehicle currently being reported. "Ship" or "SRV".
-            </summary>
-        </member>
-        <member name="P:Observatory.Framework.Files.CargoFile.Count">
-            <summary>
-            Number of different types of cargo carried(?)
-            </summary>
-        </member>
-        <member name="P:Observatory.Framework.Files.CargoFile.Inventory">
-            <summary>
-            List of full cargo details.
             </summary>
         </member>
         <member name="T:Observatory.Framework.Files.Converters.LegacyFactionConverter`1">
