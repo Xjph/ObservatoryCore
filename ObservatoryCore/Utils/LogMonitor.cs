@@ -201,7 +201,8 @@ namespace Observatory.Utils
                 JournalEntry?.Invoke(this, journalEvent);
 
                 // Files are only valid if realtime, otherwise they will be stale or empty.
-                if ((currentState & LogMonitorState.Batch) == 0 && EventsWithAncillaryFile.Contains(eventType))
+                if (((currentState & LogMonitorState.Batch) == 0 && (currentState & LogMonitorState.PreRead) == 0)
+                    && EventsWithAncillaryFile.Contains(eventType))
                 {
                     HandleAncillaryFile(eventType);
                 }
