@@ -6,6 +6,11 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Runtime.Loader;
+using System.IO.Compression;
+using System.Text.Json.Nodes;
+using System.Reflection.Metadata.Ecma335;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Observatory.PluginManagement
 {
@@ -35,7 +40,7 @@ namespace Observatory.PluginManagement
         private readonly Dictionary<IObservatoryPlugin, PluginStatus> _pluginStatus = [];
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
-
+        
         private readonly JsonSerializerOptions SettingsJsonSerializerOptions = new JsonSerializerOptions()
         {
             UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
@@ -338,22 +343,82 @@ namespace Observatory.PluginManagement
 
         private List<(string, string?)> LoadPlugins(out List<IObservatoryWorker> observatoryWorkers, out List<IObservatoryNotifier> observatoryNotifiers)
         {
-            observatoryWorkers = new();
-            observatoryNotifiers = new();
+            observatoryWorkers = [];
+            observatoryNotifiers = [];
             var errorList = new List<(string, string?)>();
 
             string pluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
 
             if (Directory.Exists(pluginPath))
             {
-                ExtractPlugins(pluginPath);
+                var pluginLibraries = ExtractPlugins(pluginPath, errorList);
 
-                var pluginLibraries = Directory.GetFiles($"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins", "*.dll");
-                foreach (var dll in pluginLibraries)
+                var legacyPlugins = CollectLegacyPlugins(pluginPath, errorList);
+
+                if (legacyPlugins.Count > 0)
+                {
+                    var duplicatedLegacyPlugins = legacyPlugins
+                        .Where(lp => pluginLibraries
+                            .Any(p => p.PluginName.Equals(lp.PluginName, StringComparison.CurrentCultureIgnoreCase)));
+
+                    foreach (var dupPlugin in duplicatedLegacyPlugins)
+                    {
+                        legacyPlugins.Remove(dupPlugin);
+                        File.Delete(dupPlugin.PluginFile.FullName);
+                        if (legacyPlugins.Count == 0)
+                        {
+                            Directory.Delete($"{pluginPath}{Path.DirectorySeparatorChar}deps", true);
+                            break;
+                        }
+                    }
+
+                    pluginLibraries.AddRange(legacyPlugins);
+                }
+
+                PluginCleanup(pluginPath, pluginLibraries);
+
+                string recursionGuard = string.Empty;
+                AssemblyLoadContext.Default.Resolving += (context, name) => {
+
+                    if ((name?.Name?.EndsWith("resources")).GetValueOrDefault(false))
+                    {
+                        return null;
+                    }
+
+                    // Some plugins appear to attempt reloading Observatory.Framework,
+                    // just hand them back the one Core has already loaded.
+                    if ((name?.Name?.StartsWith("Observatory.Framework")).GetValueOrDefault(false) || name?.Name == "ObservatoryFramework")
+                    {
+                        return context.Assemblies.Where(a => (a.FullName?.Contains("ObservatoryFramework")).GetValueOrDefault(false)).First();
+                    }
+
+                    var depLibraries = pluginLibraries
+                        .SelectMany(p => p.PluginDependencies)
+                        .Where(d => d.Key == name!.Name + ".dll")
+                        .ToList();
+                    
+                    if (depLibraries.Count != 0)
+                    {
+                        Debug.WriteLine($"Loading plugin dependency {name.Name}");
+                        return context.LoadFromStream(new MemoryStream(depLibraries[0].Value));
+                    }
+
+                    if (name?.Name != null && name.Name != recursionGuard)
+                    {
+                        recursionGuard = name.Name;
+                        return context.LoadFromAssemblyName(name);
+                    }
+                    else
+                    {
+                        throw new Exception("Unable to load assembly " + name?.Name);
+                    }
+                };
+
+                foreach (var plugin in pluginLibraries)
                 {
                     try
                     {
-                        string error = LoadPluginAssembly(dll, observatoryWorkers, observatoryNotifiers);
+                        string error = LoadPluginAssembly(plugin.PluginFile.Name, plugin.PluginLibrary, observatoryWorkers, observatoryNotifiers);
                         if (!string.IsNullOrWhiteSpace(error))
                         {
                             errorList.Add((error, string.Empty));
@@ -361,8 +426,8 @@ namespace Observatory.PluginManagement
                     }
                     catch (Exception ex)
                     {
-                        errorList.Add(($"ERROR: {new FileInfo(dll).Name}, {ex.Message}", ex.StackTrace ?? String.Empty));
-                        _pluginStatus.Add(LoadPlaceholderPlugin(dll, observatoryNotifiers), PluginStatus.InvalidLibrary);
+                        errorList.Add(($"ERROR: {plugin.PluginFile.Name}, {ex.Message}", ex.StackTrace ?? String.Empty));
+                        _pluginStatus.Add(LoadPlaceholderPlugin(plugin.PluginFile.Name, observatoryNotifiers), PluginStatus.InvalidLibrary);
                     }
                 }
             }
@@ -387,61 +452,55 @@ namespace Observatory.PluginManagement
             }
         }
 
-        private static void ExtractPlugins(string pluginFolder)
+        private static List<PluginPackage> ExtractPlugins(string pluginFolder, List<(string, string?)> errorList)
         {
-            var files = Directory.GetFiles(pluginFolder, "*.zip")
-                .Concat(Directory.GetFiles(pluginFolder, "*.eop")); // Elite Observatory Plugin
+            var files = Directory.GetFiles(pluginFolder, "*.eop"); // Elite Observatory Plugin
+
+            var extractedPlugins = new List<PluginPackage>();
+
+            Dictionary<string, (Version Version, DateTime Modified)> foundPlugins = [];
 
             foreach (var file in files)
             {
                 try
                 {
-                    System.IO.Compression.ZipFile.ExtractToDirectory(file, pluginFolder, true);
-                    File.Delete(file);
+                    var pluginPackage = new PluginPackage(file);
+                    extractedPlugins.Add(pluginPackage);
                 }
-                catch 
+                catch (Exception ex)
                 { 
-                    // Just ignore files that don't extract successfully.
+                    errorList.Add(("ERROR: Failed to extract plugin archive: " + file, ex.Message));
                 }
             }
+            return extractedPlugins;
         }
 
-        private string LoadPluginAssembly(string dllPath, List<IObservatoryWorker> workers, List<IObservatoryNotifier> notifiers)
+        private static List<PluginPackage> CollectLegacyPlugins(string pluginFolder, List<(string, string?)> errorList)
         {
-            string recursionGuard = string.Empty;
+            var plugins = new List<PluginPackage>();
+            var files = Directory.GetFiles(pluginFolder, "*.dll", SearchOption.TopDirectoryOnly);
+            bool firstFile = true;
+            foreach (var file in files)
+            {
+                try
+                {
+                    var pluginPackage = new PluginPackage(file, firstFile);
+                    plugins.Add(pluginPackage);
+                    firstFile = false;
+                }
+                catch (Exception ex)
+                {
+                    errorList.Add(("ERROR: Failed to load legacy plugin: " + file, ex.Message));
+                }
+            }
 
-            System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += (context, name) => {
+            return plugins;
+        }
+
+        private string LoadPluginAssembly(string pluginFile, byte[] pluginBytes, List<IObservatoryWorker> workers, List<IObservatoryNotifier> notifiers)
+        {
+            var pluginAssembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(pluginBytes));
             
-                if ((name?.Name?.EndsWith("resources")).GetValueOrDefault(false))
-                {
-                    return null;
-                }
-
-                // Importing Observatory.Framework in the Explorer Lua scripts causes an attempt to reload
-                // the assembly, just hand it back the one we already have.
-                if ((name?.Name?.StartsWith("Observatory.Framework")).GetValueOrDefault(false) || name?.Name == "ObservatoryFramework")
-                {
-                    return context.Assemblies.Where(a => (a.FullName?.Contains("ObservatoryFramework")).GetValueOrDefault(false)).First();
-                }
-
-                var foundDlls = Directory.GetFileSystemEntries(new FileInfo($"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}deps").FullName, name.Name + ".dll", SearchOption.TopDirectoryOnly);
-                if (foundDlls.Any())
-                {
-                    return context.LoadFromAssemblyPath(foundDlls[0]);
-                }
-
-                if (name.Name != recursionGuard && name.Name != null)
-                {
-                    recursionGuard = name.Name;
-                    return context.LoadFromAssemblyName(name);
-                }
-                else
-                {
-                    throw new Exception("Unable to load assembly " + name.Name);
-                }
-            };
-
-            var pluginAssembly = System.Runtime.Loader.AssemblyLoadContext.Default.LoadFromAssemblyPath(new FileInfo(dllPath).FullName);
             Type[] types;
             string err = string.Empty;
             int pluginCount = 0;
@@ -451,11 +510,11 @@ namespace Observatory.PluginManagement
             }
             catch (ReflectionTypeLoadException ex)
             {
-                types = ex.Types.OfType<Type>().ToArray();
+                types = [.. ex.Types.OfType<Type>()];
             }
             catch
             {
-                types = Array.Empty<Type>();
+                types = [];
             }
 
             var frameworkRef = pluginAssembly.GetReferencedAssemblies().Where(a => a.Name == "ObservatoryFramework");
@@ -467,10 +526,10 @@ namespace Observatory.PluginManagement
                 IEnumerable<Type> workerTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryWorker)));
                 foreach (Type worker in workerTypes)
                 {
-                    ConstructorInfo? constructor = worker.GetConstructor(Array.Empty<Type>());
+                    ConstructorInfo? constructor = worker.GetConstructor([]);
                     if (constructor != null)
                     {
-                        object instance = constructor.Invoke(Array.Empty<object>());
+                        object instance = constructor.Invoke([]);
                         workers.Add((instance as IObservatoryWorker)!);
                         if (instance is IObservatoryNotifier)
                         {
@@ -478,7 +537,7 @@ namespace Observatory.PluginManagement
                             // the same instance and can share state.
                             notifiers.Add((instance as IObservatoryNotifier)!);
                         }
-                        _pluginStatus.Add(instance as IObservatoryPlugin, status);
+                        _pluginStatus.Add((instance as IObservatoryPlugin)!, status);
                         pluginCount++;
                     }
                 }
@@ -488,29 +547,29 @@ namespace Observatory.PluginManagement
                         t.IsAssignableTo(typeof(IObservatoryNotifier)) && !t.IsAssignableTo(typeof(IObservatoryWorker)));
                 foreach (Type notifier in notifyTypes)
                 {
-                    ConstructorInfo? constructor = notifier.GetConstructor(Array.Empty<Type>());
+                    ConstructorInfo? constructor = notifier.GetConstructor([]);
                     if (constructor != null)
                     {
-                        object instance = constructor.Invoke(Array.Empty<object>());
+                        object instance = constructor.Invoke([]);
                         notifiers.Add((instance as IObservatoryNotifier)!);
-                        _pluginStatus.Add(instance as IObservatoryPlugin, status);
+                        _pluginStatus.Add((instance as IObservatoryPlugin)!, status);
                         pluginCount++;
                     }
                 }
 
                 if (pluginCount == 0)
                 {
-                    err += $"ERROR: Library '{dllPath}' contains no suitable interfaces.";
-                    _pluginStatus.Add(LoadPlaceholderPlugin(dllPath, notifiers), PluginStatus.InvalidPlugin);
+                    err += $"ERROR: Library '{pluginFile}' contains no suitable interfaces.";
+                    _pluginStatus.Add(LoadPlaceholderPlugin(pluginFile, notifiers), PluginStatus.InvalidPlugin);
                 }
             }
             else
             {
-                err += $"ERROR: Library '{dllPath}' is not an Observatory Plugin.";
-                _pluginStatus.Add(LoadPlaceholderPlugin(dllPath, notifiers), PluginStatus.InvalidPlugin);
+                err += $"ERROR: Library '{pluginFile}' is not an Observatory Plugin.";
+                _pluginStatus.Add(LoadPlaceholderPlugin(pluginFile, notifiers), PluginStatus.InvalidPlugin);
             }
-            
 
+            pluginBytes = [];
             return err;
         }
 
@@ -556,6 +615,251 @@ namespace Observatory.PluginManagement
             /// </summary>
             SettingsReset,
             
+        }
+
+        private static void PluginCleanup(string pluginPath, List<PluginPackage> plugins)
+        {
+            // Group by plugin name (library name)
+            var grouped = plugins
+                .GroupBy(p => p.PluginFile.Extension.Equals(".dll", StringComparison.OrdinalIgnoreCase)
+                    ? p.PluginName.ToLowerInvariant()
+                    : p.PluginName.ToLowerInvariant());
+
+            var toRemove = new List<PluginPackage>();
+
+            foreach (var group in grouped)
+            {
+                // Keep highest version; for legacy, keep most recently modified
+                PluginPackage keep;
+                if (group.All(p => p.Legacy))
+                {
+                    keep = group.OrderByDescending(p => p.PluginFile.LastWriteTimeUtc).First();
+                }
+                else
+                {
+                    keep = group.OrderByDescending(p => p.Version).First();
+                }
+
+                // Mark all others for removal
+                toRemove.AddRange(group.Where(p => p != keep));
+            }
+
+            // Remove duplicate plugin files from disk and from the list
+            foreach (var plugin in toRemove)
+            {
+                try
+                {
+                    if (plugin.PluginFile.Exists)
+                        plugin.PluginFile.Delete();
+                }
+                catch { /* Ignore file delete errors */ }
+                plugins.Remove(plugin);
+            }
+
+            // Handle unpacked deps folder cleanup
+            var unpackedPlugins = plugins.Where(p => p.PluginFile.Extension.Equals(".dll", StringComparison.OrdinalIgnoreCase)).ToList();
+            if (unpackedPlugins.Count == 0)
+            {
+                var depsFolder = pluginPath + $"{Path.DirectorySeparatorChar}deps";
+                if (Directory.Exists(depsFolder))
+                {
+                    try
+                    {
+                        Directory.Delete(depsFolder, true);
+                    }
+                    catch { /* Ignore folder delete errors */ }
+                }
+            }
+        }
+
+        private class PluginPackage
+        {
+            internal PluginPackage(string filePath, bool includeLegacyDeps = false)
+            {
+                PluginFile = new FileInfo(filePath);
+                PluginDependencies = [];
+                if (PluginFile.Extension.Equals(".eop", StringComparison.CurrentCultureIgnoreCase))
+                { 
+                    ParseArchive(ZipFile.OpenRead(filePath));
+                }
+                else if (PluginFile.Extension.Equals(".dll", StringComparison.CurrentCultureIgnoreCase))
+                {
+                    Legacy = true;
+                    PluginLibrary = File.ReadAllBytes(filePath);
+                    PluginName = PluginFile.Name;
+                    Version = new Version(1, 0, 0, 0);
+
+                    // Impossible to determine which legacy deps belong to which plugin,
+                    // just collect them all when indicated (first plugin).
+                    if (includeLegacyDeps)
+                    {
+                        var depFiles = Directory.GetFiles($"{PluginFile.DirectoryName}{Path.DirectorySeparatorChar}deps", "*.dll", SearchOption.TopDirectoryOnly);
+                        foreach (var depFile in depFiles)
+                        {
+                            PluginDependencies.Add(new FileInfo(depFile).Name, File.ReadAllBytes(depFile));
+                        }
+                    } 
+                }
+                else
+                {
+                    throw new Exception("Invalid plugin file extension: " + PluginFile.Extension);
+                }
+            }
+
+            [MemberNotNull(nameof(PluginName))]
+            [MemberNotNull(nameof(PluginLibrary))]
+            [MemberNotNull(nameof(Version))]
+            private void ParseArchive(ZipArchive archive)
+            {
+                var manifestEntries = archive.Entries.Where(f => f.FullName.EndsWith(".deps.json"));
+
+                if (manifestEntries.Count() > 1)
+                    throw new Exception("Malformed plugin archive: Contains multiple .deps.json files");
+
+                if (manifestEntries.Count() == 1)
+                    ProcessPluginManifest(archive, manifestEntries.First());
+                else
+                    ProcessLegacyPlugin(archive);
+            }
+
+            [MemberNotNull(nameof(PluginName))]
+            [MemberNotNull(nameof(PluginLibrary))]
+            [MemberNotNull(nameof(Version))]
+            private void ProcessPluginManifest(ZipArchive archive, ZipArchiveEntry manifestEntry)
+            {
+                Legacy = false;
+                byte[] manifestBytes = [];
+                manifestEntry.Open().Read(manifestBytes = new byte[manifestEntry.Length]);
+                string manifestJson = System.Text.Encoding.UTF8.GetString(manifestBytes);
+                var manifest = JsonSerializer.Deserialize<DependencyManifest>(manifestJson);
+                var pluginLibraryEntry = manifest?.Libraries
+                    .Where(l => l.Value.Type == "project")
+                    .FirstOrDefault();
+                if (pluginLibraryEntry.Equals(default(KeyValuePair<string, Library>)))
+                    throw new Exception("Malformed plugin archive: No project library found in .deps.json");
+                var targets = manifest?.Targets?[manifest.RuntimeTarget.Name] ?? [];
+                var pluginTarget = targets[pluginLibraryEntry?.Key!];
+                archive.GetEntry(pluginTarget.Runtime.First().Key)!.Open().CopyTo(new MemoryStream(PluginLibrary = new byte[archive.GetEntry(pluginTarget.Runtime.First().Key)!.Length]));
+                var nameAndVersion = pluginLibraryEntry?.Key.Split('/') ?? ["No Library", "0"];
+                PluginName = nameAndVersion.First() ?? string.Empty;
+                Version = new Version(nameAndVersion.Last() ?? "0");
+                foreach (var dependency in targets.Where(t => t.Key != pluginLibraryEntry?.Key))
+                {
+                    var depLibName = dependency.Value.Runtime.First().Key.Split('/').Last();
+                    var depArchiveEntry = archive.GetEntry(depLibName);
+                    if (depArchiveEntry != null)
+                    {
+                        byte[] depBytes;
+                        depArchiveEntry.Open().CopyTo(new MemoryStream(depBytes = new byte[depArchiveEntry.Length]));
+                        PluginDependencies.Add(depLibName, depBytes);
+                    }
+                    foreach (var runtimeTarget in dependency.Value.RuntimeTargets.Where(rt => rt.Value.Rid == "win-x64"))
+                    {
+                        var rtLibName = runtimeTarget.Key;
+                        var rtArchiveEntry = archive.GetEntry(rtLibName);
+                        if (rtArchiveEntry != null)
+                        {
+                            byte[] rtBytes;
+                            rtArchiveEntry.Open().CopyTo(new MemoryStream(rtBytes = new byte[rtArchiveEntry.Length]));
+                            PluginDependencies.Add(rtLibName.Split('/').Last(), rtBytes);
+                        }
+                    }
+                }
+            }
+
+            [MemberNotNull(nameof(PluginName))]
+            [MemberNotNull(nameof(PluginLibrary))]
+            [MemberNotNull(nameof(Version))]
+            private void ProcessLegacyPlugin(ZipArchive archive)
+            {
+                Version = new Version(1, 0, 0, 0);
+                Legacy = true;
+                var entries = archive.Entries.Where(f => f.FullName.EndsWith(".dll"));
+                foreach (var entry in entries)
+                {
+                    if (entry.FullName.Contains("deps/") && entry.FullName.EndsWith(".dll"))
+                    {
+                        byte[] depBytes;
+                        entry.Open().CopyTo(new MemoryStream(depBytes = new byte[entry.Length]));
+                        PluginDependencies.Add(entry.Name, depBytes);
+                    }
+                    else if (entry.FullName.EndsWith(".dll"))
+                    {
+                        entry.Open().CopyTo(new MemoryStream(PluginLibrary = new byte[entry.Length]));
+                        PluginName = entry.Name;
+                    }
+                }
+                if (string.IsNullOrWhiteSpace(PluginName) || PluginLibrary == null)
+                    throw new Exception("Malformed plugin archive: No plugin DLL found.");
+            }
+
+            public string PluginName;
+            public FileInfo PluginFile;
+            public byte[] PluginLibrary;
+            public Dictionary<string, byte[]> PluginDependencies;
+            public DateTime Modified => PluginFile.LastWriteTime;
+            public Version Version;
+            public bool Legacy;
+        }
+
+        private class DependencyManifest
+        {
+            [JsonPropertyName("runtimeTarget")]
+            public RuntimeTarget RuntimeTarget { get; set; } = new();
+            [JsonPropertyName("targets")]
+            public Dictionary<string, Dictionary<string, Target>> Targets { get; set; } = [];
+            [JsonPropertyName("libraries")]
+            public Dictionary<string, Library> Libraries { get; set; } = [];
+        }
+
+        private class Library
+        {
+            [JsonPropertyName("type")]
+            public string Type { get; set; } = string.Empty;
+            [JsonPropertyName("serviceable")]
+            public bool Serviceable { get; set; }
+            [JsonPropertyName("sha512")]
+            public string Sha512 { get; set; } = string.Empty;
+            [JsonPropertyName("path")]
+            public string Path { get; set; } = string.Empty;
+            [JsonPropertyName("hashPath")]
+            public string HashPath { get; set; } = string.Empty;
+        }
+
+        private class RuntimeTarget
+        {
+            [JsonPropertyName("name")]
+            public string Name { get; set; } = string.Empty;
+            [JsonPropertyName("signature")]
+            public string Signature { get; set; } = string.Empty;
+        }
+
+        private class Target
+        {
+            [JsonPropertyName("dependencies")]
+            public Dictionary<string, string> Dependencies { get; set; } = [];
+            [JsonPropertyName("runtime")]
+            public Dictionary<string, VersionInfo> Runtime { get; set; } = [];
+            [JsonPropertyName("runtimeTargets")]
+            public Dictionary<string, DependencyTarget> RuntimeTargets { get; set; } = [];
+        }
+
+        private class VersionInfo
+        {
+            [JsonPropertyName("assemblyVersion")]
+            public string AssemblyVersion { get; set; } = string.Empty;
+            [JsonPropertyName("fileVersion")]
+            public string FileVersion { get; set; } = string.Empty;
+        }
+
+        private class DependencyTarget
+        {
+            [JsonPropertyName("rid")]
+            public string Rid { get; set; } = string.Empty;
+            [JsonPropertyName("assetType")]
+            public string AssetType { get; set; } = string.Empty;
+            [JsonPropertyName("fileVersion")]
+            public string FileVersion { get; set; } = string.Empty;
         }
     }
 }
