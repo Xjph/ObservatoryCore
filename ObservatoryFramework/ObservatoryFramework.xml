@@ -1023,6 +1023,11 @@
             Whether the body has been previously mapped by a player.
             </summary>
         </member>
+        <member name="P:Observatory.Framework.Files.Journal.Scan.WasFootfalled">
+            <summary>
+            Whether the body has been previously walked on by a player.
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.Files.Journal.ScanBaryCentre">
             <summary>
             Barycentre orbital properties, automatically recorded when any member of a multiple-body orbital arrangement is first scanned.
