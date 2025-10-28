@@ -353,7 +353,10 @@ namespace Observatory.UI
             List<string> tabOrder;
             try
             {
-                tabOrder = JsonSerializer.Deserialize<List<string>>(Properties.Core.Default.TabOrder) ?? [];
+                if (string.IsNullOrWhiteSpace(Properties.Core.Default.TabOrder))
+                    tabOrder = [];
+                else
+                    tabOrder = JsonSerializer.Deserialize<List<string>>(Properties.Core.Default.TabOrder) ?? [];
             }
             catch
             {
