@@ -11,6 +11,8 @@ using System.IO.Compression;
 using System.Text.Json.Nodes;
 using System.Reflection.Metadata.Ecma335;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing.Text;
+using System.DirectoryServices.ActiveDirectory;
 
 namespace Observatory.PluginManagement
 {
@@ -672,17 +674,92 @@ namespace Observatory.PluginManagement
             }
         }
 
+        private class PluginBundle
+        {
+            internal PluginBundle(string filePath)
+            {
+                var fileCheck = File.GetAttributes(filePath);
+                if (!fileCheck.HasFlag(FileAttributes.Directory) && filePath.EndsWith(".dll"))
+                {
+                    IsLegacyInstall = true;
+                }
+                else if (fileCheck.HasFlag(FileAttributes.Directory))
+                {
+                    var directory = new DirectoryInfo(filePath);
+                    ReadDirectory(directory);
+                }
+                else
+                {
+                    using var ZipArchive = ZipFile.OpenRead(filePath);
+                    ReadArchive(ZipArchive);
+                }
+            }
+
+            private void ReadArchive(ZipArchive archive)
+            {
+                bool manifestFound = false;
+
+                foreach (var entry in archive.Entries)
+                {
+                    byte[] fileBytes;
+                    entry.Open().CopyTo(new MemoryStream(fileBytes = new byte[entry.Length]));
+                    Files.Add(entry.FullName, fileBytes);
+                    if (entry.FullName.EndsWith(".deps.json"))
+                    {
+                        if (manifestFound)
+                            throw new Exception("Malformed plugin archive: Contains multiple .deps.json files");
+
+                        manifestFound = true;
+
+                        byte[] manifestBytes = [];
+                        entry.Open().Read(manifestBytes = new byte[entry.Length]);
+                        string manifestJson = System.Text.Encoding.UTF8.GetString(manifestBytes);
+                        Manifest = JsonSerializer.Deserialize<DependencyManifest>(manifestJson);
+                    }
+                }
+            }
+
+            private void ReadDirectory(DirectoryInfo directory)
+            {
+                bool manifestFound = false;
+                foreach (var file in directory.GetFiles("*", SearchOption.AllDirectories))
+                {
+                    byte[] fileBytes = File.ReadAllBytes(file.FullName);
+                    var relPath = Path.GetRelativePath(directory.FullName, file.FullName);
+                    Files.Add(relPath, fileBytes);
+
+                    if (file.FullName.EndsWith(".deps.json"))
+                    {
+                        if (manifestFound)
+                            throw new Exception("Malformed plugin bundle: Contains multiple .deps.json files");
+
+                        manifestFound = true;
+
+                        byte[] manifestBytes = File.ReadAllBytes(file.FullName);
+                        string manifestJson = System.Text.Encoding.UTF8.GetString(manifestBytes);
+                        Manifest = JsonSerializer.Deserialize<DependencyManifest>(manifestJson);
+                    }
+                }
+            }
+
+            public Dictionary<string, byte[]> Files = [];
+
+            public DependencyManifest? Manifest = null;
+
+            public bool IsLegacyPlugin => Manifest == null;
+
+            public bool IsLegacyInstall;
+        }
+
         private class PluginPackage
         {
             internal PluginPackage(string filePath, bool includeLegacyDeps = false)
             {
+                var bundle = new PluginBundle(filePath);
+
                 PluginFile = new FileInfo(filePath);
                 PluginDependencies = [];
-                if (PluginFile.Extension.Equals(".eop", StringComparison.CurrentCultureIgnoreCase))
-                { 
-                    ParseArchive(ZipFile.OpenRead(filePath));
-                }
-                else if (PluginFile.Extension.Equals(".dll", StringComparison.CurrentCultureIgnoreCase))
+                if (bundle.IsLegacyInstall)
                 {
                     Legacy = true;
                     PluginLibrary = File.ReadAllBytes(filePath);
@@ -698,69 +775,66 @@ namespace Observatory.PluginManagement
                         {
                             PluginDependencies.Add(new FileInfo(depFile).Name, File.ReadAllBytes(depFile));
                         }
-                    } 
+                    }
+                }
+                else if (bundle.IsLegacyPlugin)
+                {
+                    ProcessLegacyPlugin(bundle);
                 }
                 else
                 {
-                    throw new Exception("Invalid plugin file extension: " + PluginFile.Extension);
+                    ProcessPluginManifest(bundle);
                 }
             }
 
             [MemberNotNull(nameof(PluginName))]
             [MemberNotNull(nameof(PluginLibrary))]
             [MemberNotNull(nameof(Version))]
-            private void ParseArchive(ZipArchive archive)
+            private void ProcessPluginManifest(PluginBundle bundle)
             {
-                var manifestEntries = archive.Entries.Where(f => f.FullName.EndsWith(".deps.json"));
+                // Should never happen but just in case.
+                if (bundle.Manifest == null)
+                    throw new Exception("Malformed plugin archive: Missing .deps.json");
 
-                if (manifestEntries.Count() > 1)
-                    throw new Exception("Malformed plugin archive: Contains multiple .deps.json files");
+                var manifest = bundle.Manifest;
 
-                if (manifestEntries.Count() == 1)
-                    ProcessPluginManifest(archive, manifestEntries.First());
-                else
-                    ProcessLegacyPlugin(archive);
-            }
-
-            [MemberNotNull(nameof(PluginName))]
-            [MemberNotNull(nameof(PluginLibrary))]
-            [MemberNotNull(nameof(Version))]
-            private void ProcessPluginManifest(ZipArchive archive, ZipArchiveEntry manifestEntry)
-            {
                 Legacy = false;
-                byte[] manifestBytes = [];
-                manifestEntry.Open().Read(manifestBytes = new byte[manifestEntry.Length]);
-                string manifestJson = System.Text.Encoding.UTF8.GetString(manifestBytes);
-                var manifest = JsonSerializer.Deserialize<DependencyManifest>(manifestJson);
-                var pluginLibraryEntry = manifest?.Libraries
+                
+                var pluginLibraryEntry = manifest.Libraries
                     .Where(l => l.Value.Type == "project")
                     .FirstOrDefault();
+
                 if (pluginLibraryEntry.Equals(default(KeyValuePair<string, Library>)))
                     throw new Exception("Malformed plugin archive: No project library found in .deps.json");
-                var targets = manifest?.Targets?[manifest.RuntimeTarget.Name] ?? [];
-                var pluginTarget = targets[pluginLibraryEntry?.Key!];
-                archive.GetEntry(pluginTarget.Runtime.First().Key)!.Open().CopyTo(new MemoryStream(PluginLibrary = new byte[archive.GetEntry(pluginTarget.Runtime.First().Key)!.Length]));
-                var nameAndVersion = pluginLibraryEntry?.Key.Split('/') ?? ["No Library", "0"];
+
+                var targets = manifest.Targets?[manifest.RuntimeTarget.Name] ?? [];
+                var pluginTarget = targets[pluginLibraryEntry.Key!];
+
+                bundle.Files.TryGetValue(pluginTarget.Runtime.First().Key, out byte[]? pluginLibBytes);
+                if (pluginLibBytes == null)
+                    throw new Exception("Malformed plugin archive: Plugin library file not found in archive.");
+                else
+                    PluginLibrary = pluginLibBytes;
+
+                
+                var nameAndVersion = pluginLibraryEntry.Key.Split('/') ?? ["No Library", "0"];
                 PluginName = nameAndVersion.First() ?? string.Empty;
                 Version = new Version(nameAndVersion.Last() ?? "0");
-                foreach (var dependency in targets.Where(t => t.Key != pluginLibraryEntry?.Key))
+                foreach (var dependency in targets.Where(t => t.Key != pluginLibraryEntry.Key))
                 {
                     var depLibName = dependency.Value.Runtime.First().Key.Split('/').Last();
-                    var depArchiveEntry = archive.GetEntry(depLibName);
-                    if (depArchiveEntry != null)
+                    
+                    bundle.Files.TryGetValue(depLibName, out byte[]? depBytes);
+                    if (depBytes != null)
                     {
-                        byte[] depBytes;
-                        depArchiveEntry.Open().CopyTo(new MemoryStream(depBytes = new byte[depArchiveEntry.Length]));
                         PluginDependencies.Add(depLibName, depBytes);
                     }
                     foreach (var runtimeTarget in dependency.Value.RuntimeTargets.Where(rt => rt.Value.Rid == "win-x64"))
                     {
                         var rtLibName = runtimeTarget.Key;
-                        var rtArchiveEntry = archive.GetEntry(rtLibName);
-                        if (rtArchiveEntry != null)
+                        bundle.Files.TryGetValue(rtLibName, out byte[]? rtBytes);
+                        if (rtBytes != null)
                         {
-                            byte[] rtBytes;
-                            rtArchiveEntry.Open().CopyTo(new MemoryStream(rtBytes = new byte[rtArchiveEntry.Length]));
                             PluginDependencies.Add(rtLibName.Split('/').Last(), rtBytes);
                         }
                     }
@@ -770,23 +844,22 @@ namespace Observatory.PluginManagement
             [MemberNotNull(nameof(PluginName))]
             [MemberNotNull(nameof(PluginLibrary))]
             [MemberNotNull(nameof(Version))]
-            private void ProcessLegacyPlugin(ZipArchive archive)
+            private void ProcessLegacyPlugin(PluginBundle bundle)
             {
                 Version = new Version(1, 0, 0, 0);
                 Legacy = true;
-                var entries = archive.Entries.Where(f => f.FullName.EndsWith(".dll"));
+                var entries = bundle.Files.Keys.Where(f => f.EndsWith(".dll"));
                 foreach (var entry in entries)
                 {
-                    if (entry.FullName.Contains("deps/") && entry.FullName.EndsWith(".dll"))
+                    var fileName = Path.GetFileName(entry);
+                    if (entry.Contains("deps/") && entry.EndsWith(".dll"))
                     {
-                        byte[] depBytes;
-                        entry.Open().CopyTo(new MemoryStream(depBytes = new byte[entry.Length]));
-                        PluginDependencies.Add(entry.Name, depBytes);
+                        PluginDependencies.Add(fileName, bundle.Files[entry]);
                     }
-                    else if (entry.FullName.EndsWith(".dll"))
+                    else if (entry.EndsWith(".dll"))
                     {
-                        entry.Open().CopyTo(new MemoryStream(PluginLibrary = new byte[entry.Length]));
-                        PluginName = entry.Name;
+                        PluginLibrary = bundle.Files[entry];
+                        PluginName = fileName;
                     }
                 }
                 if (string.IsNullOrWhiteSpace(PluginName) || PluginLibrary == null)
