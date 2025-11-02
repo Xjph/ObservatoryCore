@@ -349,7 +349,7 @@ namespace Observatory.PluginManagement
 
             if (Directory.Exists(pluginPath))
             {
-                var pluginLibraries = ExtractPlugins(pluginPath, errorList);
+                var pluginLibraries = CollectPlugins(pluginPath, errorList);
 
                 var legacyPlugins = CollectLegacyPlugins(pluginPath, errorList);
 
@@ -450,11 +450,11 @@ namespace Observatory.PluginManagement
             }
         }
 
-        private static List<PluginPackage> ExtractPlugins(string pluginFolder, List<(string, string?)> errorList)
+        private static List<PluginPackage> CollectPlugins(string pluginFolder, List<(string, string?)> errorList)
         {
             var files = Directory.GetFiles(pluginFolder, "*.eop"); // Elite Observatory Plugin
-
-            var extractedPlugins = new List<PluginPackage>();
+            var directories = Directory.GetDirectories(pluginFolder).Where(d => !d.EndsWith("\\deps"));
+            var plugins = new List<PluginPackage>();
 
             Dictionary<string, (Version Version, DateTime Modified)> foundPlugins = [];
 
@@ -463,14 +463,26 @@ namespace Observatory.PluginManagement
                 try
                 {
                     var pluginPackage = new PluginPackage(file);
-                    extractedPlugins.Add(pluginPackage);
+                    plugins.Add(pluginPackage);
                 }
                 catch (Exception ex)
                 { 
                     errorList.Add(("ERROR: Failed to extract plugin archive: " + file, ex.Message));
                 }
             }
-            return extractedPlugins;
+            foreach (var directory in directories)
+            {
+                try
+                {
+                    var pluginPackage = new PluginPackage(directory);
+                    plugins.Add(pluginPackage);
+                }
+                catch (Exception ex)
+                {
+                    errorList.Add(("ERROR: Failed to process plugin bundle: " + directory, ex.Message));
+                }
+            }
+            return plugins;
         }
 
         private static List<PluginPackage> CollectLegacyPlugins(string pluginFolder, List<(string, string?)> errorList)
