@@ -8,11 +8,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Runtime.Loader;
 using System.IO.Compression;
-using System.Text.Json.Nodes;
-using System.Reflection.Metadata.Ecma335;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing.Text;
-using System.DirectoryServices.ActiveDirectory;
 
 namespace Observatory.PluginManagement
 {
