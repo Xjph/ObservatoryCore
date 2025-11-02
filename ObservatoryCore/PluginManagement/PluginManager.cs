@@ -9,6 +9,7 @@ using System.Text.Json.Serialization;
 using System.Runtime.Loader;
 using System.IO.Compression;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 
 namespace Observatory.PluginManagement
 {
@@ -29,7 +30,6 @@ namespace Observatory.PluginManagement
             return new PluginManager();
         }
 
-
         public readonly List<(string error, string? detail)> errorList;
         public readonly List<Panel> pluginPanels;
         public readonly List<DataTable> pluginTables;
@@ -38,14 +38,13 @@ namespace Observatory.PluginManagement
         private readonly Dictionary<IObservatoryPlugin, PluginStatus> _pluginStatus = [];
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
-        
+
         private readonly JsonSerializerOptions SettingsJsonSerializerOptions = new JsonSerializerOptions()
         {
             UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-            ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles,
+            ReferenceHandler = ReferenceHandler.IgnoreCycles,
         };
         
-
         public PluginCore Core { get { return core; } }
 
 
@@ -85,6 +84,8 @@ namespace Observatory.PluginManagement
 
         private PluginManager()
         {
+            core = new PluginCore();
+
             errorList = LoadPlugins(out _workerPlugins, out _notifyPlugins);
 
             pluginHandler = new PluginEventHandler(_workerPlugins, _notifyPlugins);
@@ -96,7 +97,6 @@ namespace Observatory.PluginManagement
             logMonitor.StatusUpdate += pluginHandler.OnStatusUpdate;
             logMonitor.LogMonitorStateChanged += pluginHandler.OnLogMonitorStateChanged;
 
-            core = new PluginCore();
             var allPluginSettings = LoadAllPluginSettings();
 
             foreach (var plugin in _workerPlugins)
@@ -376,6 +376,28 @@ namespace Observatory.PluginManagement
                 PluginCleanup(pluginPath, pluginLibraries);
 
                 string recursionGuard = string.Empty;
+
+                [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+                static extern bool SetDllDirectory(string lpPathName);
+
+                // Kind of gross, but we need to place non-managed dependencies
+                // in a location that can be found automatically by the loader.
+                foreach (var dep in pluginLibraries.SelectMany(p => p.PluginDependencies))
+                {
+                    var peHeaderOffset = dep.Value[0x3C];
+                    var peHeader = dep.Value[peHeaderOffset..(peHeaderOffset+2)];
+                    if (!(peHeader[0] == 'P' && peHeader[1] == 'E'))
+                    {
+                        Debug.WriteLine($"Non-managed dependency: {dep.Key}");
+
+                        var storageFolder = core.GetStorageFolderForPlugin("Core");
+
+                        var depPath = $"{storageFolder}{Path.DirectorySeparatorChar}{dep.Key}";
+                        SetDllDirectory(storageFolder);
+                        File.WriteAllBytes(depPath, dep.Value);
+                    }
+                }
+
                 AssemblyLoadContext.Default.Resolving += (context, name) => {
 
                     if ((name?.Name?.EndsWith("resources")).GetValueOrDefault(false))
@@ -411,6 +433,8 @@ namespace Observatory.PluginManagement
                         throw new Exception("Unable to load assembly " + name?.Name);
                     }
                 };
+
+
 
                 foreach (var plugin in pluginLibraries)
                 {
@@ -510,7 +534,7 @@ namespace Observatory.PluginManagement
         private string LoadPluginAssembly(string pluginFile, byte[] pluginBytes, List<IObservatoryWorker> workers, List<IObservatoryNotifier> notifiers)
         {
             var pluginAssembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(pluginBytes));
-            
+
             Type[] types;
             string err = string.Empty;
             int pluginCount = 0;
@@ -734,7 +758,7 @@ namespace Observatory.PluginManagement
                 {
                     byte[] fileBytes = File.ReadAllBytes(file.FullName);
                     var relPath = Path.GetRelativePath(directory.FullName, file.FullName);
-                    Files.Add(relPath, fileBytes);
+                    Files.Add(relPath.Replace(Path.DirectorySeparatorChar, '/'), fileBytes);
 
                     if (file.FullName.EndsWith(".deps.json"))
                     {
@@ -828,6 +852,7 @@ namespace Observatory.PluginManagement
                 var nameAndVersion = pluginLibraryEntry.Key.Split('/') ?? ["No Library", "0"];
                 PluginName = nameAndVersion.First() ?? string.Empty;
                 Version = new Version(nameAndVersion.Last() ?? "0");
+
                 foreach (var dependency in targets.Where(t => t.Key != pluginLibraryEntry.Key))
                 {
                     var depLibName = dependency.Value.Runtime.First().Key.Split('/').Last();
