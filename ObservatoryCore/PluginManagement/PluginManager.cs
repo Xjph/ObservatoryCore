@@ -357,7 +357,8 @@ namespace Observatory.PluginManagement
                 {
                     var duplicatedLegacyPlugins = legacyPlugins
                         .Where(lp => pluginLibraries
-                            .Any(p => p.PluginName.Equals(lp.PluginName, StringComparison.CurrentCultureIgnoreCase)));
+                            .Any(p => p.PluginName.Equals(lp.PluginName, StringComparison.CurrentCultureIgnoreCase)))
+                        .ToList();
 
                     foreach (var dupPlugin in duplicatedLegacyPlugins)
                     {
