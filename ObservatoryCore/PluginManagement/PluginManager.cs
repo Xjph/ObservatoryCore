@@ -856,13 +856,17 @@ namespace Observatory.PluginManagement
 
                 foreach (var dependency in targets.Where(t => t.Key != pluginLibraryEntry.Key))
                 {
-                    var depLibName = dependency.Value.Runtime.First().Key.Split('/').Last();
-                    
-                    bundle.Files.TryGetValue(depLibName, out byte[]? depBytes);
-                    if (depBytes != null)
+                    if (dependency.Value.Runtime.Count > 0)
                     {
-                        PluginDependencies.Add(depLibName, depBytes);
+                        var depLibName = dependency.Value.Runtime.First().Key.Split('/').Last();
+
+                        bundle.Files.TryGetValue(depLibName, out byte[]? depBytes);
+                        if (depBytes != null)
+                        {
+                            PluginDependencies.Add(depLibName, depBytes);
+                        }
                     }
+
                     foreach (var runtimeTarget in dependency.Value.RuntimeTargets.Where(rt => rt.Value.Rid == "win-x64"))
                     {
                         var rtLibName = runtimeTarget.Key;
