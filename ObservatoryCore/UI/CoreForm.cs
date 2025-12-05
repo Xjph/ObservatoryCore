@@ -73,6 +73,9 @@ namespace Observatory.UI
 
             string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0";
             Text += $" - v{version}";
+#if PROTON
+            Text += "-wine";
+#endif
 
             themeManager = ThemeManager.GetInstance;
             themeManager.CurrentTheme = Properties.Core.Default.Theme;
