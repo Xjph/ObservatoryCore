@@ -43,3 +43,9 @@ publish: build $(addprefix publish/,ObservatoryCore $(PLUGINS))
 .PHONY: clean
 clean:
 	rm -vrf publish $(addsuffix /bin,$(PROJS)) $(addsuffix /obj,$(PROJS))
+
+.PHONY: winesetup
+winesetup:
+	winetricks -q dotnetdesktop8 ie8
+    winetricks -q win10
+	WINEDEBUG=fixme-all wine regedit wine-dll-overrides.reg
