@@ -233,6 +233,10 @@ namespace Observatory.PluginManagement
             }
         }
 
+        public string UpdatedPluginsFolder {
+            get => PluginManager.PluginPath; 
+        }
+
         private void MigratePluginStorage(string oldKey, string newKey)
         {
             var oldPath = GetStorageFolderForPlugin(oldKey, false);

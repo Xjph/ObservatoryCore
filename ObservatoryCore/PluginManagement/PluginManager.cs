@@ -23,6 +23,8 @@ namespace Observatory.PluginManagement
             }
         }
 
+        public static string PluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
+
         private static readonly Lazy<PluginManager> _instance = new Lazy<PluginManager>(NewPluginManager);
 
         private static PluginManager NewPluginManager()
@@ -345,7 +347,7 @@ namespace Observatory.PluginManagement
             observatoryNotifiers = [];
             var errorList = new List<(string, string?)>();
 
-            string pluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
+            var pluginPath = PluginPath;
 
             if (Directory.Exists(pluginPath))
             {

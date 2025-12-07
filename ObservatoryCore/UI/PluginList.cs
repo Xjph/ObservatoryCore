@@ -1,4 +1,5 @@
-﻿using Observatory.Framework.Interfaces;
+﻿using Observatory.Framework;
+using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
 using System.Diagnostics;
@@ -164,20 +165,37 @@ namespace Observatory.UI
                 Task.Run(() =>
                 {
                     var thisRow = row;
-                    if (plugin.UpdateAvailable(out string url))
+                    // Check for a plugin update.
+                    var updateInfo = plugin.CheckForPluginUpdate();
+                    if (updateInfo.Status == PluginUpdateStatus.NoUpdate)
+                    {
+                        // this is also default; double check the deprecated method and update the info object accordingly if
+                        // it returns true.
+                        if (plugin.UpdateAvailable(out string url))
+                        {
+                            updateInfo.Status = PluginUpdateStatus.UpdateAvailable;
+                            updateInfo.Url = url;
+                        }
+                    }
+
+                    if (updateInfo.Status != PluginUpdateStatus.NoUpdate)
                     {
                         LinkLabel updateLink = new()
                         {
-                            Text = "Update Available",
+                            Text = updateInfo.UrlText,
                             Dock = DockStyle.Fill,
                             Padding = new(8),
                             AutoSize = true,
-                            Tag = url ?? ""
+                            Tag = updateInfo.Url ?? ""
                         };
+
+                        // This task may not be executed on the main UI thread -- as such, the following
+                        // UI touches risk failing with errors. However, we can't use Invoke() here either because the
+                        // UI hasn't been displayed yet (and thus no handle).
                         ThemeManager.GetInstance.RegisterControl(updateLink);
                         updateLink.LinkClicked += (_, _) =>
                         {
-                            var startInfo = new ProcessStartInfo(url ?? "https://observatory.xjph.net") { UseShellExecute = true };
+                            var startInfo = new ProcessStartInfo(updateInfo.Url ?? "https://observatory.xjph.net") { UseShellExecute = true };
                             Process.Start(startInfo);
                         };
                         AddWithLocation(updateLink, GetRow(pluginStatus), 4);
