@@ -443,7 +443,7 @@ namespace Observatory.PluginManagement
                 {
                     try
                     {
-                        string error = LoadPluginAssembly(plugin.PluginFile.Name, plugin.PluginLibrary, observatoryWorkers, observatoryNotifiers);
+                        string error = LoadPluginAssembly(plugin, observatoryWorkers, observatoryNotifiers);
                         if (!string.IsNullOrWhiteSpace(error))
                         {
                             errorList.Add((error, string.Empty));
@@ -534,9 +534,9 @@ namespace Observatory.PluginManagement
             return plugins;
         }
 
-        private string LoadPluginAssembly(string pluginFile, byte[] pluginBytes, List<IObservatoryWorker> workers, List<IObservatoryNotifier> notifiers)
+        private string LoadPluginAssembly(PluginPackage plugin, List<IObservatoryWorker> workers, List<IObservatoryNotifier> notifiers)
         {
-            var pluginAssembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(pluginBytes));
+            var pluginAssembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(plugin.PluginLibrary));
 
             Type[] types;
             string err = string.Empty;
@@ -559,6 +559,8 @@ namespace Observatory.PluginManagement
             if (frameworkRef.Any())
             {
                 var status = frameworkRef.First().Version?.Major >= 1 ? PluginStatus.OK : PluginStatus.Outdated;
+
+                status = status == PluginStatus.OK && plugin.DependencyWarning ? PluginStatus.DependencyWarning : status;
 
                 IEnumerable<Type> workerTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryWorker)));
                 foreach (Type worker in workerTypes)
@@ -596,17 +598,15 @@ namespace Observatory.PluginManagement
 
                 if (pluginCount == 0)
                 {
-                    err += $"ERROR: Library '{pluginFile}' contains no suitable interfaces.";
-                    _pluginStatus.Add(LoadPlaceholderPlugin(pluginFile, notifiers), PluginStatus.InvalidPlugin);
+                    err += $"ERROR: Library '{plugin.PluginFile.Name}' contains no suitable interfaces.";
+                    _pluginStatus.Add(LoadPlaceholderPlugin(plugin.PluginFile.Name, notifiers), PluginStatus.InvalidPlugin);
                 }
             }
             else
             {
-                err += $"ERROR: Library '{pluginFile}' is not an Observatory Plugin.";
-                _pluginStatus.Add(LoadPlaceholderPlugin(pluginFile, notifiers), PluginStatus.InvalidPlugin);
+                err += $"ERROR: Library '{plugin.PluginFile.Name}' is not an Observatory Plugin.";
+                _pluginStatus.Add(LoadPlaceholderPlugin(plugin.PluginFile.Name, notifiers), PluginStatus.InvalidPlugin);
             }
-
-            pluginBytes = [];
             return err;
         }
 
@@ -651,7 +651,10 @@ namespace Observatory.PluginManagement
             /// Settings for the plugin failed to load and were reset.
             /// </summary>
             SettingsReset,
-            
+            /// <summary>
+            /// One or more dependencies for the plugin were not able to be loaded.
+            /// </summary>
+            DependencyWarning
         }
 
         private static void PluginCleanup(string pluginPath, List<PluginPackage> plugins)
@@ -808,7 +811,8 @@ namespace Observatory.PluginManagement
                         var depFiles = Directory.GetFiles($"{PluginFile.DirectoryName}{Path.DirectorySeparatorChar}deps", "*.dll", SearchOption.TopDirectoryOnly);
                         foreach (var depFile in depFiles)
                         {
-                            PluginDependencies.Add(new FileInfo(depFile).Name, File.ReadAllBytes(depFile));
+                            if (!PluginDependencies.TryAdd(new FileInfo(depFile).Name, File.ReadAllBytes(depFile)))
+                                DependencyWarning = true;
                         }
                     }
                 }
@@ -865,7 +869,8 @@ namespace Observatory.PluginManagement
                         bundle.Files.TryGetValue(depLibName, out byte[]? depBytes);
                         if (depBytes != null)
                         {
-                            PluginDependencies.Add(depLibName, depBytes);
+                            if (!PluginDependencies.TryAdd(depLibName, depBytes))
+                                DependencyWarning = true;
                         }
                     }
 
@@ -875,7 +880,8 @@ namespace Observatory.PluginManagement
                         bundle.Files.TryGetValue(rtLibName, out byte[]? rtBytes);
                         if (rtBytes != null)
                         {
-                            PluginDependencies.Add(rtLibName.Split('/').Last(), rtBytes);
+                            if (!PluginDependencies.TryAdd(rtLibName.Split('/').Last(), rtBytes))
+                                DependencyWarning = true;
                         }
                     }
                 }
@@ -913,6 +919,7 @@ namespace Observatory.PluginManagement
             public DateTime Modified => PluginFile.LastWriteTime;
             public Version Version;
             public bool Legacy;
+            public bool DependencyWarning = false;
         }
 
         private class DependencyManifest

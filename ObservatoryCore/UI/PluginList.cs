@@ -291,6 +291,9 @@ namespace Observatory.UI
                 case PluginManager.PluginStatus.SettingsReset:
                     return "Settings error; using defaults";
 
+                case PluginManager.PluginStatus.DependencyWarning:
+                    return "Warning";
+
                 default:
                     return string.Empty;
             }
