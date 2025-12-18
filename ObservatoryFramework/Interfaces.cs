@@ -117,13 +117,28 @@ namespace Observatory.Framework.Interfaces
 
         /// <summary>
         /// Check if an update is available for the plugin and provide a URL for the update if available.
+        /// 
+        /// Do not implement both this method and <see cref="CheckForPluginUpdate()"/>.
         /// </summary>
         /// <param name="url">Filled with a URL for the update, either direct download or a download site.</param>
         /// <returns>Whether an update is available.</returns>
+        [Obsolete("Deprecated in favour of CheckForPluginUpdate")]
         public bool UpdateAvailable(out string url)
         {
             url = null;
             return false;
+        }
+
+        /// <summary>
+        /// Check if an update is available for the plugin (which may trigger downloading said update) and 
+        /// provides status information along with an optional URL and text to link to the URL.
+        /// 
+        /// Do not implement both this method and <see cref="UpdateAvailable(out string)"/>.
+        /// </summary>
+        /// <returns>A <see cref="PluginUpdateStatus"/> instance describing the status of the plugin update.</returns>
+        public PluginUpdateInfo CheckForPluginUpdate()
+        {
+            return new();
         }
     }
 
@@ -347,6 +362,12 @@ namespace Observatory.Framework.Interfaces
         /// Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
         /// </summary>
         public string PluginStorageFolder { get; }
+
+        /// <summary>
+        /// Provides a folder for placing plugin packages for updating plugins on restart.
+        /// This path is not guaranteed to be the Core '/plugins' subfolder, so make no assumptions about this location.
+        /// </summary>
+        public string UpdatedPluginsFolder { get; }
 
         /// <summary>
         /// Plays audio file using default audio device.

@@ -1626,9 +1626,20 @@
         <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.UpdateAvailable(System.String@)">
             <summary>
             Check if an update is available for the plugin and provide a URL for the update if available.
+            
+            Do not implement both this method and <see cref="M:Observatory.Framework.Interfaces.IObservatoryPlugin.CheckForPluginUpdate"/>.
             </summary>
             <param name="url">Filled with a URL for the update, either direct download or a download site.</param>
             <returns>Whether an update is available.</returns>
+        </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.CheckForPluginUpdate">
+            <summary>
+            Check if an update is available for the plugin (which may trigger downloading said update) and 
+            provides status information along with an optional URL and text to link to the URL.
+            
+            Do not implement both this method and <see cref="M:Observatory.Framework.Interfaces.IObservatoryPlugin.UpdateAvailable(System.String@)"/>.
+            </summary>
+            <returns>A <see cref="T:Observatory.Framework.PluginUpdateStatus"/> instance describing the status of the plugin update.</returns>
         </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
@@ -1834,6 +1845,12 @@
         <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.PluginStorageFolder">
             <summary>
             Retrieves and ensures creation of a location which can be used by the plugin to store persistent data.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.Interfaces.IObservatoryCore.UpdatedPluginsFolder">
+            <summary>
+            Provides a folder for placing plugin packages for updating plugins on restart.
+            This path is not guaranteed to be the Core '/plugins' subfolder, so make no assumptions about this location.
             </summary>
         </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.PlayAudioFile(System.String,Observatory.Framework.ParameterTypes.AudioOptions)">
@@ -2083,6 +2100,61 @@
             <summary>
             UI used by Observatory Core settings tab.<br/>
             Not intended for use by plugins.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.PluginUpdateStatus">
+            <summary>
+            The update status of a plugin returned via <see cref="T:Observatory.Framework.PluginUpdateInfo"/> from the
+            <see cref="M:Observatory.Framework.Interfaces.IObservatoryPlugin.CheckForPluginUpdate"/> method.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUpdateStatus.NoUpdate">
+            <summary>
+            Indicates that there is no update available known or available for the plugin. Other properties
+            of the <see cref="T:Observatory.Framework.PluginUpdateInfo"/> class are ignored.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUpdateStatus.UpdateAvailable">
+            <summary>
+            Indicates that there is an update available for the plugin. It is recommended that plugins provide a download Url
+            via the <see cref="P:Observatory.Framework.PluginUpdateInfo.Url"/> property.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginUpdateStatus.UpdateReady">
+            <summary>
+            Indicates that there is an update available and it has already been downloaded and is ready for installation.
+            The user just needs to restart the application to begin using the new version.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.PluginUpdateInfo">
+            <summary>
+            A response object that contains information about the state of a plugin update.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.PluginUpdateInfo.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:Observatory.Framework.PluginUpdateInfo"/> class.
+            With no further modification, it indicates there is no update available.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginUpdateInfo.Status">
+            <summary>
+            Gets or sets an enumeration that specifies the state of the plugin update.
+            See <see cref="T:Observatory.Framework.PluginUpdateStatus"/> enum for possible values.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginUpdateInfo.Url">
+            <summary>
+            Gets or sets a URL. This URL will most likely point to the download location of the plugin update.
+            However, this can point to other destinations as well (ie. documentation or release notes).
+            See the <see cref="P:Observatory.Framework.PluginUpdateInfo.UrlText"/> property to customized the text the URL is linked to for non-typical uses.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginUpdateInfo.UrlText">
+            <summary>
+            Gets or sets optional custom text that is linked to the URL provided by the <see cref="P:Observatory.Framework.PluginUpdateInfo.Url"/> property. Use this
+            to customize the text linked to the URL provided via the <see cref="P:Observatory.Framework.PluginUpdateInfo.Url"/> property.
+            If an empty/no value is provided, default text is provided based on the value of <see cref="P:Observatory.Framework.PluginUpdateInfo.Status"/> property.
             </summary>
         </member>
         <member name="T:System.Text.Json.Serialization.JsonStringEnumMemberConverter">
