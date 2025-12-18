@@ -17,9 +17,7 @@
   </PropertyGroup>
   
   <ItemGroup>
-    <Reference Include="ObservatoryFramework">
-      <HintPath>..\ObservatoryFramework\bin\Release\net8.0\ObservatoryFramework.dll</HintPath>
-    </Reference>
+    <ProjectReference Include="..\ObservatoryFramework\ObservatoryFramework.csproj" />
   </ItemGroup>
   
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">

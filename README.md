@@ -22,3 +22,15 @@ The portable build has no prerequisites due to bundling the .NET runtime along w
 
 ## Prerequisites for building
 C# 9.0, .NET 8.0, and [ObservatoryFramework](https://observatory.xjph.net/framework).
+
+### Linux
+
+1. Install the .NET 8.0 sdk: [MS .NET Install scripts](https://dotnet.microsoft.com/en-us/download/dotnet/scripts)
+
+2. Build the project using the Makefile (just run `make`)
+
+3. Create a wineprefix (at least wine 10)
+
+4. Run the winesetup (with WINEPREFIX env set): `make winesetup`
+
+5. Finally, you can run the app: `wine bin/ObservatoryCore.exe`

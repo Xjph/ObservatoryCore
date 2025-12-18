@@ -196,6 +196,10 @@ namespace Observatory.UI
         {
             var settings = Properties.Core.Default;
             loading = true;
+
+#if PROTON
+            settings.ChimeEnabled = true;
+#endif
             TryLoadSetting(DisplayDropdown, "SelectedIndex", settings.NativeNotifyScreen + 1, 0);
             TryLoadSetting(CornerDropdown, "SelectedIndex", settings.NativeNotifyCorner, 0);
             TryLoadSetting(FontDropdown, "SelectedItem", settings.NativeNotifyFont);
@@ -216,14 +220,10 @@ namespace Observatory.UI
             TryLoadSetting(AltMonitorCheckbox, "Checked", settings.AltMonitor);
 
 #if PROTON
-            VoiceCheckbox.Checked = false;
-            VoiceCheckbox.Enabled = false;
+            AudioTypeDropdown.Enabled = false;
             VoiceSpeedSlider.Enabled = false;
-            VoiceDropdown.Enabled = false;
-            VoiceTestButton.Enabled = false;
-            VoiceDisabledPanel.Visible = true;
-            VoiceDisabledLabel.Text = "Native voice notifications not available in this build.";
-            VoiceDisabledPanel.BringToFront();
+            VoiceSpeedSlider.Visible = false;
+            VoiceSpeedLabel.Visible = false;
 #endif
 #if !DEBUG
             CoreConfigFolder.Visible = false;

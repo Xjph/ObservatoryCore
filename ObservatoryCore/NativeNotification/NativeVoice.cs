@@ -1,25 +1,4 @@
-﻿#if PROTON
-
-using Observatory.Framework;
-
-namespace Observatory.NativeNotification
-{
-    public class NativeVoice
-    {
-        public NativeVoice(Object _) { }
-
-        public void AudioHandlerEnqueue(NotificationArgs eventArgs)
-        {
-            // stub
-        }
-
-        
-    }
-}
-
-#else
-
-using Observatory.Framework;
+﻿using Observatory.Framework;
 using System.Xml;
 using System.Speech.Synthesis;
 using System.Runtime.InteropServices;
@@ -46,7 +25,9 @@ namespace Observatory.NativeNotification
             {
                 string filename;
 
+#if !PROTON
                 if (Properties.Core.Default.ChimeEnabled)
+#endif
                 {
                     filename = Path.GetTempPath() + "ObsCore_" + Guid.NewGuid().ToString() + ".wav";
                     using UnmanagedMemoryStream ms = Properties.Core.Default.ChimeSelected switch
@@ -63,6 +44,7 @@ namespace Observatory.NativeNotification
                     ms.Close();
                     File.WriteAllBytes(filename, wavData);
                 }
+#if !PROTON
                 else
                 {
                     string voice = Properties.Core.Default.VoiceSelected;
@@ -102,6 +84,7 @@ namespace Observatory.NativeNotification
                     }
                     speech.Dispose();
                 }
+#endif
                 
                 audioHandler.EnqueueAndPlay(filename, new() { DeleteAfterPlay = true }, eventArgs);
                 
@@ -134,5 +117,3 @@ namespace Observatory.NativeNotification
         }
     }
 }
-
-#endif
