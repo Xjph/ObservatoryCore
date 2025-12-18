@@ -141,7 +141,8 @@ namespace Observatory.Explorer
 
             if (settings.HighEccentricity && scan.Eccentricity > 0.9)
             {
-                results.Add("Highly Eccentric Orbit", $"Eccentricity: {Math.Round(scan.Eccentricity, 4)}");
+                var isLandable = scan.Landable ? "Landable with " : "";
+                results.Add($"{isLandable}Highly Eccentric Orbit", $"Eccentricity: {Math.Round(scan.Eccentricity, 4)}");
             }
 
             if (settings.Nested && !isRing && scan.Parent?.Count > 1 && scan.Parent[0].ParentType == ParentType.Planet && scan.Parent[1].ParentType == ParentType.Planet)
