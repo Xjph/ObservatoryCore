@@ -35,16 +35,32 @@ namespace Observatory.UI
 
         private static string[] _patrons =
         [
+            "  1971gtrxu1",
             "  Arx",
-            "  Doctor Nozimo",
-            "  KPTRamius",
+            "  Chris B",
+            "  Cmdr SpaceTrash67",
+            "  David D",
+            "  Gareth dW",
+            "  Hannes M",
+            "  Keith",
+            "  LMGMaster",
+            "  MachoNatchoMan",
             "  Markus H",
             "  McMuttons",
+            "  Me, I'm Counting",
+            "  Michael B",
             "  NirevS",
             "  ObediahJoel",
             "  PaganPilot",
             "  pepčok",
-            "  Slegnor"
+            "  R.W. Harper",
+            "  Riley S",
+            "  SilentSean",
+            "  Slegnor",
+            "  Star Ottaway",
+            "  Steven B",
+            "  Valshia",
+            "  William K"
         ];
 
         private readonly ThemeManager themeManager;
