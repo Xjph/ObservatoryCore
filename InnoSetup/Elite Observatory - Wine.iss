@@ -58,12 +58,8 @@ Name: "{app}\plugins"; Permissions: users-modify
 [Files]
 Source: "..\ObservatoryCore\bin\Proton\publish\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\ObservatoryCore\bin\Proton\publish\*"; Excludes: "\plugins\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryExplorer.dll"; DestDir: "{app}\plugins"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\lua54.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\KeraLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\deps\NLua.dll"; DestDir: "{app}\plugins\deps"; Components: Plugins\Explorer
-;Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryHerald.dll"; DestDir: "{app}\plugins"; Components: Plugins\Herald
-Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryBotanist.dll"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryExplorer.eop"; DestDir: "{app}\plugins"; Components: Plugins\Explorer
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryBotanist.eop"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
@@ -78,5 +74,15 @@ Root: HKA; Subkey: "Software\Classes\ObservatoryPlugin.eop"; ValueType: string; 
 Root: HKA; Subkey: "Software\Classes\ObservatoryPlugin.eop\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
 Root: HKA; Subkey: "Software\Classes\ObservatoryPlugin.eop\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: ".eop"; ValueData: ""
+
+[InstallDelete]
+Type: files; Name: "{app}\Observatory*.pdb"
+Type: files; Name: "{app}\Avalonia*.dll"
+Type: files; Name: "{app}\Egorozh*.dll"
+Type: files; Name: "{app}\plugins\ObservatoryExplorer.dll"
+Type: files; Name: "{app}\plugins\ObservatoryBotanist.dll"
+Type: files; Name: "{app}\plugins\deps\KeraLua.dll"
+Type: files; Name: "{app}\plugins\deps\lua54.dll"
+Type: files; Name: "{app}\plugins\deps\NLua.dll"
 
 [Code]
