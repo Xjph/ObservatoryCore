@@ -53,7 +53,7 @@ namespace Observatory.PluginManagement
         // Intended for rendering Tabs. Includes Disabled plugins.
         public List<IObservatoryWorker> AllUIPlugins
         {
-            get => _workerPlugins?.Where(p => p?.PluginUI?.PluginUIType != PluginUI.UIType.None).ToList() ?? [];
+            get => _workerPlugins?.Where(p => (p?.PluginUI?.PluginUIType ?? PluginUI.UIType.None) != PluginUI.UIType.None).ToList() ?? [];
         }
 
         public List<IObservatoryWorker> EnabledWorkerPlugins
