@@ -35,8 +35,8 @@ namespace Observatory.PluginManagement
         public readonly List<(string error, string? detail)> errorList;
         public readonly List<Panel> pluginPanels;
         public readonly List<DataTable> pluginTables;
-        private readonly List<IObservatoryWorker> _workerPlugins;
-        private readonly List<IObservatoryNotifier> _notifyPlugins;
+        private readonly List<IObservatoryWorker>? _workerPlugins;
+        private readonly List<IObservatoryNotifier>? _notifyPlugins;
         private readonly Dictionary<IObservatoryPlugin, PluginStatus> _pluginStatus = [];
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
@@ -53,24 +53,24 @@ namespace Observatory.PluginManagement
         // Intended for rendering Tabs. Includes Disabled plugins.
         public List<IObservatoryWorker> AllUIPlugins
         {
-            get => _workerPlugins.Where(p => p.PluginUI.PluginUIType != Framework.PluginUI.UIType.None).ToList();
+            get => _workerPlugins?.Where(p => p.PluginUI.PluginUIType != Framework.PluginUI.UIType.None).ToList() ?? [];
         }
 
         public List<IObservatoryWorker> EnabledWorkerPlugins
         {
-            get => _workerPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList();
+            get => _workerPlugins?.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList() ?? [];
         }
 
         public List<IObservatoryNotifier> EnabledNotifyPlugins
         {
-            get => _notifyPlugins.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList();
+            get => _notifyPlugins?.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList() ?? [];
         }
 
         public List<IObservatoryPlugin> AllPlugins
         {
-            get => _workerPlugins.Cast<IObservatoryPlugin>()
-                .Concat(_notifyPlugins.Cast<IObservatoryPlugin>())
-                .Distinct().ToList();
+            get => _workerPlugins?.Cast<IObservatoryPlugin>()
+                .Concat(_notifyPlugins?.Cast<IObservatoryPlugin>() ?? [])
+                .Distinct().ToList() ?? [];
         }
 
         public PluginStatus GetPluginStatus(IObservatoryPlugin plugin) => _pluginStatus[plugin];
@@ -101,7 +101,7 @@ namespace Observatory.PluginManagement
 
             var allPluginSettings = LoadAllPluginSettings();
 
-            foreach (var plugin in _workerPlugins)
+            foreach (var plugin in _workerPlugins ?? [])
             {
                 try
                 {
