@@ -3,13 +3,14 @@ using Observatory.Framework.Interfaces;
 using Observatory.Utils;
 using System.Data;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.IO.Compression;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Runtime.Loader;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Runtime.Loader;
-using System.IO.Compression;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
 
 namespace Observatory.PluginManagement
 {
@@ -791,6 +792,8 @@ namespace Observatory.PluginManagement
 
         private class PluginPackage
         {
+            private static readonly Regex VersionSuffixRegEx = new("-.*$");
+
             internal PluginPackage(string filePath, bool includeLegacyDeps = false)
             {
                 var bundle = new PluginBundle(filePath);
@@ -858,7 +861,8 @@ namespace Observatory.PluginManagement
                 
                 var nameAndVersion = pluginLibraryEntry.Key.Split('/') ?? ["No Library", "0"];
                 PluginName = nameAndVersion.First() ?? string.Empty;
-                Version = new Version(nameAndVersion.Last() ?? "0");
+                var versionWithoutSuffx = VersionSuffixRegEx.Replace(nameAndVersion.Last() ?? "0", "");
+                Version = new Version(versionWithoutSuffx);
 
                 foreach (var dependency in targets.Where(t => t.Key != pluginLibraryEntry.Key))
                 {

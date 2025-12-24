@@ -13,6 +13,8 @@ namespace Observatory.UI
 
         internal PluginList(IEnumerable<IObservatoryPlugin> plugins)
         {
+            SuspendLayout();
+
             ColumnCount = 7;
             _title = new() 
             { 
@@ -62,6 +64,7 @@ namespace Observatory.UI
             int row = 2;
 
             var enabledPlugins = GetEnabledPlugins();
+            List<Task> updateTasks = new();
 
             foreach (var plugin in plugins)
             {
@@ -162,7 +165,7 @@ namespace Observatory.UI
                 AddWithLocation(pluginEnabled, row, 5);
                 AddWithLocation(pluginMenu, row, 6);
 
-                Task.Run(() =>
+                updateTasks.Add(new Task(() =>
                 {
                     var thisRow = row;
                     // Check for a plugin update.
@@ -198,15 +201,32 @@ namespace Observatory.UI
                             var startInfo = new ProcessStartInfo(updateInfo.Url ?? "https://observatory.xjph.net") { UseShellExecute = true };
                             Process.Start(startInfo);
                         };
-                        AddWithLocation(updateLink, GetRow(pluginStatus), 4);
+                        var row = GetRow(pluginStatus);
                         Controls.Remove(pluginStatus);
+                        AddWithLocation(updateLink, row, 4);
                     }
-                });
+                }));
 
                 row++;
             }
 
+            ResumeLayout();
+
             Resize += PluginList_Resize;
+
+            // Avoid blocking the main thread by running one or more update tasks.
+            Task.Run(() =>
+            {
+                // Run the update tasks now that we've completely laid out the plugin list -- one at a time.
+                // This avoids the these tasks and the main thread trigging layout passes on the underlying TableLayoutPanel
+                // that end up conflicting with each other causing mysterious index-out-of-bounds and null errors deep
+                // within the Layout engine.
+                foreach (var t in updateTasks)
+                {
+                    t.Start();
+                    t.Wait();
+                }
+            });
         }
 
         private void PluginList_Resize(object? sender, EventArgs e)
