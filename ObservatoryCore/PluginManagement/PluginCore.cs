@@ -245,15 +245,33 @@ namespace Observatory.PluginManagement
             {
                 Directory.Move(oldPath, newPath);
             }
+
+#if PORTABLE
+            var legacyPortablePath = GetLegacyStorageFolder(oldKey);
+            if (Directory.Exists(legacyPortablePath) && !Directory.Exists(newPath))
+            {
+                Directory.Move(oldPath, newPath);
+            }
+#endif 
         }
+
+#if PORTABLE
+        internal string GetLegacyStorageFolder(string storageKey)
+        {
+            string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
+            var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
+            var rootdataDir = $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}";
+            return $"{rootdataDir}{storageKey}-Data{Path.DirectorySeparatorChar}";
+        }
+#endif
 
         internal string GetStorageFolderForPlugin(string storageKey = "", bool create = true)
         {
 #if PORTABLE
             string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
             var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
-            var rootdataDir = $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}";
-            string pluginDataDir = $"{rootdataDir}{storageKey}-Data{Path.DirectorySeparatorChar}";
+            var rootdataDir = $"{obsDir}{Path.DirectorySeparatorChar}data{Path.DirectorySeparatorChar}";
+            string pluginDataDir = $"{rootdataDir}{storageKey}{Path.DirectorySeparatorChar}";
 #else
             var rootdataDir = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}";
             string pluginDataDir = $"{rootdataDir}{storageKey}{Path.DirectorySeparatorChar}";
