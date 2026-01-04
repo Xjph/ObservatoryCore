@@ -481,7 +481,6 @@ namespace Observatory.PluginManagement
         private static List<PluginPackage> CollectPlugins(string pluginFolder, List<(string, string?)> errorList)
         {
             var files = Directory.GetFiles(pluginFolder, "*.eop"); // Elite Observatory Plugin
-            var directories = Directory.GetDirectories(pluginFolder).Where(d => !d.EndsWith("\\deps"));
             var plugins = new List<PluginPackage>();
 
             Dictionary<string, (Version Version, DateTime Modified)> foundPlugins = [];
@@ -498,6 +497,9 @@ namespace Observatory.PluginManagement
                     errorList.Add(("ERROR: Failed to extract plugin archive: " + file, ex.Message));
                 }
             }
+
+#if DEBUG
+            var directories = Directory.GetDirectories(pluginFolder).Where(d => !d.EndsWith("\\deps"));
             foreach (var directory in directories)
             {
                 try
@@ -510,6 +512,8 @@ namespace Observatory.PluginManagement
                     errorList.Add(("ERROR: Failed to process plugin bundle: " + directory, ex.Message));
                 }
             }
+#endif
+
             return plugins;
         }
 
