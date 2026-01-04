@@ -2024,7 +2024,7 @@
             Initializes a new instance of the <csee cref="T:Observatory.Framework.PluginMessage"/> including the messageId for use by the
             Clone() implementation to preserve the MessageID in the cloned object.
             </summary>
-            <param name="originalMsgId"></param>
+            <param name="messageId"></param>
             <param name="messageType"></param>
             <param name="messagePayload"></param>
             <param name="inReplyTo"></param>
