@@ -222,12 +222,13 @@ namespace Observatory.PluginManagement
                     var guidProp = plugin?.GetProperty("Guid");
                     var pluginGuid = guidProp?.GetValue(plugin);
                     pluginStorageKey = pluginGuid?.ToString()!;
-                    MigratePluginStorage(pluginAssemblyName, pluginStorageKey);
                 }
                 else
                 {
                     pluginStorageKey = pluginAssemblyName;
                 }
+                
+                MigratePluginStorage(pluginAssemblyName, pluginStorageKey);
 
                 return GetStorageFolderForPlugin(pluginStorageKey);
             }
@@ -250,7 +251,7 @@ namespace Observatory.PluginManagement
             var legacyPortablePath = GetLegacyStorageFolder(oldKey);
             if (Directory.Exists(legacyPortablePath) && !Directory.Exists(newPath))
             {
-                Directory.Move(oldPath, newPath);
+                Directory.Move(legacyPortablePath, newPath);
             }
 #endif 
         }
