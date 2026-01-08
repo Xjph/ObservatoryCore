@@ -171,13 +171,7 @@ namespace Observatory.PluginManagement
                 .Where(p => GetPluginGuid(p) != messageArgs.SourceId)
                 .Where(p => !disabledPlugins.Contains(p)))
             {
-                // Clone the message properties and create new message object to prevent bad actor plugins from modifying in-flight
-                var clonedPayload = messageArgs.Message.MessagePayload.ToDictionary(item => item.Key, item => item.Value);
-                var clonedMessageType = 
-                    new Span<char>(messageArgs.Message.MessageType.ToCharArray());
-                var clonedReplyId = new Guid((messageArgs.Message.InReplyTo ?? Guid.Empty).ToString());
-
-                PluginMessage message = new(clonedMessageType.ToString(), clonedPayload, clonedReplyId);
+                PluginMessage message = (PluginMessage)messageArgs.Message.Clone();
 
                 try
                 {

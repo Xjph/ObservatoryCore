@@ -2019,6 +2019,16 @@
             <param name="messagePayload">A dictionary containing the payload of the message as key-value pairs.</param>
             <param name="inReplyTo">An optional identifier of the message for which this message is a reply.</param>
         </member>
+        <member name="M:Observatory.Framework.PluginMessage.#ctor(System.Guid,System.String,System.Collections.Generic.Dictionary{System.String,System.Object},System.Nullable{System.Guid})">
+            <summary>
+            Initializes a new instance of the <csee cref="T:Observatory.Framework.PluginMessage"/> including the messageId for use by the
+            Clone() implementation to preserve the MessageID in the cloned object.
+            </summary>
+            <param name="messageId"></param>
+            <param name="messageType"></param>
+            <param name="messagePayload"></param>
+            <param name="inReplyTo"></param>
+        </member>
         <member name="P:Observatory.Framework.PluginMessage.MessageId">
             <summary>
             Gets the unique identifier for the message.
