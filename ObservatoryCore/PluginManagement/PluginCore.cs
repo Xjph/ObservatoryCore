@@ -221,16 +221,17 @@ namespace Observatory.PluginManagement
                     var plugin = pluginType.FirstOrDefault();
                     var guidProp = plugin?.GetProperty("Guid");
                     var pluginGuid = guidProp?.GetValue(plugin);
-                    pluginStorageKey = pluginGuid?.ToString()!;
+                    pluginStorageKey = $"{pluginAssemblyName}-{pluginGuid?.ToString()!}";
+                    MigratePluginStorage(pluginAssemblyName, pluginStorageKey, (Guid)pluginGuid!);
                 }
                 else
                 {
                     pluginStorageKey = pluginAssemblyName;
+                    MigratePluginStorage(pluginAssemblyName, pluginStorageKey);
                 }
                 
-                MigratePluginStorage(pluginAssemblyName, pluginStorageKey);
 
-                return GetStorageFolderForPlugin(pluginStorageKey);
+                return GetStorageFolderForPlugin(pluginStorageKey, false);
             }
         }
 
@@ -240,6 +241,12 @@ namespace Observatory.PluginManagement
 
         private void MigratePluginStorage(string oldKey, string newKey)
         {
+            MigratePluginStorage(oldKey, newKey, Guid.Empty);
+        }
+
+        private void MigratePluginStorage(string oldKey, string newKey, Guid guid)
+        {
+            // Pre-GUID storage migration
             var oldPath = GetStorageFolderForPlugin(oldKey, false);
             var newPath = GetStorageFolderForPlugin(newKey, false);
             if (Directory.Exists(oldPath) && !Directory.Exists(newPath))
@@ -247,7 +254,15 @@ namespace Observatory.PluginManagement
                 Directory.Move(oldPath, newPath);
             }
 
+            // Unnamed GUID storage migration
+            oldPath = GetStorageFolderForPlugin(guid.ToString(), false);
+            if (Directory.Exists(oldPath) && !Directory.Exists(newPath))
+            {
+                Directory.Move(oldPath, newPath);
+            }
+
 #if PORTABLE
+            // Plugin subfolder portable storage migration
             var legacyPortablePath = GetLegacyStorageFolder(oldKey);
             if (Directory.Exists(legacyPortablePath) && !Directory.Exists(newPath))
             {
