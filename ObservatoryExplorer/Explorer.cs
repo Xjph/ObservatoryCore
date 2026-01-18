@@ -278,6 +278,29 @@ namespace Observatory.Explorer
             }
         }
 
+        public void ProcessCodexEntry(CodexEntry codexEntry)
+        {
+            if (ExplorerWorker.settings.Codex && codexEntry.IsNewEntry)
+            {
+                SystemBodyHistory.TryGetValue(codexEntry.SystemAddress, out var bodiesInSystem);
+#nullable enable
+                Scan? bodyScan = null;
+#nullable disable
+                bodiesInSystem?.TryGetValue(codexEntry.BodyID, out bodyScan);
+                ObservatoryCore.AddGridItem(ExplorerWorker, new ExplorerUIResults()
+                {
+                    BodyName = bodyScan?.BodyName ?? codexEntry.System,
+                    Time = codexEntry.TimestampDateTime.ToString("s").Replace('T', ' '),
+                    Description = $"New {codexEntry.Category_Localised} Codex Entry",
+                    Details = codexEntry.Name_Localised
+                });
+                SendNotification($"New {codexEntry.Category_Localised} Codex Entry",
+                    codexEntry.Name_Localised,
+                    string.Empty);
+            }
+
+        }
+
         public void ProcessDiscovery(FSSDiscoveryScan discoveryScan)
         {
             if (ExplorerWorker.settings.EnableCustomCriteria)

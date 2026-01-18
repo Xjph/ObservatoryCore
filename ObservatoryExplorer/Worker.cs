@@ -100,6 +100,9 @@ namespace Observatory.Explorer
                 case FSSAllBodiesFound allBodiesFound:
                     explorer.ProcessAllBodies(allBodiesFound);
                     break;
+                case CodexEntry codexEntry:
+                    explorer.ProcessCodexEntry(codexEntry);
+                    break;
             }
             
         }
