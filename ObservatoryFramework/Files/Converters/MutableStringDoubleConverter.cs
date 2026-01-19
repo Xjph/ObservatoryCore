@@ -15,7 +15,15 @@ namespace Observatory.Framework.Files.Converters
 
         public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            try
+            {
+                double asDbl = Convert.ToDouble(value);
+                JsonSerializer.Serialize(writer, asDbl, options);
+            }
+            catch (Exception ex)
+            {
+                JsonSerializer.Serialize(writer, value?.ToString(), options);
+            }
         }
     }
 }
