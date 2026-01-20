@@ -50,10 +50,7 @@ namespace Observatory.UI
                 }
                 if (e.ClickedItem == folder)
                 {
-                    var storageKey = plugin.GetType().GetProperty("Guid")?.GetValue(plugin)?.ToString() 
-                        ?? plugin.GetType().Assembly.GetName().Name 
-                        ?? "";
-                    var storageDir = PluginManager.GetInstance.Core.GetStorageFolderForPlugin(storageKey);
+                    var storageDir = PluginManager.GetInstance.Core.GetStorageFolderForPlugin(plugin);
                     if (!string.IsNullOrWhiteSpace(storageDir) && Directory.Exists(storageDir))
                     {
                         var fileExplorerInfo = new ProcessStartInfo() { FileName = storageDir, UseShellExecute = true };

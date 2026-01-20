@@ -280,6 +280,17 @@ namespace Observatory.PluginManagement
             return $"{rootdataDir}{storageKey}-Data{Path.DirectorySeparatorChar}";
         }
 #endif
+        private string StorageKeyFromPlugin(IObservatoryPlugin plugin)
+        {
+            var pluginGuid = plugin.GetType().GetProperty("Guid")?.GetValue(plugin)?.ToString();
+            var pluginAssemblyName = plugin.GetType().Assembly.GetName().Name;
+            return $"{pluginAssemblyName}-{pluginGuid}";
+        }
+
+        internal string GetStorageFolderForPlugin(IObservatoryPlugin plugin)
+        {
+            return GetStorageFolderForPlugin(StorageKeyFromPlugin(plugin));
+        }
 
         internal string GetStorageFolderForPlugin(string storageKey = "", bool create = true)
         {
