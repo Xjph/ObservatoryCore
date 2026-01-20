@@ -24,7 +24,8 @@ namespace Observatory.Framework.Files.Converters
 
         public override void Write(Utf8JsonWriter writer, TFaction value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            if (value != null)
+                JsonSerializer.Serialize(writer, value, options);
         }
     }
 }
