@@ -666,9 +666,7 @@ namespace Observatory.PluginManagement
         {
             // Group by plugin name (library name)
             var grouped = plugins
-                .GroupBy(p => p.PluginFile.Extension.Equals(".dll", StringComparison.OrdinalIgnoreCase)
-                    ? p.PluginName.ToLowerInvariant()
-                    : p.PluginName.ToLowerInvariant());
+                .GroupBy(p => p.PluginName.ToLowerInvariant().Replace(".dll", string.Empty));
 
             var toRemove = new List<PluginPackage>();
 
