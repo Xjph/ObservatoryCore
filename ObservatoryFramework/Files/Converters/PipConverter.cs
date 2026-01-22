@@ -15,7 +15,7 @@ namespace Observatory.Framework.Files.Converters
 
         public override void Write(Utf8JsonWriter writer, Pips value, JsonSerializerOptions options)
         {
-            throw new NotImplementedException();
+            JsonSerializer.Serialize(writer, new int[] { value.Sys, value.Eng, value.Wep }, options);
         }
     }
 }
