@@ -742,19 +742,21 @@ namespace Observatory.PluginManagement
 
                 foreach (var entry in archive.Entries)
                 {
-                    byte[] fileBytes;
-                    entry.Open().CopyTo(new MemoryStream(fileBytes = new byte[entry.Length]));
+                    using var stream = entry.Open();
+                    using var ms = new MemoryStream();
+                    stream.CopyTo(ms);
+                    byte[] fileBytes = ms.ToArray();
+
                     Files.Add(entry.FullName, fileBytes);
-                    if (entry.FullName.EndsWith(".deps.json"))
+
+                    if (entry.FullName.EndsWith(".deps.json", StringComparison.OrdinalIgnoreCase))
                     {
                         if (manifestFound)
                             throw new Exception("Malformed plugin archive: Contains multiple .deps.json files");
 
                         manifestFound = true;
 
-                        byte[] manifestBytes = [];
-                        entry.Open().Read(manifestBytes = new byte[entry.Length]);
-                        string manifestJson = System.Text.Encoding.UTF8.GetString(manifestBytes);
+                        string manifestJson = System.Text.Encoding.UTF8.GetString(fileBytes);
                         Manifest = JsonSerializer.Deserialize<DependencyManifest>(manifestJson);
                     }
                 }
