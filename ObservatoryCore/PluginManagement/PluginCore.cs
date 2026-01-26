@@ -311,9 +311,9 @@ namespace Observatory.PluginManagement
 #if PORTABLE
             // Plugin subfolder portable storage migration
             var legacyPortablePath = GetLegacyStorageFolder(oldKey);
-            if (Directory.Exists(legacyPortablePath) && !Directory.Exists(newPath))
+            if (Directory.Exists(legacyPortablePath) && !Directory.Exists(newDir))
             {
-                MoveDirectoryWithCleanup(legacyPortablePath, newPath);
+                MoveDirectoryWithCleanup(legacyPortablePath, newDir);
             }
 #endif 
         }
