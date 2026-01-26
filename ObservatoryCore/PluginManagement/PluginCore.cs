@@ -216,20 +216,28 @@ namespace Observatory.PluginManagement
                 var pluginTypes = context?.DeclaringType?.Assembly.GetExportedTypes();
                 var pluginType = pluginTypes?.Where(t => t.GetProperty("Guid") != null);
 
-                if (pluginType?.Any() ?? false)
+                try
                 {
-                    var plugin = pluginType.FirstOrDefault();
-                    var guidProp = plugin?.GetProperty("Guid");
-                    var pluginGuid = guidProp?.GetValue(plugin);
-                    pluginStorageKey = pluginGuid?.ToString()!;
-                    MigratePluginStorage(pluginAssemblyName, (Guid)pluginGuid!);
+                    if (pluginType?.Any() ?? false)
+                    {
+                        var plugin = pluginType.FirstOrDefault();
+                        var guidProp = plugin?.GetProperty("Guid");
+                        var pluginGuid = guidProp?.GetValue(plugin);
+                        pluginStorageKey = pluginGuid?.ToString()!;
+                        MigratePluginStorage(pluginAssemblyName, (Guid)pluginGuid!);
+                    }
+                    else
+                    {
+                        pluginStorageKey = pluginAssemblyName;
+                        MigratePluginStorage(pluginAssemblyName, pluginStorageKey);
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
+                    ObservatoryCore.LogError(ex, $"Migrating storage folder for {pluginAssemblyName}");
                     pluginStorageKey = pluginAssemblyName;
-                    MigratePluginStorage(pluginAssemblyName, pluginStorageKey);
                 }
-                
+
 
                 return GetStorageFolderForPlugin(pluginStorageKey, false);
             }
@@ -249,6 +257,29 @@ namespace Observatory.PluginManagement
             MigratePluginStorage(oldKey, newKey.ToString(), newKey);
         }
 
+        private static void MoveDirectoryWithCleanup(string sourceDir, string destDir)
+        {
+            if (!Directory.Exists(sourceDir))
+                return;
+
+            var sourceInfo = new DirectoryInfo(sourceDir);
+            var destInfo = new DirectoryInfo(destDir);
+
+            if (destInfo.Exists && sourceInfo.LastWriteTime > destInfo.LastWriteTime)
+            {
+                Directory.Delete(destDir, true);
+                Directory.Move(sourceDir, destDir);
+            }
+            else if (!destInfo.Exists)
+            {
+                Directory.Move(sourceDir, destDir);
+            }
+            else
+            {
+                Directory.Delete(sourceDir, true);
+            }
+        }
+
         private void MigratePluginStorage(string oldKey, string newKey, Guid guid)
         {
             // Pre-GUID storage migration
@@ -256,7 +287,7 @@ namespace Observatory.PluginManagement
             var newDir = GetStorageFolderForPlugin(newKey, false);
             if (Directory.Exists(oldDir) && !Directory.Exists(newDir))
             {
-                Directory.Move(oldDir, newDir);
+                MoveDirectoryWithCleanup(oldDir, newDir);
             }
 
             // Misguided named GUID migration
@@ -272,7 +303,7 @@ namespace Observatory.PluginManagement
                     // If something gets overwritten, so be it.
                     foreach (var dir in namedGuidDir)
                     {
-                        Directory.Move(dir.FullName, newDir);
+                        MoveDirectoryWithCleanup(dir.FullName, newDir);
                     }
                 }
             }
@@ -282,7 +313,7 @@ namespace Observatory.PluginManagement
             var legacyPortablePath = GetLegacyStorageFolder(oldKey);
             if (Directory.Exists(legacyPortablePath) && !Directory.Exists(newPath))
             {
-                Directory.Move(legacyPortablePath, newPath);
+                MoveDirectoryWithCleanup(legacyPortablePath, newPath);
             }
 #endif 
         }
