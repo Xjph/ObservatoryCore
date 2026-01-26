@@ -239,7 +239,7 @@ namespace Observatory.PluginManagement
                 }
 
 
-                return GetStorageFolderForPlugin(pluginStorageKey, false);
+                return GetStorageFolderForPlugin(pluginStorageKey);
             }
         }
 
