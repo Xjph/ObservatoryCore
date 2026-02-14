@@ -18,11 +18,11 @@ namespace Observatory.Explorer
         private Dictionary<String,LuaFunction> CriteriaFunctions;
         private Dictionary<string, string> CriteriaWithErrors = new();
         Action<Exception, String> ErrorLogger;
-        private Action<string, string, string, string> NotificationMethod;
+        private Action<string, string, string, string, int?> NotificationMethod;
         private uint ScanCount;
         private string eventTime = string.Empty;
 
-        public CustomCriteriaManager(Action<Exception, String> errorLogger, Action<string, string, string, string> notificationMethod)
+        public CustomCriteriaManager(Action<Exception, String> errorLogger, Action<string, string, string, string, int?> notificationMethod)
         {
             ErrorLogger = errorLogger;
             CriteriaFunctions = new();
@@ -30,7 +30,10 @@ namespace Observatory.Explorer
             NotificationMethod = notificationMethod;
         }
 
-        public void SendNotification(string title, string detail, string extendedDetail) => NotificationMethod(eventTime, title, detail, extendedDetail);
+        public void SendNotification(string title, string detail, string extendedDetail)
+            => NotificationMethod(eventTime, title, detail, extendedDetail, null);
+        public void SendNotificationForBody(string title, string detail, string extendedDetail, int bodyId)
+            => NotificationMethod(eventTime, title, detail, extendedDetail, bodyId);
 
         public void RefreshCriteria(string criteriaPath)
         {
@@ -156,6 +159,7 @@ namespace Observatory.Explorer
             #region Convenience Functions
 
             LuaState.RegisterFunction("notify", this, typeof(CustomCriteriaManager).GetMethod("SendNotification"));
+            LuaState.RegisterFunction("notifyForBody", this, typeof(CustomCriteriaManager).GetMethod("SendNotificationForBody"));
 
             // Body type related functions and tests
 

@@ -383,7 +383,7 @@ namespace Observatory.Explorer
             ObservatoryCore.SendNotification(args);
         }
 
-        private void SendNotification(string title, string detail, string extendedDetail)
+        private void SendNotification(string title, string detail, string extendedDetail, int? coalescingId = null)
         {
             NotificationArgs args = new()
             {
@@ -391,7 +391,7 @@ namespace Observatory.Explorer
                 Detail = detail,
                 Sender = ExplorerWorker.AboutInfo.ShortName,
                 ExtendedDetails = extendedDetail,
-                CoalescingId = -1,
+                CoalescingId = coalescingId ?? -1,
             };
 
             ObservatoryCore.SendNotification(args);
@@ -410,9 +410,9 @@ namespace Observatory.Explorer
             ObservatoryCore.AddGridItem(ExplorerWorker, results);
         }
 
-        private void HandleCustomNotification(string eventTime, string title, string detail, string extendedDetail)
+        private void HandleCustomNotification(string eventTime, string title, string detail, string extendedDetail, int? coalescingId = null)
         {
-            SendNotification(title, detail, extendedDetail);
+            SendNotification(title, detail, extendedDetail, coalescingId);
             AddGridItem(eventTime, title, detail, extendedDetail);
         }
 
