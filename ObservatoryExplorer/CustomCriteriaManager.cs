@@ -1,36 +1,35 @@
-﻿using System.Text;
+﻿using NLua;
 using Observatory.Framework.Files.Journal;
-using NLua;
+using System.Diagnostics;
+using System.Text;
 
 namespace Observatory.Explorer
 {
     internal class CustomCriteriaManager
     {
         private Lua LuaState;
-        private LuaFunction DiscoveryFunction;
-        private LuaFunction BodySignalsFunction;
-        private LuaFunction AllBodiesFunction;
-        private LuaFunction JumpFunction;
-        private bool hasAllBodiesFunc = false;
-        private bool hasDiscoveryFunc = false;
-        private bool hasJumpFunc = false;
-        private bool hasBodySignalsFunc = false;
-        private Dictionary<String,LuaFunction> CriteriaFunctions;
-        private Dictionary<string, string> CriteriaWithErrors = new();
-        Action<Exception, String> ErrorLogger;
-        private Action<string, string, string, string> NotificationMethod;
+        private readonly Dictionary<string, LuaFunction> DiscoveryFunctions = [];
+        private readonly Dictionary<string, LuaFunction> BodySignalsFunctions = [];
+        private readonly Dictionary<string, LuaFunction> AllBodiesFunctions = [];
+        private readonly Dictionary<string, LuaFunction> JumpFunctions = [];
+        private readonly Dictionary<string, LuaFunction> CriteriaFunctions = [];
+        private readonly Dictionary<string, string> CustomFunctionsErrors = [];
+        private readonly Action<Exception, String> ErrorLogger;
+        private readonly Action<string, string, string, string, int?> NotificationMethod;
         private uint ScanCount;
         private string eventTime = string.Empty;
 
-        public CustomCriteriaManager(Action<Exception, String> errorLogger, Action<string, string, string, string> notificationMethod)
+        public CustomCriteriaManager(Action<Exception, String> errorLogger, Action<string, string, string, string, int?> notificationMethod)
         {
             ErrorLogger = errorLogger;
-            CriteriaFunctions = new();
             ScanCount = 0;
             NotificationMethod = notificationMethod;
         }
 
-        public void SendNotification(string title, string detail, string extendedDetail) => NotificationMethod(eventTime, title, detail, extendedDetail);
+        public void SendNotification(string title, string detail, string extendedDetail)
+            => NotificationMethod(eventTime, title, detail, extendedDetail, null);
+        public void SendNotificationForBody(string title, string detail, string extendedDetail, int bodyId)
+            => NotificationMethod(eventTime, title, detail, extendedDetail, bodyId);
 
         public void RefreshCriteria(string criteriaPath)
         {
@@ -156,6 +155,7 @@ namespace Observatory.Explorer
             #region Convenience Functions
 
             LuaState.RegisterFunction("notify", this, typeof(CustomCriteriaManager).GetMethod("SendNotification"));
+            LuaState.RegisterFunction("notifyForBody", this, typeof(CustomCriteriaManager).GetMethod("SendNotificationForBody"));
 
             // Body type related functions and tests
 
@@ -267,168 +267,81 @@ namespace Observatory.Explorer
 
             #endregion
 
-            CriteriaFunctions.Clear();
-            CriteriaWithErrors.Clear();
-            hasAllBodiesFunc = false;
-            hasBodySignalsFunc = false;
-            hasDiscoveryFunc = false;
-            hasJumpFunc = false;
+            #region Custom Function loading
+            ClearCustomLuaFunctions();
+
             var criteria = File.Exists(criteriaPath) ? File.ReadAllLines(criteriaPath) : Array.Empty<string>();
+            StringBuilder global = new();
             StringBuilder script = new();
 
             try
             {
-                var IsEndAnnotation = (string line) => 
-                GetCriteriaAnnotation(line, out Annotation endAnnotation) && endAnnotation.type == AnnotationType.End;
-
                 for (int i = 0; i < criteria.Length; i++)
                 {
                     if (GetCriteriaAnnotation(criteria[i], out Annotation annotation))
                     {
-                        if (annotation.type == AnnotationType.Complex)
+                        switch (annotation.type)
                         {
-                            string functionName = $"Criteria{i}";
-                            script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
-                            i++;
-                            do
-                            {
-                                if (i >= criteria.Length)
-                                    throw new Exception("Unterminated multi-line criteria.\r\nAre you missing an End annotation?");
-
-                                script.AppendLine(criteria[i]);
+                            case AnnotationType.Global:
                                 i++;
-                            } while (!IsEndAnnotation(criteria[i]));
-                            script.AppendLine("end");
+                                do
+                                {
+                                    // Stuff this in a separate stringbuilder dedicated for global script content.
+                                    global.AppendLine(criteria[i]);
+                                    i++;
+                                } while (!IsEndAnnotation(criteria[i]));
 
-                            LuaState.DoString(script.ToString());
-                            CriteriaFunctions.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
-                            script.Clear();
-                        }
-                        else if (annotation.type == AnnotationType.Global)
-                        {
-                            i++;
-                            do
-                            {
-                                script.AppendLine(criteria[i]);
+                                // Insert the global script last.
+                                break;
+                            case AnnotationType.Complex:
+                                i = ParseCustomFunction(i, criteria, script, annotation, CriteriaFunctions, "scan, parents, system, biosignals, geosignals");
+                                break;
+                            case AnnotationType.AllBodies:
+                                i = ParseCustomFunction(i, criteria, script, annotation, AllBodiesFunctions, "allBodies, system, parentsTable");
+                                break;
+                            case AnnotationType.Jump:
+                                i = ParseCustomFunction(i, criteria, script, annotation, JumpFunctions, "jump");
+                                break;
+                            case AnnotationType.BodySignals:
+                                i = ParseCustomFunction(i, criteria, script, annotation, BodySignalsFunctions, "bodySignals");
+                                break;
+                            case AnnotationType.Discovery:
+                                i = ParseCustomFunction(i, criteria, script, annotation, DiscoveryFunctions, "discovery");
+                                break;
+                            default:
                                 i++;
-                            } while (!IsEndAnnotation(criteria[i]));
-                            LuaState.DoString(script.ToString());
-                            script.Clear();
-                        }
-                        else if (annotation.type == AnnotationType.AllBodies)
-                        {
-                            if (hasAllBodiesFunc) throw new CriteriaLoadException("Multiple AllBodies annotations found.");
-                            hasAllBodiesFunc = true;
-                            
-                            script.AppendLine($"function ObservatoryAllBodiesHandler (allBodies)");
-                            i++;
-                            do
-                            {
-                                if (i >= criteria.Length)
-                                    throw new Exception("Unterminated AllBodies handler.\r\nAre you missing an End annotation?");
 
-                                script.AppendLine(criteria[i]);
-                                i++;
-                            } while (!IsEndAnnotation(criteria[i]));
-                            script.AppendLine("end");
+                                string functionName = $"Criteria{i}";
 
-                            LuaState.DoString(script.ToString());
-                            AllBodiesFunction = LuaState["ObservatoryAllBodiesHandler"] as LuaFunction;
-                            script.Clear();
-                        }
-                        else if (annotation.type == AnnotationType.Jump)
-                        {
-                            if (hasJumpFunc) throw new CriteriaLoadException("Multiple Jump annotations found.");
-                            hasJumpFunc = true;
+                                script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
+                                script.AppendLine($"    local result = {criteria[i]}");
+                                script.AppendLine("    local detail = ''");
 
-                            script.AppendLine($"function ObservatoryJumpHandler (jump)");
-                            i++;
-                            do
-                            {
-                                if (i >= criteria.Length)
-                                    throw new Exception("Unterminated Jump handler.\r\nAre you missing an End annotation?");
+                                if (criteria.Length > i + 1
+                                    && GetCriteriaAnnotation(criteria[i + 1], out Annotation detailAnnotation)
+                                    && detailAnnotation.type == AnnotationType.Detail)
+                                {
+                                    i++; i++;
+                                    // Gate detail evaluation on result to allow safe use of criteria-checked values in detail string.
+                                    script.AppendLine("    if result then");
+                                    script.AppendLine($"        detail = {criteria[i]}");
+                                    script.AppendLine("    end");
+                                }
 
-                                script.AppendLine(criteria[i]);
-                                i++;
-                            } while (!IsEndAnnotation(criteria[i]));
-                            script.AppendLine("end");
+                                script.AppendLine($"    return result, '{annotation.value}', detail");
+                                script.AppendLine("end");
 
-                            LuaState.DoString(script.ToString());
-                            JumpFunction = LuaState["ObservatoryJumpHandler"] as LuaFunction;
-                            script.Clear();
-                        }
-                        else if (annotation.type == AnnotationType.BodySignals)
-                        {
-                            if (hasBodySignalsFunc) throw new CriteriaLoadException("Multiple BodySignals annotations found.");
-                            hasBodySignalsFunc = true;
-
-                            script.AppendLine($"function ObservatoryBodySignalsHandler (bodySignals)");
-                            i++;
-                            do
-                            {
-                                if (i >= criteria.Length)
-                                    throw new Exception("Unterminated BodySignals handler.\r\nAre you missing an End annotation?");
-
-                                script.AppendLine(criteria[i]);
-                                i++;
-                            } while (!IsEndAnnotation(criteria[i]));
-                            script.AppendLine("end");
-
-                            LuaState.DoString(script.ToString());
-                            BodySignalsFunction = LuaState["ObservatoryBodySignalsHandler"] as LuaFunction;
-                            script.Clear();
-                        }
-                        else if (annotation.type == AnnotationType.Discovery)
-                        {
-                            if (hasDiscoveryFunc) throw new CriteriaLoadException("Multiple Discovery annotations found.");
-                            hasDiscoveryFunc = true;
-
-                            script.AppendLine($"function ObservatoryDiscoveryHandler (discovery)");
-                            i++;
-                            do
-                            {
-                                if (i >= criteria.Length)
-                                    throw new Exception("Unterminated Discovery handler.\r\nAre you missing an End annotation?");
-
-                                script.AppendLine(criteria[i]);
-                                i++;
-                            } while (!IsEndAnnotation(criteria[i]));
-                            script.AppendLine("end");
-
-                            LuaState.DoString(script.ToString());
-                            DiscoveryFunction = LuaState["ObservatoryDiscoveryHandler"] as LuaFunction;
-                            script.Clear();
-                        }
-                        else
-                        {
-                            i++;
-
-                            string functionName = $"Criteria{i}";
-
-                            script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
-                            script.AppendLine($"    local result = {criteria[i]}");
-                            script.AppendLine("    local detail = ''");
-
-                            if (criteria.Length > i + 1
-                                && GetCriteriaAnnotation(criteria[i + 1], out Annotation detailAnnotation) 
-                                && detailAnnotation.type == AnnotationType.Detail)
-                            {
-                                i++; i++;
-                                // Gate detail evaluation on result to allow safe use of criteria-checked values in detail string.
-                                script.AppendLine("    if result then");
-                                script.AppendLine($"        detail = {criteria[i]}");
-                                script.AppendLine("    end");
-                            }
-
-                            script.AppendLine($"    return result, '{annotation.value}', detail");
-                            script.AppendLine("end");
-
-                            LuaState.DoString(script.ToString());
-                            CriteriaFunctions.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
-                            script.Clear();
+                                LuaState.DoString(script.ToString());
+                                CriteriaFunctions.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
+                                script.Clear();
+                                break;
                         }
                     }
                 }
+
+                // Stuff the global content in.
+                script = global; // for error handling; just in case this fail.
+                LuaState.DoString(global.ToString());
             }
             catch (Exception e)
             {
@@ -442,9 +355,41 @@ namespace Observatory.Explorer
                 errorDetail.AppendLine("Error Reading Custom Criteria File:")
                     .AppendLine(originalScript)
                     .AppendLine("To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded."); ErrorLogger(e, errorDetail.ToString());
-                CriteriaFunctions.Clear(); // Don't use partial parse.
+                ClearCustomLuaFunctions(); // Don't use partial parse.
                 throw new CriteriaLoadException(e.Message, originalScript);
             }
+            #endregion
+        }
+
+        private int ParseCustomFunction(int i, string[] criteria, StringBuilder script, Annotation annotation, Dictionary<string, LuaFunction> funcs, string paramList)
+        {
+            i++;
+            string functionName = $"Observatory{annotation.type}Handler{i}";
+            script.AppendLine($"function {functionName} ({paramList})");
+            do
+            {
+                if (i >= criteria.Length)
+                    throw new Exception($"Unterminated {annotation.type} handler.\r\nAre you missing an End annotation?");
+
+                script.AppendLine(criteria[i]);
+                i++;
+            } while (!IsEndAnnotation(criteria[i]));
+            script.AppendLine("end");
+
+            LuaState.DoString(script.ToString());
+            funcs.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
+            script.Clear();
+            return i;
+        }
+
+        private void ClearCustomLuaFunctions()
+        {
+            CriteriaFunctions.Clear();
+            CustomFunctionsErrors.Clear();
+            AllBodiesFunctions.Clear();
+            BodySignalsFunctions.Clear();
+            DiscoveryFunctions.Clear();
+            JumpFunctions.Clear();
         }
 
         public List<(string, string, bool)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
@@ -455,7 +400,7 @@ namespace Observatory.Explorer
             foreach (var criteriaFunction in CriteriaFunctions)
             {
                 // Skip criteria which have previously thrown an error. We can't remove them from the dictionary while iterating it. 
-                if (CriteriaWithErrors.ContainsKey(criteriaFunction.Key)) continue;
+                if (CustomFunctionsErrors.ContainsKey(criteriaFunction.Key)) continue;
 
                 var scanList = scanHistory[scan.SystemAddress].Values.ToList();
 
@@ -472,29 +417,8 @@ namespace Observatory.Explorer
                     bioSignals = 0;
                     geoSignals = 0;
                 }
-                    
 
-                List<Parent> parents;
-
-                if (scan.Parent != null)
-                {
-                    parents = new();
-                    foreach (var parent in scan.Parent)
-                    {
-                        var parentScan = scanList.Where(s => s.BodyID == parent.Body);
-
-                        parents.Add(new Parent() 
-                        { 
-                            ParentType = parent.ParentType.ToString(), 
-                            Body = parent.Body, 
-                            Scan = parentScan.Any() ? parentScan.First() : null
-                        });
-                    }
-                }
-                else
-                {
-                    parents = null;
-                }
+                List<Parent> parents = MakeParentsList(scan, scanHistory[scan.SystemAddress]);
 
                 try
                 {
@@ -517,18 +441,11 @@ namespace Observatory.Explorer
                         .AppendLine(scan.Json)
                         .AppendLine("To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded.");
                     ErrorLogger(e, errorDetail.ToString());
-                    CriteriaWithErrors.Add(criteriaFunction.Key, e.Message + Environment.NewLine + errorDetail.ToString());
+                    CustomFunctionsErrors.Add(criteriaFunction.Key, e.Message + Environment.NewLine + errorDetail.ToString());
                 }
             }
 
-            // Remove any erroring criteria. They will be repopulated next time the file is parsed.
-            if (CriteriaWithErrors.Count > 0)
-            {
-                foreach (var criteriaKey in CriteriaWithErrors.Keys)
-                {
-                    if (CriteriaFunctions.ContainsKey(criteriaKey)) CriteriaFunctions.Remove(criteriaKey);
-                }
-            }
+            MaybeRemoveFailingFunctions(CriteriaFunctions);
 
             if (ScanCount > 99)
             {
@@ -539,42 +456,64 @@ namespace Observatory.Explorer
             return results;
         }
 
-        public void CustomDiscovery(FSSDiscoveryScan scan) 
+        public void RunCustomFunctions<T>(T journal, Dictionary<string, LuaFunction> customFunctions, Dictionary<ulong, Dictionary<int, Scan>> scanHistory) where T : JournalBase
         {
-            if (hasDiscoveryFunc)
+            StoreTimeString(journal);
+            foreach (var customFunc in customFunctions)
             {
-                StoreTimeString(scan);
-                DiscoveryFunction.Call(scan);
+                if (CustomFunctionsErrors.ContainsKey(customFunc.Key)) continue; // This has failed previously.
+
+                try
+                {
+                    switch (journal)
+                    {
+                        case FSSAllBodiesFound allBodies:
+                            Debug.Assert(scanHistory is not null, "FSSAllBodiesFound requires scanHistory to be provided");
+                            var systemScans = scanHistory[allBodies.SystemAddress];
+                            var scanList = systemScans.Values.ToList();
+                            Dictionary<int, List<Parent>> parentsPerBodyId = scanList
+                                .Where(s => s.Parent is not null)
+                                .ToDictionary(s => s.BodyID, s => MakeParentsList(s, systemScans));
+
+                            customFunc.Value.Call(journal, scanList, parentsPerBodyId);
+                            break;
+                        default:
+                            customFunc.Value.Call(journal);
+                            break;
+                    }
+                }
+                catch (NLua.Exceptions.LuaScriptException e)
+                {
+                    StringBuilder errorDetail = new();
+                    errorDetail.AppendLine($"while processing custom criteria '{customFunc.Key}' on {journal.Event}:")
+                        .AppendLine(journal.Json)
+                        .AppendLine("To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded.");
+                    ErrorLogger(e, errorDetail.ToString());
+                    CustomFunctionsErrors.Add(customFunc.Key, e.Message + Environment.NewLine + errorDetail.ToString());
+                }
             }
-        }
-        
-        public void CustomAllBodies(FSSAllBodiesFound allBodies)
-        {
-            if (hasAllBodiesFunc)
-            {
-                StoreTimeString(allBodies);
-                AllBodiesFunction.Call(allBodies);
-            }
-                
+
+            MaybeRemoveFailingFunctions(customFunctions);
         }
 
-        public void CustomJump(FSDJump jump)
+        public void CustomDiscovery(FSSDiscoveryScan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory)
         {
-            if (hasJumpFunc)
-            {
-                StoreTimeString(jump);
-                JumpFunction.Call(jump);
-            }
+            RunCustomFunctions(scan, DiscoveryFunctions, scanHistory);
         }
 
-        public void CustomSignals(SAASignalsFound signalsFound)
+        public void CustomAllBodies(FSSAllBodiesFound allBodies, Dictionary<ulong, Dictionary<int, Scan>> scanHistory)
         {
-            if (hasBodySignalsFunc)
-            {
-                StoreTimeString(signalsFound);
-                BodySignalsFunction.Call(signalsFound);
-            }
-                
+            RunCustomFunctions(allBodies, AllBodiesFunctions, scanHistory);
+        }
+
+        public void CustomJump(FSDJump jump, Dictionary<ulong, Dictionary<int, Scan>> scanHistory)
+        {
+            RunCustomFunctions(jump, JumpFunctions, scanHistory);
+        }
+
+        public void CustomSignals(SAASignalsFound signalsFound, Dictionary<ulong, Dictionary<int, Scan>> scanHistory)
+        {
+            RunCustomFunctions(signalsFound, BodySignalsFunctions, scanHistory);
         }
 
         private void StoreTimeString(JournalBase journal)
@@ -595,64 +534,60 @@ namespace Observatory.Explorer
             if (line.StartsWith("::") || line.StartsWith("---@"))
             {
                 string annotationRaw = line.Replace("::", string.Empty).Replace("---@", string.Empty);
-
-                switch (annotationRaw.Split(' ')[0].Split('=')[0].ToLower()) // Gross, but handles both formats
+                string directive = annotationRaw.Split(' ')[0].Split('=')[0].ToLower(); // Gross, but handles both formats
+                string debugLabel;
+                if (annotationRaw.ToLower().StartsWith($"{directive}="))
+                {
+                    debugLabel = annotationRaw[(directive.Length+1)..];
+                }
+                else if (annotationRaw.Contains(' '))
+                {
+                    debugLabel = string.Join(' ', annotationRaw.Split(' ')[1..]);
+                }
+                else
+                {
+                    debugLabel = string.Empty;
+                }
+                switch (directive) 
                 {
                     case "end":
                         annotation = new() { type = AnnotationType.End, value = string.Empty };
                         return true;
                     case "global":
-                        annotation = new() { type = AnnotationType.Global, value = string.Empty }; 
+                        annotation = new() { type = AnnotationType.Global, value = string.Empty };
                         return true;
                     case "detail":
                         annotation = new() { type = AnnotationType.Detail, value = string.Empty };
                         return true;
                     case "criteria":
                     case "complex":
-                        string debugLabel;
-                        if (annotationRaw.ToLower().StartsWith("criteria="))
-                        {
-                            debugLabel = annotationRaw[9..];
-                        }
-                        else if (annotationRaw.Contains(' '))
-                        {
-                            debugLabel = string.Join(' ', annotationRaw.Split(' ')[1..]);
-                        }
-                        else
-                        {
-                            debugLabel = string.Empty;
-                        }
                         annotation = new() { type = AnnotationType.Complex, value = debugLabel };
                         return true;
                     case "allbodies":
-                        annotation = new() { type = AnnotationType.AllBodies, value = string.Empty };
+                        annotation = new() { type = AnnotationType.AllBodies, value = debugLabel };
                         return true;
                     case "jump":
-                        annotation = new() { type = AnnotationType.Jump, value = string.Empty };
+                        annotation = new() { type = AnnotationType.Jump, value = debugLabel };
                         return true;
                     case "bodysignals":
-                        annotation = new() { type = AnnotationType.BodySignals, value = string.Empty };
+                        annotation = new() { type = AnnotationType.BodySignals, value = debugLabel };
                         return true;
                     case "discovery":
-                        annotation = new() { type = AnnotationType.Discovery, value = string.Empty };
+                        annotation = new() { type = AnnotationType.Discovery, value = debugLabel };
                         return true;
                     default:
-                        string simpleDescription;
-                        if (annotationRaw.ToLower().StartsWith("simple "))
-                        {
-                            simpleDescription = annotationRaw[7..];
-                        }
-                        else
-                        {
-                            simpleDescription = annotationRaw;
-                        }
-                        annotation = new() { type = AnnotationType.Simple, value = simpleDescription };
+                        annotation = new() { type = AnnotationType.Simple, value = debugLabel };
                         return true;
                 }
             }
 
             annotation = new() { type = AnnotationType.None, value = string.Empty };
             return false;
+        }
+
+        private bool IsEndAnnotation(string line)
+        {
+            return GetCriteriaAnnotation(line, out Annotation endAnnotation) && endAnnotation.type == AnnotationType.End;
         }
 
         private enum AnnotationType
@@ -682,6 +617,36 @@ namespace Observatory.Explorer
         private void LuaGC()
         {
             LuaState?.DoString("collectgarbage()");
+        }
+
+        // Remove any erroring criteria. They will be repopulated next time the file is parsed.
+        private void MaybeRemoveFailingFunctions(Dictionary<string, LuaFunction> funcList)
+        {
+            if (CustomFunctionsErrors.Count > 0)
+            {
+                foreach (var criteriaKey in CustomFunctionsErrors.Keys)
+                {
+                    funcList.Remove(criteriaKey);
+                }
+            }
+        }
+        private static List<Parent> MakeParentsList(Scan scan, Dictionary<int, Scan> scanList)
+        {
+            if (scan.Parent is null) return null;
+
+            List<Parent> parents = [];
+            foreach (var parent in scan.Parent)
+            {
+                var parentScan = scanList.GetValueOrDefault(parent.Body, null);
+
+                parents.Add(new Parent()
+                {
+                    ParentType = parent.ParentType.ToString(),
+                    Body = parent.Body,
+                    Scan = parentScan
+                });
+            }
+            return parents;
         }
 
         internal class Parent
