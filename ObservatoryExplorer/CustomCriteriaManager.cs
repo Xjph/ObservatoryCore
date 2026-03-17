@@ -14,16 +14,21 @@ namespace Observatory.Explorer
         private readonly Dictionary<string, LuaFunction> JumpFunctions = [];
         private readonly Dictionary<string, LuaFunction> CriteriaFunctions = [];
         private readonly Dictionary<string, string> CustomFunctionsErrors = [];
+        private ExplorerSettings _settings;
         private readonly Action<Exception, String> ErrorLogger;
         private readonly Action<string, string, string, string, int?> NotificationMethod;
         private uint ScanCount;
         private string eventTime = string.Empty;
+        private bool _readAllMode = true;
+        private string _criteriaPath = string.Empty;
 
-        public CustomCriteriaManager(Action<Exception, String> errorLogger, Action<string, string, string, string, int?> notificationMethod)
+        public CustomCriteriaManager(ExplorerSettings settings, Action<Exception, String> errorLogger, Action<string, string, string, string, int?> notificationMethod)
         {
             ErrorLogger = errorLogger;
             ScanCount = 0;
             NotificationMethod = notificationMethod;
+            _readAllMode = false;
+            Settings = settings;
         }
 
         public void SendNotification(string title, string detail, string extendedDetail)
@@ -31,9 +36,77 @@ namespace Observatory.Explorer
         public void SendNotificationForBody(string title, string detail, string extendedDetail, int bodyId)
             => NotificationMethod(eventTime, title, detail, extendedDetail, bodyId);
 
-        public void RefreshCriteria(string criteriaPath)
+        public ExplorerSettings Settings
         {
+            get => _settings;
+            set
+            {
+                _settings = value;
+                CriteriaPath = value.CustomCriteriaFile;
+            }
+        }
+
+        public bool ReadAllMode {
+            get => _readAllMode;
+            set
+            {
+                if (value != _readAllMode)
+                {
+                    _readAllMode = value;
+                    MaybeRefreshCriteria(true);
+                }
+            }
+        }
+
+        public string CriteriaPath
+        {
+            get => _criteriaPath;
+            set
+            {
+                if (string.IsNullOrWhiteSpace(value) && value != _criteriaPath)
+                {
+                    _criteriaPath = value;
+                    try
+                    {
+                        MaybeRefreshCriteria();
+                    }
+                    catch (CriteriaLoadException ex)
+                    {
+                        ErrorLogger(ex, $"Failed to load custom criteria from {value}");
+                    }
+                }
+            }
+        }
+
+        private DateTime CriteriaLastModified = DateTime.MinValue;
+
+        private bool CriteriaFileNeedsRefresh()
+        {
+            string criteriaFilePath = Settings.CustomCriteriaFile;
+
+            if (string.IsNullOrWhiteSpace(CriteriaPath) && !CriteriaPath.Equals(criteriaFilePath))
+            {
+                // Different file detected.
+                CriteriaLastModified = DateTime.MinValue;
+                _criteriaPath = criteriaFilePath; // Don't use property setter here to avoid side-effects.
+            }
+
+            if (File.Exists(criteriaFilePath))
+            {
+                DateTime fileModified = new FileInfo(criteriaFilePath).LastWriteTime;
+
+                return (fileModified != CriteriaLastModified);
+            }
+            return false;
+        }
+
+        private void MaybeRefreshCriteria(bool isReadAllModeTransition = false)
+        {
+            if ((ReadAllMode || !CriteriaFileNeedsRefresh()) && !isReadAllModeTransition) return;
+
             LuaState = new();
+
+            LuaState.UseTraceback = !ReadAllMode;
             LuaState.State.Encoding = Encoding.UTF8;
             LuaState.LoadCLRPackage();
 
@@ -270,7 +343,7 @@ namespace Observatory.Explorer
             #region Custom Function loading
             ClearCustomLuaFunctions();
 
-            var criteria = File.Exists(criteriaPath) ? File.ReadAllLines(criteriaPath) : Array.Empty<string>();
+            var criteria = File.Exists(CriteriaPath) ? File.ReadAllLines(CriteriaPath) : Array.Empty<string>();
             StringBuilder global = new();
             StringBuilder script = new();
 
@@ -342,6 +415,9 @@ namespace Observatory.Explorer
                 // Stuff the global content in.
                 script = global; // for error handling; just in case this fail.
                 LuaState.DoString(global.ToString());
+
+                // We succeeded. Update to latest modified time to gate further refreshes.
+                CriteriaLastModified = new FileInfo(CriteriaPath).LastWriteTime;
             }
             catch (Exception e)
             {
@@ -394,6 +470,8 @@ namespace Observatory.Explorer
 
         public List<(string, string, bool)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
         {
+            MaybeRefreshCriteria();
+
             List<(string, string, bool)> results = new();
             ScanCount++;
 
@@ -458,6 +536,8 @@ namespace Observatory.Explorer
 
         public void RunCustomFunctions<T>(T journal, Dictionary<string, LuaFunction> customFunctions, Dictionary<ulong, Dictionary<int, Scan>> scanHistory) where T : JournalBase
         {
+            MaybeRefreshCriteria();
+
             StoreTimeString(journal);
             foreach (var customFunc in customFunctions)
             {
