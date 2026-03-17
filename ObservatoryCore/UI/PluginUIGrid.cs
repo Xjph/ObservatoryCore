@@ -10,6 +10,7 @@ using System.Collections.Specialized;
 using System.Dynamic;
 using static System.Windows.Forms.ListViewItem;
 using System.Text;
+using System.Diagnostics;
 
 namespace Observatory.UI
 {
@@ -102,66 +103,73 @@ namespace Observatory.UI
 
             timer.Elapsed += (_, _) =>
             {
-                List<ListViewItem> items = [];
-
-                ListViewItem? finalItem = null;
-
-                while (addedItemList.TryDequeue(out object? newItem))
+                try
                 {
-                    ListViewItem newListItem = new();
-                    if (newItem.GetType() == typeof(ExpandoObject))
+                    List<ListViewItem> items = [];
+
+                    ListViewItem? finalItem = null;
+
+                    while (addedItemList.TryDequeue(out object? newItem))
                     {
-                        dynamic groupedItem = (ExpandoObject)newItem;
-                        
-                        foreach (KeyValuePair<string, object> property in groupedItem)
+                        ListViewItem newListItem = new();
+                        if (newItem.GetType() == typeof(ExpandoObject))
                         {
-                            if (property.Key != "ObservatoryListViewGroupID")
-                            newListItem.SubItems.Add(property.Value?.ToString());
-                        }
+                            dynamic groupedItem = (ExpandoObject)newItem;
 
-                        Guid groupId = groupedItem.ObservatoryListViewGroupID;
+                            foreach (KeyValuePair<string, object> property in groupedItem)
+                            {
+                                if (property.Key != "ObservatoryListViewGroupID")
+                                    newListItem.SubItems.Add(property.Value?.ToString());
+                            }
 
-                        if (_groupedItems.ContainsKey(groupId))
-                        {
-                            _groupedItems[groupId].Add(newListItem);
+                            Guid groupId = groupedItem.ObservatoryListViewGroupID;
+
+                            if (_groupedItems.ContainsKey(groupId))
+                            {
+                                _groupedItems[groupId].Add(newListItem);
+                            }
+                            else
+                            {
+                                _groupedItems.Add(groupId, [newListItem]);
+                            }
                         }
                         else
-                        {
-                            _groupedItems.Add(groupId, [newListItem]);
-                        }
+                            foreach (var property in newItem.GetType().GetProperties())
+                            {
+                                newListItem.SubItems.Add(property.GetValue(newItem)?.ToString());
+                            }
+                        newListItem.SubItems.RemoveAt(0);
+                        items.Add(newListItem);
+                        finalItem = newListItem;
+                    }
+
+                    var addItemsAndScroll = () =>
+                    {
+                        Items.AddRange(items.ToArray());
+                        if (finalItem != null
+                        && (LogMonitor.GetInstance.CurrentState & LogMonitorState.Batch) != LogMonitorState.Batch)
+                            EnsureVisible(Items.IndexOf(finalItem));
+                    };
+
+                    if (Created)
+                    {
+                        Invoke(addItemsAndScroll);
                     }
                     else
-                    foreach (var property in newItem.GetType().GetProperties())
                     {
-                        newListItem.SubItems.Add(property.GetValue(newItem)?.ToString());
+                        addItemsAndScroll();
                     }
-                    newListItem.SubItems.RemoveAt(0);
-                    items.Add(newListItem);
-                    finalItem = newListItem;
+
+                    timer.Stop();
+
+                    // Possible that something was added between last dequeue and timer.Stop()
+                    if (addedItemList.TryPeek(out _))
+                        timer.Start();
                 }
-
-                var addItemsAndScroll = () =>
+                catch (Exception e)
                 {
-                    Items.AddRange(items.ToArray());
-                    if (finalItem != null
-                    && (LogMonitor.GetInstance.CurrentState & LogMonitorState.Batch) != LogMonitorState.Batch)
-                        EnsureVisible(Items.IndexOf(finalItem));
-                };
-
-                if (Created)
-                {
-                    Invoke(addItemsAndScroll);
+                    Debug.WriteLine($"Timer.Elapsed handler failed: {e.Message}");
                 }
-                else
-                {
-                    addItemsAndScroll();
-                }
-
-                timer.Stop();
-
-                // Possible that something was added between last dequeue and timer.Stop()
-                if (addedItemList.TryPeek(out _))
-                    timer.Start();
             };
 
 
@@ -175,7 +183,14 @@ namespace Observatory.UI
                         foreach (var item in e.NewItems)
                             addedItemList.Enqueue(item);
 
-                        timer.Start();
+                        try
+                        {
+                            timer.Start();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine($"Error in updateGrid(): timer.Start(): {ex.Message}");
+                        }
                     }
 
                     if (e.Action == NotifyCollectionChangedAction.Remove && e.OldItems != null)
