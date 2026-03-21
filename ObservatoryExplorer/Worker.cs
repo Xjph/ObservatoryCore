@@ -33,8 +33,6 @@ namespace Observatory.Explorer
         private Explorer explorer;
         private ObservableCollection<object> resultsGrid;
         private IObservatoryCore Core;
-
-        private bool recordProcessedSinceBatchStart = false;
         private AboutInfo _aboutInfo = new()
         {
             FullName = "Observatory Explorer",
@@ -71,9 +69,7 @@ namespace Observatory.Explorer
             switch (journal)
             {
                 case Scan scan:
-                    explorer.ProcessScan(scan, Core.IsLogMonitorBatchReading && recordProcessedSinceBatchStart);
-                    // Set this *after* the first scan processes so that we get the current custom criteria file.
-                    if (Core.IsLogMonitorBatchReading) recordProcessedSinceBatchStart = true;
+                    explorer.ProcessScan(scan);
                     break;
                 case FSSBodySignals signals:
                     explorer.RecordSignal(signals);
@@ -109,13 +105,8 @@ namespace Observatory.Explorer
 
         public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs args)
         {
-            if (LogMonitorStateChangedEventArgs.IsBatchRead(args.NewState))
-            {
-                // Beginning a batch read. Clear grid.
-                recordProcessedSinceBatchStart = false;
-                Core.ClearGrid(this, new ExplorerUIResults());
-                explorer.Clear();
-            }
+            // Delegate to Explorer to manage criteria file loading, etc.
+            explorer.LogMonitorStateChanged(args);
         }
         
         public object Settings

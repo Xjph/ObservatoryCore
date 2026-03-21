@@ -26,8 +26,28 @@ namespace Observatory.Explorer
             ExplorerWorker = explorerWorker;
             ObservatoryCore = core;
             Results = results;
-            CustomCriteriaManager = new(core.GetPluginErrorLogger(explorerWorker), HandleCustomNotification);
-            CriteriaLastModified = new DateTime(0);
+            CustomCriteriaManager = new(ExplorerWorker.settings, core.GetPluginErrorLogger(explorerWorker), HandleCustomNotification);
+        }
+
+        public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs args)
+        {
+            if (LogMonitorStateChangedEventArgs.IsBatchRead(args.NewState))
+            {
+                // Beginning a batch read. Clear grid.
+                ObservatoryCore.ClearGrid(ExplorerWorker, new ExplorerUIResults());
+                Clear();
+
+                // Entering read-all (not pre-read). 
+                if (!args.PreviousState.HasFlag(LogMonitorState.Batch) && args.NewState.HasFlag(LogMonitorState.Batch))
+                {
+                    CustomCriteriaManager.ReadAllMode = true;
+                }
+            }
+            // Exiting Read-all.
+            else if (args.PreviousState.HasFlag(LogMonitorState.Batch) & !args.NewState.HasFlag(LogMonitorState.Batch))
+            {
+                CustomCriteriaManager.ReadAllMode = false;
+            }
         }
 
         public void Clear()
@@ -158,39 +178,8 @@ namespace Observatory.Explorer
             }
         }
 
-        public void ProcessScan(Scan scanEvent, bool readAll)
+        public void ProcessScan(Scan scanEvent)
         {
-            if (!readAll)
-            {
-                string criteriaFilePath = ExplorerWorker.settings.CustomCriteriaFile;
-
-                if (File.Exists(criteriaFilePath))
-                {
-                    DateTime fileModified = new FileInfo(criteriaFilePath).LastWriteTime;
-
-                    if (fileModified != CriteriaLastModified)
-                    {
-                        try
-                        {
-                            CustomCriteriaManager.RefreshCriteria(criteriaFilePath);
-                        }
-                        catch (CriteriaLoadException e)
-                        {
-                            var exceptionResult = new ExplorerUIResults()
-                            {
-                                BodyName = "Error Reading Custom Criteria File",
-                                Time = DateTime.Now.ToString("s").Replace('T', ' '),
-                                Description = e.Message,
-                                Details = e.OriginalScript
-                            };
-                            ObservatoryCore.AddGridItem(ExplorerWorker, exceptionResult);
-                        }
-
-                        CriteriaLastModified = fileModified;
-                    }
-                }
-            }
-
             Dictionary<int, Scan> systemBodies;
             if (SystemBodyHistory.ContainsKey(scanEvent.SystemAddress))
             {
@@ -226,7 +215,7 @@ namespace Observatory.Explorer
 
             if (BarycentreHistory.ContainsKey(scanEvent.SystemAddress) && scanEvent.Parent != null && BarycentreHistory[scanEvent.SystemAddress].ContainsKey(scanEvent.Parent[0].Body))
             {
-                ProcessScan(ConvertBarycentre(BarycentreHistory[scanEvent.SystemAddress][scanEvent.Parent[0].Body], scanEvent), readAll);
+                ProcessScan(ConvertBarycentre(BarycentreHistory[scanEvent.SystemAddress][scanEvent.Parent[0].Body], scanEvent));
             }
 
             if (ExplorerWorker.settings.EnableCustomCriteria)
