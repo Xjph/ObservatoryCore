@@ -2,6 +2,7 @@
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text.Json;
 
@@ -64,7 +65,7 @@ namespace Observatory.UI
             int row = 2;
 
             var enabledPlugins = GetEnabledPlugins();
-            List<Task> updateTasks = new();
+            Dictionary<string, Task> updateTasks = new();
 
             foreach (var plugin in plugins)
             {
@@ -165,7 +166,7 @@ namespace Observatory.UI
                 AddWithLocation(pluginEnabled, row, 5);
                 AddWithLocation(pluginMenu, row, 6);
 
-                updateTasks.Add(new Task(() =>
+                updateTasks.Add(plugin.Name, new Task(() =>
                 {
                     var thisRow = row;
                     // Check for a plugin update.
@@ -221,10 +222,23 @@ namespace Observatory.UI
                 // This avoids the these tasks and the main thread trigging layout passes on the underlying TableLayoutPanel
                 // that end up conflicting with each other causing mysterious index-out-of-bounds and null errors deep
                 // within the Layout engine.
+                List<(string error, string detail)> errorList = [];
                 foreach (var t in updateTasks)
                 {
-                    t.Start();
-                    t.Wait();
+                    try
+                    {
+                        t.Value.Start();
+                        t.Value.Wait();
+                    }
+                    catch (Exception ex)
+                    {
+                        errorList.Add(($"Update task failure for plugin {t.Key}", $"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
+                    }
+                }
+
+                if (errorList.Count > 0)
+                {
+                    ErrorReporter.ShowErrorPopup("Some plugins failed updates", errorList);
                 }
             });
         }

@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -97,6 +98,7 @@ namespace Observatory.Utils
                 var readErrors = new List<(Exception ex, string file, string line)>();
                 foreach (var file in files)
                 {
+                    Debug.WriteLine($"Processing: {file.Name}");
                     yield return file.Name;
                     readErrors.AddRange(
                         ProcessLines(ReadAllLines(file.FullName), file.Name));
