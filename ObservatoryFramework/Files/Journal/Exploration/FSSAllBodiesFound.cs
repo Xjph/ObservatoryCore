@@ -9,10 +9,12 @@
         /// Name of the system.
         /// </summary>
         public string SystemName { get; init; }
+
         /// <summary>
         /// Unique ID of the system.
         /// </summary>
         public ulong SystemAddress { get; init; }
+
         /// <summary>
         /// Count of all scanned bodies in system.
         /// </summary>

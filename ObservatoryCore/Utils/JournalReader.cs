@@ -1,13 +1,14 @@
-﻿using Observatory.Framework.Files.Journal;
+﻿using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using System.Reflection;
+using Observatory.Framework.Files.Journal;
 
 namespace Observatory.Utils
 {
     public class JournalReader
     {
-        public static TJournal ObservatoryDeserializer<TJournal>(string json) where TJournal : JournalBase
+        public static TJournal ObservatoryDeserializer<TJournal>(string json)
+            where TJournal : JournalBase
         {
             TJournal deserialized;
 
@@ -20,7 +21,9 @@ namespace Observatory.Utils
                     string? eventType = string.Empty;
                     string? timestamp = string.Empty;
 
-                    while ((eventType == string.Empty || timestamp == string.Empty) && reader.Read())
+                    while (
+                        (eventType == string.Empty || timestamp == string.Empty) && reader.Read()
+                    )
                     {
                         if (reader.TokenType == JsonTokenType.PropertyName)
                         {
@@ -41,7 +44,7 @@ namespace Observatory.Utils
                     {
                         Event = "InvalidJson",
                         Timestamp = timestamp,
-                        OriginalEvent = eventType
+                        OriginalEvent = eventType,
                     };
                 }
                 catch
@@ -50,18 +53,19 @@ namespace Observatory.Utils
                     {
                         Event = "InvalidJson",
                         Timestamp = string.Empty,
-                        OriginalEvent = "Invalid"
+                        OriginalEvent = "Invalid",
                     };
                 }
 
                 deserialized = (TJournal)Convert.ChangeType(invalidJson, typeof(TJournal));
-
             }
             //Journal potentially had invalid JSON for a brief period in 2017, check for it and remove.
             //TODO: Check if this gets handled by InvalidJson now.
             else if (typeof(TJournal) == typeof(Scan) && json.Contains("\"RotationPeriod\":inf"))
             {
-                deserialized = JsonSerializer.Deserialize<TJournal>(json.Replace("\"RotationPeriod\":inf,", ""));
+                deserialized = JsonSerializer.Deserialize<TJournal>(
+                    json.Replace("\"RotationPeriod\":inf,", "")
+                );
             }
             else
             {
@@ -72,20 +76,21 @@ namespace Observatory.Utils
             return deserialized;
         }
 
-
         public static Dictionary<string, Type> PopulateEventClasses()
         {
-            var eventClasses = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
+            var eventClasses = new Dictionary<string, Type>(
+                StringComparer.InvariantCultureIgnoreCase
+            );
 
             var allTypes = Assembly.GetAssembly(typeof(JournalBase))?.GetTypes();
 
             var journalTypes = allTypes?.Where(a => a.IsSubclassOf(typeof(JournalBase)));
 
             if (journalTypes != null)
-            foreach (var journalType in journalTypes)
-            {
-                eventClasses.Add(journalType.Name, journalType);
-            }
+                foreach (var journalType in journalTypes)
+                {
+                    eventClasses.Add(journalType.Name, journalType);
+                }
 
             eventClasses.Add("JournalBase", typeof(JournalBase));
 

@@ -1,5 +1,5 @@
-﻿using Observatory.Framework.Files.ParameterTypes;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -10,7 +10,7 @@ namespace Observatory.Framework.Files.Journal
         public string Genus_Localised { get; init; }
         public string Species { get; init; }
         public string Species_Localised { get; init; }
-        public string Variant {  get; init; }
+        public string Variant { get; init; }
         public string Variant_Localised { get; init; }
         public ulong SystemAddress { get; init; }
         public int Body { get; init; }

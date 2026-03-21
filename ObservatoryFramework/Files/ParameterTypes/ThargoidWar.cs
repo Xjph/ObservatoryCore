@@ -10,6 +10,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         public bool SuccessStateReached { get; init; }
         public double WarProgress { get; init; }
         public int RemainingPorts { get; init; }
+
         [JsonConverter(typeof(Converters.ThargoidWarRemainingTimeConverter))]
         public int EstimatedRemainingTime { get; init; }
     }

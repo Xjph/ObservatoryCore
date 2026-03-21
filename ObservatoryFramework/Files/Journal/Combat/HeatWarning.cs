@@ -1,6 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class HeatWarning : JournalBase
-    {
-    }
+    public class HeatWarning : JournalBase { }
 }

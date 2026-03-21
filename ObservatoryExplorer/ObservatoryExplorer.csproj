@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-	<TargetFramework>net8.0</TargetFramework>
-	<ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
     <Configurations>Debug;Release;Portable;Proton</Configurations>
@@ -19,12 +18,18 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
-  
+
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="powershell -command &quot;Get-ChildItem -Path '$(TargetDir)runtimes' -Directory -Exclude 'win-x64' | Remove-Item -Recurse -Force&quot;" />
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)\*&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\ObservatoryExplorer\&quot; /y /s /exclude:$(ProjectDir)..\xcopyExclude" />
+    <Exec
+      Condition=" '$(OS)' == 'Windows_NT' "
+      Command="powershell -command &quot;Get-ChildItem -Path '$(TargetDir)runtimes' -Directory -Exclude 'win-x64' | Remove-Item -Recurse -Force&quot;"
+    />
+    <Exec
+      Condition=" '$(OS)' == 'Windows_NT' "
+      Command="xcopy &quot;$(TargetDir)\*&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\ObservatoryExplorer\&quot; /y /s /exclude:$(ProjectDir)..\xcopyExclude"
+    />
   </Target>
-  
+
   <ItemGroup>
     <PackageReference Include="NLua" Version="1.7.3" />
   </ItemGroup>
@@ -32,5 +37,4 @@
   <ItemGroup>
     <ProjectReference Include="..\ObservatoryFramework\ObservatoryFramework.csproj" />
   </ItemGroup>
-
 </Project>

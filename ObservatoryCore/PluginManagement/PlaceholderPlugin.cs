@@ -20,12 +20,14 @@ namespace Observatory.PluginManagement
 
         public PluginUI PluginUI => new PluginUI(PluginUI.UIType.None, null);
 
-        public object? Settings { get => null; set { } }
+        public object? Settings
+        {
+            get => null;
+            set { }
+        }
 
-        public void Load(IObservatoryCore observatoryCore)
-        { }
+        public void Load(IObservatoryCore observatoryCore) { }
 
-        public void OnNotificationEvent(NotificationArgs notificationArgs)
-        { }
+        public void OnNotificationEvent(NotificationArgs notificationArgs) { }
     }
 }

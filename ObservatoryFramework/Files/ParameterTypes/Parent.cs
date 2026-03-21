@@ -6,5 +6,4 @@
         public int? Planet { get; init; }
         public int? Star { get; init; }
     }
-
 }

@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Text.Json.Serialization;
-using Observatory.Framework.Files.ParameterTypes;
-using Observatory.Framework.Files.Converters;
 using System.Collections.Immutable;
+using System.Text.Json.Serialization;
+using Observatory.Framework.Files.Converters;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -15,15 +15,13 @@ namespace Observatory.Framework.Files.Journal
         [Obsolete(JournalUtilities.ObsoleteMessage)]
         public string FactionState
         {
-            get
-            {
-                return SystemFaction?.FactionState ?? string.Empty;
-            }
+            get { return SystemFaction?.FactionState ?? string.Empty; }
             init
             {
                 //Stale Data, discard
             }
         }
+
         /// <summary>
         /// Name of the station at which this event occurred.
         /// </summary>

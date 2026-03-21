@@ -15,21 +15,23 @@ namespace Observatory.NativeNotification
         public Guid InvokeNativeNotification(NotificationArgs notificationArgs)
         {
             var notificationGuid = notificationArgs.Guid ?? Guid.NewGuid();
-            Application.OpenForms[0]?.Invoke(() =>
-            {
-                var notification = new NotificationForm(notificationGuid, notificationArgs);
-
-                notification.FormClosed += NotifyWindow_Closed;
-
-                foreach(var notificationForm in notifications)
+            Application
+                .OpenForms[0]
+                ?.Invoke(() =>
                 {
-                    notificationForm.Value.AdjustOffset(true);
-                }
+                    var notification = new NotificationForm(notificationGuid, notificationArgs);
 
-                notifications.Add(notificationGuid, notification);
-                notification.Show();
-            });
-            
+                    notification.FormClosed += NotifyWindow_Closed;
+
+                    foreach (var notificationForm in notifications)
+                    {
+                        notificationForm.Value.AdjustOffset(true);
+                    }
+
+                    notifications.Add(notificationGuid, notification);
+                    notification.Show();
+                });
+
             return notificationGuid;
         }
 
@@ -39,7 +41,11 @@ namespace Observatory.NativeNotification
             {
                 var currentNotification = (NotificationForm)sender;
 
-                foreach (var notification in notifications.Where(n => n.Value.CreationTime < currentNotification.CreationTime))
+                foreach (
+                    var notification in notifications.Where(n =>
+                        n.Value.CreationTime < currentNotification.CreationTime
+                    )
+                )
                 {
                     notification.Value.AdjustOffset(false);
                 }
@@ -61,8 +67,12 @@ namespace Observatory.NativeNotification
 
         public void UpdateNotification(NotificationArgs notificationArgs)
         {
-            var guid = notificationArgs.Guid 
-                ?? throw new ArgumentNullException(nameof(notificationArgs), "Cannot update notification without Guid.");
+            var guid =
+                notificationArgs.Guid
+                ?? throw new ArgumentNullException(
+                    nameof(notificationArgs),
+                    "Cannot update notification without Guid."
+                );
             if (notifications.TryGetValue(guid, out NotificationForm? value))
             {
                 value.Update(notificationArgs);

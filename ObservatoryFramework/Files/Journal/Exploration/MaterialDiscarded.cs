@@ -3,7 +3,5 @@
     /// <summary>
     /// Event generated when discarding held material resources.
     /// </summary>
-    public class MaterialDiscarded : MaterialCollected
-    {
-    }
+    public class MaterialDiscarded : MaterialCollected { }
 }

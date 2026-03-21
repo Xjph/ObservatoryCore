@@ -1,8 +1,8 @@
-﻿using Observatory.Framework;
-using Observatory.Framework.Interfaces;
+﻿using System.Timers;
+using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
-using System.Timers;
+using Observatory.Framework.Interfaces;
 using Observatory.Utils;
 
 namespace Observatory.PluginManagement
@@ -15,7 +15,10 @@ namespace Observatory.PluginManagement
         private readonly List<(string error, string detail)> errorList;
         private System.Timers.Timer timer;
 
-        public PluginEventHandler(IEnumerable<IObservatoryWorker> observatoryWorkers, IEnumerable<IObservatoryNotifier> observatoryNotifiers)
+        public PluginEventHandler(
+            IEnumerable<IObservatoryWorker> observatoryWorkers,
+            IEnumerable<IObservatoryNotifier> observatoryNotifiers
+        )
         {
             this.observatoryWorkers = observatoryWorkers;
             this.observatoryNotifiers = observatoryNotifiers;
@@ -26,7 +29,10 @@ namespace Observatory.PluginManagement
             InitializeTimer();
         }
 
-        public HashSet<IObservatoryPlugin> DisabledPlugins {  get => disabledPlugins; }
+        public HashSet<IObservatoryPlugin> DisabledPlugins
+        {
+            get => disabledPlugins;
+        }
 
         private void InitializeTimer()
         {
@@ -40,7 +46,8 @@ namespace Observatory.PluginManagement
         {
             foreach (var worker in observatoryWorkers)
             {
-                if (disabledPlugins.Contains(worker)) continue;
+                if (disabledPlugins.Contains(worker))
+                    continue;
                 try
                 {
                     worker.JournalEvent((JournalBase)journalEventArgs.journalEvent);
@@ -51,7 +58,12 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name, ((JournalBase)journalEventArgs.journalEvent).Json);
+                    RecordError(
+                        ex,
+                        worker.Name,
+                        journalEventArgs.journalType.Name,
+                        ((JournalBase)journalEventArgs.journalEvent).Json
+                    );
                 }
                 ResetTimer();
             }
@@ -61,7 +73,8 @@ namespace Observatory.PluginManagement
         {
             foreach (var worker in observatoryWorkers)
             {
-                if (disabledPlugins.Contains(worker)) continue;
+                if (disabledPlugins.Contains(worker))
+                    continue;
                 try
                 {
                     worker.StatusChange((Status)journalEventArgs.journalEvent);
@@ -72,7 +85,12 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, journalEventArgs.journalType.Name, ((JournalBase)journalEventArgs.journalEvent).Json);
+                    RecordError(
+                        ex,
+                        worker.Name,
+                        journalEventArgs.journalType.Name,
+                        ((JournalBase)journalEventArgs.journalEvent).Json
+                    );
                 }
                 ResetTimer();
             }
@@ -82,14 +100,20 @@ namespace Observatory.PluginManagement
         {
             foreach (var worker in observatoryWorkers)
             {
-                if (disabledPlugins.Contains(worker)) continue;
+                if (disabledPlugins.Contains(worker))
+                    continue;
                 try
                 {
                     worker.LogMonitorStateChanged(e);
                 }
                 catch (Exception ex)
                 {
-                    RecordError(ex, worker.Name, "LogMonitorStateChanged event", ex.StackTrace ?? "");
+                    RecordError(
+                        ex,
+                        worker.Name,
+                        "LogMonitorStateChanged event",
+                        ex.StackTrace ?? ""
+                    );
                 }
             }
         }
@@ -116,20 +140,31 @@ namespace Observatory.PluginManagement
         {
             foreach (var notifier in observatoryNotifiers)
             {
-                if (disabledPlugins.Contains(notifier)) continue;
-                if (LogMonitorStateChangedEventArgs.IsBatchRead(LogMonitor.GetInstance.CurrentState)
-                    && !notifier.OverrideAcceptNotificationsDuringBatch) continue;
+                if (disabledPlugins.Contains(notifier))
+                    continue;
+                if (
+                    LogMonitorStateChangedEventArgs.IsBatchRead(LogMonitor.GetInstance.CurrentState)
+                    && !notifier.OverrideAcceptNotificationsDuringBatch
+                )
+                    continue;
 
                 try
                 {
                     // We may get notifications that are not PluginNotifier destined if we have
                     // a plugin which overrides a native handler. Only deliver native notifications if
                     // the plugin declares it's overriding.
-                    if ((notifier.OverrideAudioNotifications
-                            && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
-                        || (notifier.OverridePopupNotifications
-                            && (notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
-                        || (notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0)
+                    if (
+                        (
+                            notifier.OverrideAudioNotifications
+                            && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0
+                        )
+                        || (
+                            notifier.OverridePopupNotifications
+                            && (notificationArgs.Rendering & NotificationRendering.NativeVisual)
+                                != 0
+                        )
+                        || (notificationArgs.Rendering & NotificationRendering.PluginNotifier) != 0
+                    )
                     {
                         if (update)
                             notifier.UpdateNotification(notificationArgs);
@@ -163,13 +198,20 @@ namespace Observatory.PluginManagement
                 Guid = messageArgs.SourceId,
                 FullName = messageArgs.LongName,
                 ShortName = messageArgs.ShortName,
-                Version = messageArgs.SourceVersion
+                Version = messageArgs.SourceVersion,
             };
 
-            foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
-                .Where(p => messageArgs.TargetId == Guid.Empty || messageArgs.TargetId == GetPluginGuid(p))
-                .Where(p => GetPluginGuid(p) != messageArgs.SourceId)
-                .Where(p => !disabledPlugins.Contains(p)))
+            foreach (
+                var plugin in observatoryNotifiers
+                    .Cast<IObservatoryPlugin>()
+                    .Union(observatoryWorkers)
+                    .Where(p =>
+                        messageArgs.TargetId == Guid.Empty
+                        || messageArgs.TargetId == GetPluginGuid(p)
+                    )
+                    .Where(p => GetPluginGuid(p) != messageArgs.SourceId)
+                    .Where(p => !disabledPlugins.Contains(p))
+            )
             {
                 PluginMessage message = (PluginMessage)messageArgs.Message.Clone();
 
@@ -181,7 +223,7 @@ namespace Observatory.PluginManagement
                 {
                     RecordError(ex);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     RecordError(ex, plugin.Name, "OnPluginMessageEvent event", "");
                 }
@@ -195,28 +237,39 @@ namespace Observatory.PluginManagement
                 Guid = Guid.Empty,
                 FullName = messageArgs.SourceName,
                 ShortName = messageArgs.SourceName,
-                Version = messageArgs.SourceVersion
+                Version = messageArgs.SourceVersion,
             };
 
-            foreach (var plugin in observatoryNotifiers.Cast<IObservatoryPlugin>().Union(observatoryWorkers)
-                .Where(x => String.IsNullOrEmpty(messageArgs.TargetShortName) || x.ShortName == messageArgs.TargetShortName)
-                .Where(x => x.Name != messageArgs.SourceName)
-                .Where(x => !disabledPlugins.Contains(x)))
+            foreach (
+                var plugin in observatoryNotifiers
+                    .Cast<IObservatoryPlugin>()
+                    .Union(observatoryWorkers)
+                    .Where(x =>
+                        String.IsNullOrEmpty(messageArgs.TargetShortName)
+                        || x.ShortName == messageArgs.TargetShortName
+                    )
+                    .Where(x => x.Name != messageArgs.SourceName)
+                    .Where(x => !disabledPlugins.Contains(x))
+            )
             {
                 try
                 {
-                    plugin.HandlePluginMessage(messageArgs.SourceName, messageArgs.SourceVersion, messageArgs.Message);
-                    PluginMessage wrappedLegacyMessage = new (
-                        "LegacyPluginMessage", 
+                    plugin.HandlePluginMessage(
+                        messageArgs.SourceName,
+                        messageArgs.SourceVersion,
+                        messageArgs.Message
+                    );
+                    PluginMessage wrappedLegacyMessage = new(
+                        "LegacyPluginMessage",
                         new Dictionary<string, object> { { "message", messageArgs.Message } }
-                        );
+                    );
                     plugin.HandlePluginMessage(sender, wrappedLegacyMessage);
                 }
                 catch (PluginException ex)
                 {
                     RecordError(ex);
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     RecordError(ex, plugin.Name, "OnLegacyPluginMessageEvent event", "");
                 }
@@ -225,8 +278,10 @@ namespace Observatory.PluginManagement
 
         public void SetPluginEnabled(IObservatoryPlugin plugin, bool enabled)
         {
-            if (enabled) disabledPlugins.Remove(plugin);
-            else disabledPlugins.Add(plugin);
+            if (enabled)
+                disabledPlugins.Remove(plugin);
+            else
+                disabledPlugins.Add(plugin);
         }
 
         private void ResetTimer()
@@ -252,15 +307,20 @@ namespace Observatory.PluginManagement
 
         private void RecordError(Exception ex, string plugin, string eventType, string eventDetail)
         {
-            errorList.Add(($"Error in {plugin} while handling {eventType}: {ex.Message}", eventDetail));
+            errorList.Add(
+                ($"Error in {plugin} while handling {eventType}: {ex.Message}", eventDetail)
+            );
         }
 
         private void ReportErrorsIfAny(object? _, ElapsedEventArgs e)
         {
             if (errorList.Count != 0)
             {
-                ErrorReporter.ShowErrorPopup($"Plugin Error{(errorList.Count > 1 ? "s" : "")}", errorList);
-                
+                ErrorReporter.ShowErrorPopup(
+                    $"Plugin Error{(errorList.Count > 1 ? "s" : "")}",
+                    errorList
+                );
+
                 timer.Stop();
             }
         }
@@ -293,7 +353,12 @@ namespace Observatory.PluginManagement
         internal string TargetShortName;
         internal object Message;
 
-        internal LegacyPluginMessageArgs(string sourceName, string sourceVersion, string targetShortName, object message)
+        internal LegacyPluginMessageArgs(
+            string sourceName,
+            string sourceVersion,
+            string targetShortName,
+            object message
+        )
         {
             SourceName = sourceName;
             SourceVersion = sourceVersion;

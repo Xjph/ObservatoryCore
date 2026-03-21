@@ -1,6 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class NavRouteClear : JournalBase
-    {
-    }
+    public class NavRouteClear : JournalBase { }
 }

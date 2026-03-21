@@ -10,7 +10,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         ToShip,
         ToSRV,
         ToCarrier,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -22,7 +22,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Pause,
         Resume,
         Replace,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -34,7 +34,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Friends,
         Squadron,
         SquadronFriends,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -44,7 +44,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         BuyPack,
         SellPack,
         RestockPack,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -56,7 +56,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Credits,
         Bond,
         Bounty,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -104,7 +104,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         onFoot_breakingAndEntering,
         shuttleDestruction,
         collidedWithDamage,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -119,7 +119,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Research,
         Decontamination,
         Recon,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -132,7 +132,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Lost,
         Offline,
         Online,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: Unknown)]
@@ -146,7 +146,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Component,
         Data,
         Consumable,
-        Unknown
+        Unknown,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -155,7 +155,7 @@ namespace Observatory.Framework.Files.ParameterTypes
     {
         ToBackpack,
         ToShipLocker,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -166,7 +166,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Low,
         Med,
         High,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -176,7 +176,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Null,
         Planet,
         Star,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -188,7 +188,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Unlocked,
         Barred,
         Known,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     public enum RankCombat
@@ -206,7 +206,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Elite2 = 10,
         Elite3 = 11,
         Elite4 = 12,
-        Elite5 = 13
+        Elite5 = 13,
     }
 
     public enum RankTrade
@@ -224,7 +224,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Elite2 = 10,
         Elite3 = 11,
         Elite4 = 12,
-        Elite5 = 13
+        Elite5 = 13,
     }
 
     public enum RankExploration
@@ -242,7 +242,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Elite2 = 10,
         Elite3 = 11,
         Elite4 = 12,
-        Elite5 = 13
+        Elite5 = 13,
     }
 
     public enum RankCQC
@@ -260,7 +260,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Elite2 = 10,
         Elite3 = 11,
         Elite4 = 12,
-        Elite5 = 13
+        Elite5 = 13,
     }
 
     public enum RankExobiologist
@@ -278,7 +278,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Elite2 = 10,
         Elite3 = 11,
         Elite4 = 12,
-        Elite5 = 13
+        Elite5 = 13,
     }
 
     public enum RankSoldier
@@ -296,7 +296,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Elite2 = 10,
         Elite3 = 11,
         Elite4 = 12,
-        Elite5 = 13
+        Elite5 = 13,
     }
 
     public enum RankFederation
@@ -315,7 +315,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         PostCaptain = 11,
         RearAdmiral = 12,
         ViceAdmiral = 13,
-        Admiral = 14
+        Admiral = 14,
     }
 
     public enum RankEmpire
@@ -334,7 +334,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Marquis = 11,
         Duke = 12,
         Prince = 13,
-        King = 14
+        King = 14,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -351,7 +351,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         RestrictedAccess,
         NoReason,
         DockOffline,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -359,9 +359,9 @@ namespace Observatory.Framework.Files.ParameterTypes
     public enum ScanOrganicType
     {
         Log,
-        Sample, 
+        Sample,
         Analyse,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -374,7 +374,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Data,
         Unknown,
         Xeno,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: None)]
@@ -422,7 +422,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         SocialSpace = 1L << 35,
         Bartender = 1L << 36,
         VistaGenomics = 1L << 37,
-        PioneerSupplies = 1L << 38, 
+        PioneerSupplies = 1L << 38,
         ApexInterstellar = 1L << 39,
         FrontlineSolutions = 1L << 40,
         RegisteringColonisation = 1L << 41,
@@ -442,7 +442,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Squadron,
         SquadLeaders,
         Starsystem,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -454,7 +454,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         DownGood,
         DownBad,
         None,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -464,7 +464,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Collect,
         Deliver,
         WingUpdate,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -474,7 +474,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Mothership,
         Fighter,
         SRV,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -488,7 +488,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Scannable,
         Codex,
         None,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -497,7 +497,7 @@ namespace Observatory.Framework.Files.ParameterTypes
     {
         FleetCarrier,
         SquadronCarrier,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     [Flags]
@@ -532,12 +532,13 @@ namespace Observatory.Framework.Files.ParameterTypes
         SRV = 1 << 26,
         AnalysisHUD = 1 << 27,
         NightVision = 1 << 28,
+
         /// <summary>
         /// Altitude above average radius (sea level) when set. Altitude raycast to ground when unset.
         /// </summary>
         RadialAltitude = 1 << 29,
         FSDJump = 1 << 30,
-        SRVHighBeam = 1u << 31
+        SRVHighBeam = 1u << 31,
     }
 
     [Flags]
@@ -562,7 +563,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         BreathableAtmosphere = 1 << 16,
         TelepresenceMulticrew = 1 << 17,
         PhysicalMulticrew = 1 << 18,
-        FsdHyperdriveCharging = 1 << 19
+        FsdHyperdriveCharging = 1 << 19,
     }
 
     [JsonStringEnumMemberConverterOptions(deserializationFailureFallbackValue: UnrecognisedValue)]
@@ -582,7 +583,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         Enemy,
         Unknown,
         Hunter,
-        UnrecognisedValue
+        UnrecognisedValue,
     }
 
     public enum FocusStatus
@@ -598,6 +599,6 @@ namespace Observatory.Framework.Files.ParameterTypes
         Orrery = 8,
         FSS = 9,
         SAA = 10,
-        Codex = 11
+        Codex = 11,
     }
 }

@@ -1,7 +1,7 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Collections.Immutable;
+using System.Text.Json.Serialization;
 using Observatory.Framework.Files.Converters;
 using Observatory.Framework.Files.ParameterTypes;
-using System.Collections.Immutable;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -19,6 +19,7 @@ namespace Observatory.Framework.Files.Journal
         public string TargetType { get; init; }
         public string TargetType_Localised { get; init; }
         public long Reward { get; init; }
+
         [JsonConverter(typeof(StringIntConverter))]
         public int Donation { get; init; }
         public long Donated { get; init; }

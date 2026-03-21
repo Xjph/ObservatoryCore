@@ -9,18 +9,22 @@
         /// Name of the current system.
         /// </summary>
         public string SystemName { get; init; }
+
         /// <summary>
         /// Unique ID of the current system.
         /// </summary>
         public ulong SystemAddress { get; init; }
+
         /// <summary>
         /// Percentage of current system already scanned.
         /// </summary>
         public float Progress { get; init; }
+
         /// <summary>
         /// Number of scannable bodies in system.
         /// </summary>
         public int BodyCount { get; init; }
+
         /// <summary>
         /// Number of scannable non-body locations in system.
         /// </summary>

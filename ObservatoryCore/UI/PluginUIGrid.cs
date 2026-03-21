@@ -1,16 +1,16 @@
-﻿using Observatory.Framework.Interfaces;
-using Observatory.Framework;
-using Observatory.Utils;
-using System.Collections;
-using System.Reflection;
-using System.Text.Json;
-using System.Text.RegularExpressions;
+﻿using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
-using System.Dynamic;
-using static System.Windows.Forms.ListViewItem;
-using System.Text;
 using System.Diagnostics;
+using System.Dynamic;
+using System.Reflection;
+using System.Text;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using Observatory.Framework;
+using Observatory.Framework.Interfaces;
+using Observatory.Utils;
+using static System.Windows.Forms.ListViewItem;
 
 namespace Observatory.UI
 {
@@ -36,7 +36,7 @@ namespace Observatory.UI
             DrawColumnHeader += PluginListView_DrawColumnHeader;
 #endif
             DoubleBuffered = true;
-            
+
             _columnSizing = columnSizings;
 
             FullRowSelect = true;
@@ -53,7 +53,9 @@ namespace Observatory.UI
             // Is losing column sizes between versions acceptable?
             _pluginColumnSizing = _columnSizing
                 .Where(c => c.PluginName == plugin.Name && c.PluginVersion == plugin.Version)
-                .FirstOrDefault(new ColumnSizing() { PluginName = plugin.Name, PluginVersion = plugin.Version });
+                .FirstOrDefault(
+                    new ColumnSizing() { PluginName = plugin.Name, PluginVersion = plugin.Version }
+                );
 
             if (!_columnSizing.Contains(_pluginColumnSizing))
             {
@@ -62,31 +64,32 @@ namespace Observatory.UI
 
             // Some plugins don't provide any columns?
             if (plugin.PluginUI.DataGrid.Any())
-            foreach (var property in plugin.PluginUI.DataGrid.First().GetType().GetProperties())
-            {
-                string columnLabel = LowerUpper().Replace(UpperUpperLower().Replace(property.Name, "$1 $2"), "$1 $2");
-
-                int width;
-
-                if (_pluginColumnSizing.ColumnWidth.TryGetValue(columnLabel, out int value))
+                foreach (var property in plugin.PluginUI.DataGrid.First().GetType().GetProperties())
                 {
-                    width = value;
+                    string columnLabel = LowerUpper()
+                        .Replace(UpperUpperLower().Replace(property.Name, "$1 $2"), "$1 $2");
+
+                    int width;
+
+                    if (_pluginColumnSizing.ColumnWidth.TryGetValue(columnLabel, out int value))
+                    {
+                        width = value;
+                    }
+                    else
+                    {
+                        var widthAttrib = property.GetCustomAttribute<ColumnSuggestedWidth>();
+
+                        width =
+                            widthAttrib == null
+                                // Rough approximation of width by label length if none specified.
+                                ? columnLabel.Length * 10
+                                : widthAttrib.Width;
+
+                        _pluginColumnSizing.ColumnWidth.Add(columnLabel, width);
+                    }
+
+                    Columns.Add(columnLabel, width);
                 }
-                else
-                {
-                    var widthAttrib = property.GetCustomAttribute<ColumnSuggestedWidth>();
-
-                    width = widthAttrib == null
-                        // Rough approximation of width by label length if none specified.
-                        ? columnLabel.Length * 10
-                        : widthAttrib.Width;
-
-                    _pluginColumnSizing.ColumnWidth.Add(columnLabel, width);
-                }
-
-                Columns.Add(columnLabel, width);
-
-            }
 
             Properties.Core.Default.ColumnSizing = JsonSerializer.Serialize(_columnSizing);
             SettingsManager.Save();
@@ -95,11 +98,7 @@ namespace Observatory.UI
             Resize += PluginListView_Resize;
 
             ConcurrentQueue<object> addedItemList = new();
-            var timer = new System.Timers.Timer
-            {
-                Interval = 100,
-                AutoReset = false
-            };
+            var timer = new System.Timers.Timer { Interval = 100, AutoReset = false };
 
             timer.Elapsed += (_, _) =>
             {
@@ -146,8 +145,11 @@ namespace Observatory.UI
                     var addItemsAndScroll = () =>
                     {
                         Items.AddRange(items.ToArray());
-                        if (finalItem != null
-                        && (LogMonitor.GetInstance.CurrentState & LogMonitorState.Batch) != LogMonitorState.Batch)
+                        if (
+                            finalItem != null
+                            && (LogMonitor.GetInstance.CurrentState & LogMonitorState.Batch)
+                                != LogMonitorState.Batch
+                        )
                             EnsureVisible(Items.IndexOf(finalItem));
                     };
 
@@ -171,7 +173,6 @@ namespace Observatory.UI
                     Debug.WriteLine($"Timer.Elapsed handler failed: {e.Message}");
                 }
             };
-
 
             plugin.PluginUI.DataGrid.CollectionChanged += (sender, e) =>
             {
@@ -204,7 +205,13 @@ namespace Observatory.UI
                             }
                             oldListItem.SubItems.RemoveAt(0);
 
-                            var itemToRemove = Items.Cast<ListViewItem>().Where(i => i.SubItems.Cast<string>().SequenceEqual(oldListItem.SubItems.Cast<string>())).First();
+                            var itemToRemove = Items
+                                .Cast<ListViewItem>()
+                                .Where(i =>
+                                    i.SubItems.Cast<string>()
+                                        .SequenceEqual(oldListItem.SubItems.Cast<string>())
+                                )
+                                .First();
                             if (itemToRemove != null)
                             {
                                 Items.Remove(itemToRemove);
@@ -241,14 +248,15 @@ namespace Observatory.UI
             };
         }
 
-        
-
         private void PluginListView_Resize(object? sender, EventArgs e)
         {
             HandleColSize(false);
         }
 
-        private void PluginListView_ColumnWidthChanged(object? sender, ColumnWidthChangedEventArgs e)
+        private void PluginListView_ColumnWidthChanged(
+            object? sender,
+            ColumnWidthChangedEventArgs e
+        )
         {
             HandleColSize(true);
         }
@@ -300,7 +308,7 @@ namespace Observatory.UI
         private void PluginListView_ColumnClick(object? sender, ColumnClickEventArgs e)
         {
             SuspendDrawing();
-            
+
             if (e.Column == _columnSorter.SortColumn)
             {
                 // Reverse the current sort direction for this column.
@@ -323,10 +331,10 @@ namespace Observatory.UI
             if (_groupedItems.Count > 0)
             {
                 // Should sort only on first row, remove following rows for now
-                // Believe it or not casting to a list here is faster than operating 
+                // Believe it or not casting to a list here is faster than operating
                 // directly from ListView.Items
                 ArrayList itemList = [];
-                itemList.AddRange(Items);//.Cast<ListViewItem>().ToList();
+                itemList.AddRange(Items); //.Cast<ListViewItem>().ToList();
 
                 foreach (var group in _groupedItems)
                 {
@@ -345,12 +353,18 @@ namespace Observatory.UI
                     var group = _groupedItems.Where(g => g.Value.First() == sortedItem);
 
                     if (group.Any())
-                    foreach (var item in _groupedItems.Where(g => g.Value.First() == sortedItem).First().Value.Skip(1).Reverse())
-                    {
-                        areYouKiddingMeThatAllThisIsFaster.Add(item);
-                    }
+                        foreach (
+                            var item in _groupedItems
+                                .Where(g => g.Value.First() == sortedItem)
+                                .First()
+                                .Value.Skip(1)
+                                .Reverse()
+                        )
+                        {
+                            areYouKiddingMeThatAllThisIsFaster.Add(item);
+                        }
                 }
-                
+
                 Items.AddRange(areYouKiddingMeThatAllThisIsFaster.ToArray());
             }
             else
@@ -359,7 +373,7 @@ namespace Observatory.UI
                 Sort();
                 ListViewItemSorter = null;
             }
-            
+
             ResumeDrawing();
         }
 
@@ -389,12 +403,15 @@ namespace Observatory.UI
                 // Top bound tweaking to intentionally overdraw above subitem background
                 Point topRight = new(bounds.Right - 1, Math.Max(bounds.Top - 1, 0));
                 Point bottomRight = new(bounds.Right - 1, bounds.Bottom);
-                
+
                 graphics.DrawLine(pen, topRight, bottomRight);
             }
         }
 
-        private void PluginListView_DrawColumnHeader(object? sender, DrawListViewColumnHeaderEventArgs e)
+        private void PluginListView_DrawColumnHeader(
+            object? sender,
+            DrawListViewColumnHeaderEventArgs e
+        )
         {
             using var g = e.Graphics;
             if (!_suspend && g != null)
@@ -416,7 +433,7 @@ namespace Observatory.UI
             if (!_suspend && g != null)
             {
                 Pen pen = new(new SolidBrush(Color.LightGray));
-                
+
                 if (e.Item != null)
                 {
                     if (_groupedItems.Count == 0)
@@ -425,15 +442,23 @@ namespace Observatory.UI
                     }
                     else
                     {
-                        var currentGroupedItems = new Dictionary<Guid, List<ListViewItem>>(_groupedItems);
+                        var currentGroupedItems = new Dictionary<Guid, List<ListViewItem>>(
+                            _groupedItems
+                        );
                         var firstLines = currentGroupedItems.Values.Select(v => v.First()).ToList();
-                        var thisGroup = currentGroupedItems.Values.Where(v => v.Contains(e.Item)).FirstOrDefault([e.Item]);
-                        
-                        if (firstLines.Contains(e.Item) || !currentGroupedItems.Values.Where(v => v.Contains(e.Item)).Any())
+                        var thisGroup = currentGroupedItems
+                            .Values.Where(v => v.Contains(e.Item))
+                            .FirstOrDefault([e.Item]);
+
+                        if (
+                            firstLines.Contains(e.Item)
+                            || !currentGroupedItems.Values.Where(v => v.Contains(e.Item)).Any()
+                        )
                         {
                             e.Item.BackColor = AlternatedColor(
                                 BackColor,
-                                e.Item.Index == 0 || Items[e.Item.Index - 1].BackColor != BackColor);
+                                e.Item.Index == 0 || Items[e.Item.Index - 1].BackColor != BackColor
+                            );
                         }
                         else
                         {
@@ -455,7 +480,8 @@ namespace Observatory.UI
 
         private Color AlternatedColor(Color color, bool isEven)
         {
-            if (isEven) return color;
+            if (isEven)
+                return color;
             int offset = (isEven ? 0 : 20);
             var r = color.R + (color.R > 127 ? -1 * offset : offset);
             var g = color.G + (color.G > 127 ? -1 * offset : offset);
@@ -465,7 +491,8 @@ namespace Observatory.UI
 
         private Color SelectedColor(Color color, bool isSelected)
         {
-            if (!isSelected) return color;
+            if (!isSelected)
+                return color;
             int offset = (isSelected ? 50 : 0);
             var r = color.R + (color.R > 127 ? -1 * offset : offset);
             var g = color.G + (color.G > 127 ? -1 * offset : offset);
@@ -501,6 +528,7 @@ namespace Observatory.UI
         // https://stackoverflow.com/questions/5796383/insert-spaces-between-words-on-a-camel-cased-token
         [GeneratedRegex(@"(\p{Ll})(\P{Ll})")]
         private static partial Regex LowerUpper();
+
         [GeneratedRegex(@"(\P{Ll})(\P{Ll}\p{Ll})")]
         private static partial Regex UpperUpperLower();
     }

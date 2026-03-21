@@ -6,8 +6,11 @@ namespace Macross.Json.Extensions
 {
     internal static class ThrowHelper
     {
-        private static readonly PropertyInfo? s_JsonException_AppendPathInformation
-            = typeof(JsonException).GetProperty("AppendPathInformation", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static readonly PropertyInfo? s_JsonException_AppendPathInformation =
+            typeof(JsonException).GetProperty(
+                "AppendPathInformation",
+                BindingFlags.NonPublic | BindingFlags.Instance
+            );
 
         /// <summary>
         /// Generate a <see cref="JsonException"/> using the internal
@@ -22,11 +25,15 @@ namespace Macross.Json.Extensions
         /// </summary>
         /// <param name="propertyType">Property type.</param>
         /// <returns><see cref="JsonException"/>.</returns>
-        public static JsonException GenerateJsonException_DeserializeUnableToConvertValue(Type propertyType)
+        public static JsonException GenerateJsonException_DeserializeUnableToConvertValue(
+            Type propertyType
+        )
         {
             Debug.Assert(s_JsonException_AppendPathInformation != null);
 
-            JsonException jsonException = new($"The JSON value could not be converted to {propertyType}.");
+            JsonException jsonException = new(
+                $"The JSON value could not be converted to {propertyType}."
+            );
             s_JsonException_AppendPathInformation?.SetValue(jsonException, true);
             return jsonException;
         }
@@ -50,13 +57,15 @@ namespace Macross.Json.Extensions
         public static JsonException GenerateJsonException_DeserializeUnableToConvertValue(
             Type propertyType,
             string propertyValue,
-            Exception? innerException = null)
+            Exception? innerException = null
+        )
         {
             Debug.Assert(s_JsonException_AppendPathInformation != null);
 
             JsonException jsonException = new(
                 $"The JSON value '{propertyValue}' could not be converted to {propertyType}.",
-                innerException);
+                innerException
+            );
             s_JsonException_AppendPathInformation?.SetValue(jsonException, true);
             return jsonException;
         }

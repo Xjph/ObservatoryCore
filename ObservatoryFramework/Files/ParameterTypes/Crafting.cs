@@ -31,7 +31,7 @@ namespace Observatory.Framework.Files.ParameterTypes
 
         [JsonPropertyName("Suit_Mods_Applied")]
         public int SuitModsApplied { get; init; }
-        
+
         [JsonPropertyName("Suit_Mods_Applied_Full")]
         public int SuitModsAppliedFull { get; init; }
 
@@ -71,7 +71,10 @@ namespace Observatory.Framework.Files.ParameterTypes
         [JsonPropertyName("Recipes_Applied_Rank_5"), Obsolete(JournalUtilities.ObsoleteMessage)]
         public int RecipesAppliedRank5 { get; init; }
 
-        [JsonPropertyName("Recipes_Applied_On_Previously_Modified_Modules"), Obsolete(JournalUtilities.ObsoleteMessage)]
+        [
+            JsonPropertyName("Recipes_Applied_On_Previously_Modified_Modules"),
+            Obsolete(JournalUtilities.ObsoleteMessage)
+        ]
         public int RecipesAppliedOnPreviouslyModifiedModules { get; init; }
     }
 }

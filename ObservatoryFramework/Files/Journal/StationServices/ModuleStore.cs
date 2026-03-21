@@ -14,8 +14,10 @@ namespace Observatory.Framework.Files.Journal
         public string EngineerModifications { get; init; }
         public int Level { get; init; }
         public float Quality { get; init; }
+
         [Obsolete(JournalUtilities.UnusedMessage)]
         public string ReplacementItem { get; init; }
+
         [Obsolete(JournalUtilities.UnusedMessage)]
         public int Cost { get; init; }
     }

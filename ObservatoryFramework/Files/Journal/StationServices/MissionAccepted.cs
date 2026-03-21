@@ -1,7 +1,7 @@
-﻿using Observatory.Framework.Files.Converters;
-using Observatory.Framework.Files.ParameterTypes;
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
+using Observatory.Framework.Files.Converters;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -11,8 +11,10 @@ namespace Observatory.Framework.Files.Journal
         public string LocalisedName { get; init; }
         public string Faction { get; init; }
         public ulong MissionID { get; init; }
+
         [JsonConverter(typeof(MissionEffectConverter))]
         public MissionEffect Influence { get; init; }
+
         [JsonConverter(typeof(MissionEffectConverter))]
         public MissionEffect Reputation { get; init; }
         public long Reward { get; init; }
@@ -32,7 +34,15 @@ namespace Observatory.Framework.Files.Journal
         {
             get
             {
-                if (DateTime.TryParseExact(Expiry, "yyyy-MM-ddTHH:mm:ssZ", null, System.Globalization.DateTimeStyles.AssumeUniversal, out DateTime expiryDateTime))
+                if (
+                    DateTime.TryParseExact(
+                        Expiry,
+                        "yyyy-MM-ddTHH:mm:ssZ",
+                        null,
+                        System.Globalization.DateTimeStyles.AssumeUniversal,
+                        out DateTime expiryDateTime
+                    )
+                )
                 {
                     return expiryDateTime;
                 }

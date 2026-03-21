@@ -33,22 +33,28 @@
         public JsonStringEnumMemberConverterOptionsAttribute(
             Type? namingPolicyType = null,
             bool allowIntegerValues = true,
-            object? deserializationFailureFallbackValue = null)
+            object? deserializationFailureFallbackValue = null
+        )
         {
             Options = new JsonStringEnumMemberConverterOptions
             {
                 AllowIntegerValues = allowIntegerValues,
-                DeserializationFailureFallbackValue = deserializationFailureFallbackValue
+                DeserializationFailureFallbackValue = deserializationFailureFallbackValue,
             };
 
             if (namingPolicyType != null)
             {
                 if (!typeof(JsonNamingPolicy).IsAssignableFrom(namingPolicyType))
-                    throw new InvalidOperationException($"Supplied namingPolicyType {namingPolicyType} does not derive from JsonNamingPolicy.");
+                    throw new InvalidOperationException(
+                        $"Supplied namingPolicyType {namingPolicyType} does not derive from JsonNamingPolicy."
+                    );
                 if (namingPolicyType.GetConstructor(Type.EmptyTypes) == null)
-                    throw new InvalidOperationException($"Supplied namingPolicyType {namingPolicyType} does not expose a public parameterless constructor.");
+                    throw new InvalidOperationException(
+                        $"Supplied namingPolicyType {namingPolicyType} does not expose a public parameterless constructor."
+                    );
 
-                Options.NamingPolicy = (JsonNamingPolicy)Activator.CreateInstance(namingPolicyType)!;
+                Options.NamingPolicy = (JsonNamingPolicy)
+                    Activator.CreateInstance(namingPolicyType)!;
             }
         }
     }

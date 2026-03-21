@@ -1,6 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class SellWeapon : BuyWeapon
-    {
-    }
+    public class SellWeapon : BuyWeapon { }
 }

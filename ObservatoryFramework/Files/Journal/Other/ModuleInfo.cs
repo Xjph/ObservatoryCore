@@ -1,7 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class ModuleInfo : JournalBase
-    {
-
-    }
+    public class ModuleInfo : JournalBase { }
 }

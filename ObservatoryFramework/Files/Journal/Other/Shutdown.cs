@@ -1,6 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class Shutdown : JournalBase
-    {
-    }
+    public class Shutdown : JournalBase { }
 }

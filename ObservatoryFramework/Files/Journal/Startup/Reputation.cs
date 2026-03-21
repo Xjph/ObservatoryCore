@@ -41,7 +41,7 @@
                 float r when r > -90 => "unfriendly",
                 _ => "hostile",
             };
-            return text; 
+            return text;
         }
     }
 }

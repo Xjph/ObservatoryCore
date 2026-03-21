@@ -45,51 +45,51 @@ public class DwmHelper
     {
         Enable = 1,
         BlurRegion = 2,
-        TransitionOnMaximized = 4
+        TransitionOnMaximized = 4,
     }
 
     // https://learn.microsoft.com/en-us/windows/win32/api/dwmapi/ne-dwmapi-dwmwindowattribute
     public enum DWMWINDOWATTRIBUTE : uint
     {
-        NCRenderingEnabled = 1,       //Get atttribute
-        NCRenderingPolicy,            //Enable or disable non-client rendering
+        NCRenderingEnabled = 1, //Get atttribute
+        NCRenderingPolicy, //Enable or disable non-client rendering
         TransitionsForceDisabled,
         AllowNCPaint,
-        CaptionButtonBounds,          //Get atttribute
+        CaptionButtonBounds, //Get atttribute
         NonClientRtlLayout,
         ForceIconicRepresentation,
         Flip3DPolicy,
-        ExtendedFrameBounds,          //Get atttribute
+        ExtendedFrameBounds, //Get atttribute
         HasIconicBitmap,
         DisallowPeek,
         ExcludedFromPeek,
         Cloak,
-        Cloaked,                      //Get atttribute. Returns a DWMCLOACKEDREASON
+        Cloaked, //Get atttribute. Returns a DWMCLOACKEDREASON
         FreezeRepresentation,
         PassiveUpdateMode,
         UseHostBackDropBrush,
-        AccentPolicy = 19,            // Win 10 (undocumented)
-        ImmersiveDarkMode = 20,       // Win 11 22000
-        WindowCornerPreference = 33,  // Win 11 22000
-        BorderColor,                  // Win 11 22000
-        CaptionColor,                 // Win 11 22000
-        TextColor,                    // Win 11 22000
-        VisibleFrameBorderThickness,  // Win 11 22000
-        SystemBackdropType            // Win 11 22621
+        AccentPolicy = 19, // Win 10 (undocumented)
+        ImmersiveDarkMode = 20, // Win 11 22000
+        WindowCornerPreference = 33, // Win 11 22000
+        BorderColor, // Win 11 22000
+        CaptionColor, // Win 11 22000
+        TextColor, // Win 11 22000
+        VisibleFrameBorderThickness, // Win 11 22000
+        SystemBackdropType, // Win 11 22621
     }
 
     public enum DWMCLOACKEDREASON : uint
     {
-        DWM_CLOAKED_APP = 0x0000001,       //cloaked by its owner application.
-        DWM_CLOAKED_SHELL = 0x0000002,     //cloaked by the Shell.
-        DWM_CLOAKED_INHERITED = 0x0000004  //inherited from its owner window.
+        DWM_CLOAKED_APP = 0x0000001, //cloaked by its owner application.
+        DWM_CLOAKED_SHELL = 0x0000002, //cloaked by the Shell.
+        DWM_CLOAKED_INHERITED = 0x0000004, //inherited from its owner window.
     }
 
     public enum DWMNCRENDERINGPOLICY : uint
     {
         UseWindowStyle, // Enable/disable non-client rendering based on window style
-        Disabled,       // Disabled non-client rendering; window style is ignored
-        Enabled,        // Enabled non-client rendering; window style is ignored
+        Disabled, // Disabled non-client rendering; window style is ignored
+        Enabled, // Enabled non-client rendering; window style is ignored
     };
 
     public enum DWMACCENTSTATE
@@ -98,22 +98,22 @@ public class DwmHelper
         ACCENT_ENABLE_GRADIENT = 1,
         ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
         ACCENT_ENABLE_BLURBEHIND = 3,
-        ACCENT_INVALID_STATE = 4
+        ACCENT_INVALID_STATE = 4,
     }
 
     [Flags]
     public enum CompositionAction : uint
     {
         DWM_EC_DISABLECOMPOSITION = 0,
-        DWM_EC_ENABLECOMPOSITION = 1
+        DWM_EC_ENABLECOMPOSITION = 1,
     }
 
     // Values designating how Flip3D treats a given window.
     enum DWMFLIP3DWINDOWPOLICY : uint
     {
-        Default,        // Hide or include the window in Flip3D based on window style and visibility.
-        ExcludeBelow,   // Display the window under Flip3D and disabled.
-        ExcludeAbove,   // Display the window above Flip3D and enabled.
+        Default, // Hide or include the window in Flip3D based on window style and visibility.
+        ExcludeBelow, // Display the window under Flip3D and disabled.
+        ExcludeAbove, // Display the window above Flip3D and enabled.
     };
 
     public enum ThumbProperties_dwFlags : uint
@@ -122,9 +122,8 @@ public class DwmHelper
         RectSource = 0x00000002,
         Opacity = 0x00000004,
         Visible = 0x00000008,
-        SourceClientAreaOnly = 0x00000010
+        SourceClientAreaOnly = 0x00000010,
     }
-
 
     [StructLayout(LayoutKind.Sequential)]
     public struct AccentPolicy
@@ -134,7 +133,12 @@ public class DwmHelper
         public int GradientColor;
         public int AnimationId;
 
-        public AccentPolicy(DWMACCENTSTATE accentState, int accentFlags, int gradientColor, int animationId)
+        public AccentPolicy(
+            DWMACCENTSTATE accentState,
+            int accentFlags,
+            int gradientColor,
+            int animationId
+        )
         {
             AccentState = accentState;
             AccentFlags = accentFlags;
@@ -182,7 +186,7 @@ public class DwmHelper
     public struct WinCompositionAttrData
     {
         public DWMWINDOWATTRIBUTE Attribute;
-        public IntPtr Data;  //Will point to an AccentPolicy struct, where Attribute will be DWMWINDOWATTRIBUTE.AccentPolicy
+        public IntPtr Data; //Will point to an AccentPolicy struct, where Attribute will be DWMWINDOWATTRIBUTE.AccentPolicy
         public int SizeOfData;
 
         public WinCompositionAttrData(DWMWINDOWATTRIBUTE attribute, IntPtr data, int sizeOfData)
@@ -204,7 +208,10 @@ public class DwmHelper
 
     //https://msdn.microsoft.com/en-us/library/windows/desktop/aa969508(v=vs.85).aspx
     [DllImport("dwmapi.dll")]
-    internal static extern int DwmEnableBlurBehindWindow(IntPtr hwnd, ref DWM_BLURBEHIND blurBehind);
+    internal static extern int DwmEnableBlurBehindWindow(
+        IntPtr hwnd,
+        ref DWM_BLURBEHIND blurBehind
+    );
 
     [DllImport("dwmapi.dll", PreserveSig = false)]
     public static extern void DwmEnableComposition(CompositionAction uCompositionAction);
@@ -215,14 +222,27 @@ public class DwmHelper
 
     //https://msdn.microsoft.com/en-us/library/windows/desktop/aa969515(v=vs.85).aspx
     [DllImport("dwmapi.dll")]
-    internal static extern int DwmGetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
+    internal static extern int DwmGetWindowAttribute(
+        IntPtr hwnd,
+        DWMWINDOWATTRIBUTE attr,
+        ref int attrValue,
+        int attrSize
+    );
 
     //https://msdn.microsoft.com/en-us/library/windows/desktop/aa969524(v=vs.85).aspx
     [DllImport("dwmapi.dll")]
-    internal static extern int DwmSetWindowAttribute(IntPtr hwnd, DWMWINDOWATTRIBUTE attr, ref int attrValue, int attrSize);
+    internal static extern int DwmSetWindowAttribute(
+        IntPtr hwnd,
+        DWMWINDOWATTRIBUTE attr,
+        ref int attrValue,
+        int attrSize
+    );
 
     [DllImport("User32.dll", SetLastError = true)]
-    internal static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WinCompositionAttrData data);
+    internal static extern int SetWindowCompositionAttribute(
+        IntPtr hwnd,
+        ref WinCompositionAttrData data
+    );
 
     [DllImport("dwmapi.dll")]
     internal static extern int DwmIsCompositionEnabled(ref int pfEnabled);
@@ -237,11 +257,20 @@ public class DwmHelper
     public static bool IsNonClientRenderingEnabled(IntPtr hWnd)
     {
         int gwaEnabled = 0;
-        int result = DwmGetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.NCRenderingEnabled, ref gwaEnabled, sizeof(int));
+        int result = DwmGetWindowAttribute(
+            hWnd,
+            DWMWINDOWATTRIBUTE.NCRenderingEnabled,
+            ref gwaEnabled,
+            sizeof(int)
+        );
         return gwaEnabled == 1;
     }
 
-    public static bool WindowSetAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE attribute, int attributeValue)
+    public static bool WindowSetAttribute(
+        IntPtr hWnd,
+        DWMWINDOWATTRIBUTE attribute,
+        int attributeValue
+    )
     {
         int result = DwmSetWindowAttribute(hWnd, attribute, ref attributeValue, sizeof(int));
         return (result == 0);
@@ -260,7 +289,11 @@ public class DwmHelper
         int accentSize = Marshal.SizeOf(accPolicy);
         IntPtr accentPtr = Marshal.AllocHGlobal(accentSize);
         Marshal.StructureToPtr(accPolicy, accentPtr, false);
-        var data = new WinCompositionAttrData(DWMWINDOWATTRIBUTE.AccentPolicy, accentPtr, accentSize);
+        var data = new WinCompositionAttrData(
+            DWMWINDOWATTRIBUTE.AccentPolicy,
+            accentPtr,
+            accentSize
+        );
 
         SetWindowCompositionAttribute(hWnd, ref data);
         Marshal.FreeHGlobal(accentPtr);
@@ -304,7 +337,12 @@ public class DwmHelper
     {
         int ncrp = (int)DWMNCRENDERINGPOLICY.Disabled;
         // Disable non-client area rendering on the window.
-        int result = DwmSetWindowAttribute(hWnd, DWMWINDOWATTRIBUTE.NCRenderingPolicy, ref ncrp, sizeof(int));
+        int result = DwmSetWindowAttribute(
+            hWnd,
+            DWMWINDOWATTRIBUTE.NCRenderingPolicy,
+            ref ncrp,
+            sizeof(int)
+        );
         return result == 0;
     }
 }

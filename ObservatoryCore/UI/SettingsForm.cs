@@ -18,18 +18,22 @@ namespace Observatory.UI
             _plugin = plugin;
             _scale = (double)DeviceDpi / 96;
 
-            var settings = PluginManagement.PluginManager.GetSettingDisplayNames(plugin.Settings).Where(s => !Attribute.IsDefined(s.Key, typeof(SettingIgnore)));
+            var settings = PluginManagement
+                .PluginManager.GetSettingDisplayNames(plugin.Settings)
+                .Where(s => !Attribute.IsDefined(s.Key, typeof(SettingIgnore)));
             CreateControls(settings);
 
-            
             Text = plugin.Name + " Settings";
             Icon = Resources.EOCIcon_Presized;
             ThemeManager.GetInstance.RegisterControl(this);
 
             var currentScreen = Screen.FromControl(this);
 
-            var vScrollMargin = SettingsFlowPanel.DisplayRectangle.Height - SettingsFlowPanel.ClientRectangle.Height;
-            var hScrollMargin = SettingsFlowPanel.DisplayRectangle.Width - SettingsFlowPanel.ClientRectangle.Width;
+            var vScrollMargin =
+                SettingsFlowPanel.DisplayRectangle.Height
+                - SettingsFlowPanel.ClientRectangle.Height;
+            var hScrollMargin =
+                SettingsFlowPanel.DisplayRectangle.Width - SettingsFlowPanel.ClientRectangle.Width;
             if (vScrollMargin > 0)
             {
                 Height = Math.Min(Height + vScrollMargin, currentScreen.WorkingArea.Height);
@@ -37,21 +41,22 @@ namespace Observatory.UI
             if (hScrollMargin > 0)
             {
                 Width = Math.Min(Width + hScrollMargin, currentScreen.WorkingArea.Width);
-            }   
+            }
 
             // Recenter after size modified by adding controls.
-            var midPoint = new Point(currentScreen.WorkingArea.Width / 2, currentScreen.WorkingArea.Height / 2);
-            Location = new Point(currentScreen.Bounds.X + (midPoint.X - Width / 2), currentScreen.Bounds.Y + (midPoint.Y - Height / 2));
-            
+            var midPoint = new Point(
+                currentScreen.WorkingArea.Width / 2,
+                currentScreen.WorkingArea.Height / 2
+            );
+            Location = new Point(
+                currentScreen.Bounds.X + (midPoint.X - Width / 2),
+                currentScreen.Bounds.Y + (midPoint.Y - Height / 2)
+            );
         }
 
         private TableLayoutPanel WrapToSingleRow(Control[] controls)
         {
-            var table = new TableLayoutPanel()
-            {
-                Height = (int)(33 * _scale),
-                AutoSize = true
-            };
+            var table = new TableLayoutPanel() { Height = (int)(33 * _scale), AutoSize = true };
             for (int i = 0; i < controls.Length; i++)
             {
                 controls[i].Anchor = AnchorStyles.Right;
@@ -89,7 +94,9 @@ namespace Observatory.UI
             int largeWidth = 0;
             foreach (var setting in settings)
             {
-                SettingNewGroup? newGroup = Attribute.GetCustomAttribute(setting.Key, typeof(SettingNewGroup)) as SettingNewGroup;
+                SettingNewGroup? newGroup =
+                    Attribute.GetCustomAttribute(setting.Key, typeof(SettingNewGroup))
+                    as SettingNewGroup;
                 if (newGroup != null)
                 {
                     if (groupedControls.Count > 0)
@@ -107,7 +114,7 @@ namespace Observatory.UI
                     if (!string.IsNullOrEmpty(newGroup.Label))
                     {
                         var label = CreateGroupLabel(newGroup.Label);
-              
+
                         if (SettingsFlowPanel.Controls.Count > 0)
                         {
                             InsertFlowBreak(SettingsFlowPanel);
@@ -183,7 +190,9 @@ namespace Observatory.UI
                         Control doubleControl = CreateSettingNumericUpDownForDouble(setting.Key);
                         doubleLabel.AutoSize = true;
                         doubleLabel.Height = doubleControl.Height;
-                        SettingsFlowPanel.Controls.Add(WrapToSingleRow([doubleLabel, doubleControl]));
+                        SettingsFlowPanel.Controls.Add(
+                            WrapToSingleRow([doubleLabel, doubleControl])
+                        );
                         InsertFlowBreak(SettingsFlowPanel);
                         break;
                     case Action action:
@@ -203,7 +212,9 @@ namespace Observatory.UI
                         break;
                 }
                 if (handled)
-                    groupedControls.Add(SettingsFlowPanel.Controls[SettingsFlowPanel.Controls.Count - 1]);
+                    groupedControls.Add(
+                        SettingsFlowPanel.Controls[SettingsFlowPanel.Controls.Count - 1]
+                    );
             }
 
             if (groupedControls.Count > 0)
@@ -221,8 +232,10 @@ namespace Observatory.UI
             // If we have a group with a lot of items allow for multiple columns
             if (largeGroup)
             {
-                Width = largeWidth * 2 // Two columns
-                    + Width - SettingsFlowPanel.Width // Plus margin
+                Width =
+                    largeWidth * 2 // Two columns
+                    + Width
+                    - SettingsFlowPanel.Width // Plus margin
                     + 40; // And allowance for scrollbar
             }
         }
@@ -237,7 +250,8 @@ namespace Observatory.UI
 
                 var halfwayIndex = settingWords.Length / 2;
 
-                settingName = string.Join(' ', settingWords[0..halfwayIndex])
+                settingName =
+                    string.Join(' ', settingWords[0..halfwayIndex])
                     + Environment.NewLine
                     + string.Join(' ', settingWords[halfwayIndex..^0]);
             }
@@ -246,7 +260,7 @@ namespace Observatory.UI
             {
                 Text = settingName + ": ",
                 ForeColor = Color.LightGray,
-                AutoSize = true
+                AutoSize = true,
             };
 
             return label;
@@ -260,30 +274,39 @@ namespace Observatory.UI
                 TextAlign = ContentAlignment.BottomLeft,
                 ForeColor = Color.LightGray,
                 AutoSize = true,
-                Padding = new Padding(0, 5, 0, 0)
+                Padding = new Padding(0, 5, 0, 0),
             };
             label.Font = new Font(label.Font.FontFamily, label.Font.Size + 1, FontStyle.Bold);
             return label;
         }
 
-        private ComboBox CreateSettingDropdown(PropertyInfo setting, Dictionary<string, object> dropdownItems)
+        private ComboBox CreateSettingDropdown(
+            PropertyInfo setting,
+            Dictionary<string, object> dropdownItems
+        )
         {
-            var backingValueName = (SettingBackingValue?)Attribute.GetCustomAttribute(setting, typeof(SettingBackingValue));
+            var backingValueName = (SettingBackingValue?)
+                Attribute.GetCustomAttribute(setting, typeof(SettingBackingValue));
 
-            var backingValue = from s in PluginManagement.PluginManager.GetSettingDisplayNames(_plugin.Settings)
-                               where s.Value == backingValueName?.BackingProperty
-                               select s.Key;
+            var backingValue =
+                from s in PluginManagement.PluginManager.GetSettingDisplayNames(_plugin.Settings)
+                where s.Value == backingValueName?.BackingProperty
+                select s.Key;
 
             if (backingValue.Count() != 1)
-                throw new($"{_plugin.ShortName}: Dictionary settings must have exactly one backing value.");
+                throw new(
+                    $"{_plugin.ShortName}: Dictionary settings must have exactly one backing value."
+                );
 
             ComboBox comboBox = new()
             {
                 AutoSize = true,
-                DropDownStyle = ComboBoxStyle.DropDownList
+                DropDownStyle = ComboBoxStyle.DropDownList,
             };
 
-            var comboWidth = dropdownItems.Max(item => TextRenderer.MeasureText(item.Key, comboBox.Font).Width);
+            var comboWidth = dropdownItems.Max(item =>
+                TextRenderer.MeasureText(item.Key, comboBox.Font).Width
+            );
 
             // Slightly wider to account for arrow at end of dropdown.
             comboBox.Width = comboWidth + (int)(20 * _scale);
@@ -313,7 +336,7 @@ namespace Observatory.UI
                 Text = settingName,
                 AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
-                MinimumSize = new Size(0, (int)(25 * _scale))
+                MinimumSize = new Size(0, (int)(25 * _scale)),
             };
 
             button.FlatAppearance.BorderSize = 0;
@@ -328,7 +351,8 @@ namespace Observatory.UI
 
         private TrackBar CreateSettingTrackbar(PropertyInfo setting)
         {
-            SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
+            SettingNumericBounds? bounds = (SettingNumericBounds?)
+                Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
 
             var minBound = Convert.ToInt32(bounds?.Minimum ?? 0);
             var maxBound = Convert.ToInt32(bounds?.Maximum ?? 100);
@@ -345,7 +369,11 @@ namespace Observatory.UI
                 Maximum = maxBound,
             };
 
-            trackBar.Value = Math.Clamp((int?)setting.GetValue(_plugin.Settings) ?? 0, minBound, maxBound);
+            trackBar.Value = Math.Clamp(
+                (int?)setting.GetValue(_plugin.Settings) ?? 0,
+                minBound,
+                maxBound
+            );
 
             trackBar.ValueChanged += (sender, e) =>
             {
@@ -358,16 +386,21 @@ namespace Observatory.UI
 
         private NumericUpDown CreateSettingNumericUpDownForInt(PropertyInfo setting)
         {
-            SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
+            SettingNumericBounds? bounds = (SettingNumericBounds?)
+                Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
             NumericUpDown numericUpDown = new()
             {
                 AutoSize = true,
                 Minimum = Convert.ToInt32(bounds?.Minimum ?? Int32.MinValue),
                 Maximum = Convert.ToInt32(bounds?.Maximum ?? Int32.MaxValue),
-                Increment = Convert.ToInt32(bounds?.Increment ?? 1)
+                Increment = Convert.ToInt32(bounds?.Increment ?? 1),
             };
 
-            numericUpDown.Value = Math.Clamp((int?)setting.GetValue(_plugin.Settings) ?? 0, numericUpDown.Minimum, numericUpDown.Maximum);
+            numericUpDown.Value = Math.Clamp(
+                (int?)setting.GetValue(_plugin.Settings) ?? 0,
+                numericUpDown.Minimum,
+                numericUpDown.Maximum
+            );
             numericUpDown.ValueChanged += (sender, e) =>
             {
                 setting.SetValue(_plugin.Settings, Convert.ToInt32(numericUpDown.Value));
@@ -379,7 +412,8 @@ namespace Observatory.UI
 
         private NumericUpDown CreateSettingNumericUpDownForDouble(PropertyInfo setting)
         {
-            SettingNumericBounds? bounds = (SettingNumericBounds?)Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
+            SettingNumericBounds? bounds = (SettingNumericBounds?)
+                Attribute.GetCustomAttribute(setting, typeof(SettingNumericBounds));
             NumericUpDown numericUpDown = new()
             {
                 AutoSize = true,
@@ -389,7 +423,11 @@ namespace Observatory.UI
                 DecimalPlaces = bounds?.Precision ?? 1,
             };
 
-            numericUpDown.Value = Math.Clamp(Convert.ToDecimal(setting.GetValue(_plugin.Settings) ?? 0), numericUpDown.Minimum, numericUpDown.Maximum);
+            numericUpDown.Value = Math.Clamp(
+                Convert.ToDecimal(setting.GetValue(_plugin.Settings) ?? 0),
+                numericUpDown.Minimum,
+                numericUpDown.Maximum
+            );
             numericUpDown.ValueChanged += (sender, e) =>
             {
                 setting.SetValue(_plugin.Settings, Convert.ToDouble(numericUpDown.Value));
@@ -408,7 +446,7 @@ namespace Observatory.UI
                 Checked = (bool?)setting.Key.GetValue(_plugin.Settings) ?? false,
                 AutoSize = true,
                 ForeColor = Color.LightGray,
-                MinimumSize = new(0, (int)(25 * _scale))
+                MinimumSize = new(0, (int)(25 * _scale)),
             };
 
             checkBox.CheckedChanged += (sender, e) =>
@@ -425,7 +463,7 @@ namespace Observatory.UI
             TextBox textBox = new()
             {
                 Text = (setting.GetValue(_plugin.Settings) ?? String.Empty).ToString(),
-                AutoSize = true
+                AutoSize = true,
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -445,7 +483,7 @@ namespace Observatory.UI
             {
                 Text = fileInfo?.FullName ?? string.Empty,
                 AutoSize = true,
-                Width = 200
+                Width = 200,
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -464,7 +502,7 @@ namespace Observatory.UI
                 Text = "Browse",
                 AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
-                MinimumSize = new Size(0, (int)(25 * _scale))
+                MinimumSize = new Size(0, (int)(25 * _scale)),
             };
 
             button.FlatAppearance.BorderSize = 0;
@@ -477,7 +515,9 @@ namespace Observatory.UI
                     Title = "Select File...",
                     Filter = "Lua files (*.lua)|*.lua|All files (*.*)|*.*",
                     FilterIndex = 0,
-                    InitialDirectory = currentDir ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+                    InitialDirectory =
+                        currentDir
+                        ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
                 };
 
                 var browseResult = ofd.ShowDialog();
@@ -499,7 +539,7 @@ namespace Observatory.UI
             {
                 Text = dirInfo?.FullName ?? string.Empty,
                 AutoSize = true,
-                Width = 200
+                Width = 200,
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -518,7 +558,7 @@ namespace Observatory.UI
                 Text = "Browse",
                 AutoSize = true,
                 FlatStyle = FlatStyle.Flat,
-                MinimumSize = new Size(0, (int)(25 * _scale))
+                MinimumSize = new Size(0, (int)(25 * _scale)),
             };
 
             button.FlatAppearance.BorderSize = 0;
@@ -529,8 +569,10 @@ namespace Observatory.UI
                 FolderBrowserDialog fbd = new FolderBrowserDialog()
                 {
                     Description = "Select File...",
-                    InitialDirectory = currentDir ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                    UseDescriptionForTitle = true                    
+                    InitialDirectory =
+                        currentDir
+                        ?? Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    UseDescriptionForTitle = true,
                 };
 
                 var browseResult = fbd.ShowDialog();

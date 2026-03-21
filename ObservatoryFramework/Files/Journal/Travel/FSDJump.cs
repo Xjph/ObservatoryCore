@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using Observatory.Framework.Files.ParameterTypes;
-using System.Collections.Immutable;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -9,6 +9,7 @@ namespace Observatory.Framework.Files.Journal
     {
         public string StarSystem { get; init; }
         public ulong SystemAddress { get; init; }
+
         [JsonConverter(typeof(Converters.StarPosConverter))]
         public StarPosition StarPos { get; init; }
         public string Body { get; init; }
@@ -18,15 +19,14 @@ namespace Observatory.Framework.Files.Journal
         public double FuelUsed { get; init; }
         public double FuelLevel { get; init; }
         public int BoostUsed { get; init; }
+
         [JsonConverter(typeof(Converters.LegacyFactionConverter<SystemFaction>))]
         public SystemFaction SystemFaction { get; init; }
+
         [Obsolete(JournalUtilities.ObsoleteMessage)]
         public string FactionState
         {
-            get
-            {
-                return SystemFaction?.FactionState;
-            }
+            get { return SystemFaction?.FactionState; }
             init
             {
                 //Stale Data, discard

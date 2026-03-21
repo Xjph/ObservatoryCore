@@ -1,5 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class Promotion : Rank
-    { }
+    public class Promotion : Rank { }
 }

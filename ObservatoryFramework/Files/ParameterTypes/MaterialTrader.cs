@@ -24,10 +24,7 @@ namespace Observatory.Framework.Files.ParameterTypes
 
         public int DataMaterialsTraded
         {
-            get
-            {
-                return MaterialsTraded - EncodedMaterialsTraded - RawMaterialsTraded;
-            }
+            get { return MaterialsTraded - EncodedMaterialsTraded - RawMaterialsTraded; }
         }
 
         [JsonPropertyName("Grade_1_Materials_Traded")]

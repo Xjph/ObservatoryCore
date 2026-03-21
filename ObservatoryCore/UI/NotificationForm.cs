@@ -26,16 +26,23 @@ namespace Observatory.UI
                 return cp;
             }
         }
+
         protected override void WndProc(ref Message m)
         {
-
             switch (m.Msg)
             {
                 case DwmHelper.WM_DWMCOMPOSITIONCHANGED:
-                    if (System.Environment.OSVersion.Version.Major >= 6 && DwmHelper.IsCompositionEnabled())
+                    if (
+                        System.Environment.OSVersion.Version.Major >= 6
+                        && DwmHelper.IsCompositionEnabled()
+                    )
                     {
                         var policy = DwmHelper.DWMNCRENDERINGPOLICY.Enabled;
-                        DwmHelper.WindowSetAttribute(Handle, DwmHelper.DWMWINDOWATTRIBUTE.NCRenderingPolicy, (int)policy);
+                        DwmHelper.WindowSetAttribute(
+                            Handle,
+                            DwmHelper.DWMWINDOWATTRIBUTE.NCRenderingPolicy,
+                            (int)policy
+                        );
                         DwmHelper.WindowBorderlessDropShadow(Handle, 2);
                         m.Result = IntPtr.Zero;
                     }
@@ -91,8 +98,9 @@ namespace Observatory.UI
             Body.Text = args.Detail;
             Body.Font = new Font(Properties.Core.Default.NativeNotifyFont, 14 * scale * fontScale);
             Body.Location = new Point(
-                Body.Location.X, 
-                (int)Math.Round(Body.Location.Y + (Title.Height * fontScale - Title.Height)));
+                Body.Location.X,
+                (int)Math.Round(Body.Location.Y + (Title.Height * fontScale - Title.Height))
+            );
             Paint += DrawBorder;
 
             AdjustPosition(args.XPos / 100, args.YPos / 100);
@@ -101,7 +109,8 @@ namespace Observatory.UI
             _timer.Elapsed += CloseNotification;
             if (args.Timeout != 0)
             {
-                _timer.Interval = args.Timeout == -1 ? Properties.Core.Default.NativeNotifyTimeout : args.Timeout;
+                _timer.Interval =
+                    args.Timeout == -1 ? Properties.Core.Default.NativeNotifyTimeout : args.Timeout;
                 _timer.Start();
             }
         }
@@ -133,7 +142,10 @@ namespace Observatory.UI
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Notification Update Failure, please inform Vithigar. Details: " + ex.Message);
+                    throw new Exception(
+                        "Notification Update Failure, please inform Vithigar. Details: "
+                            + ex.Message
+                    );
                 }
             }
         }
@@ -168,42 +180,50 @@ namespace Observatory.UI
                     case 0: // Bottom Right
                         Location = Point.Add(
                             new Point(screenBounds.Right, screenBounds.Bottom),
-                            new Size(-(Width + 50), -(Height + 50)));
+                            new Size(-(Width + 50), -(Height + 50))
+                        );
                         break;
                     case 1: // Bottom Left
                         Location = Point.Add(
                             new Point(screenBounds.Left, screenBounds.Bottom),
-                            new Size(50, -(Height + 50)));
+                            new Size(50, -(Height + 50))
+                        );
                         break;
                     case 2: // Top Right
                         Location = Point.Add(
                             new Point(screenBounds.Right, screenBounds.Top),
-                            new Size(-(Width + 50), 50));
+                            new Size(-(Width + 50), 50)
+                        );
                         break;
                     case 3: // Top Left
                         Location = Point.Add(
                             new Point(screenBounds.Left, screenBounds.Top),
-                            new Size(50, 50));
+                            new Size(50, 50)
+                        );
                         break;
                     case 4: // Top
                         Location = Point.Add(
                             new Point(screenBounds.Right / 2, screenBounds.Top),
-                            new Size(-Width / 2, 50));
+                            new Size(-Width / 2, 50)
+                        );
                         break;
                     case 5: // Bottom
                         Location = Point.Add(
                             new Point(screenBounds.Right / 2, screenBounds.Bottom),
-                            new Size(-Width / 2, -(Height + 50)));
+                            new Size(-Width / 2, -(Height + 50))
+                        );
                         break;
                     case 6: // Left
                         Location = Point.Add(
                             new Point(screenBounds.Left, screenBounds.Bottom / 2),
-                            new Size(50, -(Height) / 2));
+                            new Size(50, -(Height) / 2)
+                        );
                         break;
                     case 7: // Right
                         Location = Point.Add(
                             new Point(screenBounds.Right, screenBounds.Bottom / 2),
-                            new Size(-(Width + 50), -(Height) / 2));
+                            new Size(-(Width + 50), -(Height) / 2)
+                        );
                         break;
                 }
                 _originalLocation = new Point(Location.X, Location.Y);
@@ -222,8 +242,6 @@ namespace Observatory.UI
             }
         }
 
-
-
         private void DrawText(object? sender, PaintEventArgs e)
         {
             if (sender != null)
@@ -241,11 +259,13 @@ namespace Observatory.UI
                         : System.Drawing.Text.TextRenderingHint.SystemDefault;
                     e.Graphics.DrawString(label.Text, label.Font, brush, label.ClientRectangle, sf);
                 }
-                
             }
         }
 
-        public Guid Guid { get => _guid; }
+        public Guid Guid
+        {
+            get => _guid;
+        }
 
         public void AdjustOffset(bool increase)
         {
@@ -282,7 +302,9 @@ namespace Observatory.UI
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception("Notification Close Failure, please inform Vithigar. Details: " + ex.Message);
+                    throw new Exception(
+                        "Notification Close Failure, please inform Vithigar. Details: " + ex.Message
+                    );
                 }
             }
 

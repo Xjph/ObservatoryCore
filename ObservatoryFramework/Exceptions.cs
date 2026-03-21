@@ -12,7 +12,8 @@
         /// <param name="pluginName"></param>
         /// <param name="userMessage"></param>
         /// <param name="innerException"></param>
-        public PluginException(string pluginName, string userMessage, Exception innerException) : base(innerException.Message, innerException)
+        public PluginException(string pluginName, string userMessage, Exception innerException)
+            : base(innerException.Message, innerException)
         {
             PluginName = pluginName;
             UserMessage = userMessage;
@@ -27,6 +28,5 @@
         /// Message to be displayed to user.
         /// </summary>
         public string UserMessage { get; }
-        
     }
 }

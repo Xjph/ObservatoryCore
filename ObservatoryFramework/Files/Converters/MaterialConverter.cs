@@ -11,7 +11,11 @@ namespace Observatory.Framework.Files.Converters
     /// </summary>
     public class MaterialConverter : JsonConverter<ImmutableList<Material>>
     {
-        public override ImmutableList<Material> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override ImmutableList<Material> Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             if (reader.TokenType == JsonTokenType.StartObject)
             {
@@ -29,7 +33,7 @@ namespace Observatory.Framework.Files.Converters
                             {
                                 Name = name,
                                 Name_Localised = name,
-                                Count = count
+                                Count = count,
                             };
                             materialComposition.Add(material);
                         }
@@ -43,11 +47,16 @@ namespace Observatory.Framework.Files.Converters
             }
             else
             {
-                return (ImmutableList<Material>)JsonSerializer.Deserialize(ref reader, typeof(ImmutableList<Material>));
+                return (ImmutableList<Material>)
+                    JsonSerializer.Deserialize(ref reader, typeof(ImmutableList<Material>));
             }
         }
 
-        public override void Write(Utf8JsonWriter writer, ImmutableList<Material> value, JsonSerializerOptions options)
+        public override void Write(
+            Utf8JsonWriter writer,
+            ImmutableList<Material> value,
+            JsonSerializerOptions options
+        )
         {
             throw new NotImplementedException();
         }

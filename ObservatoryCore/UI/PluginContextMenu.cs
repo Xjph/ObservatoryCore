@@ -1,7 +1,7 @@
-﻿using Observatory.Framework;
+﻿using System.Diagnostics;
+using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
-using System.Diagnostics;
 
 namespace Observatory.UI
 {
@@ -9,22 +9,10 @@ namespace Observatory.UI
     {
         internal PluginContextMenu(IObservatoryPlugin plugin, TabPage? pluginTab = null)
         {
-            ToolStripMenuItem popout = new()
-            {
-                Text = $"Popout {plugin.ShortName}"
-            };
-            ToolStripMenuItem settings = new()
-            {
-                Text = $"{plugin.ShortName} Settings"
-            };
-            ToolStripMenuItem about = new()
-            {
-                Text = $"About {plugin.ShortName}"
-            };
-            ToolStripMenuItem folder = new()
-            {
-                Text = $"Open {plugin.ShortName} Data Folder"
-            };
+            ToolStripMenuItem popout = new() { Text = $"Popout {plugin.ShortName}" };
+            ToolStripMenuItem settings = new() { Text = $"{plugin.ShortName} Settings" };
+            ToolStripMenuItem about = new() { Text = $"About {plugin.ShortName}" };
+            ToolStripMenuItem folder = new() { Text = $"Open {plugin.ShortName} Data Folder" };
 
             if (pluginTab != null)
             {
@@ -50,10 +38,16 @@ namespace Observatory.UI
                 }
                 if (e.ClickedItem == folder)
                 {
-                    var storageDir = PluginManager.GetInstance.Core.GetStorageFolderForPlugin(plugin);
+                    var storageDir = PluginManager.GetInstance.Core.GetStorageFolderForPlugin(
+                        plugin
+                    );
                     if (!string.IsNullOrWhiteSpace(storageDir) && Directory.Exists(storageDir))
                     {
-                        var fileExplorerInfo = new ProcessStartInfo() { FileName = storageDir, UseShellExecute = true };
+                        var fileExplorerInfo = new ProcessStartInfo()
+                        {
+                            FileName = storageDir,
+                            UseShellExecute = true,
+                        };
                         Process.Start(fileExplorerInfo);
                     }
                 }

@@ -16,7 +16,10 @@ namespace Observatory.Framework.Files
             {
                 while (reader.Read())
                 {
-                    if (reader.TokenType == JsonTokenType.PropertyName && reader.GetString() == "event")
+                    if (
+                        reader.TokenType == JsonTokenType.PropertyName
+                        && reader.GetString() == "event"
+                    )
                     {
                         reader.Read();
                         result = reader.GetString();
@@ -25,10 +28,8 @@ namespace Observatory.Framework.Files
             }
             catch
             {
-                
                 result = "InvalidJson";
             }
-
 
             return result;
         }
@@ -38,9 +39,10 @@ namespace Observatory.Framework.Files
             return line.Replace("\"RotationPeriod\":inf,", "");
         }
 
-        public const string ObsoleteMessage = "Unused in Elite Dangerous 3.7+, may appear in legacy journal data.";
+        public const string ObsoleteMessage =
+            "Unused in Elite Dangerous 3.7+, may appear in legacy journal data.";
 
-        public const string UnusedMessage = "Documented by Frontier, but no occurances of this value ever found in real journal data.";
-     
+        public const string UnusedMessage =
+            "Documented by Frontier, but no occurances of this value ever found in real journal data.";
     }
 }

@@ -1,8 +1,8 @@
-﻿using NAudio.Wave;
+﻿using System.Collections.Concurrent;
+using System.Diagnostics;
+using NAudio.Wave;
 using Observatory.Framework;
 using Observatory.Framework.ParameterTypes;
-using System.Collections.Concurrent;
-using System.Diagnostics;
 
 namespace Observatory.Utils
 {
@@ -12,11 +12,17 @@ namespace Observatory.Utils
 
         private ConcurrentDictionary<Guid, AudioTaskData> audioTasks = new();
 
-        internal Task EnqueueAndPlay(string filePath, AudioOptions options, NotificationArgs args = null)
+        internal Task EnqueueAndPlay(
+            string filePath,
+            AudioOptions options,
+            NotificationArgs args = null
+        )
         {
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             {
-                Debug.WriteLine($"Attempted to enqueue and play a empty or non-existant file: {filePath}; (instantly? {options.Instant}");
+                Debug.WriteLine(
+                    $"Attempted to enqueue and play a empty or non-existant file: {filePath}; (instantly? {options.Instant}"
+                );
                 return Task.CompletedTask;
             }
 
@@ -54,7 +60,10 @@ namespace Observatory.Utils
                         catch (Exception ex)
                         {
                             processingQueue = false;
-                            ErrorReporter.ShowErrorPopup("Audio Playback Error (queued)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                            ErrorReporter.ShowErrorPopup(
+                                "Audio Playback Error (queued)",
+                                [(ex.Message, ex.StackTrace ?? string.Empty)]
+                            );
                         }
                     });
                 }
@@ -71,31 +80,37 @@ namespace Observatory.Utils
                         }
                         catch (Exception ex)
                         {
-                            ErrorReporter.ShowErrorPopup("Audio Playback Error (queue_wait)", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                            ErrorReporter.ShowErrorPopup(
+                                "Audio Playback Error (queue_wait)",
+                                [(ex.Message, ex.StackTrace ?? string.Empty)]
+                            );
                         }
                     });
                 }
-
             }
             else
             {
                 return Task.Run(() =>
                 {
-                    PlayAudioFile(new()
-                    {
-                        Id = Guid.Empty,
-                        FilePath = filePath,
-                        Options = options,
-                        Args = args,
-                    });
+                    PlayAudioFile(
+                        new()
+                        {
+                            Id = Guid.Empty,
+                            FilePath = filePath,
+                            Options = options,
+                            Args = args,
+                        }
+                    );
                 });
             }
         }
 
         internal bool HasMatching(NotificationArgs arg)
         {
-            return audioTasks.Values
-                .Where(d => d.Args != null && d.Args.Title.Trim().ToLower() == arg.Title.Trim().ToLower())
+            return audioTasks
+                .Values.Where(d =>
+                    d.Args != null && d.Args.Title.Trim().ToLower() == arg.Title.Trim().ToLower()
+                )
                 .Any();
         }
 
@@ -103,13 +118,23 @@ namespace Observatory.Utils
         {
             try
             {
-                if (!File.Exists(audioTask.FilePath) || new FileInfo(audioTask.FilePath).Length == 0)
+                if (
+                    !File.Exists(audioTask.FilePath)
+                    || new FileInfo(audioTask.FilePath).Length == 0
+                )
                     return;
 
-                Debug.WriteLine($"[Core AH][{Thread.CurrentThread.ManagedThreadId}; {DateTime.Now.ToString("mm:ss.ffff")}] Playing audio file: {audioTask.FilePath}");
+                Debug.WriteLine(
+                    $"[Core AH][{Thread.CurrentThread.ManagedThreadId}; {DateTime.Now.ToString("mm:ss.ffff")}] Playing audio file: {audioTask.FilePath}"
+                );
 
                 using (var file = new AudioFileReader(audioTask.FilePath))
-                using (var output = new WaveOutEvent() { DeviceNumber = GetDeviceIndex(Properties.Core.Default.AudioDevice) - 1 })
+                using (
+                    var output = new WaveOutEvent()
+                    {
+                        DeviceNumber = GetDeviceIndex(Properties.Core.Default.AudioDevice) - 1,
+                    }
+                )
                 {
                     file.Volume = Properties.Core.Default.AudioVolume;
                     output.Init(file);
@@ -134,14 +159,20 @@ namespace Observatory.Utils
                         {
                             // Ignore for now. Yes, this will result in some files being leaked.
                             // TODO: Clean up on app close?
-                            Debug.WriteLine($"Unable to clean up file {audioTask.FilePath} due to error: {deleteEx.Message}");
+                            Debug.WriteLine(
+                                $"Unable to clean up file {audioTask.FilePath} due to error: {deleteEx.Message}"
+                            );
                         }
                     }
-                };
+                }
+                ;
             }
             catch (Exception ex)
             {
-                ErrorReporter.ShowErrorPopup("Audio Playback Error", [(ex.Message, ex.StackTrace ?? string.Empty)]);
+                ErrorReporter.ShowErrorPopup(
+                    "Audio Playback Error",
+                    [(ex.Message, ex.StackTrace ?? string.Empty)]
+                );
             }
         }
 
@@ -156,7 +187,7 @@ namespace Observatory.Utils
                     var deviceName = WaveOut.GetCapabilities(n).ProductName;
                     if (deviceName == "Microsoft Sound Mapper")
                         deviceName = "Default Audio Device";
-                    devices.Add(deviceName); 
+                    devices.Add(deviceName);
                 }
                 catch
                 {
@@ -166,7 +197,7 @@ namespace Observatory.Utils
 
             if (devices.Count == 0)
                 devices.Add("--No Audio Devices Present--");
-                
+
             return devices;
         }
 

@@ -20,14 +20,17 @@ namespace Observatory.Framework
         /// The short name of the plugin or app.
         /// </summary>
         public string ShortName { get; set; }
+
         /// <summary>
         /// The full name of the plugin or app.
         /// </summary>
         public string FullName { get; set; }
+
         /// <summary>
         /// A brief, multiline description of the plugin or app.
         /// </summary>
         public string Description { get; set; }
+
         /// <summary>
         /// Your name. This is public, remember.
         /// </summary>
@@ -54,6 +57,7 @@ namespace Observatory.Framework
         /// Required. The text that will be linked to the URL below.
         /// </summary>
         public string Text { get; init; }
+
         /// <summary>
         /// Required. The URL to launch when the link is clicked.
         /// </summary>

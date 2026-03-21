@@ -1,7 +1,4 @@
-﻿using Observatory.Framework;
-using Observatory.Framework.Interfaces;
-using Observatory.Utils;
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Compression;
@@ -11,6 +8,9 @@ using System.Runtime.Loader;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Observatory.Framework;
+using Observatory.Framework.Interfaces;
+using Observatory.Utils;
 
 namespace Observatory.PluginManagement
 {
@@ -18,15 +18,15 @@ namespace Observatory.PluginManagement
     {
         public static PluginManager GetInstance
         {
-            get
-            {
-                return _instance.Value;
-            }
+            get { return _instance.Value; }
         }
 
-        public static string PluginPath = $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
+        public static string PluginPath =
+            $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
 
-        private static readonly Lazy<PluginManager> _instance = new Lazy<PluginManager>(NewPluginManager);
+        private static readonly Lazy<PluginManager> _instance = new Lazy<PluginManager>(
+            NewPluginManager
+        );
 
         private static PluginManager NewPluginManager()
         {
@@ -42,36 +42,53 @@ namespace Observatory.PluginManagement
         private readonly PluginCore core;
         private readonly PluginEventHandler pluginHandler;
 
-        private readonly JsonSerializerOptions SettingsJsonSerializerOptions = new JsonSerializerOptions()
-        {
-            UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
-            ReferenceHandler = ReferenceHandler.IgnoreCycles,
-        };
-        
-        public PluginCore Core { get { return core; } }
+        private readonly JsonSerializerOptions SettingsJsonSerializerOptions =
+            new JsonSerializerOptions()
+            {
+                UnmappedMemberHandling = JsonUnmappedMemberHandling.Skip,
+                ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            };
 
+        public PluginCore Core
+        {
+            get { return core; }
+        }
 
         // Intended for rendering Tabs. Includes Disabled plugins.
         public List<IObservatoryWorker> AllUIPlugins
         {
-            get => _workerPlugins?.Where(p => (p?.PluginUI?.PluginUIType ?? PluginUI.UIType.None) != PluginUI.UIType.None).ToList() ?? [];
+            get =>
+                _workerPlugins
+                    ?.Where(p =>
+                        (p?.PluginUI?.PluginUIType ?? PluginUI.UIType.None) != PluginUI.UIType.None
+                    )
+                    .ToList()
+                ?? [];
         }
 
         public List<IObservatoryWorker> EnabledWorkerPlugins
         {
-            get => _workerPlugins?.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList() ?? [];
+            get =>
+                _workerPlugins?.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList()
+                ?? [];
         }
 
         public List<IObservatoryNotifier> EnabledNotifyPlugins
         {
-            get => _notifyPlugins?.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList() ?? [];
+            get =>
+                _notifyPlugins?.Where(p => !pluginHandler.DisabledPlugins.Contains(p)).ToList()
+                ?? [];
         }
 
         public List<IObservatoryPlugin> AllPlugins
         {
-            get => _workerPlugins?.Cast<IObservatoryPlugin>()
-                .Concat(_notifyPlugins?.Cast<IObservatoryPlugin>() ?? [])
-                .Distinct().ToList() ?? [];
+            get =>
+                _workerPlugins
+                    ?.Cast<IObservatoryPlugin>()
+                    .Concat(_notifyPlugins?.Cast<IObservatoryPlugin>() ?? [])
+                    .Distinct()
+                    .ToList()
+                ?? [];
         }
 
         public PluginStatus GetPluginStatus(IObservatoryPlugin plugin) => _pluginStatus[plugin];
@@ -160,7 +177,7 @@ namespace Observatory.PluginManagement
                         _pluginStatus[plugin] = PluginStatus.Errored;
                     }
                 }
-            } 
+            }
 
             core.Notification += pluginHandler.OnNotificationEvent;
             core.UpdateNotificationEvent += pluginHandler.OnNotificationUpdate;
@@ -169,7 +186,10 @@ namespace Observatory.PluginManagement
             core.PluginMessage += pluginHandler.OnPluginMessageEvent;
 
             if (errorList.Any())
-                ErrorReporter.ShowErrorPopup("Plugin Load Error" + (errorList.Count > 1 ? "s" : String.Empty), errorList);
+                ErrorReporter.ShowErrorPopup(
+                    "Plugin Load Error" + (errorList.Count > 1 ? "s" : String.Empty),
+                    errorList
+                );
             else
                 MaybePruneUnknownPluginSettings();
         }
@@ -186,7 +206,10 @@ namespace Observatory.PluginManagement
 
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
-                var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
+                var settings = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                    savedSettings,
+                    SettingsJsonSerializerOptions
+                );
 
                 pluginSettings = settings ?? [];
             }
@@ -204,7 +227,10 @@ namespace Observatory.PluginManagement
             return guid ?? Guid.Empty;
         }
 
-        private void LoadPluginSettings(IObservatoryPlugin plugin, Dictionary<string, object> pluginSettings)
+        private void LoadPluginSettings(
+            IObservatoryPlugin plugin,
+            Dictionary<string, object> pluginSettings
+        )
         {
             // Temporary fallback to using plugin name for backward compatibility.
 
@@ -215,8 +241,8 @@ namespace Observatory.PluginManagement
             if (pluginSettings.TryGetValue(settingsKey, out object? value))
             {
                 settingsElement = (JsonElement)value;
-            } 
-            else if (pluginSettings.TryGetValue(plugin.Name, out object? nameKeyedValue)) 
+            }
+            else if (pluginSettings.TryGetValue(plugin.Name, out object? nameKeyedValue))
             {
                 settingsElement = (JsonElement)nameKeyedValue;
             }
@@ -224,9 +250,10 @@ namespace Observatory.PluginManagement
             if (settingsElement != null)
             {
                 var settingsObject = JsonSerializer.Deserialize(
-                    settingsElement?.GetRawText()!, 
-                    plugin.Settings.GetType(), 
-                    SettingsJsonSerializerOptions);
+                    settingsElement?.GetRawText()!,
+                    plugin.Settings.GetType(),
+                    SettingsJsonSerializerOptions
+                );
                 plugin.Settings = settingsObject;
             }
         }
@@ -261,7 +288,10 @@ namespace Observatory.PluginManagement
 
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
-                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
+                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                    savedSettings,
+                    SettingsJsonSerializerOptions
+                );
                 pluginSettings ??= [];
             }
             else
@@ -287,7 +317,10 @@ namespace Observatory.PluginManagement
                 pluginSettings.Remove(plugin.Name);
             }
 
-            string newSettings = JsonSerializer.Serialize(pluginSettings, SettingsJsonSerializerOptions);
+            string newSettings = JsonSerializer.Serialize(
+                pluginSettings,
+                SettingsJsonSerializerOptions
+            );
 
             Properties.Core.Default.PluginSettings = newSettings;
             SettingsManager.Save();
@@ -297,19 +330,25 @@ namespace Observatory.PluginManagement
         {
             // Get list of both names and GUIDs to preserve,
             // migration will handle pruning if plugin present.
-            HashSet<string> knownPluginNames = [.. AllPlugins.Select(p => 
-            { 
-                var guid = GetPluginGuid(p);
-                return guid == Guid.Empty ? p.Name : guid.ToString();
-            }),
-            ..AllPlugins.Select(p => p.Name)];
+            HashSet<string> knownPluginNames =
+            [
+                .. AllPlugins.Select(p =>
+                {
+                    var guid = GetPluginGuid(p);
+                    return guid == Guid.Empty ? p.Name : guid.ToString();
+                }),
+                .. AllPlugins.Select(p => p.Name),
+            ];
 
             string savedSettings = Properties.Core.Default.PluginSettings;
             Dictionary<string, object>? pluginSettings;
 
             if (!String.IsNullOrWhiteSpace(savedSettings))
             {
-                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(savedSettings, SettingsJsonSerializerOptions);
+                pluginSettings = JsonSerializer.Deserialize<Dictionary<string, object>>(
+                    savedSettings,
+                    SettingsJsonSerializerOptions
+                );
                 pluginSettings ??= [];
             }
             else
@@ -324,13 +363,18 @@ namespace Observatory.PluginManagement
                 {
                     pluginSettings.Remove(settingKey);
                     isDirty = true;
-                    Debug.WriteLine($"Purged stale settings for unknown plugin with key {settingKey}");
+                    Debug.WriteLine(
+                        $"Purged stale settings for unknown plugin with key {settingKey}"
+                    );
                 }
             }
 
             if (isDirty)
             {
-                string newSettings = JsonSerializer.Serialize(pluginSettings, SettingsJsonSerializerOptions);
+                string newSettings = JsonSerializer.Serialize(
+                    pluginSettings,
+                    SettingsJsonSerializerOptions
+                );
 
                 Properties.Core.Default.PluginSettings = newSettings;
                 SettingsManager.Save();
@@ -342,7 +386,10 @@ namespace Observatory.PluginManagement
             pluginHandler.SetPluginEnabled(plugin, enabled);
         }
 
-        private List<(string, string?)> LoadPlugins(out List<IObservatoryWorker> observatoryWorkers, out List<IObservatoryNotifier> observatoryNotifiers)
+        private List<(string, string?)> LoadPlugins(
+            out List<IObservatoryWorker> observatoryWorkers,
+            out List<IObservatoryNotifier> observatoryNotifiers
+        )
         {
             observatoryWorkers = [];
             observatoryNotifiers = [];
@@ -359,8 +406,14 @@ namespace Observatory.PluginManagement
                 if (legacyPlugins.Count > 0)
                 {
                     var duplicatedLegacyPlugins = legacyPlugins
-                        .Where(lp => pluginLibraries
-                            .Any(p => p.PluginName.Equals(lp.PluginName, StringComparison.CurrentCultureIgnoreCase)))
+                        .Where(lp =>
+                            pluginLibraries.Any(p =>
+                                p.PluginName.Equals(
+                                    lp.PluginName,
+                                    StringComparison.CurrentCultureIgnoreCase
+                                )
+                            )
+                        )
                         .ToList();
 
                     foreach (var dupPlugin in duplicatedLegacyPlugins)
@@ -369,7 +422,10 @@ namespace Observatory.PluginManagement
                         File.Delete(dupPlugin.PluginFile.FullName);
                         if (legacyPlugins.Count == 0)
                         {
-                            Directory.Delete($"{pluginPath}{Path.DirectorySeparatorChar}deps", true);
+                            Directory.Delete(
+                                $"{pluginPath}{Path.DirectorySeparatorChar}deps",
+                                true
+                            );
                             break;
                         }
                     }
@@ -389,7 +445,7 @@ namespace Observatory.PluginManagement
                 foreach (var dep in pluginLibraries.SelectMany(p => p.PluginDependencies))
                 {
                     var peHeaderOffset = dep.Value[0x3C];
-                    var peHeader = dep.Value[peHeaderOffset..(peHeaderOffset+2)];
+                    var peHeader = dep.Value[peHeaderOffset..(peHeaderOffset + 2)];
                     if (!(peHeader[0] == 'P' && peHeader[1] == 'E'))
                     {
                         Debug.WriteLine($"Non-managed dependency: {dep.Key}");
@@ -402,8 +458,8 @@ namespace Observatory.PluginManagement
                     }
                 }
 
-                AssemblyLoadContext.Default.Resolving += (context, name) => {
-
+                AssemblyLoadContext.Default.Resolving += (context, name) =>
+                {
                     if ((name?.Name?.EndsWith("resources")).GetValueOrDefault(false))
                     {
                         return null;
@@ -411,16 +467,25 @@ namespace Observatory.PluginManagement
 
                     // Some plugins appear to attempt reloading Observatory.Framework,
                     // just hand them back the one Core has already loaded.
-                    if ((name?.Name?.StartsWith("Observatory.Framework")).GetValueOrDefault(false) || name?.Name == "ObservatoryFramework")
+                    if (
+                        (name?.Name?.StartsWith("Observatory.Framework")).GetValueOrDefault(false)
+                        || name?.Name == "ObservatoryFramework"
+                    )
                     {
-                        return context.Assemblies.Where(a => (a.FullName?.Contains("ObservatoryFramework")).GetValueOrDefault(false)).First();
+                        return context
+                            .Assemblies.Where(a =>
+                                (a.FullName?.Contains("ObservatoryFramework")).GetValueOrDefault(
+                                    false
+                                )
+                            )
+                            .First();
                     }
 
                     var depLibraries = pluginLibraries
                         .SelectMany(p => p.PluginDependencies)
                         .Where(d => d.Key == name!.Name + ".dll")
                         .ToList();
-                    
+
                     if (depLibraries.Count != 0)
                     {
                         Debug.WriteLine($"Loading plugin dependency {name.Name}");
@@ -438,13 +503,15 @@ namespace Observatory.PluginManagement
                     }
                 };
 
-
-
                 foreach (var plugin in pluginLibraries)
                 {
                     try
                     {
-                        string error = LoadPluginAssembly(plugin, observatoryWorkers, observatoryNotifiers);
+                        string error = LoadPluginAssembly(
+                            plugin,
+                            observatoryWorkers,
+                            observatoryNotifiers
+                        );
                         if (!string.IsNullOrWhiteSpace(error))
                         {
                             errorList.Add((error, string.Empty));
@@ -452,8 +519,16 @@ namespace Observatory.PluginManagement
                     }
                     catch (Exception ex)
                     {
-                        errorList.Add(($"ERROR: {plugin.PluginFile.Name}, {ex.Message}", ex.StackTrace ?? String.Empty));
-                        _pluginStatus.Add(LoadPlaceholderPlugin(plugin.PluginFile.Name, observatoryNotifiers), PluginStatus.InvalidLibrary);
+                        errorList.Add(
+                            (
+                                $"ERROR: {plugin.PluginFile.Name}, {ex.Message}",
+                                ex.StackTrace ?? String.Empty
+                            )
+                        );
+                        _pluginStatus.Add(
+                            LoadPlaceholderPlugin(plugin.PluginFile.Name, observatoryNotifiers),
+                            PluginStatus.InvalidLibrary
+                        );
                     }
                 }
             }
@@ -478,7 +553,10 @@ namespace Observatory.PluginManagement
             }
         }
 
-        private static List<PluginPackage> CollectPlugins(string pluginFolder, List<(string, string?)> errorList)
+        private static List<PluginPackage> CollectPlugins(
+            string pluginFolder,
+            List<(string, string?)> errorList
+        )
         {
             var files = Directory.GetFiles(pluginFolder, "*.eop"); // Elite Observatory Plugin
             var plugins = new List<PluginPackage>();
@@ -493,13 +571,15 @@ namespace Observatory.PluginManagement
                     plugins.Add(pluginPackage);
                 }
                 catch (Exception ex)
-                { 
+                {
                     errorList.Add(("ERROR: Failed to extract plugin archive: " + file, ex.Message));
                 }
             }
 
 #if DEBUG
-            var directories = Directory.GetDirectories(pluginFolder).Where(d => !d.EndsWith("\\deps"));
+            var directories = Directory
+                .GetDirectories(pluginFolder)
+                .Where(d => !d.EndsWith("\\deps"));
             foreach (var directory in directories)
             {
                 try
@@ -509,7 +589,9 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    errorList.Add(("ERROR: Failed to process plugin bundle: " + directory, ex.Message));
+                    errorList.Add(
+                        ("ERROR: Failed to process plugin bundle: " + directory, ex.Message)
+                    );
                 }
             }
 #endif
@@ -517,7 +599,10 @@ namespace Observatory.PluginManagement
             return plugins;
         }
 
-        private static List<PluginPackage> CollectLegacyPlugins(string pluginFolder, List<(string, string?)> errorList)
+        private static List<PluginPackage> CollectLegacyPlugins(
+            string pluginFolder,
+            List<(string, string?)> errorList
+        )
         {
             var plugins = new List<PluginPackage>();
             var files = Directory.GetFiles(pluginFolder, "*.dll", SearchOption.TopDirectoryOnly);
@@ -539,9 +624,15 @@ namespace Observatory.PluginManagement
             return plugins;
         }
 
-        private string LoadPluginAssembly(PluginPackage plugin, List<IObservatoryWorker> workers, List<IObservatoryNotifier> notifiers)
+        private string LoadPluginAssembly(
+            PluginPackage plugin,
+            List<IObservatoryWorker> workers,
+            List<IObservatoryNotifier> notifiers
+        )
         {
-            var pluginAssembly = AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(plugin.PluginLibrary));
+            var pluginAssembly = AssemblyLoadContext.Default.LoadFromStream(
+                new MemoryStream(plugin.PluginLibrary)
+            );
 
             Type[] types;
             string err = string.Empty;
@@ -559,15 +650,25 @@ namespace Observatory.PluginManagement
                 types = [];
             }
 
-            var frameworkRef = pluginAssembly.GetReferencedAssemblies().Where(a => a.Name == "ObservatoryFramework");
+            var frameworkRef = pluginAssembly
+                .GetReferencedAssemblies()
+                .Where(a => a.Name == "ObservatoryFramework");
 
             if (frameworkRef.Any())
             {
-                var status = frameworkRef.First().Version?.Major >= 1 ? PluginStatus.OK : PluginStatus.Outdated;
+                var status =
+                    frameworkRef.First().Version?.Major >= 1
+                        ? PluginStatus.OK
+                        : PluginStatus.Outdated;
 
-                status = status == PluginStatus.OK && plugin.DependencyWarning ? PluginStatus.DependencyWarning : status;
+                status =
+                    status == PluginStatus.OK && plugin.DependencyWarning
+                        ? PluginStatus.DependencyWarning
+                        : status;
 
-                IEnumerable<Type> workerTypes = types.Where(t => t.IsAssignableTo(typeof(IObservatoryWorker)));
+                IEnumerable<Type> workerTypes = types.Where(t =>
+                    t.IsAssignableTo(typeof(IObservatoryWorker))
+                );
                 foreach (Type worker in workerTypes)
                 {
                     ConstructorInfo? constructor = worker.GetConstructor([]);
@@ -588,7 +689,9 @@ namespace Observatory.PluginManagement
 
                 // Filter out items which are also workers as we've already created them above.
                 var notifyTypes = types.Where(t =>
-                        t.IsAssignableTo(typeof(IObservatoryNotifier)) && !t.IsAssignableTo(typeof(IObservatoryWorker)));
+                    t.IsAssignableTo(typeof(IObservatoryNotifier))
+                    && !t.IsAssignableTo(typeof(IObservatoryWorker))
+                );
                 foreach (Type notifier in notifyTypes)
                 {
                     ConstructorInfo? constructor = notifier.GetConstructor([]);
@@ -603,14 +706,21 @@ namespace Observatory.PluginManagement
 
                 if (pluginCount == 0)
                 {
-                    err += $"ERROR: Library '{plugin.PluginFile.Name}' contains no suitable interfaces.";
-                    _pluginStatus.Add(LoadPlaceholderPlugin(plugin.PluginFile.Name, notifiers), PluginStatus.InvalidPlugin);
+                    err +=
+                        $"ERROR: Library '{plugin.PluginFile.Name}' contains no suitable interfaces.";
+                    _pluginStatus.Add(
+                        LoadPlaceholderPlugin(plugin.PluginFile.Name, notifiers),
+                        PluginStatus.InvalidPlugin
+                    );
                 }
             }
             else
             {
                 err += $"ERROR: Library '{plugin.PluginFile.Name}' is not an Observatory Plugin.";
-                _pluginStatus.Add(LoadPlaceholderPlugin(plugin.PluginFile.Name, notifiers), PluginStatus.InvalidPlugin);
+                _pluginStatus.Add(
+                    LoadPlaceholderPlugin(plugin.PluginFile.Name, notifiers),
+                    PluginStatus.InvalidPlugin
+                );
             }
             return err;
         }
@@ -620,7 +730,10 @@ namespace Observatory.PluginManagement
             core.Shutdown();
         }
 
-        private static IObservatoryPlugin LoadPlaceholderPlugin(string dllPath, List<IObservatoryNotifier> notifiers)
+        private static IObservatoryPlugin LoadPlaceholderPlugin(
+            string dllPath,
+            List<IObservatoryNotifier> notifiers
+        )
         {
             PlaceholderPlugin placeholder = new(new FileInfo(dllPath).Name);
             notifiers.Add(placeholder);
@@ -636,37 +749,44 @@ namespace Observatory.PluginManagement
             /// Plugin valid.
             /// </summary>
             OK,
+
             /// <summary>
             /// Plugin invalid and cannot be loaded. Possible version mismatch.
             /// </summary>
             InvalidPlugin,
+
             /// <summary>
             /// Plugin not a CLR library.
             /// </summary>
             InvalidLibrary,
+
             /// <summary>
             /// Plugin was built using an older Framwork with breaking changes.
             /// </summary>
             Outdated,
+
             /// <summary>
             /// The plugin falied to load.
             /// </summary>
             Errored,
+
             /// <summary>
             /// Settings for the plugin failed to load and were reset.
             /// </summary>
             SettingsReset,
+
             /// <summary>
             /// One or more dependencies for the plugin were not able to be loaded.
             /// </summary>
-            DependencyWarning
+            DependencyWarning,
         }
 
         private static void PluginCleanup(string pluginPath, List<PluginPackage> plugins)
         {
             // Group by plugin name (library name)
-            var grouped = plugins
-                .GroupBy(p => p.PluginName.ToLowerInvariant().Replace(".dll", string.Empty));
+            var grouped = plugins.GroupBy(p =>
+                p.PluginName.ToLowerInvariant().Replace(".dll", string.Empty)
+            );
 
             var toRemove = new List<PluginPackage>();
 
@@ -695,12 +815,18 @@ namespace Observatory.PluginManagement
                     if (plugin.PluginFile.Exists)
                         plugin.PluginFile.Delete();
                 }
-                catch { /* Ignore file delete errors */ }
+                catch
+                { /* Ignore file delete errors */
+                }
                 plugins.Remove(plugin);
             }
 
             // Handle unpacked deps folder cleanup
-            var unpackedPlugins = plugins.Where(p => p.PluginFile.Extension.Equals(".dll", StringComparison.OrdinalIgnoreCase)).ToList();
+            var unpackedPlugins = plugins
+                .Where(p =>
+                    p.PluginFile.Extension.Equals(".dll", StringComparison.OrdinalIgnoreCase)
+                )
+                .ToList();
             if (unpackedPlugins.Count == 0)
             {
                 var depsFolder = pluginPath + $"{Path.DirectorySeparatorChar}deps";
@@ -710,7 +836,9 @@ namespace Observatory.PluginManagement
                     {
                         Directory.Delete(depsFolder, true);
                     }
-                    catch { /* Ignore folder delete errors */ }
+                    catch
+                    { /* Ignore folder delete errors */
+                    }
                 }
             }
         }
@@ -752,7 +880,9 @@ namespace Observatory.PluginManagement
                     if (entry.FullName.EndsWith(".deps.json", StringComparison.OrdinalIgnoreCase))
                     {
                         if (manifestFound)
-                            throw new Exception("Malformed plugin archive: Contains multiple .deps.json files");
+                            throw new Exception(
+                                "Malformed plugin archive: Contains multiple .deps.json files"
+                            );
 
                         manifestFound = true;
 
@@ -774,7 +904,9 @@ namespace Observatory.PluginManagement
                     if (file.FullName.EndsWith(".deps.json"))
                     {
                         if (manifestFound)
-                            throw new Exception("Malformed plugin bundle: Contains multiple .deps.json files");
+                            throw new Exception(
+                                "Malformed plugin bundle: Contains multiple .deps.json files"
+                            );
 
                         manifestFound = true;
 
@@ -815,10 +947,19 @@ namespace Observatory.PluginManagement
                     // just collect them all when indicated (first plugin).
                     if (includeLegacyDeps)
                     {
-                        var depFiles = Directory.GetFiles($"{PluginFile.DirectoryName}{Path.DirectorySeparatorChar}deps", "*.dll", SearchOption.TopDirectoryOnly);
+                        var depFiles = Directory.GetFiles(
+                            $"{PluginFile.DirectoryName}{Path.DirectorySeparatorChar}deps",
+                            "*.dll",
+                            SearchOption.TopDirectoryOnly
+                        );
                         foreach (var depFile in depFiles)
                         {
-                            if (!PluginDependencies.TryAdd(new FileInfo(depFile).Name, File.ReadAllBytes(depFile)))
+                            if (
+                                !PluginDependencies.TryAdd(
+                                    new FileInfo(depFile).Name,
+                                    File.ReadAllBytes(depFile)
+                                )
+                            )
                                 DependencyWarning = true;
                         }
                     }
@@ -845,27 +986,36 @@ namespace Observatory.PluginManagement
                 var manifest = bundle.Manifest;
 
                 Legacy = false;
-                
-                var pluginLibraryEntry = manifest.Libraries
-                    .Where(l => l.Value.Type == "project")
+
+                var pluginLibraryEntry = manifest
+                    .Libraries.Where(l => l.Value.Type == "project")
                     .FirstOrDefault();
 
                 if (pluginLibraryEntry.Equals(default(KeyValuePair<string, Library>)))
-                    throw new Exception("Malformed plugin archive: No project library found in .deps.json");
+                    throw new Exception(
+                        "Malformed plugin archive: No project library found in .deps.json"
+                    );
 
                 var targets = manifest.Targets?[manifest.RuntimeTarget.Name] ?? [];
                 var pluginTarget = targets[pluginLibraryEntry.Key!];
 
-                bundle.Files.TryGetValue(pluginTarget.Runtime.First().Key, out byte[]? pluginLibBytes);
+                bundle.Files.TryGetValue(
+                    pluginTarget.Runtime.First().Key,
+                    out byte[]? pluginLibBytes
+                );
                 if (pluginLibBytes == null)
-                    throw new Exception("Malformed plugin archive: Plugin library file not found in archive.");
+                    throw new Exception(
+                        "Malformed plugin archive: Plugin library file not found in archive."
+                    );
                 else
                     PluginLibrary = pluginLibBytes;
 
-                
                 var nameAndVersion = pluginLibraryEntry.Key.Split('/') ?? ["No Library", "0"];
                 PluginName = nameAndVersion.First() ?? string.Empty;
-                var versionWithoutSuffx = VersionSuffixRegEx.Replace(nameAndVersion.Last() ?? "0", "");
+                var versionWithoutSuffx = VersionSuffixRegEx.Replace(
+                    nameAndVersion.Last() ?? "0",
+                    ""
+                );
                 Version = new Version(versionWithoutSuffx);
 
                 foreach (var dependency in targets.Where(t => t.Key != pluginLibraryEntry.Key))
@@ -882,7 +1032,11 @@ namespace Observatory.PluginManagement
                         }
                     }
 
-                    foreach (var runtimeTarget in dependency.Value.RuntimeTargets.Where(rt => rt.Value.Rid == "win-x64"))
+                    foreach (
+                        var runtimeTarget in dependency.Value.RuntimeTargets.Where(rt =>
+                            rt.Value.Rid == "win-x64"
+                        )
+                    )
                     {
                         var rtLibName = runtimeTarget.Key;
                         bundle.Files.TryGetValue(rtLibName, out byte[]? rtBytes);
@@ -934,8 +1088,10 @@ namespace Observatory.PluginManagement
         {
             [JsonPropertyName("runtimeTarget")]
             public RuntimeTarget RuntimeTarget { get; set; } = new();
+
             [JsonPropertyName("targets")]
             public Dictionary<string, Dictionary<string, Target>> Targets { get; set; } = [];
+
             [JsonPropertyName("libraries")]
             public Dictionary<string, Library> Libraries { get; set; } = [];
         }
@@ -944,12 +1100,16 @@ namespace Observatory.PluginManagement
         {
             [JsonPropertyName("type")]
             public string Type { get; set; } = string.Empty;
+
             [JsonPropertyName("serviceable")]
             public bool Serviceable { get; set; }
+
             [JsonPropertyName("sha512")]
             public string Sha512 { get; set; } = string.Empty;
+
             [JsonPropertyName("path")]
             public string Path { get; set; } = string.Empty;
+
             [JsonPropertyName("hashPath")]
             public string HashPath { get; set; } = string.Empty;
         }
@@ -958,6 +1118,7 @@ namespace Observatory.PluginManagement
         {
             [JsonPropertyName("name")]
             public string Name { get; set; } = string.Empty;
+
             [JsonPropertyName("signature")]
             public string Signature { get; set; } = string.Empty;
         }
@@ -966,8 +1127,10 @@ namespace Observatory.PluginManagement
         {
             [JsonPropertyName("dependencies")]
             public Dictionary<string, string> Dependencies { get; set; } = [];
+
             [JsonPropertyName("runtime")]
             public Dictionary<string, VersionInfo> Runtime { get; set; } = [];
+
             [JsonPropertyName("runtimeTargets")]
             public Dictionary<string, DependencyTarget> RuntimeTargets { get; set; } = [];
         }
@@ -976,6 +1139,7 @@ namespace Observatory.PluginManagement
         {
             [JsonPropertyName("assemblyVersion")]
             public string AssemblyVersion { get; set; } = string.Empty;
+
             [JsonPropertyName("fileVersion")]
             public string FileVersion { get; set; } = string.Empty;
         }
@@ -984,8 +1148,10 @@ namespace Observatory.PluginManagement
         {
             [JsonPropertyName("rid")]
             public string Rid { get; set; } = string.Empty;
+
             [JsonPropertyName("assetType")]
             public string AssetType { get; set; } = string.Empty;
+
             [JsonPropertyName("fileVersion")]
             public string FileVersion { get; set; } = string.Empty;
         }

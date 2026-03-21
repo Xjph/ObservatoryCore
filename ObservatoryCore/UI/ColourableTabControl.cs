@@ -1,6 +1,6 @@
-﻿using Observatory.Utils;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text.Json;
+using Observatory.Utils;
 
 namespace Observatory.UI
 {
@@ -12,14 +12,15 @@ namespace Observatory.UI
         public Color SelectedTabColor { get; set; }
         public override Color BackColor { get; set; }
 
-        public ColourableTabControl() : base()
+        public ColourableTabControl()
+            : base()
         {
             DrawMode = TabDrawMode.OwnerDrawFixed;
             MouseDown += OnMouseDown;
             MouseMove += OnMouseMove;
         }
 
-        override protected void OnDrawItem(DrawItemEventArgs e)
+        protected override void OnDrawItem(DrawItemEventArgs e)
         {
             base.OnDrawItem(e);
             e.Graphics.FillRectangle(new SolidBrush(BackColor), ClientRectangle);
@@ -32,7 +33,7 @@ namespace Observatory.UI
                 var stringFormat = new StringFormat()
                 {
                     LineAlignment = StringAlignment.Center,
-                    Alignment = StringAlignment.Center
+                    Alignment = StringAlignment.Center,
                 };
                 if (selected)
                 {
@@ -64,11 +65,17 @@ namespace Observatory.UI
                     stringFormat.FormatFlags = StringFormatFlags.DirectionVertical;
                 }
 
-                e.Graphics.DrawString(tab.Text, Font ?? new Font("Segoe UI", 9), new SolidBrush(ForeColor), tabArea, stringFormat);
+                e.Graphics.DrawString(
+                    tab.Text,
+                    Font ?? new Font("Segoe UI", 9),
+                    new SolidBrush(ForeColor),
+                    tabArea,
+                    stringFormat
+                );
             }
         }
 
-        // Tab reordering from 
+        // Tab reordering from
         // https://stackoverflow.com/questions/4352781/is-it-possible-to-make-the-winforms-tab-control-be-able-to-do-tab-reordering-lik/11361257#11361257
 
         private void OnMouseDown(object? sender, MouseEventArgs e)

@@ -10,10 +10,7 @@ namespace Observatory.Framework.Files.Journal
         public long ScrapTime { get; init; }
         public System.DateTime ScrapTimeUTC
         {
-            get 
-            {
-                return System.DateTimeOffset.FromUnixTimeSeconds(ScrapTime).UtcDateTime; 
-            }
+            get { return System.DateTimeOffset.FromUnixTimeSeconds(ScrapTime).UtcDateTime; }
         }
     }
 }

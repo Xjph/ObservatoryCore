@@ -1,11 +1,11 @@
-﻿using Observatory.Framework;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
-using Observatory.Framework.Interfaces;
 using Observatory.Framework.Files.ParameterTypes;
-using System.Collections.ObjectModel;
+using Observatory.Framework.Interfaces;
 using Observatory.Framework.Sorters;
-using System.Collections.Generic;
 
 namespace Observatory.Botanist
 {
@@ -17,7 +17,8 @@ namespace Observatory.Botanist
 
         // To make this journal locale agnostic, use the genus identifier and map to English names used in notifications.
         // Note: Values here are also used in the lookup for colony distance, so we also use this to resolve misspellings and Frontier bugs.
-        private readonly Dictionary<String, String> EnglishGenusByIdentifier = new() {
+        private readonly Dictionary<String, String> EnglishGenusByIdentifier = new()
+        {
             { "$Codex_Ent_Aleoids_Genus_Name;", "Aleoida" },
             { "$Codex_Ent_Bacterial_Genus_Name;", "Bacterium" },
             { "$Codex_Ent_Cactoid_Genus_Name;", "Cactoida" },
@@ -44,7 +45,8 @@ namespace Observatory.Botanist
         };
 
         // Note: Some Horizons bios may be missing, but they'll get localized genus name and default colony distance
-        private readonly Dictionary<String, int> ColonyDistancesByGenus = new() {
+        private readonly Dictionary<String, int> ColonyDistancesByGenus = new()
+        {
             { "Aleoida", 150 },
             { "Bacterium", 500 },
             { "Cactoida", 300 },
@@ -85,13 +87,17 @@ namespace Observatory.Botanist
         {
             FullName = "Observatory Botanist",
             ShortName = "Botanist",
-            Description = "Botanist is a core plugin for Observatory, designed to provide simple output for biological signals.",
+            Description =
+                "Botanist is a core plugin for Observatory, designed to provide simple output for biological signals.",
             AuthorName = "Vithigar",
             Links = new()
             {
                 new AboutLink("github", "https://github.com/Xjph/ObservatoryCore"),
-                new AboutLink("Documentation", "https://observatory.xjph.net/usage/plugins/botanist"),
-            }
+                new AboutLink(
+                    "Documentation",
+                    "https://observatory.xjph.net/usage/plugins/botanist"
+                ),
+            },
         };
 
         public AboutInfo AboutInfo => _aboutInfo;
@@ -102,11 +108,16 @@ namespace Observatory.Botanist
 
         public PluginUI PluginUI => pluginUI;
 
-        public object Settings { get => botanistSettings; set { botanistSettings = (BotanistSettings)value;  } }
+        public object Settings
+        {
+            get => botanistSettings;
+            set { botanistSettings = (BotanistSettings)value; }
+        }
 
         // public IObservatoryComparer ColumnSorter => new NoOpColumnSorter();
 
-        public void JournalEvent<TJournal>(TJournal journal) where TJournal : JournalBase
+        public void JournalEvent<TJournal>(TJournal journal)
+            where TJournal : JournalBase
         {
             switch (journal)
             {
@@ -118,22 +129,24 @@ namespace Observatory.Botanist
                         BodyAddress systemBodyId = new()
                         {
                             SystemAddress = signalsFound.SystemAddress,
-                            BodyID = signalsFound.BodyID
+                            BodyID = signalsFound.BodyID,
                         };
                         if (OdysseyLoaded && !BioPlanets.ContainsKey(systemBodyId))
                         {
-                            var bioSignals = from signal in signalsFound.Signals
-                                             where signal.Type == "$SAA_SignalType_Biological;"
-                                             select signal;
+                            var bioSignals =
+                                from signal in signalsFound.Signals
+                                where signal.Type == "$SAA_SignalType_Biological;"
+                                select signal;
 
                             if (bioSignals.Any())
                             {
                                 BioPlanets.Add(
                                     systemBodyId,
-                                    new() {
+                                    new()
+                                    {
                                         BodyName = signalsFound.BodyName,
                                         BioTotal = bioSignals.First().Count,
-                                        SpeciesFound = new()
+                                        SpeciesFound = new(),
                                     }
                                 );
                             }
@@ -146,23 +159,33 @@ namespace Observatory.Botanist
                         BodyAddress systemBodyId = new()
                         {
                             SystemAddress = scanOrganic.SystemAddress,
-                            BodyID = scanOrganic.Body
+                            BodyID = scanOrganic.Body,
                         };
                         if (!BioPlanets.ContainsKey(systemBodyId))
                         {
                             // Unlikely to ever end up in here, but just in case create a new planet entry.
                             Dictionary<string, BioSampleDetail> bioSampleDetails = new();
-                            bioSampleDetails.Add(scanOrganic.Species_Localised, new()
+                            bioSampleDetails.Add(
+                                scanOrganic.Species_Localised,
+                                new()
                                 {
-                                    Genus = EnglishGenusByIdentifier.GetValueOrDefault(scanOrganic.Genus, scanOrganic.Genus_Localised),
-                                    Analysed = false
-                                });
+                                    Genus = EnglishGenusByIdentifier.GetValueOrDefault(
+                                        scanOrganic.Genus,
+                                        scanOrganic.Genus_Localised
+                                    ),
+                                    Analysed = false,
+                                }
+                            );
 
-                            BioPlanets.Add(systemBodyId, new() {
-                                BodyName = string.Empty,
-                                BioTotal = 0,
-                                SpeciesFound = bioSampleDetails
-                            });
+                            BioPlanets.Add(
+                                systemBodyId,
+                                new()
+                                {
+                                    BodyName = string.Empty,
+                                    BioTotal = 0,
+                                    SpeciesFound = bioSampleDetails,
+                                }
+                            );
                         }
                         else
                         {
@@ -175,40 +198,57 @@ namespace Observatory.Botanist
                                 {
                                     case ScanOrganicType.Log:
                                     case ScanOrganicType.Sample:
-                                        if (!Core.IsLogMonitorBatchReading && botanistSettings.OverlayEnabled)
+                                        if (
+                                            !Core.IsLogMonitorBatchReading
+                                            && botanistSettings.OverlayEnabled
+                                        )
                                         {
                                             var colonyDistance = GetColonyDistance(scanOrganic);
-                                            var sampleNum = scanOrganic.ScanType == ScanOrganicType.Log ? 1 : 2;
-                                            var status = Core.GetStatus() ?? new()
-                                            {
-                                                Latitude = 200,
-                                                Longitude = 200,
-                                                PlanetRadius = 0
-                                            }; // INVALID_LOCATION
+                                            var sampleNum =
+                                                scanOrganic.ScanType == ScanOrganicType.Log ? 1 : 2;
+                                            var status =
+                                                Core.GetStatus()
+                                                ?? new()
+                                                {
+                                                    Latitude = 200,
+                                                    Longitude = 200,
+                                                    PlanetRadius = 0,
+                                                }; // INVALID_LOCATION
 
                                             if (sampleNum == 1)
                                             {
-                                                firstScanLocation = (status.Latitude, status.Longitude);
+                                                firstScanLocation = (
+                                                    status.Latitude,
+                                                    status.Longitude
+                                                );
                                                 secondScanLocation = INVALID_LOCATION;
                                             }
                                             else if (sampleNum == 2)
-                                                secondScanLocation = (status.Latitude, status.Longitude);
+                                                secondScanLocation = (
+                                                    status.Latitude,
+                                                    status.Longitude
+                                                );
 
                                             currentBodyRadius = status.PlanetRadius;
                                             if (scanOrganic.ScanType == ScanOrganicType.Log)
                                                 MaybeCloseSamplerStatusNotification(); // Force a new notification.
 
-                                            var notificationGuid = currentNotificationArgs?.Guid ?? Guid.NewGuid();
+                                            var notificationGuid =
+                                                currentNotificationArgs?.Guid ?? Guid.NewGuid();
                                             currentNotificationArgs = new()
                                             {
                                                 Title = scanOrganic.Species_Localised,
-                                                Detail = $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance}m{Environment.NewLine}{GetDistanceText(status)}",
+                                                Detail =
+                                                    $"Sample {sampleNum} of 3{Environment.NewLine}Colony distance: {colonyDistance}m{Environment.NewLine}{GetDistanceText(status)}",
                                                 Rendering = NotificationRendering.NativeVisual,
                                                 Timeout = botanistSettings.OverlayIsSticky ? 0 : -1,
                                                 Sender = AboutInfo.ShortName,
                                                 Guid = notificationGuid,
                                             };
-                                            if (!botanistSettings.OverlayIsSticky || scanOrganic.ScanType == ScanOrganicType.Log)
+                                            if (
+                                                !botanistSettings.OverlayIsSticky
+                                                || scanOrganic.ScanType == ScanOrganicType.Log
+                                            )
                                             {
                                                 Core.SendNotification(currentNotificationArgs);
                                             }
@@ -218,22 +258,40 @@ namespace Observatory.Botanist
                                             }
                                         }
 
-                                        if (!bioPlanet.SpeciesFound.ContainsKey(scanOrganic.Species_Localised))
+                                        if (
+                                            !bioPlanet.SpeciesFound.ContainsKey(
+                                                scanOrganic.Species_Localised
+                                            )
+                                        )
                                         {
-                                            bioPlanet.SpeciesFound.Add(scanOrganic.Species_Localised, new()
-                                            {
-                                                Genus = EnglishGenusByIdentifier.GetValueOrDefault(scanOrganic.Genus, scanOrganic.Genus_Localised),
-                                                Analysed = false
-                                            });
+                                            bioPlanet.SpeciesFound.Add(
+                                                scanOrganic.Species_Localised,
+                                                new()
+                                                {
+                                                    Genus =
+                                                        EnglishGenusByIdentifier.GetValueOrDefault(
+                                                            scanOrganic.Genus,
+                                                            scanOrganic.Genus_Localised
+                                                        ),
+                                                    Analysed = false,
+                                                }
+                                            );
                                         }
                                         break;
                                     case ScanOrganicType.Analyse:
-                                        if (!bioPlanet.SpeciesFound[scanOrganic.Species_Localised].Analysed)
+                                        if (
+                                            !bioPlanet
+                                                .SpeciesFound[scanOrganic.Species_Localised]
+                                                .Analysed
+                                        )
                                         {
-                                            bioPlanet.SpeciesFound[scanOrganic.Species_Localised].Analysed = true;
+                                            bioPlanet
+                                                .SpeciesFound[scanOrganic.Species_Localised]
+                                                .Analysed = true;
                                         }
                                         MaybeCloseSamplerStatusNotification();
-                                        firstScanLocation = INVALID_LOCATION; secondScanLocation = INVALID_LOCATION;
+                                        firstScanLocation = INVALID_LOCATION;
+                                        secondScanLocation = INVALID_LOCATION;
                                         break;
                                 }
                             }
@@ -256,11 +314,16 @@ namespace Observatory.Botanist
         {
             if (currentNotificationArgs != null)
             {
-                var currentNotificationDetail = currentNotificationArgs.Detail.Split(Environment.NewLine);
+                var currentNotificationDetail = currentNotificationArgs.Detail.Split(
+                    Environment.NewLine
+                );
 
                 currentNotificationDetail[2] = GetDistanceText(status);
-                
-                currentNotificationArgs.Detail = string.Join(Environment.NewLine, currentNotificationDetail);
+
+                currentNotificationArgs.Detail = string.Join(
+                    Environment.NewLine,
+                    currentNotificationDetail
+                );
                 Core.UpdateNotification(currentNotificationArgs);
             }
         }
@@ -271,23 +334,40 @@ namespace Observatory.Botanist
             double? secondDistance = null;
 
             if (firstScanLocation != INVALID_LOCATION)
-                firstDistance = CalculateGreatCircleDistance(firstScanLocation, (status.Latitude, status.Longitude), currentBodyRadius);
+                firstDistance = CalculateGreatCircleDistance(
+                    firstScanLocation,
+                    (status.Latitude, status.Longitude),
+                    currentBodyRadius
+                );
 
             if (secondScanLocation != INVALID_LOCATION)
-                secondDistance = CalculateGreatCircleDistance(secondScanLocation, (status.Latitude, status.Longitude), currentBodyRadius);
+                secondDistance = CalculateGreatCircleDistance(
+                    secondScanLocation,
+                    (status.Latitude, status.Longitude),
+                    currentBodyRadius
+                );
             var bothDistances = firstDistance != null && secondDistance != null;
             return $"Current distance{(bothDistances ? 's' : string.Empty)}: "
-                    + (firstDistance != null ? $"{firstDistance:N0}m" : string.Empty)
-                    + (bothDistances ? " - " : string.Empty)
-                    + (secondDistance != null ? $"{secondDistance:N0}m" : string.Empty);
+                + (firstDistance != null ? $"{firstDistance:N0}m" : string.Empty)
+                + (bothDistances ? " - " : string.Empty)
+                + (secondDistance != null ? $"{secondDistance:N0}m" : string.Empty);
         }
 
-        private static double CalculateGreatCircleDistance((double lat, double lon) location1, (double lat, double lon) location2, double radius)
+        private static double CalculateGreatCircleDistance(
+            (double lat, double lon) location1,
+            (double lat, double lon) location2,
+            double radius
+        )
         {
             var latDeltaSin = Math.Sin(ToRadians(location1.lat - location2.lat) / 2);
             var longDeltaSin = Math.Sin(ToRadians(location1.lon - location2.lon) / 2);
-            
-            var hSin = latDeltaSin * latDeltaSin + Math.Cos(ToRadians(location1.lat)) * Math.Cos(ToRadians(location1.lat)) * longDeltaSin * longDeltaSin;
+
+            var hSin =
+                latDeltaSin * latDeltaSin
+                + Math.Cos(ToRadians(location1.lat))
+                    * Math.Cos(ToRadians(location1.lat))
+                    * longDeltaSin
+                    * longDeltaSin;
             return 2 * radius * Math.Asin(Math.Sqrt(hSin));
         }
 
@@ -296,7 +376,10 @@ namespace Observatory.Botanist
         private object GetColonyDistance(ScanOrganic scan)
         {
             // Map the Genus to a Genus name then lookup colony distance.
-            return ColonyDistancesByGenus.GetValueOrDefault(EnglishGenusByIdentifier.GetValueOrDefault(scan.Genus, String.Empty), DEFAULT_COLONY_DISTANCE);
+            return ColonyDistancesByGenus.GetValueOrDefault(
+                EnglishGenusByIdentifier.GetValueOrDefault(scan.Genus, String.Empty),
+                DEFAULT_COLONY_DISTANCE
+            );
         }
 
         private void MaybeCloseSamplerStatusNotification()
@@ -317,7 +400,7 @@ namespace Observatory.Botanist
             pluginUI = new PluginUI(GridCollection);
 
             BioPlanets = new();
-            
+
             Core = observatoryCore;
         }
 
@@ -338,11 +421,12 @@ namespace Observatory.Botanist
         private void UpdateUIGrid()
         {
             // Suppress repainting the entire contents of the grid on every ScanOrganic record we read.
-            if (Core.IsLogMonitorBatchReading) return;
+            if (Core.IsLogMonitorBatchReading)
+                return;
 
             BotanistGrid uiObject = new();
             Core.ClearGrid(this, uiObject);
-            
+
             foreach (var bioPlanet in BioPlanets.Values)
             {
                 List<BotanistGrid> planetItems = [];
@@ -363,7 +447,10 @@ namespace Observatory.Botanist
                 bool firstRow = true;
                 foreach (var entry in bioPlanet.SpeciesFound)
                 {
-                    int colonyDistance = ColonyDistancesByGenus.GetValueOrDefault(entry.Value.Genus ?? "", DEFAULT_COLONY_DISTANCE);
+                    int colonyDistance = ColonyDistancesByGenus.GetValueOrDefault(
+                        entry.Value.Genus ?? "",
+                        DEFAULT_COLONY_DISTANCE
+                    );
                     var speciesRow = new BotanistGrid()
                     {
                         Body = firstRow ? bioPlanet.BodyName : string.Empty,
@@ -384,15 +471,15 @@ namespace Observatory.Botanist
     class BodyAddress
     {
         public ulong SystemAddress { get; set; }
-        public int BodyID { get; set;  }
-        
+        public int BodyID { get; set; }
+
         public override bool Equals(object obj)
         {
             // We want value equality here.
 
-            //       
+            //
             // See the full list of guidelines at
-            //   http://go.microsoft.com/fwlink/?LinkID=85237  
+            //   http://go.microsoft.com/fwlink/?LinkID=85237
             // and also the guidance for operator== at
             //   http://go.microsoft.com/fwlink/?LinkId=85238
             //
@@ -403,8 +490,7 @@ namespace Observatory.Botanist
             }
 
             BodyAddress other = (BodyAddress)obj;
-            return other.SystemAddress == SystemAddress
-                && other.BodyID == BodyID;
+            return other.SystemAddress == SystemAddress && other.BodyID == BodyID;
         }
 
         public override int GetHashCode()
@@ -430,12 +516,16 @@ namespace Observatory.Botanist
     {
         [ColumnSuggestedWidth(300)]
         public string Body { get; set; }
+
         [ColumnSuggestedWidth(100)]
         public string BioTotal { get; set; }
+
         [ColumnSuggestedWidth(300)]
         public string Species { get; set; }
+
         [ColumnSuggestedWidth(100)]
         public string Analysed { get; set; }
+
         [ColumnSuggestedWidth(100)]
         public string ColonyDistance { get; set; }
     }

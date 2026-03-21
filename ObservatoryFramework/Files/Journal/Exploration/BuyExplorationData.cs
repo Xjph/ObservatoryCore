@@ -9,6 +9,7 @@
         /// Name of the system for which data was purchased.
         /// </summary>
         public string System { get; init; }
+
         /// <summary>
         /// Amount paid for the data.
         /// </summary>

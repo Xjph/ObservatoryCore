@@ -1,6 +1,6 @@
+using System.Diagnostics;
 using Observatory.Framework;
 using Observatory.Utils;
-using System.Diagnostics;
 
 namespace Observatory
 {
@@ -35,9 +35,12 @@ namespace Observatory
                     {
                         File.Copy(
                             fileInfo.FullName,
-                             $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{fileInfo.Name}");
-                        var processes = Process.GetProcessesByName(Process.GetCurrentProcess().ProcessName);
-                        foreach ( var process in processes )
+                            $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}{fileInfo.Name}"
+                        );
+                        var processes = Process.GetProcessesByName(
+                            Process.GetCurrentProcess().ProcessName
+                        );
+                        foreach (var process in processes)
                         {
                             if (process.Id != Environment.ProcessId)
                                 process.CloseMainWindow();
@@ -45,10 +48,11 @@ namespace Observatory
                     }
                 }
 
-                string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
+                string version =
+                    System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString()
+                    ?? "0";
                 try
                 {
-
 #if !PORTABLE && !PROTON
                     if (Properties.Core.Default.CoreVersion != version)
                     {
@@ -96,10 +100,16 @@ namespace Observatory
 #else
             var docPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
 #endif
-            var errFile = docPath + Path.DirectorySeparatorChar + $"Observatory{(fatal ? "Crash" : "Error")}Log.txt";
+            var errFile =
+                docPath
+                + Path.DirectorySeparatorChar
+                + $"Observatory{(fatal ? "Crash" : "Error")}Log.txt";
 
-            var showMessage = !fatal && File.Exists(errFile) && File.GetLastWriteTime(errFile) < Process.GetCurrentProcess().StartTime;
-            
+            var showMessage =
+                !fatal
+                && File.Exists(errFile)
+                && File.GetLastWriteTime(errFile) < Process.GetCurrentProcess().StartTime;
+
             var errorMessage = new System.Text.StringBuilder();
             var timestamp = DateTime.Now.ToString("G");
             errorMessage
@@ -116,24 +126,31 @@ namespace Observatory
 
                 if (showMessage)
                 {
-                    Task.Run(() => MessageBox.Show(
-                        $"An error has been encountered in \"{pluginEx.PluginName}\".{Environment.NewLine}" +
-                        $"{pluginEx.UserMessage}{Environment.NewLine}" +
-                        $"Details have been logged to {errFile}.{Environment.NewLine}" +
-                        "You will not be informed of further non-fatal errors this session.",
-                        $"Observatory Non-Fatal Error Encountered",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error));
+                    Task.Run(() =>
+                        MessageBox.Show(
+                            $"An error has been encountered in \"{pluginEx.PluginName}\".{Environment.NewLine}"
+                                + $"{pluginEx.UserMessage}{Environment.NewLine}"
+                                + $"Details have been logged to {errFile}.{Environment.NewLine}"
+                                + "You will not be informed of further non-fatal errors this session.",
+                            $"Observatory Non-Fatal Error Encountered",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Error
+                        )
+                    );
                 }
             }
             else if (showMessage)
             {
-                Task.Run(() => MessageBox.Show(
-                    $"An error of type {ex.GetType().Name} with context \"{context}\" has been encountered and details have been logged to {errFile}.{Environment.NewLine}" +
-                    "You will not be informed of further non-fatal errors this session.",
-                    $"Observatory Non-Fatal Error Encountered",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error));
+                Task.Run(() =>
+                    MessageBox.Show(
+                        $"An error of type {ex.GetType().Name} with context \"{context}\" has been encountered and details have been logged to {errFile}.{Environment.NewLine}"
+                            + "You will not be informed of further non-fatal errors this session.",
+                        $"Observatory Non-Fatal Error Encountered",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Error
+                    )
+                );
             }
-
         }
 
         static string FormatExceptionMessage(Exception ex, bool inner = false)

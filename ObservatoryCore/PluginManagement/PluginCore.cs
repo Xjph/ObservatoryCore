@@ -1,18 +1,17 @@
-﻿using Observatory.Framework;
+﻿using System.Diagnostics;
+using System.Dynamic;
+using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Interfaces;
 using Observatory.Framework.ParameterTypes;
 using Observatory.NativeNotification;
 using Observatory.UI;
 using Observatory.Utils;
-using System.Diagnostics;
-using System.Dynamic;
 
 namespace Observatory.PluginManagement
 {
     public class PluginCore : IObservatoryCore
     {
-        
         private readonly NativePopup NativePopup = new();
         private readonly AudioHandler AudioHandler = new();
         private readonly NativeVoice NativeVoice;
@@ -22,13 +21,17 @@ namespace Observatory.PluginManagement
             NativeVoice = new(AudioHandler);
         }
 
-        public string Version => System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
+        public string Version =>
+            System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0";
 
         public Action<Exception, String> GetPluginErrorLogger(IObservatoryPlugin plugin)
         {
             return (ex, context) =>
             {
-                ObservatoryCore.LogError(ex, $"from plugin {plugin.ShortName} (v{plugin.Version}) {context}");
+                ObservatoryCore.LogError(
+                    ex,
+                    $"from plugin {plugin.ShortName} (v{plugin.Version}) {context}"
+                );
             };
         }
 
@@ -44,7 +47,7 @@ namespace Observatory.PluginManagement
             notificationArgs.Guid ??= Guid.NewGuid();
             var handler = Notification;
             bool pluginsNotified = false;
-            
+
             // Always send notifications to plugins. PluginEventHandler filters out plugins
             // which have not explicitly allowed batch-mode notifications.
             // NOTE: This will also trigger native function overriding plugins -- so we need to filter these out
@@ -57,8 +60,12 @@ namespace Observatory.PluginManagement
 
             if (!IsLogMonitorBatchReading)
             {
-                if ((PluginManager.GetInstance.HasPopupOverrideNotifiers || PluginManager.GetInstance.HasAudioOverrideNotifiers)
-                    && !pluginsNotified)
+                if (
+                    (
+                        PluginManager.GetInstance.HasPopupOverrideNotifiers
+                        || PluginManager.GetInstance.HasAudioOverrideNotifiers
+                    ) && !pluginsNotified
+                )
                 {
                     // We have an overriding plugin for a native handler. Route it there, if we haven't already.
                     handler?.Invoke(this, notificationArgs);
@@ -66,16 +73,20 @@ namespace Observatory.PluginManagement
                 }
 
                 // Now trigger native handlers, if not overridden.
-                if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0
+                if (
+                    (notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0
                     && Properties.Core.Default.NativeNotify
-                    && !PluginManager.GetInstance.HasPopupOverrideNotifiers)
+                    && !PluginManager.GetInstance.HasPopupOverrideNotifiers
+                )
                 {
                     NativePopup.InvokeNativeNotification(notificationArgs);
                 }
 
-                if ((notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0
+                if (
+                    (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0
                     && Properties.Core.Default.VoiceNotify
-                    && !PluginManager.GetInstance.HasAudioOverrideNotifiers)
+                    && !PluginManager.GetInstance.HasAudioOverrideNotifiers
+                )
                 {
                     NativeVoice.AudioHandlerEnqueue(notificationArgs);
                 }
@@ -111,7 +122,10 @@ namespace Observatory.PluginManagement
                 if ((notificationArgs.Rendering & NotificationRendering.NativeVisual) != 0)
                     NativePopup.UpdateNotification(notificationArgs);
 
-                if (Properties.Core.Default.VoiceNotify && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0)
+                if (
+                    Properties.Core.Default.VoiceNotify
+                    && (notificationArgs.Rendering & NotificationRendering.NativeVocal) != 0
+                )
                 {
                     NativeVoice.AudioHandlerEnqueue(notificationArgs);
                 }
@@ -130,7 +144,11 @@ namespace Observatory.PluginManagement
             worker.PluginUI.DataGrid.Add(item);
         }
 
-        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items, bool grouped = false)
+        public void AddGridItems(
+            IObservatoryWorker worker,
+            IEnumerable<object> items,
+            bool grouped = false
+        )
         {
             BeginBulkUpdate(worker);
             grouped = true;
@@ -150,7 +168,7 @@ namespace Observatory.PluginManagement
                     worker.PluginUI.DataGrid.Add(groupedItem);
                 }
             }
-            else 
+            else
                 foreach (var item in items)
                 {
                     worker.PluginUI.DataGrid.Add(item);
@@ -211,7 +229,7 @@ namespace Observatory.PluginManagement
                 string pluginStorageKey;
 
                 var context = new StackFrame(1).GetMethod();
-                
+
                 var pluginAssemblyName = context?.DeclaringType?.Assembly.GetName().Name!;
                 var pluginTypes = context?.DeclaringType?.Assembly.GetExportedTypes();
                 var pluginType = pluginTypes?.Where(t => t.GetProperty("Guid") != null);
@@ -234,17 +252,20 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    ObservatoryCore.LogError(ex, $"Migrating storage folder for {pluginAssemblyName}");
+                    ObservatoryCore.LogError(
+                        ex,
+                        $"Migrating storage folder for {pluginAssemblyName}"
+                    );
                     pluginStorageKey = pluginAssemblyName;
                 }
-
 
                 return GetStorageFolderForPlugin(pluginStorageKey);
             }
         }
 
-        public string UpdatedPluginsFolder {
-            get => PluginManager.PluginPath; 
+        public string UpdatedPluginsFolder
+        {
+            get => PluginManager.PluginPath;
         }
 
         private void MigratePluginStorage(string oldKey, string newKey)
@@ -294,9 +315,13 @@ namespace Observatory.PluginManagement
             if (guid != Guid.Empty)
             {
                 DirectoryInfo dataParent = new DirectoryInfo(newDir).Parent!;
-                var namedGuidDir = dataParent.GetDirectories().Where(d => 
-                    d.Name.Contains(newKey) && 
-                    Path.TrimEndingDirectorySeparator(d.FullName) != Path.TrimEndingDirectorySeparator(newDir));
+                var namedGuidDir = dataParent
+                    .GetDirectories()
+                    .Where(d =>
+                        d.Name.Contains(newKey)
+                        && Path.TrimEndingDirectorySeparator(d.FullName)
+                            != Path.TrimEndingDirectorySeparator(newDir)
+                    );
                 if (namedGuidDir.Any())
                 {
                     // Should only be one, clean them all up just in case.
@@ -315,23 +340,29 @@ namespace Observatory.PluginManagement
             {
                 MoveDirectoryWithCleanup(legacyPortablePath, newDir);
             }
-#endif 
+#endif
         }
 
 #if PORTABLE
         internal string GetLegacyStorageFolder(string storageKey)
         {
-            string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
+            string? observatoryLocation = System
+                .Diagnostics.Process.GetCurrentProcess()
+                ?.MainModule?.FileName;
             var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
-            var rootdataDir = $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}";
+            var rootdataDir =
+                $"{obsDir}{Path.DirectorySeparatorChar}plugins{Path.DirectorySeparatorChar}";
             return $"{rootdataDir}{storageKey}-Data{Path.DirectorySeparatorChar}";
         }
 #endif
+
         private string StorageKeyFromPlugin(IObservatoryPlugin plugin)
         {
             Guid? pluginGuid = (Guid?)plugin.GetType().GetProperty("Guid")?.GetValue(plugin);
             var pluginAssemblyName = plugin.GetType().Assembly.GetName().Name!;
-            return (pluginGuid ?? Guid.Empty) == Guid.Empty ? pluginAssemblyName : pluginGuid.ToString()!;
+            return (pluginGuid ?? Guid.Empty) == Guid.Empty
+                ? pluginAssemblyName
+                : pluginGuid.ToString()!;
         }
 
         internal string GetStorageFolderForPlugin(IObservatoryPlugin plugin)
@@ -342,12 +373,16 @@ namespace Observatory.PluginManagement
         internal string GetStorageFolderForPlugin(string storageKey = "", bool create = true)
         {
 #if PORTABLE
-            string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
+            string? observatoryLocation = System
+                .Diagnostics.Process.GetCurrentProcess()
+                ?.MainModule?.FileName;
             var obsDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
-            var rootdataDir = $"{obsDir}{Path.DirectorySeparatorChar}data{Path.DirectorySeparatorChar}";
+            var rootdataDir =
+                $"{obsDir}{Path.DirectorySeparatorChar}data{Path.DirectorySeparatorChar}";
             string pluginDataDir = $"{rootdataDir}{storageKey}{Path.DirectorySeparatorChar}";
 #else
-            var rootdataDir = $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}";
+            var rootdataDir =
+                $"{Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)}{Path.DirectorySeparatorChar}ObservatoryCore{Path.DirectorySeparatorChar}";
             string pluginDataDir = $"{rootdataDir}{storageKey}{Path.DirectorySeparatorChar}";
 #endif
             // Return the root data directory if no plugin assembly name specified.
@@ -367,16 +402,27 @@ namespace Observatory.PluginManagement
             }
         }
 
-        public Task PlayAudioFile(string filePath, AudioOptions? options = null)
-            => AudioHandler.EnqueueAndPlay(filePath, options ?? new());
+        public Task PlayAudioFile(string filePath, AudioOptions? options = null) =>
+            AudioHandler.EnqueueAndPlay(filePath, options ?? new());
 
         public void SendPluginMessage(IObservatoryPlugin plugin, object message)
         {
-            LegacyPluginMessage?.Invoke(this, new LegacyPluginMessageArgs(plugin.Name, plugin.Version, String.Empty, message));
+            LegacyPluginMessage?.Invoke(
+                this,
+                new LegacyPluginMessageArgs(plugin.Name, plugin.Version, String.Empty, message)
+            );
         }
-        public void SendPluginMessage(IObservatoryPlugin plugin, string targetShortName, object message)
+
+        public void SendPluginMessage(
+            IObservatoryPlugin plugin,
+            string targetShortName,
+            object message
+        )
         {
-            LegacyPluginMessage?.Invoke(this, new LegacyPluginMessageArgs(plugin.Name, plugin.Version, targetShortName, message));
+            LegacyPluginMessage?.Invoke(
+                this,
+                new LegacyPluginMessageArgs(plugin.Name, plugin.Version, targetShortName, message)
+            );
         }
 
         public void SendPluginMessage(IObservatoryPlugin plugin, PluginMessage message)
@@ -384,7 +430,11 @@ namespace Observatory.PluginManagement
             PluginMessage?.Invoke(this, new PluginMessageArgs(plugin, Guid.Empty, message));
         }
 
-        public void SendPluginMessage(IObservatoryPlugin plugin, Guid targetId, PluginMessage message)
+        public void SendPluginMessage(
+            IObservatoryPlugin plugin,
+            Guid targetId,
+            PluginMessage message
+        )
         {
             PluginMessage?.Invoke(this, new PluginMessageArgs(plugin, targetId, message));
         }
@@ -404,8 +454,7 @@ namespace Observatory.PluginManagement
             ThemeManager.GetInstance.UnregisterControl(control);
         }
 
-        public string GetCurrentThemeName() =>
-            ThemeManager.GetInstance.CurrentTheme;
+        public string GetCurrentThemeName() => ThemeManager.GetInstance.CurrentTheme;
 
         public Dictionary<string, Color> GetCurrentThemeDetails() =>
             ThemeManager.GetInstance.CurrentThemeDetails;
@@ -463,7 +512,13 @@ namespace Observatory.PluginManagement
         {
             ExecuteOnUIThread(() =>
             {
-                MessageBox.Show(FormsManager.FindCoreForm(), message, title, MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(
+                    FormsManager.FindCoreForm(),
+                    message,
+                    title,
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Information
+                );
             });
         }
 
@@ -475,23 +530,34 @@ namespace Observatory.PluginManagement
         private void BeginBulkUpdate(IObservatoryWorker worker)
         {
             PluginUIGrid? listView = FindPluginListView(worker);
-            if (listView == null) return;
+            if (listView == null)
+                return;
 
-            ExecuteOnUIThread(() => { listView.SuspendDrawing(); });
+            ExecuteOnUIThread(() =>
+            {
+                listView.SuspendDrawing();
+            });
         }
 
         private void EndBulkUpdate(IObservatoryWorker worker)
         {
             PluginUIGrid? listView = FindPluginListView(worker);
-            if (listView == null) return;
+            if (listView == null)
+                return;
 
-            ExecuteOnUIThread(() => { listView.ResumeDrawing(); });
+            ExecuteOnUIThread(() =>
+            {
+                listView.ResumeDrawing();
+            });
         }
 
         private static PluginUIGrid? FindPluginListView(IObservatoryWorker worker)
         {
-            if (worker.PluginUI.PluginUIType != PluginUI.UIType.Basic
-                || worker.PluginUI.UI is not Panel) return null;
+            if (
+                worker.PluginUI.PluginUIType != PluginUI.UIType.Basic
+                || worker.PluginUI.UI is not Panel
+            )
+                return null;
 
             PluginUIGrid? listView;
 

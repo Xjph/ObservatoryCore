@@ -17,11 +17,13 @@ namespace Observatory.Framework
         /// of the <see cref="PluginUpdateInfo"/> class are ignored.
         /// </summary>
         NoUpdate,
+
         /// <summary>
         /// Indicates that there is an update available for the plugin. It is recommended that plugins provide a download Url
         /// via the <see cref="PluginUpdateInfo.Url"/> property.
         /// </summary>
         UpdateAvailable,
+
         /// <summary>
         /// Indicates that there is an update available and it has already been downloaded and is ready for installation.
         /// The user just needs to restart the application to begin using the new version.
@@ -79,7 +81,8 @@ namespace Observatory.Framework
                             return "";
                     }
                 }
-                else return _customUrlText;
+                else
+                    return _customUrlText;
             }
             set => _customUrlText = value;
         }

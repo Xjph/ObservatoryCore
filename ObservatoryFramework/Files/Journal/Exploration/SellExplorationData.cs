@@ -11,18 +11,22 @@ namespace Observatory.Framework.Files.Journal
         /// List of systems for which data was sold.
         /// </summary>
         public ImmutableList<string> Systems { get; init; }
+
         /// <summary>
         /// List of first discovered bodies.
         /// </summary>
         public ImmutableList<string> Discovered { get; init; }
+
         /// <summary>
         /// Base value of sold data.
         /// </summary>
         public long BaseValue { get; init; }
+
         /// <summary>
         /// Extra amount from bonuses.
         /// </summary>
         public long Bonus { get; init; }
+
         /// <summary>
         /// Total amount made from selling data.
         /// </summary>

@@ -8,7 +8,7 @@
             OriginalScript = script;
         }
 
-        new public readonly string Message;
+        public new readonly string Message;
         public readonly string OriginalScript;
     }
 }

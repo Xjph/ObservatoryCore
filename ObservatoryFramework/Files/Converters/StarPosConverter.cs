@@ -1,6 +1,6 @@
-﻿using Observatory.Framework.Files.ParameterTypes;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Converters
 {
@@ -9,14 +9,27 @@ namespace Observatory.Framework.Files.Converters
     /// </summary>
     public class StarPosConverter : JsonConverter<StarPosition>
     {
-        public override StarPosition Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override StarPosition Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             double[] values = (double[])JsonSerializer.Deserialize(ref reader, typeof(double[]));
 
-            return new StarPosition() { x = values[0], y = values[1], z = values[2] };
+            return new StarPosition()
+            {
+                x = values[0],
+                y = values[1],
+                z = values[2],
+            };
         }
 
-        public override void Write(Utf8JsonWriter writer, StarPosition value, JsonSerializerOptions options)
+        public override void Write(
+            Utf8JsonWriter writer,
+            StarPosition value,
+            JsonSerializerOptions options
+        )
         {
             double[] values = { value.x, value.y, value.z };
             JsonSerializer.Serialize(writer, values, options);

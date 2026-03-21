@@ -9,6 +9,5 @@ namespace Observatory.Framework.Files.Journal.Colonisation
     /// <summary>
     /// Written when a colonisation beacon is deployed.
     /// </summary>
-    public class ColonisationBeaconDeployed : JournalBase
-    { }
+    public class ColonisationBeaconDeployed : JournalBase { }
 }

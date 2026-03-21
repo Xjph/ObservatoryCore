@@ -18,7 +18,11 @@ namespace Observatory.Explorer
         private DateTime CriteriaLastModified;
         private string currentSystem = string.Empty;
 
-        internal Explorer(ExplorerWorker explorerWorker, IObservatoryCore core, ObservableCollection<object> results)
+        internal Explorer(
+            ExplorerWorker explorerWorker,
+            IObservatoryCore core,
+            ObservableCollection<object> results
+        )
         {
             SystemBodyHistory = new();
             BodySignalHistory = new();
@@ -26,7 +30,11 @@ namespace Observatory.Explorer
             ExplorerWorker = explorerWorker;
             ObservatoryCore = core;
             Results = results;
-            CustomCriteriaManager = new(ExplorerWorker.settings, core.GetPluginErrorLogger(explorerWorker), HandleCustomNotification);
+            CustomCriteriaManager = new(
+                ExplorerWorker.settings,
+                core.GetPluginErrorLogger(explorerWorker),
+                HandleCustomNotification
+            );
         }
 
         public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs args)
@@ -37,14 +45,20 @@ namespace Observatory.Explorer
                 ObservatoryCore.ClearGrid(ExplorerWorker, new ExplorerUIResults());
                 Clear();
 
-                // Entering read-all (not pre-read). 
-                if (!args.PreviousState.HasFlag(LogMonitorState.Batch) && args.NewState.HasFlag(LogMonitorState.Batch))
+                // Entering read-all (not pre-read).
+                if (
+                    !args.PreviousState.HasFlag(LogMonitorState.Batch)
+                    && args.NewState.HasFlag(LogMonitorState.Batch)
+                )
                 {
                     CustomCriteriaManager.ReadAllMode = true;
                 }
             }
             // Exiting Read-all.
-            else if (args.PreviousState.HasFlag(LogMonitorState.Batch) & !args.NewState.HasFlag(LogMonitorState.Batch))
+            else if (
+                args.PreviousState.HasFlag(LogMonitorState.Batch)
+                & !args.NewState.HasFlag(LogMonitorState.Batch)
+            )
             {
                 CustomCriteriaManager.ReadAllMode = false;
             }
@@ -61,7 +75,10 @@ namespace Observatory.Explorer
         {
             if (!BodySignalHistory.ContainsKey(bodySignals.SystemAddress))
             {
-                BodySignalHistory.Add(bodySignals.SystemAddress, new Dictionary<int, FSSBodySignals>());
+                BodySignalHistory.Add(
+                    bodySignals.SystemAddress,
+                    new Dictionary<int, FSSBodySignals>()
+                );
             }
 
             if (!BodySignalHistory[bodySignals.SystemAddress].ContainsKey(bodySignals.BodyID))
@@ -89,7 +106,9 @@ namespace Observatory.Explorer
 
             if (new char[] { 'Z', '9' }.Contains(ordChar))
             {
-                ordinal = IncrementOrdinal(ordinal.Length == 1 ? " " : String.Empty + ordinal[..^1]);
+                ordinal = IncrementOrdinal(
+                    ordinal.Length == 1 ? " " : String.Empty + ordinal[..^1]
+                );
                 ordChar = (char)(ordChar - 10);
             }
 
@@ -102,7 +121,9 @@ namespace Observatory.Explorer
 
             if (new char[] { 'A', '0' }.Contains(ordChar))
             {
-                ordinal = DecrementOrdinal(ordinal.Length == 1 ? " " : String.Empty + ordinal[..^1]);
+                ordinal = DecrementOrdinal(
+                    ordinal.Length == 1 ? " " : String.Empty + ordinal[..^1]
+                );
                 ordChar = (char)(ordChar + 10);
             }
 
@@ -111,8 +132,9 @@ namespace Observatory.Explorer
 
         public Scan ConvertBarycentre(ScanBaryCentre barycentre, Scan childScan)
         {
-            string childAffix = childScan.BodyName
-                .Replace(childScan.StarSystem, string.Empty).Trim();
+            string childAffix = childScan
+                .BodyName.Replace(childScan.StarSystem, string.Empty)
+                .Trim();
 
             string baryName;
 
@@ -160,17 +182,21 @@ namespace Observatory.Explorer
                 OrbitalPeriod = barycentre.OrbitalPeriod,
                 AscendingNode = barycentre.AscendingNode,
                 MeanAnomaly = barycentre.MeanAnomaly,
-                Json = barycentre.Json
+                Json = barycentre.Json,
             };
 
             return barycentreScan;
         }
+
         public void SetSystem(string potentialNewSystem)
         {
             if (string.IsNullOrEmpty(currentSystem) || currentSystem != potentialNewSystem)
             {
                 currentSystem = potentialNewSystem;
-                if (ExplorerWorker.settings.OnlyShowCurrentSystem && !ObservatoryCore.IsLogMonitorBatchReading)
+                if (
+                    ExplorerWorker.settings.OnlyShowCurrentSystem
+                    && !ObservatoryCore.IsLogMonitorBatchReading
+                )
                 {
                     ObservatoryCore.ClearGrid(ExplorerWorker, new ExplorerUIResults());
                     Clear();
@@ -201,7 +227,11 @@ namespace Observatory.Explorer
 
             if (SystemBodyHistory.Count > 1000)
             {
-                foreach (var entry in SystemBodyHistory.Where(entry => entry.Key != scanEvent.SystemAddress).ToList())
+                foreach (
+                    var entry in SystemBodyHistory
+                        .Where(entry => entry.Key != scanEvent.SystemAddress)
+                        .ToList()
+                )
                 {
                     SystemBodyHistory.Remove(entry.Key);
                 }
@@ -211,15 +241,36 @@ namespace Observatory.Explorer
             if (scanEvent.SystemAddress != 0 && !systemBodies.ContainsKey(scanEvent.BodyID))
                 systemBodies.Add(scanEvent.BodyID, scanEvent);
 
-            var results = DefaultCriteria.CheckInterest(scanEvent, SystemBodyHistory, BodySignalHistory, ExplorerWorker.settings);
+            var results = DefaultCriteria.CheckInterest(
+                scanEvent,
+                SystemBodyHistory,
+                BodySignalHistory,
+                ExplorerWorker.settings
+            );
 
-            if (BarycentreHistory.ContainsKey(scanEvent.SystemAddress) && scanEvent.Parent != null && BarycentreHistory[scanEvent.SystemAddress].ContainsKey(scanEvent.Parent[0].Body))
+            if (
+                BarycentreHistory.ContainsKey(scanEvent.SystemAddress)
+                && scanEvent.Parent != null
+                && BarycentreHistory[scanEvent.SystemAddress].ContainsKey(scanEvent.Parent[0].Body)
+            )
             {
-                ProcessScan(ConvertBarycentre(BarycentreHistory[scanEvent.SystemAddress][scanEvent.Parent[0].Body], scanEvent));
+                ProcessScan(
+                    ConvertBarycentre(
+                        BarycentreHistory[scanEvent.SystemAddress][scanEvent.Parent[0].Body],
+                        scanEvent
+                    )
+                );
             }
 
             if (ExplorerWorker.settings.EnableCustomCriteria)
-                results.AddRange(CustomCriteriaManager.CheckInterest(scanEvent, SystemBodyHistory, BodySignalHistory, ExplorerWorker.settings));
+                results.AddRange(
+                    CustomCriteriaManager.CheckInterest(
+                        scanEvent,
+                        SystemBodyHistory,
+                        BodySignalHistory,
+                        ExplorerWorker.settings
+                    )
+                );
 
             if (results.Count > 0)
             {
@@ -232,20 +283,32 @@ namespace Observatory.Explorer
                         List<ExplorerUIResults> explorerUIResults = [];
                         var lineOne = new ExplorerUIResults()
                         {
-                            BodyName = result.SystemWide ? scanEvent.StarSystem : scanEvent.BodyName,
+                            BodyName = result.SystemWide
+                                ? scanEvent.StarSystem
+                                : scanEvent.BodyName,
                             Time = scanEvent.TimestampDateTime.ToString("s").Replace('T', ' '),
                             Description = descriptionLines[0],
-                            Details = detailLines[0]
+                            Details = detailLines[0],
                         };
                         explorerUIResults.Add(lineOne);
 
-                        for (int i = 1; i < Math.Max(descriptionLines.Length, detailLines.Length); i++)
+                        for (
+                            int i = 1;
+                            i < Math.Max(descriptionLines.Length, detailLines.Length);
+                            i++
+                        )
                         {
-                            explorerUIResults.Add(new()
-                            {
-                                Description = i < descriptionLines.Length ? descriptionLines[i] : string.Empty,
-                                Details = i < detailLines.Length ? detailLines[i] : string.Empty
-                            });
+                            explorerUIResults.Add(
+                                new()
+                                {
+                                    Description =
+                                        i < descriptionLines.Length
+                                            ? descriptionLines[i]
+                                            : string.Empty,
+                                    Details =
+                                        i < detailLines.Length ? detailLines[i] : string.Empty,
+                                }
+                            );
                         }
 
                         ObservatoryCore.AddGridItems(ExplorerWorker, explorerUIResults);
@@ -254,10 +317,12 @@ namespace Observatory.Explorer
                     {
                         var scanResult = new ExplorerUIResults()
                         {
-                            BodyName = result.SystemWide ? scanEvent.StarSystem : scanEvent.BodyName,
+                            BodyName = result.SystemWide
+                                ? scanEvent.StarSystem
+                                : scanEvent.BodyName,
                             Time = scanEvent.TimestampDateTime.ToString("s").Replace('T', ' '),
                             Description = result.Description,
-                            Details = result.Detail
+                            Details = result.Detail,
                         };
                         ObservatoryCore.AddGridItem(ExplorerWorker, scanResult);
                     }
@@ -276,18 +341,22 @@ namespace Observatory.Explorer
                 Scan? bodyScan = null;
 #nullable disable
                 bodiesInSystem?.TryGetValue(codexEntry.BodyID, out bodyScan);
-                ObservatoryCore.AddGridItem(ExplorerWorker, new ExplorerUIResults()
-                {
-                    BodyName = bodyScan?.BodyName ?? codexEntry.System,
-                    Time = codexEntry.TimestampDateTime.ToString("s").Replace('T', ' '),
-                    Description = $"New {codexEntry.Category_Localised} Codex Entry",
-                    Details = codexEntry.Name_Localised
-                });
-                SendNotification($"New {codexEntry.Category_Localised} Codex Entry",
+                ObservatoryCore.AddGridItem(
+                    ExplorerWorker,
+                    new ExplorerUIResults()
+                    {
+                        BodyName = bodyScan?.BodyName ?? codexEntry.System,
+                        Time = codexEntry.TimestampDateTime.ToString("s").Replace('T', ' '),
+                        Description = $"New {codexEntry.Category_Localised} Codex Entry",
+                        Details = codexEntry.Name_Localised,
+                    }
+                );
+                SendNotification(
+                    $"New {codexEntry.Category_Localised} Codex Entry",
                     codexEntry.Name_Localised,
-                    string.Empty);
+                    string.Empty
+                );
             }
-
         }
 
         public void ProcessDiscovery(FSSDiscoveryScan discoveryScan)
@@ -297,9 +366,9 @@ namespace Observatory.Explorer
         }
 
         public void ProcessAllBodies(FSSAllBodiesFound allBodies)
-        { 
+        {
             if (ExplorerWorker.settings.EnableCustomCriteria)
-                CustomCriteriaManager.CustomAllBodies(allBodies, SystemBodyHistory); 
+                CustomCriteriaManager.CustomAllBodies(allBodies, SystemBodyHistory);
         }
 
         public void ProcessSignalScan(SAASignalsFound signalsFound)
@@ -328,7 +397,9 @@ namespace Observatory.Explorer
                 bodyAffix = " " + scanEvent.BodyName;
             }
 
-            string bodyLabel = System.Security.SecurityElement.Escape(scanEvent.PlanetClass == "Barycentre" ? "Barycentre" : "Body");
+            string bodyLabel = System.Security.SecurityElement.Escape(
+                scanEvent.PlanetClass == "Barycentre" ? "Barycentre" : "Body"
+            );
 
             string spokenAffix;
 
@@ -338,8 +409,10 @@ namespace Observatory.Explorer
                 {
                     int ringIndex = bodyAffix.Length - 6;
                     spokenAffix =
-                        "<say-as interpret-as=\"spell-out\">" + bodyAffix[..ringIndex]
-                        + "</say-as><break strength=\"weak\"/>" + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
+                        "<say-as interpret-as=\"spell-out\">"
+                        + bodyAffix[..ringIndex]
+                        + "</say-as><break strength=\"weak\"/>"
+                        + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
                         + bodyAffix[(ringIndex + 1)..];
                 }
                 else if (bodyAffix.Contains(scanEvent.BodyName))
@@ -361,7 +434,8 @@ namespace Observatory.Explorer
             NotificationArgs args = new()
             {
                 Title = bodyLabel + bodyAffix,
-                TitleSsml = $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
+                TitleSsml =
+                    $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
                 Detail = detail,
                 Sender = ExplorerWorker.AboutInfo.ShortName,
                 ExtendedDetails = extendedDetail,
@@ -371,7 +445,12 @@ namespace Observatory.Explorer
             ObservatoryCore.SendNotification(args);
         }
 
-        private void SendNotification(string title, string detail, string extendedDetail, int? coalescingId = null)
+        private void SendNotification(
+            string title,
+            string detail,
+            string extendedDetail,
+            int? coalescingId = null
+        )
         {
             NotificationArgs args = new()
             {
@@ -385,20 +464,31 @@ namespace Observatory.Explorer
             ObservatoryCore.SendNotification(args);
         }
 
-        private void AddGridItem(string eventTime, string title, string detail, string extendedDetail)
+        private void AddGridItem(
+            string eventTime,
+            string title,
+            string detail,
+            string extendedDetail
+        )
         {
             ExplorerUIResults results = new()
             {
                 BodyName = title,
                 Time = eventTime,
                 Description = detail,
-                Details = extendedDetail
+                Details = extendedDetail,
             };
 
             ObservatoryCore.AddGridItem(ExplorerWorker, results);
         }
 
-        private void HandleCustomNotification(string eventTime, string title, string detail, string extendedDetail, int? coalescingId = null)
+        private void HandleCustomNotification(
+            string eventTime,
+            string title,
+            string detail,
+            string extendedDetail,
+            int? coalescingId = null
+        )
         {
             SendNotification(title, detail, extendedDetail, coalescingId);
             AddGridItem(eventTime, title, detail, extendedDetail);
@@ -413,7 +503,9 @@ namespace Observatory.Explorer
                 if (ordinalSegment.All(Char.IsDigit))
                     affix.Append(" " + ordinalSegment);
                 else
-                    affix.Append("<say-as interpret-as=\"spell-out\">" + ordinalSegment + "</say-as>");
+                    affix.Append(
+                        "<say-as interpret-as=\"spell-out\">" + ordinalSegment + "</say-as>"
+                    );
             }
             return affix.ToString();
         }

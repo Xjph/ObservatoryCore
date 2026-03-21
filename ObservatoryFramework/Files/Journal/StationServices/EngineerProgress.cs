@@ -1,6 +1,6 @@
-﻿using Observatory.Framework.Files.ParameterTypes;
+﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
-using System.Collections.Immutable;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
 {

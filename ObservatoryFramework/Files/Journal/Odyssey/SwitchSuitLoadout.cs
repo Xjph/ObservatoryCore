@@ -1,6 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class SwitchSuitLoadout : CreateSuitLoadout
-    {
-    }
+    public class SwitchSuitLoadout : CreateSuitLoadout { }
 }

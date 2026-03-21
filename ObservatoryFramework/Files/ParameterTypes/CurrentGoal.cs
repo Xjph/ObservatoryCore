@@ -1,7 +1,7 @@
-﻿using Microsoft.VisualBasic.CompilerServices;
-using Observatory.Framework.Files.Journal;
-using System;
+﻿using System;
 using System.Numerics;
+using Microsoft.VisualBasic.CompilerServices;
+using Observatory.Framework.Files.Journal;
 
 namespace Observatory.Framework.Files.ParameterTypes
 {
@@ -26,6 +26,5 @@ namespace Observatory.Framework.Files.ParameterTypes
         public bool PlayerInTopRank { get; init; }
         public string TierReached { get; init; }
         public long Bonus { get; init; }
-
     }
 }

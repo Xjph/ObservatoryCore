@@ -1,11 +1,11 @@
-﻿using Observatory.Assets;
+﻿using System.Configuration;
+using System.Data;
+using System.Diagnostics;
+using Observatory.Assets;
 using Observatory.Framework;
 using Observatory.NativeNotification;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System.Configuration;
-using System.Data;
-using System.Diagnostics;
 
 namespace Observatory.UI
 {
@@ -22,7 +22,6 @@ namespace Observatory.UI
             PopulateNativeSettings();
             Icon = Resources.EOCIcon_Presized;
         }
-
 
         private void ColourButton_Click(object _, EventArgs e)
         {
@@ -86,7 +85,11 @@ namespace Observatory.UI
         private void AudioVolumeSlider_Scroll(object _, EventArgs e)
         {
             Properties.Core.Default.VoiceVolume = Math.Clamp(AudioVolumeSlider.Value, 0, 100);
-            Properties.Core.Default.AudioVolume = Math.Clamp(AudioVolumeSlider.Value / 100.0f, 0.0f, 1.0f);
+            Properties.Core.Default.AudioVolume = Math.Clamp(
+                AudioVolumeSlider.Value / 100.0f,
+                0.0f,
+                1.0f
+            );
             SettingsManager.Save();
         }
 
@@ -125,12 +128,15 @@ namespace Observatory.UI
                 Properties.Core.Default.AudioDevice = AudioDeviceDropdown.SelectedItem.ToString();
             SettingsManager.Save();
         }
+
         private void AudioDeviceDropdown_Focused(object sender, EventArgs e)
         {
             AudioDeviceDropdown.Items.Clear();
             foreach (var device in AudioHandler.GetDevices())
                 AudioDeviceDropdown.Items.Add(device);
-            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
+            AudioDeviceDropdown.SelectedIndex = AudioHandler.GetDeviceIndex(
+                Properties.Core.Default.AudioDevice
+            );
         }
 
         private void PopulateDropdownOptions(bool voiceOnly = false)
@@ -157,7 +163,9 @@ namespace Observatory.UI
                 {
                     foreach (var device in AudioHandler.GetDevices())
                         AudioDeviceDropdown.Items.Add(device);
-                    var deviceIndex = AudioHandler.GetDeviceIndex(Properties.Core.Default.AudioDevice);
+                    var deviceIndex = AudioHandler.GetDeviceIndex(
+                        Properties.Core.Default.AudioDevice
+                    );
                     // Select first device if not found.
                     AudioDeviceDropdown.SelectedIndex = Math.Max(0, deviceIndex);
                 }
@@ -166,7 +174,11 @@ namespace Observatory.UI
             if (Properties.Core.Default.ChimeEnabled)
             {
                 VoiceDropdown.Items.AddRange([1, 2, 3, 4, 5, 6]);
-                TryLoadSetting(VoiceDropdown, "SelectedIndex", Properties.Core.Default.ChimeSelected);
+                TryLoadSetting(
+                    VoiceDropdown,
+                    "SelectedIndex",
+                    Properties.Core.Default.ChimeSelected
+                );
             }
             else
             {
@@ -185,11 +197,13 @@ namespace Observatory.UI
                 var voices = speech.GetInstalledVoices();
                 foreach (var voice in voices.Select(v => v.VoiceInfo.Name))
                     VoiceDropdown.Items.Add(voice);
-                TryLoadSetting(VoiceDropdown, "SelectedItem", Properties.Core.Default.VoiceSelected);
+                TryLoadSetting(
+                    VoiceDropdown,
+                    "SelectedItem",
+                    Properties.Core.Default.VoiceSelected
+                );
 #endif
             }
-
-
         }
 
         private void PopulateNativeSettings()
@@ -203,11 +217,30 @@ namespace Observatory.UI
             TryLoadSetting(DisplayDropdown, "SelectedIndex", settings.NativeNotifyScreen + 1, 0);
             TryLoadSetting(CornerDropdown, "SelectedIndex", settings.NativeNotifyCorner, 0);
             TryLoadSetting(FontDropdown, "SelectedItem", settings.NativeNotifyFont);
-            TryLoadSetting(ScaleSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyScale, 1, 500), 100);
-            TryLoadSetting(DurationSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyTimeout, 100, 60000), 5000);
-            TryLoadSetting(ColourButton, "BackColor", Color.FromArgb((int)settings.NativeNotifyColour));
+            TryLoadSetting(
+                ScaleSpinner,
+                "Value",
+                (decimal)Math.Clamp(settings.NativeNotifyScale, 1, 500),
+                100
+            );
+            TryLoadSetting(
+                DurationSpinner,
+                "Value",
+                (decimal)Math.Clamp(settings.NativeNotifyTimeout, 100, 60000),
+                5000
+            );
+            TryLoadSetting(
+                ColourButton,
+                "BackColor",
+                Color.FromArgb((int)settings.NativeNotifyColour)
+            );
             TryLoadSetting(PopupCheckbox, "Checked", settings.NativeNotify);
-            TryLoadSetting(AudioVolumeSlider, "Value", Math.Clamp(settings.VoiceVolume, 0, 100), 100); // Also controls AudioVolume setting
+            TryLoadSetting(
+                AudioVolumeSlider,
+                "Value",
+                Math.Clamp(settings.VoiceVolume, 0, 100),
+                100
+            ); // Also controls AudioVolume setting
             TryLoadSetting(VoiceSpeedSlider, "Value", Math.Clamp(settings.VoiceRate, -10, 10));
             TryLoadSetting(VoiceCheckbox, "Checked", settings.VoiceNotify);
             TryLoadSetting(LabelJournalPath, "Text", LogMonitor.GetJournalFolder().FullName);
@@ -215,7 +248,12 @@ namespace Observatory.UI
             TryLoadSetting(StartReadallCheckbox, "Checked", settings.StartReadAll);
             TryLoadSetting(ExportFormatDropdown, "SelectedIndex", settings.ExportFormat);
             TryLoadSetting(PopupTransparentCheckBox, "Checked", settings.NativeNotifyTransparent);
-            TryLoadSetting(FontScaleSpinner, "Value", (decimal)Math.Clamp(settings.NativeNotifyFontScale, 1, 500), 100);
+            TryLoadSetting(
+                FontScaleSpinner,
+                "Value",
+                (decimal)Math.Clamp(settings.NativeNotifyFontScale, 1, 500),
+                100
+            );
             TryLoadSetting(AudioTypeDropdown, "SelectedIndex", settings.ChimeEnabled ? 1 : 0);
             TryLoadSetting(AltMonitorCheckbox, "Checked", settings.AltMonitor);
 
@@ -231,17 +269,30 @@ namespace Observatory.UI
             loading = false;
         }
 
-        static private void TryLoadSetting(Control control, string property, object newValue, object? defaultValue = null)
+        private static void TryLoadSetting(
+            Control control,
+            string property,
+            object newValue,
+            object? defaultValue = null
+        )
         {
             try
             {
-                (control.GetType().GetProperty(property)?.GetSetMethod())?.Invoke(control, [newValue]);
+                (control.GetType().GetProperty(property)?.GetSetMethod())?.Invoke(
+                    control,
+                    [newValue]
+                );
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Unable to load all settings ({control.Name}), some values may have been cleared.\r\nError: {ex.InnerException?.Message}");
+                MessageBox.Show(
+                    $"Unable to load all settings ({control.Name}), some values may have been cleared.\r\nError: {ex.InnerException?.Message}"
+                );
                 if (defaultValue != null)
-                    (control.GetType().GetProperty(property)?.GetSetMethod())?.Invoke(control, [defaultValue]);
+                    (control.GetType().GetProperty(property)?.GetSetMethod())?.Invoke(
+                        control,
+                        [defaultValue]
+                    );
             }
         }
 
@@ -250,7 +301,8 @@ namespace Observatory.UI
             NotificationArgs args = new()
             {
                 Title = "Test Popup Notification",
-                Detail = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at elit maximus, ornare dui nec, accumsan velit. Vestibulum fringilla elit."
+                Detail =
+                    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec at elit maximus, ornare dui nec, accumsan velit. Vestibulum fringilla elit.",
             };
 
             nativePopup ??= new Observatory.NativeNotification.NativePopup();
@@ -258,13 +310,12 @@ namespace Observatory.UI
             nativePopup.InvokeNativeNotification(args);
         }
 
-
         private void VoiceTestButton_Click(object sender, EventArgs e)
         {
             NotificationArgs args = new()
             {
                 Title = "Test Voice Notification",
-                Detail = "This is a test of native voice notifications."
+                Detail = "This is a test of native voice notifications.",
             };
             AudioHandler audioHandler = new AudioHandler();
             nativeVoice ??= new(audioHandler);
@@ -275,7 +326,8 @@ namespace Observatory.UI
         private void ThemeDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
             var themeManager = ThemeManager.GetInstance;
-            themeManager.CurrentTheme = ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
+            themeManager.CurrentTheme =
+                ThemeDropdown.SelectedItem?.ToString() ?? themeManager.CurrentTheme;
             Properties.Core.Default.Theme = themeManager.CurrentTheme;
             foreach (var plugin in PluginManager.GetInstance.AllUIPlugins)
             {
@@ -288,7 +340,7 @@ namespace Observatory.UI
         {
             var fileBrowse = new OpenFileDialog()
             {
-                Filter = "Elite Observatory Theme (*.eot)|*.eot|All files (*.*)|*.*"
+                Filter = "Elite Observatory Theme (*.eot)|*.eot|All files (*.*)|*.*",
             };
             var result = fileBrowse.ShowDialog();
             if (result == DialogResult.OK)
@@ -305,7 +357,8 @@ namespace Observatory.UI
                         ex.Message,
                         "Error Reading Theme",
                         MessageBoxButtons.OK,
-                        MessageBoxIcon.Error);
+                        MessageBoxIcon.Error
+                    );
                 }
             }
         }
@@ -316,14 +369,12 @@ namespace Observatory.UI
             {
                 Description = "Select Elite Dangerous Journal Location",
                 InitialDirectory = LogMonitor.GetJournalFolder().FullName,
-                UseDescriptionForTitle = true
+                UseDescriptionForTitle = true,
             };
             var result = folderBrowse.ShowDialog(this);
 
             Properties.Core.Default.JournalFolder =
-                result == DialogResult.OK
-                ? folderBrowse.SelectedPath
-                : string.Empty;
+                result == DialogResult.OK ? folderBrowse.SelectedPath : string.Empty;
 
             SettingsManager.Save();
             LabelJournalPath.Text = LogMonitor.GetJournalFolder().FullName;
@@ -346,13 +397,18 @@ namespace Observatory.UI
             Properties.Core.Default.ExportFormat = ExportFormatDropdown.SelectedIndex;
             SettingsManager.Save();
         }
+
         private void CoreConfigFolder_Click(object sender, EventArgs e)
         {
 #if PORTABLE
-            string? observatoryLocation = System.Diagnostics.Process.GetCurrentProcess()?.MainModule?.FileName;
+            string? observatoryLocation = System
+                .Diagnostics.Process.GetCurrentProcess()
+                ?.MainModule?.FileName;
             var configDir = new FileInfo(observatoryLocation ?? String.Empty).DirectoryName;
 #else
-            var config = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal);
+            var config = ConfigurationManager.OpenExeConfiguration(
+                ConfigurationUserLevel.PerUserRoamingAndLocal
+            );
             var fileInfo = new FileInfo(config.FilePath);
             var configDir = fileInfo.DirectoryName;
 #endif
@@ -362,10 +418,13 @@ namespace Observatory.UI
                 return;
             }
 
-            var fileExplorerInfo = new ProcessStartInfo() { FileName = configDir, UseShellExecute = true };
+            var fileExplorerInfo = new ProcessStartInfo()
+            {
+                FileName = configDir,
+                UseShellExecute = true,
+            };
             Process.Start(fileExplorerInfo);
         }
-
 
         private void CoreSettingsOK_Click(object sender, EventArgs e)
         {
@@ -374,7 +433,8 @@ namespace Observatory.UI
 
         private void AudioTypeDropdown_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Properties.Core.Default.ChimeEnabled = AudioTypeDropdown.SelectedItem?.ToString() == "Chime";
+            Properties.Core.Default.ChimeEnabled =
+                AudioTypeDropdown.SelectedItem?.ToString() == "Chime";
             SettingsManager.Save();
 
             VoiceLabel.Text = Properties.Core.Default.ChimeEnabled ? "Chime:" : "Voice:";
@@ -385,12 +445,16 @@ namespace Observatory.UI
 
         private void AltMonitorCheckbox_CheckedChanged(object sender, EventArgs e)
         {
-            if (loading || !AltMonitorCheckbox.Checked
+            if (
+                loading
+                || !AltMonitorCheckbox.Checked
                 || MessageBox.Show(
                     "This setting should only be enabled if standard log monitoring is not working correctly.",
                     "Enabling Log Polling",
                     MessageBoxButtons.OKCancel,
-                    MessageBoxIcon.Exclamation) == DialogResult.OK)
+                    MessageBoxIcon.Exclamation
+                ) == DialogResult.OK
+            )
             {
                 Properties.Core.Default.AltMonitor = AltMonitorCheckbox.Checked;
                 SettingsManager.Save();
@@ -400,9 +464,12 @@ namespace Observatory.UI
         private void TestNotificationRouting_Click(object sender, EventArgs e)
         {
             NotificationRendering r = 0;
-            if (PopupNotifCheckbox.Checked) r |= NotificationRendering.NativeVisual;
-            if (AudioNotifCheckbox.Checked) r |= NotificationRendering.NativeVocal;
-            if (PluginNotifCheckbox.Checked) r |= NotificationRendering.PluginNotifier;
+            if (PopupNotifCheckbox.Checked)
+                r |= NotificationRendering.NativeVisual;
+            if (AudioNotifCheckbox.Checked)
+                r |= NotificationRendering.NativeVocal;
+            if (PluginNotifCheckbox.Checked)
+                r |= NotificationRendering.PluginNotifier;
 
             var args = new NotificationArgs()
             {

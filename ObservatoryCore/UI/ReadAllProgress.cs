@@ -1,5 +1,5 @@
-﻿using Observatory.Utils;
-using System.Text;
+﻿using System.Text;
+using Observatory.Utils;
 
 namespace Observatory.UI
 {
@@ -7,14 +7,31 @@ namespace Observatory.UI
     {
         private CancellationTokenSource ReadAllCancel;
 
-        private byte[] eggBytes = 
-        { 
-            0x52, 0x65, 0x74, 0x69, 
-            0x63, 0x75, 0x6C, 0x61, 
-            0x74, 0x69, 0x6E, 0x67, 
-            0x20, 0x53, 0x70, 0x6C, 
-            0x69, 0x6E, 0x65, 0x73, 
-            0x2E, 0x2E, 0x2E 
+        private byte[] eggBytes =
+        {
+            0x52,
+            0x65,
+            0x74,
+            0x69,
+            0x63,
+            0x75,
+            0x6C,
+            0x61,
+            0x74,
+            0x69,
+            0x6E,
+            0x67,
+            0x20,
+            0x53,
+            0x70,
+            0x6C,
+            0x69,
+            0x6E,
+            0x65,
+            0x73,
+            0x2E,
+            0x2E,
+            0x2E,
         };
 
         public ReadAllForm()
@@ -27,20 +44,20 @@ namespace Observatory.UI
             var ReadAllJournals = LogMonitor.GetInstance.ReadAllGenerator(out int fileCount);
             int progressCount = 0;
             ReadAllCancel = new CancellationTokenSource();
-            HandleCreated += (_,_) =>
-            Task.Run(() =>
-            {
-                foreach (var journal in ReadAllJournals(ReadAllCancel))
+            HandleCreated += (_, _) =>
+                Task.Run(() =>
                 {
-                    progressCount++;
-                    Invoke(() =>
+                    foreach (var journal in ReadAllJournals(ReadAllCancel))
                     {
-                        JournalLabel.Text = journal.ToString();
-                        ReadAllProgress.Value = (progressCount * 100) / fileCount;
-                    });
-                }
-                Invoke(()=>Close());
-            });
+                        progressCount++;
+                        Invoke(() =>
+                        {
+                            JournalLabel.Text = journal.ToString();
+                            ReadAllProgress.Value = (progressCount * 100) / fileCount;
+                        });
+                    }
+                    Invoke(() => Close());
+                });
         }
 
         private void CancelButton_Click(object sender, EventArgs e)

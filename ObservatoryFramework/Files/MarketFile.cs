@@ -1,5 +1,5 @@
-﻿using Observatory.Framework.Files.ParameterTypes;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files
 {
@@ -12,22 +12,27 @@ namespace Observatory.Framework.Files
         /// Unique ID of current market.
         /// </summary>
         public ulong MarketID { get; init; }
+
         /// <summary>
         /// Name of the station where the market is located.
         /// </summary>
         public string StationName { get; init; }
+
         /// <summary>
         /// Name of the station where the market is located localised to the current language (if available).
         /// </summary>
         public string StationName_Localised { get; init; }
+
         /// <summary>
         /// Type of station where the market is located.
         /// </summary>
         public string StationType { get; init; }
+
         /// <summary>
         /// Name of star system where the market is located.
         /// </summary>
         public string StarSystem { get; init; }
+
         /// <summary>
         /// List of all commodities available in the market.
         /// </summary>

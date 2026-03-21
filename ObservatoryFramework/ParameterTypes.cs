@@ -21,6 +21,7 @@ namespace Observatory.Framework.ParameterTypes
         /// If set to true, the associated audio file is played immediately rather than queued. Default is false (queued).
         /// </summary>
         public bool Instant { get; set; }
+
         /// <summary>
         /// If set to true, the provided audio file is deleted after playback finishes. Default is false (caller is responsible
         /// for managing audio file cleanup).

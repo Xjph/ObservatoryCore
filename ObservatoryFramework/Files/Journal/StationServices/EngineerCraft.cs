@@ -1,7 +1,7 @@
-﻿using Observatory.Framework.Files.Converters;
-using Observatory.Framework.Files.ParameterTypes;
+﻿using System.Collections.Immutable;
 using System.Text.Json.Serialization;
-using System.Collections.Immutable;
+using Observatory.Framework.Files.Converters;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -19,6 +19,7 @@ namespace Observatory.Framework.Files.Journal
         public int Level { get; init; }
         public float Quality { get; init; }
         public string ApplyExperimentalEffect { get; init; }
+
         [JsonConverter(typeof(MaterialConverter))]
         public ImmutableList<Material> Ingredients { get; init; }
         public ImmutableList<Modifier> Modifiers { get; init; }

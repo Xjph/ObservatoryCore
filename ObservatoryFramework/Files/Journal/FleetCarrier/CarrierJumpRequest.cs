@@ -1,5 +1,5 @@
-﻿using Observatory.Framework.Files.ParameterTypes;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -15,7 +15,8 @@ namespace Observatory.Framework.Files.Journal
         public string DepartureTime { get; init; }
 
         [JsonIgnore]
-        public DateTime DepartureTimeDateTime {
+        public DateTime DepartureTimeDateTime
+        {
             get => ParseDateTime(DepartureTime);
         }
     }

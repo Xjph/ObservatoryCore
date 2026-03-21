@@ -1,6 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class CockpitBreached : JournalBase
-    {
-    }
+    public class CockpitBreached : JournalBase { }
 }

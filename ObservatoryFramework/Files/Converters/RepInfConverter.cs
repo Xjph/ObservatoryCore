@@ -5,7 +5,11 @@ namespace Observatory.Framework.Files.Converters
 {
     public class RepInfConverter : JsonConverter<int>
     {
-        public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override int Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             return reader.GetString().Trim().Length;
         }

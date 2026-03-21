@@ -3,6 +3,7 @@
     public class Outfitting : JournalBase
     {
         public ulong MarketID { get; init; }
+
         /// <summary>
         /// Name of the station at which this event occurred.
         /// </summary>

@@ -9,6 +9,7 @@
         /// Internal (non-localised) name of genus, e.g.: "$Codex_Ent_Stratum_Genus_Name"
         /// </summary>
         public string Genus { get; init; }
+
         /// <summary>
         /// Name of genus localised for player locale, e.g.: "Stratum"
         /// </summary>

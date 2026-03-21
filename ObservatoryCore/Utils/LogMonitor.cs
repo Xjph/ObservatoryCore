@@ -14,10 +14,7 @@ namespace Observatory.Utils
 
         public static LogMonitor GetInstance
         {
-            get
-            {
-                return _instance.Value;
-            }
+            get { return _instance.Value; }
         }
 
         private static readonly Lazy<LogMonitor> _instance = new(NewLogMonitor);
@@ -45,7 +42,7 @@ namespace Observatory.Utils
         }
 
         public Status Status { get; private set; }
-        
+
         #endregion
 
         #region Public Methods
@@ -83,7 +80,9 @@ namespace Observatory.Utils
             return (currentState & LogMonitorState.Realtime) != 0;
         }
 
-        public Func<CancellationTokenSource, IEnumerable<string>> ReadAllGenerator(out int fileCount)
+        public Func<CancellationTokenSource, IEnumerable<string>> ReadAllGenerator(
+            out int fileCount
+        )
         {
             // Prevent pre-reading when starting monitoring after reading all.
             firstStartMonitor = false;
@@ -100,27 +99,32 @@ namespace Observatory.Utils
                 {
                     Debug.WriteLine($"Processing: {file.Name}");
                     yield return file.Name;
-                    readErrors.AddRange(
-                        ProcessLines(ReadAllLines(file.FullName), file.Name));
+                    readErrors.AddRange(ProcessLines(ReadAllLines(file.FullName), file.Name));
 
                     if (cancellationRequested.IsCancellationRequested)
                     {
-                        SetLogMonitorState(currentState & ~LogMonitorState.Batch | LogMonitorState.BatchCancelled);
+                        SetLogMonitorState(
+                            currentState & ~LogMonitorState.Batch | LogMonitorState.BatchCancelled
+                        );
                         break;
                     }
                 }
 
                 ReportErrors(readErrors);
-                SetLogMonitorState(currentState & ~LogMonitorState.Batch & ~LogMonitorState.BatchCancelled);
+                SetLogMonitorState(
+                    currentState & ~LogMonitorState.Batch & ~LogMonitorState.BatchCancelled
+                );
                 UpdateEventLabels();
-            };
+            }
+            ;
 
             return ReadAllJournals;
         }
 
         public void PrereadJournals()
         {
-            if (Properties.Core.Default.StartReadAll) return;
+            if (Properties.Core.Default.StartReadAll)
+                return;
 
             SetLogMonitorState(currentState | LogMonitorState.PreRead);
 
@@ -139,7 +143,15 @@ namespace Observatory.Utils
                 foreach (var line in lines)
                 {
                     var eventType = JournalUtilities.GetEventType(line);
-                    if (eventType.Equals("FSDJump") || (eventType.Equals("CarrierJump") && (line.Contains("\"Docked\":true") || line.Contains("\"OnFoot\":true"))))
+                    if (
+                        eventType.Equals("FSDJump")
+                        || (
+                            eventType.Equals("CarrierJump")
+                            && (
+                                line.Contains("\"Docked\":true") || line.Contains("\"OnFoot\":true")
+                            )
+                        )
+                    )
                     {
                         // Reset, start collecting again.
                         lastSystemLines.Clear();
@@ -151,10 +163,12 @@ namespace Observatory.Utils
                         fileHeaderLines.Clear();
                         fileHeaderLines.Add(line);
                     }
-                    else if (eventType.Equals("LoadGame") ||
-                        eventType.Equals("Statistics") ||
-                        eventType.Equals("CarrierLocation") ||
-                        eventType.Equals("Loadout"))
+                    else if (
+                        eventType.Equals("LoadGame")
+                        || eventType.Equals("Statistics")
+                        || eventType.Equals("CarrierLocation")
+                        || eventType.Equals("Loadout")
+                    )
                     {
                         // A few header lines to collect.
                         fileHeaderLines.Add(line);
@@ -203,8 +217,12 @@ namespace Observatory.Utils
                 JournalEntry?.Invoke(this, journalEvent);
 
                 // Files are only valid if realtime, otherwise they will be stale or empty.
-                if (((currentState & LogMonitorState.Batch) == 0 && (currentState & LogMonitorState.PreRead) == 0)
-                    && EventsWithAncillaryFile.Contains(eventType))
+                if (
+                    (
+                        (currentState & LogMonitorState.Batch) == 0
+                        && (currentState & LogMonitorState.PreRead) == 0
+                    ) && EventsWithAncillaryFile.Contains(eventType)
+                )
                 {
                     HandleAncillaryFile(eventType);
                 }
@@ -235,15 +253,17 @@ namespace Observatory.Utils
                     logDirectory = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
                 }
             }
-            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) || RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            else if (
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
+                || RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
+            )
             {
                 string defaultJournalPath = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
                     ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-                    + "/.steam/debian-installation/steamapps/compatdata/359320/pfx/drive_c/users/steamuser/Saved Games/Frontier Developments/Elite Dangerous"
+                        + "/.steam/debian-installation/steamapps/compatdata/359320/pfx/drive_c/users/steamuser/Saved Games/Frontier Developments/Elite Dangerous"
                     : GetSavedGamesPath() + @"\Frontier Developments\Elite Dangerous";
 
-                logDirectory =
-                    Directory.Exists(defaultJournalPath)
+                logDirectory = Directory.Exists(defaultJournalPath)
                     ? new DirectoryInfo(defaultJournalPath)
                     : new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
             }
@@ -296,7 +316,7 @@ namespace Observatory.Utils
             "Backpack",
             "FCMaterials",
             "ModuleInfo",
-            "ShipLocker"
+            "ShipLocker",
         ];
         private string lastEvent = "None";
         private ulong totalEvents = 0;
@@ -310,20 +330,30 @@ namespace Observatory.Utils
         private void UpdateEventLabels()
         {
             lastLabel?.Invoke(() => lastLabel.Text = $"Last Journal Event Processed: {lastEvent}");
-            totalLabel?.Invoke(() => totalLabel.Text = $"Total Journal Lines Processed: {totalEvents:N0}");
+            totalLabel?.Invoke(() =>
+                totalLabel.Text = $"Total Journal Lines Processed: {totalEvents:N0}"
+            );
         }
 
         private void SetLogMonitorState(LogMonitorState newState)
         {
             var oldState = currentState;
             currentState = newState;
-            LogMonitorStateChanged?.Invoke(this, new LogMonitorStateChangedEventArgs
-            {
-                PreviousState = oldState,
-                NewState = newState
-            }); ;
+            LogMonitorStateChanged?.Invoke(
+                this,
+                new LogMonitorStateChangedEventArgs
+                {
+                    PreviousState = oldState,
+                    NewState = newState,
+                }
+            );
+            ;
 
-            System.Diagnostics.Debug.WriteLine("LogMonitor State change: {0} -> {1}", oldState, newState);
+            System.Diagnostics.Debug.WriteLine(
+                "LogMonitor State change: {0} -> {1}",
+                oldState,
+                newState
+            );
         }
 
         private void InitializeWatchers(string path)
@@ -332,20 +362,26 @@ namespace Observatory.Utils
 
             journalWatcher = new FileSystemWatcher(logDirectory.FullName, "Journal.*.??.log")
             {
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size |
-                                NotifyFilters.FileName | NotifyFilters.CreationTime
+                NotifyFilter =
+                    NotifyFilters.LastWrite
+                    | NotifyFilters.Size
+                    | NotifyFilters.FileName
+                    | NotifyFilters.CreationTime,
             };
             journalWatcher.Changed += LogChangedEvent;
             journalWatcher.Created += LogCreatedEvent;
 
             statusWatcher = new FileSystemWatcher(logDirectory.FullName, "Status.json")
             {
-                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
             };
             statusWatcher.Changed += StatusUpdateEvent;
         }
 
-        private List<(Exception ex, string file, string line)> ProcessLines(List<string> lines, string file)
+        private List<(Exception ex, string file, string line)> ProcessLines(
+            List<string> lines,
+            string file
+        )
         {
             var readErrors = new List<(Exception ex, string file, string line)>();
             foreach (var line in lines)
@@ -367,7 +403,9 @@ namespace Observatory.Utils
             try
             {
                 var eventClass = journalTypes[eventType];
-                MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
+                MethodInfo journalRead = typeof(JournalReader).GetMethod(
+                    nameof(JournalReader.ObservatoryDeserializer)
+                );
                 MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
                 object entry = journalGeneric.Invoke(null, new object[] { line });
                 return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
@@ -375,10 +413,15 @@ namespace Observatory.Utils
             catch (JsonException ex)
             {
                 // Log error and try to process as base journal object.
-                ObservatoryCore.LogError(ex, "Unable to deserialize journal event into specific event type.");
+                ObservatoryCore.LogError(
+                    ex,
+                    "Unable to deserialize journal event into specific event type."
+                );
 
                 var eventClass = journalTypes["JournalBase"];
-                MethodInfo journalRead = typeof(JournalReader).GetMethod(nameof(JournalReader.ObservatoryDeserializer));
+                MethodInfo journalRead = typeof(JournalReader).GetMethod(
+                    nameof(JournalReader.ObservatoryDeserializer)
+                );
                 MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
                 object entry = journalGeneric.Invoke(null, new object[] { line });
                 return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
@@ -387,9 +430,10 @@ namespace Observatory.Utils
 
         private void HandleAncillaryFile(string eventType)
         {
-            string filename = eventType == "ModuleInfo"
-                ? "ModulesInfo.json" // Just FDev things
-                : eventType + ".json";
+            string filename =
+                eventType == "ModuleInfo"
+                    ? "ModulesInfo.json" // Just FDev things
+                    : eventType + ".json";
 
             // I have no idea what order Elite writes these files or if they're already written
             // by the time the journal updates.
@@ -406,7 +450,12 @@ namespace Observatory.Utils
                 Thread.Sleep(50);
                 try
                 {
-                    using var fileStream = File.Open(journalWatcher.Path + Path.DirectorySeparatorChar + filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                    using var fileStream = File.Open(
+                        journalWatcher.Path + Path.DirectorySeparatorChar + filename,
+                        FileMode.Open,
+                        FileAccess.Read,
+                        FileShare.ReadWrite
+                    );
                     using var reader = new StreamReader(fileStream);
                     fileContent = reader.ReadToEnd();
                     var fileObject = DeserializeToEventArgs(eventType + "File", fileContent);
@@ -437,8 +486,10 @@ namespace Observatory.Utils
                     return ($"Error reading file {error.file}: {message}", error.line);
                 });
 
-                ErrorReporter.ShowErrorPopup($"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}", errorList.ToList());
-
+                ErrorReporter.ShowErrorPopup(
+                    $"Journal Read Error{(readErrors.Count > 1 ? "s" : "")}",
+                    errorList.ToList()
+                );
             }
         }
 
@@ -474,7 +525,9 @@ namespace Observatory.Utils
             var lines = new List<string>();
             try
             {
-                using StreamReader file = new(File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                using StreamReader file = new(
+                    File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
+                );
                 while (!file.EndOfStream)
                 {
                     lines.Add(file.ReadLine() ?? string.Empty);
@@ -482,7 +535,9 @@ namespace Observatory.Utils
             }
             catch (IOException ioEx)
             {
-                ReportErrors(new List<(Exception, string, string)>() { (ioEx, path, "<reading all lines>") });
+                ReportErrors(
+                    new List<(Exception, string, string)>() { (ioEx, path, "<reading all lines>") }
+                );
             }
             return lines;
         }
@@ -504,12 +559,22 @@ namespace Observatory.Utils
                 {
                     status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
                     Status = status;
-                    handler?.Invoke(this, new JournalEventArgs() { journalType = typeof(Status), journalEvent = status });
+                    handler?.Invoke(
+                        this,
+                        new JournalEventArgs()
+                        {
+                            journalType = typeof(Status),
+                            journalEvent = status,
+                        }
+                    );
                 }
-                catch (JsonException ex) 
+                catch (JsonException ex)
                 {
                     // Proceed without updating status and log error.
-                    ObservatoryCore.LogError(ex, "Status file could not be deserialized to Status object.");
+                    ObservatoryCore.LogError(
+                        ex,
+                        "Status file could not be deserialized to Status object."
+                    );
                 }
             }
         }
@@ -536,15 +601,29 @@ namespace Observatory.Utils
 
                         if (!poll)
                         {
-                            using FileStream stream = fileToPoke.Open(FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                            using FileStream stream = fileToPoke.Open(
+                                FileMode.Open,
+                                FileAccess.Read,
+                                FileShare.ReadWrite
+                            );
                             stream.Close();
                         }
                         else
                         {
                             var lines = ReadAllLines(fileToPoke.FullName);
-                            if (!currentLine.TryGetValue(fileToPoke.FullName, out int value) || lines.Count > value)
+                            if (
+                                !currentLine.TryGetValue(fileToPoke.FullName, out int value)
+                                || lines.Count > value
+                            )
                             {
-                                LogChangedEvent(this, new(WatcherChangeTypes.Changed, fileToPoke.Directory?.FullName ?? ".", fileToPoke.Name));
+                                LogChangedEvent(
+                                    this,
+                                    new(
+                                        WatcherChangeTypes.Changed,
+                                        fileToPoke.Directory?.FullName ?? ".",
+                                        fileToPoke.Name
+                                    )
+                                );
                             }
                         }
                     }
@@ -560,11 +639,12 @@ namespace Observatory.Utils
                 Environment.UserName
                 }\\.steam\\debian-installation\\steamapps\\compatdata\\359320\\pfx\\drive_c\\users\\steamuser\\Saved Games";
 #else
-            if (Environment.OSVersion.Version.Major < 6) throw new NotSupportedException();
+            if (Environment.OSVersion.Version.Major < 6)
+                throw new NotSupportedException();
             IntPtr pathPtr = IntPtr.Zero;
             try
             {
-                Guid FolderSavedGames = new ("4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4");
+                Guid FolderSavedGames = new("4C5C32FF-BB9D-43b0-B5B4-2D72E54EAAA4");
                 if (SHGetKnownFolderPath(ref FolderSavedGames, 0, IntPtr.Zero, out pathPtr) == 0)
                     return Marshal.PtrToStringUni(pathPtr) ?? string.Empty;
                 else
@@ -582,7 +662,8 @@ namespace Observatory.Utils
 
         private static IEnumerable<FileInfo> GetJournalFilesOrdered(DirectoryInfo journalFolder)
         {
-            return journalFolder.GetFiles("Journal.*.??.log")
+            return journalFolder
+                .GetFiles("Journal.*.??.log")
                 .ToList()
                 .OrderBy(f => TimestampFromFile(f));
         }
@@ -608,17 +689,36 @@ namespace Observatory.Utils
             }
 
             // Try parse as a numeric date from old journals in the format: yyMMddHHmmss
-            if (!DateTime.TryParseExact(datePart.Groups[1].Value, "yyMMddHHmmss", null, System.Globalization.DateTimeStyles.None, out timeStamp))
+            if (
+                !DateTime.TryParseExact(
+                    datePart.Groups[1].Value,
+                    "yyMMddHHmmss",
+                    null,
+                    System.Globalization.DateTimeStyles.None,
+                    out timeStamp
+                )
+            )
             {
                 // Try parse this as a new style date of the format: yyyy-MM-ddTHHmmss
-                DateTime.TryParseExact(datePart.Groups[1].Value, "yyyy-MM-ddTHHmmss", null, System.Globalization.DateTimeStyles.None, out timeStamp);
+                DateTime.TryParseExact(
+                    datePart.Groups[1].Value,
+                    "yyyy-MM-ddTHHmmss",
+                    null,
+                    System.Globalization.DateTimeStyles.None,
+                    out timeStamp
+                );
             }
             return timeStamp;
         }
 
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        private static extern int SHGetKnownFolderPath(ref Guid id, int flags, IntPtr token, out IntPtr path);
+        private static extern int SHGetKnownFolderPath(
+            ref Guid id,
+            int flags,
+            IntPtr token,
+            out IntPtr path
+        );
 
-#endregion
+        #endregion
     }
 }

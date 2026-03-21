@@ -1,10 +1,10 @@
-﻿using Observatory.Framework.Files.ParameterTypes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal.Colonisation
 {
@@ -22,7 +22,5 @@ namespace Observatory.Framework.Files.Journal.Colonisation
         public bool ConstructionFailed { get; init; }
 
         public ImmutableList<RequiredResource> ResourcesRequired { get; init; }
-
-
     }
 }

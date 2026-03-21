@@ -21,10 +21,13 @@ namespace Observatory.Framework.Files.Journal
         public string ShipIdent { get; init; }
         public double FuelLevel { get; init; }
         public double FuelCapacity { get; init; }
+
         [JsonPropertyName("language")]
         public string Language { get; init; }
+
         [JsonPropertyName("gameversion")]
         public string GameVersion { get; init; }
+
         [JsonPropertyName("build")]
         public string Build { get; init; }
     }

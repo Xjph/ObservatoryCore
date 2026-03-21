@@ -7,8 +7,8 @@ namespace Observatory.Framework.Files.ParameterTypes
         public string Label { get; init; }
 
         [JsonConverter(typeof(Converters.MutableStringDoubleConverter))]
-        public object Value 
-        { 
+        public object Value
+        {
             get
             {
                 if (!string.IsNullOrEmpty(ValueString))
@@ -16,7 +16,6 @@ namespace Observatory.Framework.Files.ParameterTypes
                 else
                     return ValueNumeric;
             }
-
             init
             {
                 if (value.GetType() == typeof(string))

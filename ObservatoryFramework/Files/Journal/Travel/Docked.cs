@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Immutable;
 using System.Text.Json.Serialization;
 using Observatory.Framework.Files.ParameterTypes;
-using System.Collections.Immutable;
 
 namespace Observatory.Framework.Files.Journal
 {
@@ -20,27 +20,20 @@ namespace Observatory.Framework.Files.Journal
         [JsonConverter(typeof(Converters.LegacyFactionConverter<Faction>))]
         public Faction StationFaction { get; init; }
 
-        [Obsolete(JournalUtilities.ObsoleteMessage), JsonConverter(typeof(Converters.LegacyFactionConverter<Faction>))]
-        public Faction Faction 
+        [
+            Obsolete(JournalUtilities.ObsoleteMessage),
+            JsonConverter(typeof(Converters.LegacyFactionConverter<Faction>))
+        ]
+        public Faction Faction
         {
-            private get
-            {
-                return StationFaction;
-            } 
-            init 
-            { 
-                StationFaction = value; 
-            } 
+            private get { return StationFaction; }
+            init { StationFaction = value; }
         }
 
         [Obsolete(JournalUtilities.ObsoleteMessage)]
         public string FactionState
         {
-            private get
-            {
-                return StationFaction.FactionState;
-            }
-
+            private get { return StationFaction.FactionState; }
             init
             {
                 //Stale Data, discard
@@ -91,7 +84,9 @@ namespace Observatory.Framework.Files.Journal
         }
         public ImmutableList<StationEconomy> StationEconomies { get; init; }
 
-        [Obsolete("StationState is a rundundant property. Use StationEconomy to potentially reduce unnecessary checks.")]
+        [Obsolete(
+            "StationState is a rundundant property. Use StationEconomy to potentially reduce unnecessary checks."
+        )]
         public string StationState { get; init; }
         public float DistFromStarLS { get; init; }
         public bool Wanted { get; init; }

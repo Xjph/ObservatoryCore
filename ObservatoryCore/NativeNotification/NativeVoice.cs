@@ -1,10 +1,10 @@
-﻿using Observatory.Framework;
-using System.Xml;
-using System.Speech.Synthesis;
+﻿using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Diagnostics;
-using Observatory.Utils;
+using System.Speech.Synthesis;
+using System.Xml;
 using Observatory.Assets;
+using Observatory.Framework;
+using Observatory.Utils;
 
 namespace Observatory.NativeNotification
 {
@@ -52,7 +52,7 @@ namespace Observatory.NativeNotification
                     var speech = new SpeechSynthesizer()
                     {
                         Volume = Properties.Core.Default.VoiceVolume,
-                        Rate = Properties.Core.Default.VoiceRate
+                        Rate = Properties.Core.Default.VoiceRate,
                     };
                     speech.InjectOneCoreVoices();
                     speech.SelectVoice(voice);
@@ -85,9 +85,7 @@ namespace Observatory.NativeNotification
                     speech.Dispose();
                 }
 #endif
-                
                 audioHandler.EnqueueAndPlay(filename, new() { DeleteAfterPlay = true }, eventArgs);
-                
             }
             catch (Exception ex)
             {
@@ -104,7 +102,6 @@ namespace Observatory.NativeNotification
             XmlNamespaceManager ssmlNs = new(ssmlDoc.NameTable);
             ssmlNs.AddNamespace("ssml", ssmlNamespace ?? string.Empty);
 
-
             var voiceNode = ssmlDoc.SelectSingleNode("/ssml:speak/ssml:voice", ssmlNs);
 
             var voiceNameNode = voiceNode?.Attributes?.GetNamedItem("name");
@@ -112,7 +109,7 @@ namespace Observatory.NativeNotification
             {
                 voiceNameNode.Value = voiceName;
             }
-            
+
             return ssmlDoc.OuterXml;
         }
     }

@@ -7,13 +7,13 @@ namespace Observatory.Explorer
     {
         public ExplorerSettings()
         {
-            CustomCriteriaFile = $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}{System.IO.Path.DirectorySeparatorChar}ObservatoryCriteria.lua";
+            CustomCriteriaFile =
+                $"{Environment.GetFolderPath(Environment.SpecialFolder.Personal)}{System.IO.Path.DirectorySeparatorChar}ObservatoryCriteria.lua";
         }
 
         [SettingNewGroup("Display")]
         [SettingDisplayName("Only Show Current System")]
         public bool OnlyShowCurrentSystem { get; set; }
-
 
         [SettingNewGroup("Built-in Criteria")]
         [SettingDisplayName("Landable & Terraformable")]
@@ -91,7 +91,11 @@ namespace Observatory.Explorer
 
         [SettingDisplayName("Custom Criteria File")]
         [System.Text.Json.Serialization.JsonIgnore]
-        public System.IO.FileInfo CustomCriteria {get => new System.IO.FileInfo(CustomCriteriaFile); set => CustomCriteriaFile = value.FullName;}
+        public System.IO.FileInfo CustomCriteria
+        {
+            get => new System.IO.FileInfo(CustomCriteriaFile);
+            set => CustomCriteriaFile = value.FullName;
+        }
 
         [SettingIgnore]
         public string CustomCriteriaFile { get; set; }

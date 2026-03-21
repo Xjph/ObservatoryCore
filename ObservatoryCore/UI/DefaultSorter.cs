@@ -9,10 +9,12 @@ namespace Observatory.UI
         /// Specifies the column to be sorted
         /// </summary>
         private int ColumnToSort;
+
         /// <summary>
         /// Specifies the order in which to sort (i.e. 'Ascending').
         /// </summary>
         private int OrderOfSort;
+
         /// <summary>
         /// Case insensitive comparer object
         /// </summary>
@@ -45,12 +47,15 @@ namespace Observatory.UI
 
             ListViewItem? listviewX = (ListViewItem?)x;
             ListViewItem? listviewY = (ListViewItem?)y;
-                                    
+
             if (OrderOfSort == 0)
                 return 0;
 
             // Compare the two items
-            compareResult = NaturalCompare(listviewX?.SubItems[ColumnToSort].Text, listviewY?.SubItems[ColumnToSort].Text);
+            compareResult = NaturalCompare(
+                listviewX?.SubItems[ColumnToSort].Text,
+                listviewY?.SubItems[ColumnToSort].Text
+            );
 
             // Calculate correct return value based on object comparison
             if (OrderOfSort == 1)
@@ -58,7 +63,7 @@ namespace Observatory.UI
                 // Ascending sort is selected, return normal result of compare operation
                 return compareResult;
             }
-            else 
+            else
             {
                 // Descending sort is selected, return negative result of compare operation
                 return (-compareResult);
@@ -72,7 +77,9 @@ namespace Observatory.UI
                 // If we've reached the end of the string without finding a difference
                 // the longer string is "greater".
                 if (i == x.Length || i == y.Length)
-                    return x.Length > y.Length ? 1 : y.Length > x.Length ? -1 : 0;
+                    return x.Length > y.Length ? 1
+                        : y.Length > x.Length ? -1
+                        : 0;
 
                 // We've found a number in the same place in both strings.
                 if (Char.IsDigit(x[i]) && Char.IsDigit(y[i]))
@@ -115,14 +122,8 @@ namespace Observatory.UI
         /// </summary>
         public int SortColumn
         {
-            set
-            {
-                ColumnToSort = value;
-            }
-            get
-            {
-                return ColumnToSort;
-            }
+            set { ColumnToSort = value; }
+            get { return ColumnToSort; }
         }
 
         /// <summary>
@@ -130,14 +131,8 @@ namespace Observatory.UI
         /// </summary>
         public int Order
         {
-            set
-            {
-                OrderOfSort = value;
-            }
-            get
-            {
-                return OrderOfSort;
-            }
+            set { OrderOfSort = value; }
+            get { return OrderOfSort; }
         }
     }
 }

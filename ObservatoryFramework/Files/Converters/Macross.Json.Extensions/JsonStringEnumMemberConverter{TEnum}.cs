@@ -1,13 +1,12 @@
 ﻿using System.Buffers.Text;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
+using System.Runtime.Serialization;
+using Macross.Json.Extensions;
 #if !NETSTANDARD2_0
 using System.Diagnostics.CodeAnalysis;
 #endif
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Globalization;
-
-using Macross.Json.Extensions;
 
 namespace System.Text.Json.Serialization
 {
@@ -30,11 +29,12 @@ namespace System.Text.Json.Serialization
             }
         }
 
-        private const BindingFlags EnumBindings = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
+        private const BindingFlags EnumBindings =
+            BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static;
         private const int MaximumAutoGrowthCacheSize = 64;
 
 #if NETSTANDARD2_0
-		private static readonly string[] s_Split = new string[] { ", " };
+        private static readonly string[] s_Split = new string[] { ", " };
 #endif
 
         private readonly bool _AllowIntegerValues;
@@ -52,15 +52,18 @@ namespace System.Text.Json.Serialization
         {
             _EnumType = typeof(TEnum);
 
-            JsonStringEnumMemberConverterOptions? computedOptions
-                = _EnumType.GetCustomAttribute<JsonStringEnumMemberConverterOptionsAttribute>(false)?.Options
+            JsonStringEnumMemberConverterOptions? computedOptions =
+                _EnumType
+                    .GetCustomAttribute<JsonStringEnumMemberConverterOptionsAttribute>(false)
+                    ?.Options
                 ?? options;
 
             _AllowIntegerValues = computedOptions?.AllowIntegerValues ?? true;
             _EnumTypeCode = Type.GetTypeCode(_EnumType);
             _IsFlags = _EnumType.IsDefined(typeof(FlagsAttribute), true);
 
-            ulong? deserializationFailureFallbackValue = computedOptions?.ConvertedDeserializationFailureFallbackValue;
+            ulong? deserializationFailureFallbackValue =
+                computedOptions?.ConvertedDeserializationFailureFallbackValue;
 
             string[] builtInNames = _EnumType.GetEnumNames();
             Array builtInValues = _EnumType.GetEnumValues();
@@ -75,20 +78,27 @@ namespace System.Text.Json.Serialization
                 Enum? enumValue = (Enum?)builtInValues.GetValue(i);
                 if (enumValue == null)
                     continue;
-                ulong rawValue = JsonStringEnumMemberConverter.GetEnumValue(_EnumTypeCode, enumValue);
+                ulong rawValue = JsonStringEnumMemberConverter.GetEnumValue(
+                    _EnumTypeCode,
+                    enumValue
+                );
 
                 string name = builtInNames[i];
                 FieldInfo field = _EnumType.GetField(name, EnumBindings)!;
 
-                string transformedName = field.GetCustomAttribute<EnumMemberAttribute>(true)?.Value ??
-                                         field.GetCustomAttribute<JsonPropertyNameAttribute>(true)?.Name ??
-                                         computedOptions?.NamingPolicy?.ConvertName(name) ??
-                                         name;
+                string transformedName =
+                    field.GetCustomAttribute<EnumMemberAttribute>(true)?.Value
+                    ?? field.GetCustomAttribute<JsonPropertyNameAttribute>(true)?.Name
+                    ?? computedOptions?.NamingPolicy?.ConvertName(name)
+                    ?? name;
 
                 if (enumValue is not TEnum typedValue)
                     throw new NotSupportedException();
 
-                if (deserializationFailureFallbackValue.HasValue && rawValue == deserializationFailureFallbackValue)
+                if (
+                    deserializationFailureFallbackValue.HasValue
+                    && rawValue == deserializationFailureFallbackValue
+                )
                 {
                     _DeserializationFailureFallbackValueRaw = deserializationFailureFallbackValue;
                     _DeserializationFailureFallbackValue = typedValue;
@@ -98,11 +108,20 @@ namespace System.Text.Json.Serialization
                 _TransformedToRaw[transformedName] = new EnumInfo(name, typedValue, rawValue);
             }
 
-            if (deserializationFailureFallbackValue.HasValue && !_DeserializationFailureFallbackValue.HasValue)
-                throw new JsonException($"JsonStringEnumMemberConverter could not find a definition on Enum type {_EnumType} matching deserializationFailureFallbackValue '{deserializationFailureFallbackValue}'.");
+            if (
+                deserializationFailureFallbackValue.HasValue
+                && !_DeserializationFailureFallbackValue.HasValue
+            )
+                throw new JsonException(
+                    $"JsonStringEnumMemberConverter could not find a definition on Enum type {_EnumType} matching deserializationFailureFallbackValue '{deserializationFailureFallbackValue}'."
+                );
         }
 
-        public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override TEnum Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             JsonTokenType token = reader.TokenType;
 
@@ -130,13 +149,21 @@ namespace System.Text.Json.Serialization
                     }
                 }
 
-                return _DeserializationFailureFallbackValue ?? throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType, enumString);
+                return _DeserializationFailureFallbackValue
+                    ?? throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(
+                        _EnumType,
+                        enumString
+                    );
             }
 
             return ReadNumericEnumValue(ref reader, token);
         }
 
-        public override TEnum ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override TEnum ReadAsPropertyName(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             JsonTokenType token = reader.TokenType;
 
@@ -155,7 +182,10 @@ namespace System.Text.Json.Serialization
             if (ulong.TryParse(enumString, out ulong numericValue))
             {
                 return !_AllowIntegerValues
-                    ? _DeserializationFailureFallbackValue ?? throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType)
+                    ? _DeserializationFailureFallbackValue
+                        ?? throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(
+                            _EnumType
+                        )
                     : (TEnum)Enum.ToObject(_EnumType, numericValue);
             }
 
@@ -173,10 +203,18 @@ namespace System.Text.Json.Serialization
                 }
             }
 
-            return _DeserializationFailureFallbackValue ?? throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType, enumString);
+            return _DeserializationFailureFallbackValue
+                ?? throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(
+                    _EnumType,
+                    enumString
+                );
         }
 
-        public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
+        public override void Write(
+            Utf8JsonWriter writer,
+            TEnum value,
+            JsonSerializerOptions options
+        )
         {
             Dictionary<TEnum, EnumInfo> rawToTransformed = _RawToTransformed;
             if (rawToTransformed.TryGetValue(value, out EnumInfo? enumInfo))
@@ -187,22 +225,35 @@ namespace System.Text.Json.Serialization
 
             ulong rawValue = JsonStringEnumMemberConverter.GetEnumValue(_EnumTypeCode, value);
 
-            if (_IsFlags
-                && TryGetStringForFlagsEnumValue(value, rawValue, rawToTransformed, out string? flagsValueString))
+            if (
+                _IsFlags
+                && TryGetStringForFlagsEnumValue(
+                    value,
+                    rawValue,
+                    rawToTransformed,
+                    out string? flagsValueString
+                )
+            )
             {
                 writer.WriteStringValue(flagsValueString);
                 return;
             }
 
             if (!_AllowIntegerValues)
-                throw new JsonException($"Enum type {_EnumType} does not have a mapping for integer value '{rawValue.ToString(CultureInfo.CurrentCulture)}'.");
+                throw new JsonException(
+                    $"Enum type {_EnumType} does not have a mapping for integer value '{rawValue.ToString(CultureInfo.CurrentCulture)}'."
+                );
 
             Span<byte> data = stackalloc byte[20];
             WriteNumericValueToSpan(rawValue, ref data);
             writer.WriteRawValue(data, skipInputValidation: true);
         }
 
-        public override void WriteAsPropertyName(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
+        public override void WriteAsPropertyName(
+            Utf8JsonWriter writer,
+            TEnum value,
+            JsonSerializerOptions options
+        )
         {
             Dictionary<TEnum, EnumInfo> rawToTransformed = _RawToTransformed;
             if (rawToTransformed.TryGetValue(value, out EnumInfo? enumInfo))
@@ -213,27 +264,39 @@ namespace System.Text.Json.Serialization
 
             ulong rawValue = JsonStringEnumMemberConverter.GetEnumValue(_EnumTypeCode, value);
 
-            if (_IsFlags
-                && TryGetStringForFlagsEnumValue(value, rawValue, rawToTransformed, out string? flagsValueString))
+            if (
+                _IsFlags
+                && TryGetStringForFlagsEnumValue(
+                    value,
+                    rawValue,
+                    rawToTransformed,
+                    out string? flagsValueString
+                )
+            )
             {
                 writer.WritePropertyName(flagsValueString);
                 return;
             }
 
             if (!_AllowIntegerValues)
-                throw new JsonException($"Enum type {_EnumType} does not have a mapping for integer value '{rawValue.ToString(CultureInfo.CurrentCulture)}'.");
+                throw new JsonException(
+                    $"Enum type {_EnumType} does not have a mapping for integer value '{rawValue.ToString(CultureInfo.CurrentCulture)}'."
+                );
 
             Span<byte> data = stackalloc byte[20];
             WriteNumericValueToSpan(rawValue, ref data);
             writer.WritePropertyName(data);
         }
 
-        private TEnum ConvertFlagsStringValueToEnumValue(string value, Dictionary<string, EnumInfo> transformedToRaw)
+        private TEnum ConvertFlagsStringValueToEnumValue(
+            string value,
+            Dictionary<string, EnumInfo> transformedToRaw
+        )
         {
             ulong calculatedValue = 0;
 
 #if NETSTANDARD2_0
-			string[] flagValues = value.Split(s_Split, StringSplitOptions.None);
+            string[] flagValues = value.Split(s_Split, StringSplitOptions.None);
 #else
             string[] flagValues = value.Split(", ");
 #endif
@@ -250,7 +313,13 @@ namespace System.Text.Json.Serialization
                     bool matched = false;
                     foreach (KeyValuePair<string, EnumInfo> enumItem in transformedToRaw)
                     {
-                        if (string.Equals(enumItem.Key, flagValue, StringComparison.OrdinalIgnoreCase))
+                        if (
+                            string.Equals(
+                                enumItem.Key,
+                                flagValue,
+                                StringComparison.OrdinalIgnoreCase
+                            )
+                        )
                         {
                             calculatedValue |= enumItem.Value.RawValue;
                             matched = true;
@@ -263,7 +332,10 @@ namespace System.Text.Json.Serialization
                         if (_DeserializationFailureFallbackValueRaw.HasValue)
                             calculatedValue |= _DeserializationFailureFallbackValueRaw.Value;
                         else
-                            throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(_EnumType, flagValue);
+                            throw ThrowHelper.GenerateJsonException_DeserializeUnableToConvertValue(
+                                _EnumType,
+                                flagValue
+                            );
                     }
                 }
             }
@@ -273,10 +345,17 @@ namespace System.Text.Json.Serialization
             {
                 lock (_TransformedToRawCopyLockObject)
                 {
-                    if (!_TransformedToRaw.ContainsKey(value) && _TransformedToRaw.Count < MaximumAutoGrowthCacheSize)
+                    if (
+                        !_TransformedToRaw.ContainsKey(value)
+                        && _TransformedToRaw.Count < MaximumAutoGrowthCacheSize
+                    )
                     {
                         Dictionary<string, EnumInfo> transformedToRawCopy = new(_TransformedToRaw);
-                        transformedToRawCopy[value] = new EnumInfo(value, enumValue, calculatedValue);
+                        transformedToRawCopy[value] = new EnumInfo(
+                            value,
+                            enumValue,
+                            calculatedValue
+                        );
                         _TransformedToRaw = transformedToRawCopy;
                     }
                 }
@@ -359,7 +438,8 @@ namespace System.Text.Json.Serialization
 #if !NETSTANDARD2_0
             [NotNullWhen(true)]
 #endif
-			out string? flagsValueString)
+            out string? flagsValueString
+        )
         {
             ulong calculatedValue = 0;
 
@@ -367,8 +447,7 @@ namespace System.Text.Json.Serialization
             foreach (KeyValuePair<TEnum, EnumInfo> enumItem in rawToTransformed)
             {
                 EnumInfo enumInfo = enumItem.Value;
-                if (!value.HasFlag(enumInfo.EnumValue)
-                    || enumInfo.RawValue == 0) // Definitions with 'None' should hit the cache case.
+                if (!value.HasFlag(enumInfo.EnumValue) || enumInfo.RawValue == 0) // Definitions with 'None' should hit the cache case.
                 {
                     continue;
                 }
@@ -388,10 +467,19 @@ namespace System.Text.Json.Serialization
                 {
                     lock (_RawToTransformedCopyLockObject)
                     {
-                        if (!_RawToTransformed.ContainsKey(value) && _RawToTransformed.Count < MaximumAutoGrowthCacheSize)
+                        if (
+                            !_RawToTransformed.ContainsKey(value)
+                            && _RawToTransformed.Count < MaximumAutoGrowthCacheSize
+                        )
                         {
-                            Dictionary<TEnum, EnumInfo> rawToTransformedCopy = new(_RawToTransformed);
-                            rawToTransformedCopy[value] = new EnumInfo(flagsValueString, value, rawValue);
+                            Dictionary<TEnum, EnumInfo> rawToTransformedCopy = new(
+                                _RawToTransformed
+                            );
+                            rawToTransformedCopy[value] = new EnumInfo(
+                                flagsValueString,
+                                value,
+                                rawValue
+                            );
                             _RawToTransformed = rawToTransformedCopy;
                         }
                     }
@@ -438,7 +526,7 @@ namespace System.Text.Json.Serialization
             }
 
 #if NETSTANDARD2_0
-			data = data.Slice(0, bytesWritten);
+            data = data.Slice(0, bytesWritten);
 #else
             data = data[..bytesWritten];
 #endif

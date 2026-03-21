@@ -54,7 +54,8 @@
         public JsonStringEnumMemberConverterOptions(
             JsonNamingPolicy? namingPolicy = null,
             bool allowIntegerValues = true,
-            object? deserializationFailureFallbackValue = null)
+            object? deserializationFailureFallbackValue = null
+        )
         {
             NamingPolicy = namingPolicy;
             AllowIntegerValues = allowIntegerValues;
@@ -79,9 +80,17 @@
                 _ => null,
             };
 
-            return value ?? (deserializationFailureFallbackValue is not Enum enumValue
-                ? throw new InvalidOperationException("Supplied deserializationFailureFallbackValue parameter is not an enum value.")
-                : JsonStringEnumMemberConverter.GetEnumValue(Type.GetTypeCode(enumValue.GetType()), deserializationFailureFallbackValue));
+            return value
+                ?? (
+                    deserializationFailureFallbackValue is not Enum enumValue
+                        ? throw new InvalidOperationException(
+                            "Supplied deserializationFailureFallbackValue parameter is not an enum value."
+                        )
+                        : JsonStringEnumMemberConverter.GetEnumValue(
+                            Type.GetTypeCode(enumValue.GetType()),
+                            deserializationFailureFallbackValue
+                        )
+                );
         }
     }
 }

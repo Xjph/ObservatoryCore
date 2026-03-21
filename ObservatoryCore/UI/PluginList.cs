@@ -1,10 +1,10 @@
-﻿using Observatory.Framework;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
+using System.Text.Json;
+using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text.Json;
 
 namespace Observatory.UI
 {
@@ -17,12 +17,12 @@ namespace Observatory.UI
             SuspendLayout();
 
             ColumnCount = 7;
-            _title = new() 
-            { 
+            _title = new()
+            {
                 Text = "Plugins",
                 TextAlign = ContentAlignment.MiddleLeft,
                 Font = new Font(Font.FontFamily, Font.Size * 1.2f, FontStyle.Bold),
-                AutoSize = true
+                AutoSize = true,
             };
             AddWithLocation(_title, 0, 0);
             SetColumnSpan(_title, 2);
@@ -34,9 +34,10 @@ namespace Observatory.UI
                     Text = text,
                     Font = new Font(Font, FontStyle.Bold),
                     TextAlign = ContentAlignment.MiddleLeft,
-                    AutoSize = true
+                    AutoSize = true,
                 };
-            };
+            }
+            ;
 
             Label nameHeader = createHeaderLabel("Name");
             Label authorHeader = createHeaderLabel("Author");
@@ -92,27 +93,32 @@ namespace Observatory.UI
                         Text = text,
                         Dock = DockStyle.Fill,
                         Padding = new(8),
-                        AutoSize = true
+                        AutoSize = true,
                     };
-                };
+                }
+                ;
 
                 var pluginStatusValue = PluginManager.GetInstance.GetPluginStatus(plugin);
 
                 Label pluginName = createLineLabel(plugin.Name);
-                Label pluginAuthor = createLineLabel(plugin.AboutInfo?.AuthorName ?? "(not provided)");
+                Label pluginAuthor = createLineLabel(
+                    plugin.AboutInfo?.AuthorName ?? "(not provided)"
+                );
                 Label pluginVersion = createLineLabel(plugin.Version);
                 Label pluginType = createLineLabel(typeString);
                 Label pluginStatus = createLineLabel(PluginStatusString(pluginStatusValue));
-                
+
                 bool enable = true;
                 if (enabledPlugins.TryGetValue(plugin.Name, out bool value))
                 {
                     enable = value;
                 }
 
-                if (!enable ||
-                    pluginStatusValue == PluginManager.PluginStatus.Outdated ||
-                    pluginStatusValue == PluginManager.PluginStatus.Errored)
+                if (
+                    !enable
+                    || pluginStatusValue == PluginManager.PluginStatus.Outdated
+                    || pluginStatusValue == PluginManager.PluginStatus.Errored
+                )
                 {
                     enable = false;
                     PluginManager.GetInstance.SetPluginEnabled(plugin, false);
@@ -122,16 +128,22 @@ namespace Observatory.UI
                 {
                     CheckAlign = ContentAlignment.MiddleCenter,
                     Checked = enable,
-                    Enabled = pluginStatusValue != PluginManager.PluginStatus.Errored
+                    Enabled = pluginStatusValue != PluginManager.PluginStatus.Errored,
                 };
 
                 pluginEnabled.CheckedChanged += (_, _) =>
                 {
-                    if (pluginEnabled.Checked && pluginStatusValue == PluginManager.PluginStatus.Outdated)
+                    if (
+                        pluginEnabled.Checked
+                        && pluginStatusValue == PluginManager.PluginStatus.Outdated
+                    )
                     {
                         var response = MessageBox.Show(
-                            $"Version {plugin.Version} of {plugin.Name} is made for an older version of Observatory and may break things in spectacular fashion if enabled.", 
-                            "Outdated Plugin", MessageBoxButtons.OKCancel, MessageBoxIcon.Warning);
+                            $"Version {plugin.Version} of {plugin.Name} is made for an older version of Observatory and may break things in spectacular fashion if enabled.",
+                            "Outdated Plugin",
+                            MessageBoxButtons.OKCancel,
+                            MessageBoxIcon.Warning
+                        );
                         if (response == DialogResult.Cancel)
                         {
                             pluginEnabled.Checked = false;
@@ -146,8 +158,8 @@ namespace Observatory.UI
                 {
                     Text = "▾",
                     FlatStyle = FlatStyle.Flat,
-                    Size = new(25,25),
-                    Enabled = pluginStatusValue != PluginManager.PluginStatus.Errored
+                    Size = new(25, 25),
+                    Enabled = pluginStatusValue != PluginManager.PluginStatus.Errored,
                 };
                 pluginMenu.FlatAppearance.BorderSize = 0;
 
@@ -166,47 +178,55 @@ namespace Observatory.UI
                 AddWithLocation(pluginEnabled, row, 5);
                 AddWithLocation(pluginMenu, row, 6);
 
-                updateTasks.Add(plugin.Name, new Task(() =>
-                {
-                    var thisRow = row;
-                    // Check for a plugin update.
-                    var updateInfo = plugin.CheckForPluginUpdate();
-                    if (updateInfo.Status == PluginUpdateStatus.NoUpdate)
+                updateTasks.Add(
+                    plugin.Name,
+                    new Task(() =>
                     {
-                        // this is also default; double check the deprecated method and update the info object accordingly if
-                        // it returns true.
-                        if (plugin.UpdateAvailable(out string url))
+                        var thisRow = row;
+                        // Check for a plugin update.
+                        var updateInfo = plugin.CheckForPluginUpdate();
+                        if (updateInfo.Status == PluginUpdateStatus.NoUpdate)
                         {
-                            updateInfo.Status = PluginUpdateStatus.UpdateAvailable;
-                            updateInfo.Url = url;
+                            // this is also default; double check the deprecated method and update the info object accordingly if
+                            // it returns true.
+                            if (plugin.UpdateAvailable(out string url))
+                            {
+                                updateInfo.Status = PluginUpdateStatus.UpdateAvailable;
+                                updateInfo.Url = url;
+                            }
                         }
-                    }
 
-                    if (updateInfo.Status != PluginUpdateStatus.NoUpdate)
-                    {
-                        LinkLabel updateLink = new()
+                        if (updateInfo.Status != PluginUpdateStatus.NoUpdate)
                         {
-                            Text = updateInfo.UrlText,
-                            Dock = DockStyle.Fill,
-                            Padding = new(8),
-                            AutoSize = true,
-                            Tag = updateInfo.Url ?? ""
-                        };
+                            LinkLabel updateLink = new()
+                            {
+                                Text = updateInfo.UrlText,
+                                Dock = DockStyle.Fill,
+                                Padding = new(8),
+                                AutoSize = true,
+                                Tag = updateInfo.Url ?? "",
+                            };
 
-                        // This task may not be executed on the main UI thread -- as such, the following
-                        // UI touches risk failing with errors. However, we can't use Invoke() here either because the
-                        // UI hasn't been displayed yet (and thus no handle).
-                        ThemeManager.GetInstance.RegisterControl(updateLink);
-                        updateLink.LinkClicked += (_, _) =>
-                        {
-                            var startInfo = new ProcessStartInfo(updateInfo.Url ?? "https://observatory.xjph.net") { UseShellExecute = true };
-                            Process.Start(startInfo);
-                        };
-                        var row = GetRow(pluginStatus);
-                        Controls.Remove(pluginStatus);
-                        AddWithLocation(updateLink, row, 4);
-                    }
-                }));
+                            // This task may not be executed on the main UI thread -- as such, the following
+                            // UI touches risk failing with errors. However, we can't use Invoke() here either because the
+                            // UI hasn't been displayed yet (and thus no handle).
+                            ThemeManager.GetInstance.RegisterControl(updateLink);
+                            updateLink.LinkClicked += (_, _) =>
+                            {
+                                var startInfo = new ProcessStartInfo(
+                                    updateInfo.Url ?? "https://observatory.xjph.net"
+                                )
+                                {
+                                    UseShellExecute = true,
+                                };
+                                Process.Start(startInfo);
+                            };
+                            var row = GetRow(pluginStatus);
+                            Controls.Remove(pluginStatus);
+                            AddWithLocation(updateLink, row, 4);
+                        }
+                    })
+                );
 
                 row++;
             }
@@ -232,7 +252,12 @@ namespace Observatory.UI
                     }
                     catch (Exception ex)
                     {
-                        errorList.Add(($"Update task failure for plugin {t.Key}", $"{ex.Message}{Environment.NewLine}{ex.StackTrace}"));
+                        errorList.Add(
+                            (
+                                $"Update task failure for plugin {t.Key}",
+                                $"{ex.Message}{Environment.NewLine}{ex.StackTrace}"
+                            )
+                        );
                     }
                 }
 
@@ -264,7 +289,6 @@ namespace Observatory.UI
             {
                 ColumnStyles[3].SizeType = SizeType.AutoSize;
             }
-            
         }
 
         private void AddWithLocation(Control control, int row, int column)
@@ -282,9 +306,11 @@ namespace Observatory.UI
             {
                 try
                 {
-                    enabledPlugins = JsonSerializer.Deserialize<Dictionary<string, bool>>(enabledPluginsSettings) ?? [];
+                    enabledPlugins =
+                        JsonSerializer.Deserialize<Dictionary<string, bool>>(enabledPluginsSettings)
+                        ?? [];
                 }
-                catch 
+                catch
                 {
                     // Failed deserialization means bad value, blow it away.
                     Properties.Core.Default.PluginsEnabled = string.Empty;

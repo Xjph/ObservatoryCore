@@ -9,6 +9,7 @@
         /// Unique ID of system.
         /// </summary>
         public ulong SystemAddress { get; init; }
+
         /// <summary>
         /// Number of bodies in system.
         /// </summary>

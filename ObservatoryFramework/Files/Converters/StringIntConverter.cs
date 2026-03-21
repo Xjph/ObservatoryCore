@@ -5,7 +5,11 @@ namespace Observatory.Framework.Files.Converters
 {
     class StringIntConverter : JsonConverter<int>
     {
-        public override int Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override int Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             if (reader.TokenType == JsonTokenType.String)
                 return Int32.Parse(reader.GetString());

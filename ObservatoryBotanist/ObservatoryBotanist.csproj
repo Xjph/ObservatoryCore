@@ -1,8 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-	<TargetFramework>net8.0</TargetFramework>
-	<ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <SignAssembly>false</SignAssembly>
     <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
     <Configurations>Debug;Release;Portable;Proton</Configurations>
@@ -15,13 +14,15 @@
     <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
     <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
   </PropertyGroup>
-  
+
   <ItemGroup>
     <ProjectReference Include="..\ObservatoryFramework\ObservatoryFramework.csproj" />
   </ItemGroup>
-  
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Condition=" '$(OS)' == 'Windows_NT' " Command="xcopy &quot;$(TargetDir)\*&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\ObservatoryBotanist\&quot; /y /s /exclude:$(ProjectDir)..\xcopyExclude" />
-  </Target>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec
+      Condition=" '$(OS)' == 'Windows_NT' "
+      Command="xcopy &quot;$(TargetDir)\*&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\ObservatoryBotanist\&quot; /y /s /exclude:$(ProjectDir)..\xcopyExclude"
+    />
+  </Target>
 </Project>

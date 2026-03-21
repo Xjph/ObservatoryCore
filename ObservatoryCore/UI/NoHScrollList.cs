@@ -24,6 +24,7 @@ namespace Observatory.UI
                     break;
             }
         }
+
         const int GWL_STYLE = -16;
         const int WS_HSCROLL = 0x00100000;
 
@@ -54,6 +55,5 @@ namespace Observatory.UI
 
         [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", CharSet = CharSet.Auto)]
         public static extern IntPtr SetWindowLongPtr64(IntPtr hWnd, int nIndex, int dwNewLong);
-
     }
 }

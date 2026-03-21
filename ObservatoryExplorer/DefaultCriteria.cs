@@ -6,7 +6,12 @@ namespace Observatory.Explorer
 {
     internal static class DefaultCriteria
     {
-        public static List<(string Description, string Detail, bool SystemWide)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
+        public static List<(string Description, string Detail, bool SystemWide)> CheckInterest(
+            Scan scan,
+            Dictionary<ulong, Dictionary<int, Scan>> scanHistory,
+            Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory,
+            ExplorerSettings settings
+        )
         {
             List<(string, string, bool)> results = new();
             TextInfo textInfo = new CultureInfo("en-US", false).TextInfo;
@@ -37,7 +42,10 @@ namespace Observatory.Explorer
 
                 if (settings.LandableHighG && scan.SurfaceGravity > 29.4)
                 {
-                    results.Add("Landable with High Gravity", $"Surface gravity: {scan.SurfaceGravity / 9.81:0.00}g");
+                    results.Add(
+                        "Landable with High Gravity",
+                        $"Surface gravity: {scan.SurfaceGravity / 9.81:0.00}g"
+                    );
                 }
 
                 if (settings.LandableLarge && scan.Radius > 18000000)
@@ -50,16 +58,20 @@ namespace Observatory.Explorer
             #region Value Checks
             if (settings.HighValueMappable)
             {
-                IList<string> HighValueNonTerraformablePlanetClasses = new string[] {
+                IList<string> HighValueNonTerraformablePlanetClasses = new string[]
+                {
                     "Earthlike body",
                     "Ammonia world",
                     "Water world",
                 };
 
-                if (HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass) || scan.TerraformState?.Length > 0)
+                if (
+                    HighValueNonTerraformablePlanetClasses.Contains(scan.PlanetClass)
+                    || scan.TerraformState?.Length > 0
+                )
                 {
                     var info = new System.Text.StringBuilder();
-                                        
+
                     if (!scan.WasMapped)
                     {
                         if (!scan.WasDiscovered)
@@ -71,39 +83,63 @@ namespace Observatory.Explorer
                     if (scan.TerraformState?.Length > 0)
                         info.Append("Terraformable ");
 
-                    results.Add("High-Value Body", $"{info.ToString()}{textInfo.ToTitleCase(scan.PlanetClass)}, {scan.DistanceFromArrivalLS:N0}Ls");
+                    results.Add(
+                        "High-Value Body",
+                        $"{info.ToString()}{textInfo.ToTitleCase(scan.PlanetClass)}, {scan.DistanceFromArrivalLS:N0}Ls"
+                    );
                 }
             }
             #endregion
-            
+
             #region Parent Relative Checks
 
-            if (scan.SystemAddress != 0 && scan.SemiMajorAxis != 0 &&
-                scanHistory[scan.SystemAddress].ContainsKey(scan.Parent[0].Body))
+            if (
+                scan.SystemAddress != 0
+                && scan.SemiMajorAxis != 0
+                && scanHistory[scan.SystemAddress].ContainsKey(scan.Parent[0].Body)
+            )
             {
                 Scan parent = scanHistory[scan.SystemAddress][scan.Parent[0].Body];
 
                 if (settings.CloseOrbit && !isRing && parent.Radius * 3 > scan.SemiMajorAxis)
                 {
-                    results.Add("Close Orbit", $"Orbital Radius: {scan.SemiMajorAxis / 1000:N0}km, Parent Radius: {parent.Radius / 1000:N0}km");
+                    results.Add(
+                        "Close Orbit",
+                        $"Orbital Radius: {scan.SemiMajorAxis / 1000:N0}km, Parent Radius: {parent.Radius / 1000:N0}km"
+                    );
                 }
 
-                if (settings.ShepherdMoon && !isRing && parent.Rings?.Any() == true && parent.Rings.Last().OuterRad > scan.SemiMajorAxis && !parent.Rings.Last().Name.Contains("Belt"))
+                if (
+                    settings.ShepherdMoon
+                    && !isRing
+                    && parent.Rings?.Any() == true
+                    && parent.Rings.Last().OuterRad > scan.SemiMajorAxis
+                    && !parent.Rings.Last().Name.Contains("Belt")
+                )
                 {
-                    results.Add("Shepherd Moon", $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Ring Radius: {parent.Rings.Last().OuterRad / 1000:N0}km");
+                    results.Add(
+                        "Shepherd Moon",
+                        $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Ring Radius: {parent.Rings.Last().OuterRad / 1000:N0}km"
+                    );
                 }
 
                 if (settings.CloseRing && parent.Rings?.Count > 0)
                 {
                     foreach (var ring in parent.Rings)
                     {
-                        var separation = Math.Min(Math.Abs(scan.SemiMajorAxis - ring.OuterRad), Math.Abs(ring.InnerRad - scan.SemiMajorAxis)) - scan.Radius;
+                        var separation =
+                            Math.Min(
+                                Math.Abs(scan.SemiMajorAxis - ring.OuterRad),
+                                Math.Abs(ring.InnerRad - scan.SemiMajorAxis)
+                            ) - scan.Radius;
                         if (separation < scan.Radius * 10)
                         {
                             var ringTypeName = ring.Name.Contains("Belt") ? "Belt" : "Ring";
                             var isLandable = scan.Landable ? ", Landable" : "";
-                            results.Add($"Close {ringTypeName} Proximity",
-                                $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Radius: {scan.Radius / 1000:N0}km, Distance from {ringTypeName.ToLower()}: {separation / 1000:N0}km{isLandable}");
+                            results.Add(
+                                $"Close {ringTypeName} Proximity",
+                                $"Orbit: {scan.SemiMajorAxis / 1000:N0}km, Radius: {scan.Radius / 1000:N0}km, Distance from {ringTypeName.ToLower()}: {separation / 1000:N0}km{isLandable}"
+                            );
                         }
                     }
                 }
@@ -111,9 +147,15 @@ namespace Observatory.Explorer
 
             #endregion
 
-            if (settings.DiverseLife && signalHistory.ContainsKey(scan.SystemAddress) && signalHistory[scan.SystemAddress].ContainsKey(scan.BodyID))
+            if (
+                settings.DiverseLife
+                && signalHistory.ContainsKey(scan.SystemAddress)
+                && signalHistory[scan.SystemAddress].ContainsKey(scan.BodyID)
+            )
             {
-                var bioSignals = signalHistory[scan.SystemAddress][scan.BodyID].Signals.Where(s => s.Type == "$SAA_SignalType_Biological;");
+                var bioSignals = signalHistory[scan.SystemAddress]
+                    [scan.BodyID]
+                    .Signals.Where(s => s.Type == "$SAA_SignalType_Biological;");
 
                 if (bioSignals.Count() > 0 && bioSignals.First().Count > 7)
                 {
@@ -129,12 +171,21 @@ namespace Observatory.Explorer
                     if (ringWidth > scan.Radius * 5)
                     {
                         var ringName = ring.Name.Replace(scan.BodyName, "").Trim();
-                        results.Add("Wide Ring", $"{ringName}: Width: {ringWidth / 299792458:N2}Ls / {ringWidth / 1000:N0}km, Parent Radius: {scan.Radius / 1000:N0}km");
+                        results.Add(
+                            "Wide Ring",
+                            $"{ringName}: Width: {ringWidth / 299792458:N2}Ls / {ringWidth / 1000:N0}km, Parent Radius: {scan.Radius / 1000:N0}km"
+                        );
                     }
                 }
             }
 
-            if (settings.SmallObject && scan.StarType == null && scan.PlanetClass != null && scan.PlanetClass != "Barycentre" && scan.Radius < 300000)
+            if (
+                settings.SmallObject
+                && scan.StarType == null
+                && scan.PlanetClass != null
+                && scan.PlanetClass != "Barycentre"
+                && scan.Radius < 300000
+            )
             {
                 results.Add("Small Object", $"Radius: {scan.Radius / 1000:N0}km");
             }
@@ -142,40 +193,91 @@ namespace Observatory.Explorer
             if (settings.HighEccentricity && scan.Eccentricity > 0.9)
             {
                 var isLandable = scan.Landable ? "Landable with " : "";
-                results.Add($"{isLandable}Highly Eccentric Orbit", $"Eccentricity: {Math.Round(scan.Eccentricity, 4)}");
+                results.Add(
+                    $"{isLandable}Highly Eccentric Orbit",
+                    $"Eccentricity: {Math.Round(scan.Eccentricity, 4)}"
+                );
             }
 
-            if (settings.Nested && !isRing && scan.Parent?.Count > 1 && scan.Parent[0].ParentType == ParentType.Planet && scan.Parent[1].ParentType == ParentType.Planet)
+            if (
+                settings.Nested
+                && !isRing
+                && scan.Parent?.Count > 1
+                && scan.Parent[0].ParentType == ParentType.Planet
+                && scan.Parent[1].ParentType == ParentType.Planet
+            )
             {
                 results.Add("Nested Moon");
             }
 
-            if (settings.FastRotation && scan.RotationPeriod != 0 && !scan.TidalLock && Math.Abs(scan.RotationPeriod) < 28800 && !isRing && string.IsNullOrEmpty(scan.StarType))
+            if (
+                settings.FastRotation
+                && scan.RotationPeriod != 0
+                && !scan.TidalLock
+                && Math.Abs(scan.RotationPeriod) < 28800
+                && !isRing
+                && string.IsNullOrEmpty(scan.StarType)
+            )
             {
-                results.Add("Non-locked Body with Fast Rotation", $"Period: {scan.RotationPeriod/3600:N1} hours");
+                results.Add(
+                    "Non-locked Body with Fast Rotation",
+                    $"Period: {scan.RotationPeriod / 3600:N1} hours"
+                );
             }
 
-            if (settings.FastOrbit && scan.OrbitalPeriod != 0 && Math.Abs(scan.OrbitalPeriod) < 28800 && !isRing)
+            if (
+                settings.FastOrbit
+                && scan.OrbitalPeriod != 0
+                && Math.Abs(scan.OrbitalPeriod) < 28800
+                && !isRing
+            )
             {
-                results.Add("Fast Orbit", $"Orbital Period: {Math.Abs(scan.OrbitalPeriod / 3600):N1} hours");
+                results.Add(
+                    "Fast Orbit",
+                    $"Orbital Period: {Math.Abs(scan.OrbitalPeriod / 3600):N1} hours"
+                );
             }
 
             // Close binary pair
-            if ((settings.CloseBinary || settings.CollidingBinary) && scan.Parent?[0].ParentType == ParentType.Null && scan.Radius / scan.SemiMajorAxis > 0.4)
+            if (
+                (settings.CloseBinary || settings.CollidingBinary)
+                && scan.Parent?[0].ParentType == ParentType.Null
+                && scan.Radius / scan.SemiMajorAxis > 0.4
+            )
             {
-                var binaryPartner = scanHistory[scan.SystemAddress].Where(priorScan => priorScan.Value.Parent?[0].Body == scan.Parent?[0].Body && scan.BodyID != priorScan.Key);
+                var binaryPartner = scanHistory[scan.SystemAddress]
+                    .Where(priorScan =>
+                        priorScan.Value.Parent?[0].Body == scan.Parent?[0].Body
+                        && scan.BodyID != priorScan.Key
+                    );
 
                 if (binaryPartner.Count() == 1)
                 {
-                    if (binaryPartner.First().Value.Radius / binaryPartner.First().Value.SemiMajorAxis > 0.4)
+                    if (
+                        binaryPartner.First().Value.Radius
+                            / binaryPartner.First().Value.SemiMajorAxis
+                        > 0.4
+                    )
                     {
-                        if (settings.CollidingBinary && binaryPartner.First().Value.Radius + scan.Radius >= binaryPartner.First().Value.SemiMajorAxis * (1 - binaryPartner.First().Value.Eccentricity) + scan.SemiMajorAxis * (1 - scan.Eccentricity))
+                        if (
+                            settings.CollidingBinary
+                            && binaryPartner.First().Value.Radius + scan.Radius
+                                >= binaryPartner.First().Value.SemiMajorAxis
+                                    * (1 - binaryPartner.First().Value.Eccentricity)
+                                    + scan.SemiMajorAxis * (1 - scan.Eccentricity)
+                        )
                         {
-                            results.Add("COLLIDING binary", $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}");
+                            results.Add(
+                                "COLLIDING binary",
+                                $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}"
+                            );
                         }
                         else if (settings.CloseBinary)
                         {
-                            results.Add("Close binary relative to body size", $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}");
+                            results.Add(
+                                "Close binary relative to body size",
+                                $"Orbit: {Math.Truncate((double)scan.SemiMajorAxis / 1000):N0}km, Radius: {Math.Truncate((double)scan.Radius / 1000):N0}km, Partner: {binaryPartner.First().Value.BodyName}"
+                            );
                         }
                     }
                 }
@@ -183,19 +285,22 @@ namespace Observatory.Explorer
 
             if (settings.GoodFSDBody && scan.Landable)
             {
-                List<string> boostMaterials = new() 
-                { 
+                List<string> boostMaterials = new()
+                {
                     "Carbon",
                     "Germanium",
                     "Arsenic",
                     "Niobium",
                     "Yttrium",
-                    "Polonium"
+                    "Polonium",
                 };
 
                 if (boostMaterials.RemoveMatchedMaterials(scan) == 1)
                 {
-                    results.Add("5 of 6 Premium Boost Materials", $"Missing material: {boostMaterials[0]}");
+                    results.Add(
+                        "5 of 6 Premium Boost Materials",
+                        $"Missing material: {boostMaterials[0]}"
+                    );
                 }
             }
 
@@ -208,18 +313,36 @@ namespace Observatory.Explorer
                     "Arsenic",
                     "Niobium",
                     "Yttrium",
-                    "Polonium"
+                    "Polonium",
                 };
 
                 List<string> allSurfaceMaterials = new()
                 {
-                    "Antimony", "Arsenic", "Cadmium", "Carbon",
-                    "Chromium", "Germanium", "Iron", "Manganese",
-                    "Mercury", "Molybdenum", "Nickel", "Niobium",
-                    "Phosphorus", "Polonium", "Ruthenium", "Selenium",
-                    "Sulphur", "Technetium", "Tellurium", "Tin",
-                    "Tungsten", "Vanadium", "Yttrium", "Zinc",
-                    "Zirconium"
+                    "Antimony",
+                    "Arsenic",
+                    "Cadmium",
+                    "Carbon",
+                    "Chromium",
+                    "Germanium",
+                    "Iron",
+                    "Manganese",
+                    "Mercury",
+                    "Molybdenum",
+                    "Nickel",
+                    "Niobium",
+                    "Phosphorus",
+                    "Polonium",
+                    "Ruthenium",
+                    "Selenium",
+                    "Sulphur",
+                    "Technetium",
+                    "Tellurium",
+                    "Tin",
+                    "Tungsten",
+                    "Vanadium",
+                    "Yttrium",
+                    "Zinc",
+                    "Zirconium",
                 };
 
                 var systemBodies = scanHistory[scan.SystemAddress];
@@ -229,7 +352,6 @@ namespace Observatory.Explorer
 
                 foreach (var body in systemBodies.Values)
                 {
-
                     // If we enter either check and the count is already zero then a
                     // previous body in system triggered the check, suppress notification.
                     if (settings.GreenSystem && body.Materials != null)
@@ -256,12 +378,33 @@ namespace Observatory.Explorer
                     results.Add("All Surface Materials In System", string.Empty, true);
             }
 
-            if (settings.UncommonSecondary && scan.BodyID > 0 && !string.IsNullOrWhiteSpace(scan.StarType) && scan.DistanceFromArrivalLS > 10)
+            if (
+                settings.UncommonSecondary
+                && scan.BodyID > 0
+                && !string.IsNullOrWhiteSpace(scan.StarType)
+                && scan.DistanceFromArrivalLS > 10
+            )
             {
-                var excludeTypes = new List<string>() { "O", "B", "A", "F", "G", "K", "M", "L", "T", "Y", "TTS" };
+                var excludeTypes = new List<string>()
+                {
+                    "O",
+                    "B",
+                    "A",
+                    "F",
+                    "G",
+                    "K",
+                    "M",
+                    "L",
+                    "T",
+                    "Y",
+                    "TTS",
+                };
                 if (!excludeTypes.Contains(scan.StarType.ToUpper()))
                 {
-                    results.Add("Uncommon Secondary Star Type", $"{GetUncommonStarTypeName(scan.StarType)}, Distance: {scan.DistanceFromArrivalLS:N0}Ls");
+                    results.Add(
+                        "Uncommon Secondary Star Type",
+                        $"{GetUncommonStarTypeName(scan.StarType)}, Distance: {scan.DistanceFromArrivalLS:N0}Ls"
+                    );
                 }
             }
 
@@ -373,7 +516,9 @@ namespace Observatory.Explorer
         {
             foreach (var material in body.Materials)
             {
-                var matchedMaterial = materials.Find(mat => mat.Equals(material.Name, StringComparison.OrdinalIgnoreCase));
+                var matchedMaterial = materials.Find(mat =>
+                    mat.Equals(material.Name, StringComparison.OrdinalIgnoreCase)
+                );
                 if (matchedMaterial != null)
                 {
                     materials.Remove(matchedMaterial);
@@ -382,7 +527,12 @@ namespace Observatory.Explorer
             return materials.Count;
         }
 
-        private static void Add(this List<(string, string, bool)> results, string description, string detail = "", bool systemWide = false)
+        private static void Add(
+            this List<(string, string, bool)> results,
+            string description,
+            string detail = "",
+            bool systemWide = false
+        )
         {
             results.Add((description, detail, systemWide));
         }

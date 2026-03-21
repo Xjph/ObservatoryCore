@@ -1,6 +1,6 @@
-﻿using Observatory.Utils;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
+using Observatory.Utils;
 
 namespace Observatory.UI
 {
@@ -10,36 +10,32 @@ namespace Observatory.UI
         JsonSerializerOptions _jsonOptions = new()
         {
             AllowTrailingCommas = true,
-            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+            DefaultIgnoreCondition = System
+                .Text
+                .Json
+                .Serialization
+                .JsonIgnoreCondition
+                .WhenWritingNull,
         };
 
         #region Constructor
         private ThemeManager()
         {
             controls = [];
-            Themes = new()
-            {
-                { "Dark", DarkTheme },
-                { "Light", LightTheme }
-            };
+            Themes = new() { { "Dark", DarkTheme }, { "Light", LightTheme } };
             LoadThemes();
             SelectedTheme = string.IsNullOrWhiteSpace(Properties.Core.Default.Theme)
-                ? Properties.Core.Default.Theme : "Dark";
+                ? Properties.Core.Default.Theme
+                : "Dark";
         }
         #endregion
 
         #region Singleton Boilerplate
         public static ThemeManager GetInstance
         {
-            get
-            {
-                return _instance.Value;
-            }
+            get { return _instance.Value; }
         }
-        private static readonly HashSet<string> _excludedControlNames =
-        [
-            "ColourButton",
-        ];
+        private static readonly HashSet<string> _excludedControlNames = ["ColourButton"];
         private static readonly Lazy<ThemeManager> _instance = new(() => new ThemeManager());
         #endregion
 
@@ -102,7 +98,9 @@ namespace Observatory.UI
 
         #region Private Methods
 
-        private static Dictionary<string, Color> DeserializeTheme(ThemeSerializationContainer themeContainer)
+        private static Dictionary<string, Color> DeserializeTheme(
+            ThemeSerializationContainer themeContainer
+        )
         {
             Dictionary<string, Color> parsedTheme = [];
             foreach (var value in themeContainer.Theme)
@@ -123,11 +121,7 @@ namespace Observatory.UI
             }
             else
             {
-                color = Color.FromArgb(
-                    nameOrRGB.R ?? 0,
-                    nameOrRGB.G ?? 0,
-                    nameOrRGB.B ?? 0
-                    );
+                color = Color.FromArgb(nameOrRGB.R ?? 0, nameOrRGB.G ?? 0, nameOrRGB.B ?? 0);
             }
             return color;
         }
@@ -135,13 +129,15 @@ namespace Observatory.UI
         private void LoadThemes()
         {
             string savedThemes = Properties.Core.Default.SavedThemes;
-            if (string.IsNullOrEmpty(savedThemes)) savedThemes = "[]";
+            if (string.IsNullOrEmpty(savedThemes))
+                savedThemes = "[]";
             List<ThemeSerializationContainer>? savedThemeContainers;
             try
             {
-                savedThemeContainers = System.Text.Json.JsonSerializer.Deserialize
-                    <List<ThemeSerializationContainer>>
-                    (savedThemes) ?? [];
+                savedThemeContainers =
+                    System.Text.Json.JsonSerializer.Deserialize<List<ThemeSerializationContainer>>(
+                        savedThemes
+                    ) ?? [];
             }
             catch
             {
@@ -172,9 +168,10 @@ namespace Observatory.UI
             {
                 if (!string.IsNullOrWhiteSpace(savedThemes))
                 {
-                    savedThemeContainers = System.Text.Json.JsonSerializer.Deserialize
-                        <List<ThemeSerializationContainer>>
-                        (savedThemes, _jsonOptions) ?? [];
+                    savedThemeContainers =
+                        System.Text.Json.JsonSerializer.Deserialize<
+                            List<ThemeSerializationContainer>
+                        >(savedThemes, _jsonOptions) ?? [];
                 }
                 else
                 {
@@ -197,7 +194,10 @@ namespace Observatory.UI
                 savedThemeContainers.Add(theme);
             }
 
-            Properties.Core.Default.SavedThemes = System.Text.Json.JsonSerializer.Serialize(savedThemeContainers, _jsonOptions);
+            Properties.Core.Default.SavedThemes = System.Text.Json.JsonSerializer.Serialize(
+                savedThemeContainers,
+                _jsonOptions
+            );
             SettingsManager.Save();
         }
 
@@ -207,8 +207,8 @@ namespace Observatory.UI
             {
                 var controlType = control.GetType();
 
-                var theme = Themes.TryGetValue(SelectedTheme, out Dictionary<string, Color>? value) 
-                    ? value 
+                var theme = Themes.TryGetValue(SelectedTheme, out Dictionary<string, Color>? value)
+                    ? value
                     : Themes["Light"];
 
                 if (controlType == typeof(MenuStrip))
@@ -220,7 +220,11 @@ namespace Observatory.UI
                     }
                 }
 
-                foreach (var property in controlType.GetProperties().Where(p => p.PropertyType == typeof(Color)))
+                foreach (
+                    var property in controlType
+                        .GetProperties()
+                        .Where(p => p.PropertyType == typeof(Color))
+                )
                 {
                     var controlKey = $"{controlType.Name}.{property.Name}";
                     _knownControlKeys.Add(controlKey);
@@ -240,7 +244,8 @@ namespace Observatory.UI
                     if (typedControl.HasChildren)
                         foreach (Control child in typedControl.Controls)
                         {
-                            if (_excludedControlNames.Contains(child.Name)) continue;
+                            if (_excludedControlNames.Contains(child.Name))
+                                continue;
                             ApplyTheme(child, applyTheme);
                         }
                 }
@@ -277,7 +282,6 @@ namespace Observatory.UI
         public string CurrentTheme
         {
             get => SelectedTheme;
-
             set
             {
                 if (Themes.ContainsKey(value))
@@ -329,9 +333,11 @@ namespace Observatory.UI
             ThemeSerializationContainer? themeContainer;
             try
             {
-                themeContainer = System.Text.Json.JsonSerializer.Deserialize
-                    <ThemeSerializationContainer>
-                    (themeJson, _jsonOptions);
+                themeContainer =
+                    System.Text.Json.JsonSerializer.Deserialize<ThemeSerializationContainer>(
+                        themeJson,
+                        _jsonOptions
+                    );
             }
             catch (Exception ex)
             {

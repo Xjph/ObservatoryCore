@@ -6,7 +6,11 @@ namespace Observatory.Framework.Files.Converters
 {
     public class MissionEffectConverter : JsonConverter<MissionEffect>
     {
-        public override MissionEffect Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override MissionEffect Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             string effect = reader.GetString();
             //TODO: Find out all possible values
@@ -27,12 +31,17 @@ namespace Observatory.Framework.Files.Converters
                     break;
             }
 
-            MissionEffect missionEffect = (MissionEffect)Enum.Parse(typeof(MissionEffect), effect, true);
+            MissionEffect missionEffect = (MissionEffect)
+                Enum.Parse(typeof(MissionEffect), effect, true);
 
             return missionEffect;
         }
 
-        public override void Write(Utf8JsonWriter writer, MissionEffect value, JsonSerializerOptions options)
+        public override void Write(
+            Utf8JsonWriter writer,
+            MissionEffect value,
+            JsonSerializerOptions options
+        )
         {
             throw new NotImplementedException();
         }

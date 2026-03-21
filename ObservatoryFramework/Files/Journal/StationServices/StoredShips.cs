@@ -1,11 +1,12 @@
-﻿using Observatory.Framework.Files.ParameterTypes;
-using System.Collections.Immutable;
+﻿using System.Collections.Immutable;
+using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
 {
     public class StoredShips : JournalBase
     {
         public ulong MarketID { get; init; }
+
         /// <summary>
         /// Name of the station at which this event occurred.
         /// </summary>

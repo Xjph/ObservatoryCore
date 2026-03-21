@@ -19,17 +19,16 @@ namespace Observatory.Utils
             foreach (PropertyInfo property in Properties.Core.Default.GetType().GetProperties())
             {
                 if (property.CanRead && property.CanWrite && !property.GetIndexParameters().Any())
-                    settings.Add(
-                        property.Name,
-                        property.GetValue(Properties.Core.Default)
-                        );
+                    settings.Add(property.Name, property.GetValue(Properties.Core.Default));
             }
 
-            string serializedSettings = JsonSerializer.Serialize(settings, new JsonSerializerOptions()
-            {
-                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve,
-                
-            });
+            string serializedSettings = JsonSerializer.Serialize(
+                settings,
+                new JsonSerializerOptions()
+                {
+                    ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve,
+                }
+            );
             File.WriteAllText("Observatory.config", serializedSettings);
 #endif
         }
@@ -40,14 +39,15 @@ namespace Observatory.Utils
             if (File.Exists("Observatory.config"))
             {
                 string savedSettings = File.ReadAllText("Observatory.config");
-                Dictionary<string, object?>? settings = JsonSerializer.Deserialize<Dictionary<string, object?>>(savedSettings);
+                Dictionary<string, object?>? settings = JsonSerializer.Deserialize<
+                    Dictionary<string, object?>
+                >(savedSettings);
                 if (settings != null)
                 {
                     var properties = Properties.Core.Default.GetType().GetProperties();
-                    
+
                     foreach (var savedProperty in settings)
                     {
-
                         var currentProperty = properties.Where(p => p.Name == savedProperty.Key);
                         if (currentProperty.Any())
                         {
@@ -64,11 +64,14 @@ namespace Observatory.Utils
                             }
                             else
                             {
-                                deserializedValue = value?.Deserialize(currentProperty.First().PropertyType);
+                                deserializedValue = value?.Deserialize(
+                                    currentProperty.First().PropertyType
+                                );
                             }
-                            currentProperty.First().SetValue(Properties.Core.Default, deserializedValue);
+                            currentProperty
+                                .First()
+                                .SetValue(Properties.Core.Default, deserializedValue);
                         }
-
                     }
                 }
             }

@@ -1,10 +1,10 @@
-﻿using Observatory.Framework;
-using Observatory.Framework.Interfaces;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Observatory.Framework;
+using Observatory.Framework.Interfaces;
 
 namespace Observatory.UI
 {
@@ -45,7 +45,8 @@ namespace Observatory.UI
                 {
                     var aboutForm = new AboutForm(aboutInfo);
                     ThemeManager.GetInstance.RegisterControl(aboutForm);
-                    aboutForm.FormClosing += (_, _) => ThemeManager.GetInstance.UnregisterControl(aboutForm);
+                    aboutForm.FormClosing += (_, _) =>
+                        ThemeManager.GetInstance.UnregisterControl(aboutForm);
                     aboutForm.Show();
                 }
             }
@@ -66,7 +67,10 @@ namespace Observatory.UI
             }
         }
 
-        public static void OpenPluginPopoutForm(IObservatoryPlugin plugin, TabPage? pluginTab = null)
+        public static void OpenPluginPopoutForm(
+            IObservatoryPlugin plugin,
+            TabPage? pluginTab = null
+        )
         {
             var form = GetFormByTitle(plugin.Name);
             if (form != null)

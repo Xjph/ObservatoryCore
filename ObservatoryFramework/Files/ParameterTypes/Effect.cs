@@ -6,6 +6,6 @@ namespace Observatory.Framework.Files.ParameterTypes
     {
         public string Effect { get; init; }
         public string Effect_Localised { get; init; }
-        public TrendValue Trend {get; set;}
+        public TrendValue Trend { get; set; }
     }
 }

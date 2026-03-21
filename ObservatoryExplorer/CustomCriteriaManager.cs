@@ -1,7 +1,7 @@
-﻿using NLua;
-using Observatory.Framework.Files.Journal;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
+using NLua;
+using Observatory.Framework.Files.Journal;
 
 namespace Observatory.Explorer
 {
@@ -22,7 +22,11 @@ namespace Observatory.Explorer
         private bool _readAllMode = true;
         private string _criteriaPath = string.Empty;
 
-        public CustomCriteriaManager(ExplorerSettings settings, Action<Exception, String> errorLogger, Action<string, string, string, string, int?> notificationMethod)
+        public CustomCriteriaManager(
+            ExplorerSettings settings,
+            Action<Exception, String> errorLogger,
+            Action<string, string, string, string, int?> notificationMethod
+        )
         {
             ErrorLogger = errorLogger;
             ScanCount = 0;
@@ -31,10 +35,15 @@ namespace Observatory.Explorer
             Settings = settings;
         }
 
-        public void SendNotification(string title, string detail, string extendedDetail)
-            => NotificationMethod(eventTime, title, detail, extendedDetail, null);
-        public void SendNotificationForBody(string title, string detail, string extendedDetail, int bodyId)
-            => NotificationMethod(eventTime, title, detail, extendedDetail, bodyId);
+        public void SendNotification(string title, string detail, string extendedDetail) =>
+            NotificationMethod(eventTime, title, detail, extendedDetail, null);
+
+        public void SendNotificationForBody(
+            string title,
+            string detail,
+            string extendedDetail,
+            int bodyId
+        ) => NotificationMethod(eventTime, title, detail, extendedDetail, bodyId);
 
         public ExplorerSettings Settings
         {
@@ -46,7 +55,8 @@ namespace Observatory.Explorer
             }
         }
 
-        public bool ReadAllMode {
+        public bool ReadAllMode
+        {
             get => _readAllMode;
             set
             {
@@ -102,7 +112,8 @@ namespace Observatory.Explorer
 
         private void MaybeRefreshCriteria(bool isReadAllModeTransition = false)
         {
-            if ((ReadAllMode || !CriteriaFileNeedsRefresh()) && !isReadAllModeTransition) return;
+            if ((ReadAllMode || !CriteriaFileNeedsRefresh()) && !isReadAllModeTransition)
+                return;
 
             LuaState = new();
 
@@ -116,7 +127,8 @@ namespace Observatory.Explorer
             LuaState.DoString("function nil_iterator() end");
 
             //Materials and AtmosphereComposition
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function materials (material_list)
                     if material_list then
                         local i = 0
@@ -130,10 +142,12 @@ namespace Observatory.Explorer
                     else
                         return nil_iterator
                     end
-                end");
+                end"
+            );
 
             //Rings - internal filterable iterator
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function _ringsFiltered (ring_list, filter_by)
                     if ring_list then
                         local i = 0
@@ -152,10 +166,12 @@ namespace Observatory.Explorer
                     else
                         return nil_iterator
                     end
-                end");
+                end"
+            );
 
             //Rings - internal filterable hasX check
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function _hasRingsFiltered (ring_list, filter_by)
                     if ring_list then
                         local i = 0
@@ -168,28 +184,36 @@ namespace Observatory.Explorer
                         end
                     end
                     return false
-                end");
+                end"
+            );
 
             //Rings - iterate all - nil filter
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function rings (ring_list)
                     return _ringsFiltered(ring_list, nil)
-                end");
+                end"
+            );
 
             //Rings - iterate proper rings only
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function ringsOnly (ring_list)
                     return _ringsFiltered(ring_list, 'Ring')
-                end");
+                end"
+            );
 
             //Rings - iterate belts only
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function beltsOnly (ring_list)
                     return _ringsFiltered(ring_list, 'Belt')
-                end");
+                end"
+            );
 
             //Bodies in system
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function bodies (system_list)
                     if system_list then
                         local i = 0
@@ -203,10 +227,12 @@ namespace Observatory.Explorer
                     else
                         return nil_iterator
                     end
-                end");
+                end"
+            );
 
             //Parent bodies
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function allparents (parent_list)
                     if parent_list then
                         local i = 0
@@ -221,73 +247,101 @@ namespace Observatory.Explorer
                     else
                         return nil_iterator
                     end
-                end");
+                end"
+            );
 
             #endregion
 
             #region Convenience Functions
 
-            LuaState.RegisterFunction("notify", this, typeof(CustomCriteriaManager).GetMethod("SendNotification"));
-            LuaState.RegisterFunction("notifyForBody", this, typeof(CustomCriteriaManager).GetMethod("SendNotificationForBody"));
+            LuaState.RegisterFunction(
+                "notify",
+                this,
+                typeof(CustomCriteriaManager).GetMethod("SendNotification")
+            );
+            LuaState.RegisterFunction(
+                "notifyForBody",
+                this,
+                typeof(CustomCriteriaManager).GetMethod("SendNotificationForBody")
+            );
 
             // Body type related functions and tests
 
             //Rings - has > 0 belts
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function hasBelts (ring_list)
                     return _hasRingsFiltered(ring_list, 'Belt')
-                end");
+                end"
+            );
 
             //Body name represents a belt
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function isBelt (body_name)
                     return body_name ~= nil and string.find(body_name, 'Belt')
-                end");
+                end"
+            );
 
             //Rings - has > 0 proper rings
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function hasRings (ring_list)
                     return _hasRingsFiltered(ring_list, 'Ring')
-                end");
+                end"
+            );
 
             //Body name represents a ring
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function isRing (body_name)
                     return body_name ~= nil and string.find(body_name, 'Ring')
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function isStar (scan)
                     return scan.StarType and scan.StarType ~= ''
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function isPlanet (scan)
                     return scan.PlanetClass ~= nil and scan.PlanetClass ~= 'Barycentre'
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function isBarycentre (scan)
                     return scan.PlanetClass ~= nil and scan.PlanetClass == 'Barycentre'
-                end");
+                end"
+            );
 
             // Atmosphere checks
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function hasAtmosphere (scan)
                     return scan.AtmosphereComposition ~= nil
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function hasLandableAtmosphere (scan)
                     return scan.Landable and scan.AtmosphereComposition ~= nil
-                end");
+                end"
+            );
 
             // Common unit conversion functions and related constants
 
             // Since LUA has no 'const' keyword, using a metatable as recommended by this:
             // https://andrejs-cainikovs.blogspot.com/2009/05/lua-constants.html
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function protect(tbl)
                     return setmetatable({}, {
                         __index = tbl,
@@ -306,44 +360,59 @@ namespace Observatory.Explorer
                     HOUR_s = 3600,
                 }
                 const = protect(const)
-            ");
+            "
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function distanceAsLs (value_in_m)
                     return value_in_m / const.SPEED_OF_LIGHT_mps
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function distanceAsKm (value_in_m)
                     return value_in_m / 1000
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function gravityAsG (value_in_mps2)
                     return value_in_mps2 / const.GRAVITY_mps2
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function pressureAsAtm (value_in_pa)
                     return value_in_pa / const.ATM_PRESSURE_Pa
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function periodAsDay (value_in_s)
                     return value_in_s / const.DAY_s
-                end");
+                end"
+            );
 
-            LuaState.DoString(@"
+            LuaState.DoString(
+                @"
                 function periodAsHour (value_in_s)
                     return value_in_s / const.HOUR_s
-                end");
+                end"
+            );
 
             #endregion
 
             #region Custom Function loading
             ClearCustomLuaFunctions();
 
-            var criteria = File.Exists(CriteriaPath) ? File.ReadAllLines(CriteriaPath) : Array.Empty<string>();
+            var criteria = File.Exists(CriteriaPath)
+                ? File.ReadAllLines(CriteriaPath)
+                : Array.Empty<string>();
             StringBuilder global = new();
             StringBuilder script = new();
 
@@ -367,45 +436,93 @@ namespace Observatory.Explorer
                                 // Insert the global script last.
                                 break;
                             case AnnotationType.Complex:
-                                i = ParseCustomFunction(i, criteria, script, annotation, CriteriaFunctions, "scan, parents, system, biosignals, geosignals");
+                                i = ParseCustomFunction(
+                                    i,
+                                    criteria,
+                                    script,
+                                    annotation,
+                                    CriteriaFunctions,
+                                    "scan, parents, system, biosignals, geosignals"
+                                );
                                 break;
                             case AnnotationType.AllBodies:
-                                i = ParseCustomFunction(i, criteria, script, annotation, AllBodiesFunctions, "allBodies, system, parentsTable");
+                                i = ParseCustomFunction(
+                                    i,
+                                    criteria,
+                                    script,
+                                    annotation,
+                                    AllBodiesFunctions,
+                                    "allBodies, system, parentsTable"
+                                );
                                 break;
                             case AnnotationType.Jump:
-                                i = ParseCustomFunction(i, criteria, script, annotation, JumpFunctions, "jump");
+                                i = ParseCustomFunction(
+                                    i,
+                                    criteria,
+                                    script,
+                                    annotation,
+                                    JumpFunctions,
+                                    "jump"
+                                );
                                 break;
                             case AnnotationType.BodySignals:
-                                i = ParseCustomFunction(i, criteria, script, annotation, BodySignalsFunctions, "bodySignals");
+                                i = ParseCustomFunction(
+                                    i,
+                                    criteria,
+                                    script,
+                                    annotation,
+                                    BodySignalsFunctions,
+                                    "bodySignals"
+                                );
                                 break;
                             case AnnotationType.Discovery:
-                                i = ParseCustomFunction(i, criteria, script, annotation, DiscoveryFunctions, "discovery");
+                                i = ParseCustomFunction(
+                                    i,
+                                    criteria,
+                                    script,
+                                    annotation,
+                                    DiscoveryFunctions,
+                                    "discovery"
+                                );
                                 break;
                             default:
                                 i++;
 
                                 string functionName = $"Criteria{i}";
 
-                                script.AppendLine($"function {functionName} (scan, parents, system, biosignals, geosignals)");
+                                script.AppendLine(
+                                    $"function {functionName} (scan, parents, system, biosignals, geosignals)"
+                                );
                                 script.AppendLine($"    local result = {criteria[i]}");
                                 script.AppendLine("    local detail = ''");
 
-                                if (criteria.Length > i + 1
-                                    && GetCriteriaAnnotation(criteria[i + 1], out Annotation detailAnnotation)
-                                    && detailAnnotation.type == AnnotationType.Detail)
+                                if (
+                                    criteria.Length > i + 1
+                                    && GetCriteriaAnnotation(
+                                        criteria[i + 1],
+                                        out Annotation detailAnnotation
+                                    )
+                                    && detailAnnotation.type == AnnotationType.Detail
+                                )
                                 {
-                                    i++; i++;
+                                    i++;
+                                    i++;
                                     // Gate detail evaluation on result to allow safe use of criteria-checked values in detail string.
                                     script.AppendLine("    if result then");
                                     script.AppendLine($"        detail = {criteria[i]}");
                                     script.AppendLine("    end");
                                 }
 
-                                script.AppendLine($"    return result, '{annotation.value}', detail");
+                                script.AppendLine(
+                                    $"    return result, '{annotation.value}', detail"
+                                );
                                 script.AppendLine("end");
 
                                 LuaState.DoString(script.ToString());
-                                CriteriaFunctions.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
+                                CriteriaFunctions.Add(
+                                    GetUniqueDescription(functionName, annotation.value),
+                                    LuaState[functionName] as LuaFunction
+                                );
                                 script.Clear();
                                 break;
                         }
@@ -423,21 +540,36 @@ namespace Observatory.Explorer
             {
                 string originalScript = script.ToString().Trim();
 
-                originalScript = originalScript.Remove(originalScript.LastIndexOf(Environment.NewLine));
-                originalScript = originalScript[(originalScript.IndexOf(Environment.NewLine) + Environment.NewLine.Length)..];
+                originalScript = originalScript.Remove(
+                    originalScript.LastIndexOf(Environment.NewLine)
+                );
+                originalScript = originalScript[
+                    (originalScript.IndexOf(Environment.NewLine) + Environment.NewLine.Length)..
+                ];
                 originalScript = originalScript.Replace('\t', ' ');
 
                 StringBuilder errorDetail = new();
-                errorDetail.AppendLine("Error Reading Custom Criteria File:")
+                errorDetail
+                    .AppendLine("Error Reading Custom Criteria File:")
                     .AppendLine(originalScript)
-                    .AppendLine("To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded."); ErrorLogger(e, errorDetail.ToString());
+                    .AppendLine(
+                        "To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded."
+                    );
+                ErrorLogger(e, errorDetail.ToString());
                 ClearCustomLuaFunctions(); // Don't use partial parse.
                 throw new CriteriaLoadException(e.Message, originalScript);
             }
             #endregion
         }
 
-        private int ParseCustomFunction(int i, string[] criteria, StringBuilder script, Annotation annotation, Dictionary<string, LuaFunction> funcs, string paramList)
+        private int ParseCustomFunction(
+            int i,
+            string[] criteria,
+            StringBuilder script,
+            Annotation annotation,
+            Dictionary<string, LuaFunction> funcs,
+            string paramList
+        )
         {
             i++;
             string functionName = $"Observatory{annotation.type}Handler{i}";
@@ -445,7 +577,9 @@ namespace Observatory.Explorer
             do
             {
                 if (i >= criteria.Length)
-                    throw new Exception($"Unterminated {annotation.type} handler.\r\nAre you missing an End annotation?");
+                    throw new Exception(
+                        $"Unterminated {annotation.type} handler.\r\nAre you missing an End annotation?"
+                    );
 
                 script.AppendLine(criteria[i]);
                 i++;
@@ -453,7 +587,10 @@ namespace Observatory.Explorer
             script.AppendLine("end");
 
             LuaState.DoString(script.ToString());
-            funcs.Add(GetUniqueDescription(functionName, annotation.value), LuaState[functionName] as LuaFunction);
+            funcs.Add(
+                GetUniqueDescription(functionName, annotation.value),
+                LuaState[functionName] as LuaFunction
+            );
             script.Clear();
             return i;
         }
@@ -468,7 +605,12 @@ namespace Observatory.Explorer
             JumpFunctions.Clear();
         }
 
-        public List<(string, string, bool)> CheckInterest(Scan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory, Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory, ExplorerSettings settings)
+        public List<(string, string, bool)> CheckInterest(
+            Scan scan,
+            Dictionary<ulong, Dictionary<int, Scan>> scanHistory,
+            Dictionary<ulong, Dictionary<int, FSSBodySignals>> signalHistory,
+            ExplorerSettings settings
+        )
         {
             MaybeRefreshCriteria();
 
@@ -477,18 +619,30 @@ namespace Observatory.Explorer
 
             foreach (var criteriaFunction in CriteriaFunctions)
             {
-                // Skip criteria which have previously thrown an error. We can't remove them from the dictionary while iterating it. 
-                if (CustomFunctionsErrors.ContainsKey(criteriaFunction.Key)) continue;
+                // Skip criteria which have previously thrown an error. We can't remove them from the dictionary while iterating it.
+                if (CustomFunctionsErrors.ContainsKey(criteriaFunction.Key))
+                    continue;
 
                 var scanList = scanHistory[scan.SystemAddress].Values.ToList();
 
                 int bioSignals;
                 int geoSignals;
 
-                if (signalHistory.ContainsKey(scan.SystemAddress) && signalHistory[scan.SystemAddress].ContainsKey(scan.BodyID))
+                if (
+                    signalHistory.ContainsKey(scan.SystemAddress)
+                    && signalHistory[scan.SystemAddress].ContainsKey(scan.BodyID)
+                )
                 {
-                    bioSignals = signalHistory[scan.SystemAddress][scan.BodyID].Signals.Where(s => s.Type == "$SAA_SignalType_Biological;").Select(s => s.Count).FirstOrDefault();
-                    geoSignals = signalHistory[scan.SystemAddress][scan.BodyID].Signals.Where(s => s.Type == "$SAA_SignalType_Geological;").Select(s => s.Count).FirstOrDefault();
+                    bioSignals = signalHistory[scan.SystemAddress]
+                        [scan.BodyID]
+                        .Signals.Where(s => s.Type == "$SAA_SignalType_Biological;")
+                        .Select(s => s.Count)
+                        .FirstOrDefault();
+                    geoSignals = signalHistory[scan.SystemAddress]
+                        [scan.BodyID]
+                        .Signals.Where(s => s.Type == "$SAA_SignalType_Geological;")
+                        .Select(s => s.Count)
+                        .FirstOrDefault();
                 }
                 else
                 {
@@ -500,7 +654,13 @@ namespace Observatory.Explorer
 
                 try
                 {
-                    var result = criteriaFunction.Value.Call(scan, parents, scanList, bioSignals, geoSignals);
+                    var result = criteriaFunction.Value.Call(
+                        scan,
+                        parents,
+                        scanList,
+                        bioSignals,
+                        geoSignals
+                    );
                     if (result.Length == 3 && ((bool?)result[0]).GetValueOrDefault(false))
                     {
                         results.Add((result[1].ToString(), result[2].ToString(), false));
@@ -515,11 +675,19 @@ namespace Observatory.Explorer
                     results.Add((e.Message, scan.Json, false));
 
                     StringBuilder errorDetail = new();
-                    errorDetail.AppendLine($"while processing custom criteria '{criteriaFunction.Key}' on scan:")
+                    errorDetail
+                        .AppendLine(
+                            $"while processing custom criteria '{criteriaFunction.Key}' on scan:"
+                        )
                         .AppendLine(scan.Json)
-                        .AppendLine("To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded.");
+                        .AppendLine(
+                            "To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded."
+                        );
                     ErrorLogger(e, errorDetail.ToString());
-                    CustomFunctionsErrors.Add(criteriaFunction.Key, e.Message + Environment.NewLine + errorDetail.ToString());
+                    CustomFunctionsErrors.Add(
+                        criteriaFunction.Key,
+                        e.Message + Environment.NewLine + errorDetail.ToString()
+                    );
                 }
             }
 
@@ -534,21 +702,30 @@ namespace Observatory.Explorer
             return results;
         }
 
-        public void RunCustomFunctions<T>(T journal, Dictionary<string, LuaFunction> customFunctions, Dictionary<ulong, Dictionary<int, Scan>> scanHistory) where T : JournalBase
+        public void RunCustomFunctions<T>(
+            T journal,
+            Dictionary<string, LuaFunction> customFunctions,
+            Dictionary<ulong, Dictionary<int, Scan>> scanHistory
+        )
+            where T : JournalBase
         {
             MaybeRefreshCriteria();
 
             StoreTimeString(journal);
             foreach (var customFunc in customFunctions)
             {
-                if (CustomFunctionsErrors.ContainsKey(customFunc.Key)) continue; // This has failed previously.
+                if (CustomFunctionsErrors.ContainsKey(customFunc.Key))
+                    continue; // This has failed previously.
 
                 try
                 {
                     switch (journal)
                     {
                         case FSSAllBodiesFound allBodies:
-                            Debug.Assert(scanHistory is not null, "FSSAllBodiesFound requires scanHistory to be provided");
+                            Debug.Assert(
+                                scanHistory is not null,
+                                "FSSAllBodiesFound requires scanHistory to be provided"
+                            );
                             var systemScans = scanHistory[allBodies.SystemAddress];
                             var scanList = systemScans.Values.ToList();
                             Dictionary<int, List<Parent>> parentsPerBodyId = scanList
@@ -565,23 +742,37 @@ namespace Observatory.Explorer
                 catch (NLua.Exceptions.LuaScriptException e)
                 {
                     StringBuilder errorDetail = new();
-                    errorDetail.AppendLine($"while processing custom criteria '{customFunc.Key}' on {journal.Event}:")
+                    errorDetail
+                        .AppendLine(
+                            $"while processing custom criteria '{customFunc.Key}' on {journal.Event}:"
+                        )
                         .AppendLine(journal.Json)
-                        .AppendLine("To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded.");
+                        .AppendLine(
+                            "To correct this problem, make changes to the Lua source file, save it and either re-run read-all or scan another body. It will be automatically reloaded."
+                        );
                     ErrorLogger(e, errorDetail.ToString());
-                    CustomFunctionsErrors.Add(customFunc.Key, e.Message + Environment.NewLine + errorDetail.ToString());
+                    CustomFunctionsErrors.Add(
+                        customFunc.Key,
+                        e.Message + Environment.NewLine + errorDetail.ToString()
+                    );
                 }
             }
 
             MaybeRemoveFailingFunctions(customFunctions);
         }
 
-        public void CustomDiscovery(FSSDiscoveryScan scan, Dictionary<ulong, Dictionary<int, Scan>> scanHistory)
+        public void CustomDiscovery(
+            FSSDiscoveryScan scan,
+            Dictionary<ulong, Dictionary<int, Scan>> scanHistory
+        )
         {
             RunCustomFunctions(scan, DiscoveryFunctions, scanHistory);
         }
 
-        public void CustomAllBodies(FSSAllBodiesFound allBodies, Dictionary<ulong, Dictionary<int, Scan>> scanHistory)
+        public void CustomAllBodies(
+            FSSAllBodiesFound allBodies,
+            Dictionary<ulong, Dictionary<int, Scan>> scanHistory
+        )
         {
             RunCustomFunctions(allBodies, AllBodiesFunctions, scanHistory);
         }
@@ -591,7 +782,10 @@ namespace Observatory.Explorer
             RunCustomFunctions(jump, JumpFunctions, scanHistory);
         }
 
-        public void CustomSignals(SAASignalsFound signalsFound, Dictionary<ulong, Dictionary<int, Scan>> scanHistory)
+        public void CustomSignals(
+            SAASignalsFound signalsFound,
+            Dictionary<ulong, Dictionary<int, Scan>> scanHistory
+        )
         {
             RunCustomFunctions(signalsFound, BodySignalsFunctions, scanHistory);
         }
@@ -613,12 +807,13 @@ namespace Observatory.Explorer
 
             if (line.StartsWith("::") || line.StartsWith("---@"))
             {
-                string annotationRaw = line.Replace("::", string.Empty).Replace("---@", string.Empty);
+                string annotationRaw = line.Replace("::", string.Empty)
+                    .Replace("---@", string.Empty);
                 string directive = annotationRaw.Split(' ')[0].Split('=')[0].ToLower(); // Gross, but handles both formats
                 string debugLabel;
                 if (annotationRaw.ToLower().StartsWith($"{directive}="))
                 {
-                    debugLabel = annotationRaw[(directive.Length+1)..];
+                    debugLabel = annotationRaw[(directive.Length + 1)..];
                 }
                 else if (annotationRaw.Contains(' '))
                 {
@@ -628,7 +823,7 @@ namespace Observatory.Explorer
                 {
                     debugLabel = string.Empty;
                 }
-                switch (directive) 
+                switch (directive)
                 {
                     case "end":
                         annotation = new() { type = AnnotationType.End, value = string.Empty };
@@ -650,7 +845,11 @@ namespace Observatory.Explorer
                         annotation = new() { type = AnnotationType.Jump, value = debugLabel };
                         return true;
                     case "bodysignals":
-                        annotation = new() { type = AnnotationType.BodySignals, value = debugLabel };
+                        annotation = new()
+                        {
+                            type = AnnotationType.BodySignals,
+                            value = debugLabel,
+                        };
                         return true;
                     case "discovery":
                         annotation = new() { type = AnnotationType.Discovery, value = debugLabel };
@@ -667,7 +866,8 @@ namespace Observatory.Explorer
 
         private bool IsEndAnnotation(string line)
         {
-            return GetCriteriaAnnotation(line, out Annotation endAnnotation) && endAnnotation.type == AnnotationType.End;
+            return GetCriteriaAnnotation(line, out Annotation endAnnotation)
+                && endAnnotation.type == AnnotationType.End;
         }
 
         private enum AnnotationType
@@ -681,7 +881,7 @@ namespace Observatory.Explorer
             AllBodies,
             Jump,
             BodySignals,
-            Discovery
+            Discovery,
         }
 
         private string GetUniqueDescription(string functionName, string scriptDescription)
@@ -710,21 +910,25 @@ namespace Observatory.Explorer
                 }
             }
         }
+
         private static List<Parent> MakeParentsList(Scan scan, Dictionary<int, Scan> scanList)
         {
-            if (scan.Parent is null) return null;
+            if (scan.Parent is null)
+                return null;
 
             List<Parent> parents = [];
             foreach (var parent in scan.Parent)
             {
                 var parentScan = scanList.GetValueOrDefault(parent.Body, null);
 
-                parents.Add(new Parent()
-                {
-                    ParentType = parent.ParentType.ToString(),
-                    Body = parent.Body,
-                    Scan = parentScan
-                });
+                parents.Add(
+                    new Parent()
+                    {
+                        ParentType = parent.ParentType.ToString(),
+                        Body = parent.Body,
+                        Scan = parentScan,
+                    }
+                );
             }
             return parents;
         }
@@ -735,6 +939,5 @@ namespace Observatory.Explorer
             public int Body;
             public Scan Scan;
         }
-
     }
 }

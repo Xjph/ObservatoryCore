@@ -1,7 +1,7 @@
 ﻿using System.Collections.ObjectModel;
+using Observatory.Framework;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Interfaces;
-using Observatory.Framework;
 
 namespace Observatory.Explorer
 {
@@ -25,7 +25,7 @@ namespace Observatory.Explorer
                 Nested = true,
                 ShepherdMoon = true,
                 SmallObject = true,
-                WideRing = true
+                WideRing = true,
             };
             resultsGrid = new();
         }
@@ -37,18 +37,22 @@ namespace Observatory.Explorer
         {
             FullName = "Observatory Explorer",
             ShortName = "Explorer",
-            Description = "Explorer is a core plugin for Observatory, designed to point out any astronomical points of interest that might be encountered.",
+            Description =
+                "Explorer is a core plugin for Observatory, designed to point out any astronomical points of interest that might be encountered.",
             AuthorName = "Vithigar",
             Links = new()
             {
                 new AboutLink("github", "https://github.com/Xjph/ObservatoryCore"),
-                new AboutLink("Documentation", "https://observatory.xjph.net/usage/plugins/explorer"),
-            }
+                new AboutLink(
+                    "Documentation",
+                    "https://observatory.xjph.net/usage/plugins/explorer"
+                ),
+            },
         };
 
         public AboutInfo AboutInfo => _aboutInfo;
- 
-        public static Guid Guid => new ("B11E8725-3F71-4445-9B09-682F9EAB8B59");
+
+        public static Guid Guid => new("B11E8725-3F71-4445-9B09-682F9EAB8B59");
 
         public string Version => typeof(ExplorerWorker).Assembly.GetName().Version.ToString();
 
@@ -64,7 +68,8 @@ namespace Observatory.Explorer
             Core = observatoryCore;
         }
 
-        public void JournalEvent<TJournal>(TJournal journal) where TJournal : JournalBase
+        public void JournalEvent<TJournal>(TJournal journal)
+            where TJournal : JournalBase
         {
             switch (journal)
             {
@@ -100,7 +105,6 @@ namespace Observatory.Explorer
                     explorer.ProcessCodexEntry(codexEntry);
                     break;
             }
-            
         }
 
         public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs args)
@@ -108,7 +112,7 @@ namespace Observatory.Explorer
             // Delegate to Explorer to manage criteria file loading, etc.
             explorer.LogMonitorStateChanged(args);
         }
-        
+
         public object Settings
         {
             get => settings;

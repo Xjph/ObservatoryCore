@@ -1,6 +1,5 @@
 ﻿namespace Observatory.Framework
 {
-
     #region Settings class attributes
     /// <summary>
     /// Specifies the width of a settings column in the settings view. There are two columns.
@@ -79,15 +78,13 @@
     /// Indicates that the property should not be displayed to the user in the UI.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class SettingIgnore : Attribute
-    { }
+    public class SettingIgnore : Attribute { }
 
     /// <summary>
     /// Indicates numeric properly should use a slider control instead of a numeric textbox with roller.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
-    public class SettingNumericUseSlider : Attribute
-    { }
+    public class SettingNumericUseSlider : Attribute { }
 
     /// <summary>
     /// Specify backing value used by Dictionary&lt;string, object&gt; to indicate selected option.
@@ -134,7 +131,12 @@
         /// <param name="maximum">Maximum allowed value.</param>
         /// <param name="increment">Increment between allowed values in slider/roller inputs.</param>
         /// <param name="precision">The number of digits to display for non integer values.</param>
-        public SettingNumericBounds(double minimum, double maximum, double increment = 1.0, int precision = 1)
+        public SettingNumericBounds(
+            double minimum,
+            double maximum,
+            double increment = 1.0,
+            int precision = 1
+        )
         {
             this.minimum = minimum;
             this.maximum = maximum;

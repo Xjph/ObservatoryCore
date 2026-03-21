@@ -1,6 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class Embark : Disembark
-    {
-    }
+    public class Embark : Disembark { }
 }

@@ -1,5 +1,5 @@
-﻿using Observatory.Framework;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using Observatory.Framework;
 
 namespace Observatory.UI
 {
@@ -7,7 +7,7 @@ namespace Observatory.UI
     {
         private readonly AboutInfo _metadata;
         private readonly List<LinkLabel> _linkLabels;
-        
+
         public AboutForm(AboutInfo metadata)
         {
             InitializeComponent();
@@ -50,10 +50,12 @@ namespace Observatory.UI
 
         private static bool IsValidLink(AboutLink link)
         {
-            if (string.IsNullOrEmpty(link.Text) || string.IsNullOrEmpty(link.Url)) return false;
+            if (string.IsNullOrEmpty(link.Text) || string.IsNullOrEmpty(link.Url))
+                return false;
 
             Uri uri;
-            if (!Uri.TryCreate(link.Url, new UriCreationOptions(), out uri)) return false;
+            if (!Uri.TryCreate(link.Url, new UriCreationOptions(), out uri))
+                return false;
 
             return true;
         }
@@ -63,7 +65,7 @@ namespace Observatory.UI
             lnkLabel.Links.Clear();
             if (linkInfo != null)
             {
-                lnkLabel.Visible =  true;
+                lnkLabel.Visible = true;
                 lnkLabel.Text = linkInfo.Text;
                 LinkLabel.Link link = new(0, lnkLabel.Text.Length, linkInfo.Url);
                 lnkLabel.Links.Add(link);

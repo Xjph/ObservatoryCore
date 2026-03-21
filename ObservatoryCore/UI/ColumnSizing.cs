@@ -4,7 +4,7 @@
     {
         public string PluginName { get; set; }
         public string PluginVersion { get; set; }
-        public Dictionary<string, int> ColumnWidth 
+        public Dictionary<string, int> ColumnWidth
         {
             get
             {
@@ -12,7 +12,6 @@
 
                 return _columnWidth;
             }
-             
             set => _columnWidth = value;
         }
 

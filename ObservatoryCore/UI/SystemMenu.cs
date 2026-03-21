@@ -18,10 +18,21 @@ namespace Observatory.UI
         private static extern IntPtr GetSystemMenu(IntPtr hWnd, bool bRevert);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool AppendMenu(IntPtr hMenu, int uFlags, int uIDNewItem, string lpNewItem);
+        private static extern bool AppendMenu(
+            IntPtr hMenu,
+            int uFlags,
+            int uIDNewItem,
+            string lpNewItem
+        );
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool ModifyMenu(IntPtr hMenu, int uPosition, int uFlags, int uIDNewItem, string lpNewItem);
+        private static extern bool ModifyMenu(
+            IntPtr hMenu,
+            int uPosition,
+            int uFlags,
+            int uIDNewItem,
+            string lpNewItem
+        );
 
         // ID for the About item on the system menu
         private const int SYSMENU_ONTOP_ID = 0x070C;
@@ -44,7 +55,13 @@ namespace Observatory.UI
             {
                 form.TopMost = !form.TopMost;
                 var flags = MF_BYCOMMAND | (form.TopMost ? MF_CHECKED : 0);
-                ModifyMenu(GetSystemMenu(form.Handle, false), SYSMENU_ONTOP_ID, flags, SYSMENU_ONTOP_ID, "&Always On Top");
+                ModifyMenu(
+                    GetSystemMenu(form.Handle, false),
+                    SYSMENU_ONTOP_ID,
+                    flags,
+                    SYSMENU_ONTOP_ID,
+                    "&Always On Top"
+                );
             }
         }
     }

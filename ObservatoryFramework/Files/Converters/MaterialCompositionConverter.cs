@@ -11,7 +11,11 @@ namespace Observatory.Framework.Files.Converters
     /// </summary>
     public class MaterialCompositionConverter : JsonConverter<ImmutableList<MaterialComposition>>
     {
-        public override ImmutableList<MaterialComposition> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+        public override ImmutableList<MaterialComposition> Read(
+            ref Utf8JsonReader reader,
+            Type typeToConvert,
+            JsonSerializerOptions options
+        )
         {
             if (reader.TokenType == JsonTokenType.StartObject)
             {
@@ -28,7 +32,7 @@ namespace Observatory.Framework.Files.Converters
                             var material = new MaterialComposition
                             {
                                 Name = name,
-                                Percent = percent
+                                Percent = percent,
                             };
                             materialComposition.Add(material);
                         }
@@ -42,13 +46,22 @@ namespace Observatory.Framework.Files.Converters
             }
             else
             {
-                return (ImmutableList<MaterialComposition>)JsonSerializer.Deserialize(ref reader, typeof(ImmutableList<MaterialComposition>));
+                return (ImmutableList<MaterialComposition>)
+                    JsonSerializer.Deserialize(
+                        ref reader,
+                        typeof(ImmutableList<MaterialComposition>)
+                    );
             }
         }
 
-        public override void Write(Utf8JsonWriter writer, ImmutableList<MaterialComposition> value, JsonSerializerOptions options)
+        public override void Write(
+            Utf8JsonWriter writer,
+            ImmutableList<MaterialComposition> value,
+            JsonSerializerOptions options
+        )
         {
-            if (value.Count != 0) JsonSerializer.Serialize(writer, value, options);
+            if (value.Count != 0)
+                JsonSerializer.Serialize(writer, value, options);
         }
     }
 }

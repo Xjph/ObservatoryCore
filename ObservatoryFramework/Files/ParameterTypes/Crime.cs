@@ -19,12 +19,12 @@ namespace Observatory.Framework.Files.ParameterTypes
 
         [JsonPropertyName("Highest_Bounty")]
         public decimal HighestBounty { get; init; }
-        
+
         [JsonPropertyName("Citizens_Murdered")]
         public int CitizensMurdered { get; init; }
 
         [JsonPropertyName("Data_Stolen")]
-        public int DataStolen {  get; init; }
+        public int DataStolen { get; init; }
 
         [JsonPropertyName("Goods_Stolen")]
         public int GoodsStolen { get; init; }
@@ -42,7 +42,7 @@ namespace Observatory.Framework.Files.ParameterTypes
         public int ProductionSabotage { get; init; }
 
         [JsonPropertyName("Production_Theft")]
-        public int ProductionTheft {  get; init; }
+        public int ProductionTheft { get; init; }
 
         [JsonPropertyName("Profiles_Cloned")]
         public int ProfilesCloned { get; init; }

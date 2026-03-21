@@ -56,19 +56,22 @@ namespace Observatory.Framework
             /// No UI. Tab will not be added to list.
             /// </summary>
             None = 0,
+
             /// <summary>
             /// Simple listview, to which items can be added or removed.
             /// </summary>
             Basic = 1,
+
             /// <summary>
             /// Panel control which is placed in plugin tab.
             /// </summary>
             Panel = 2,
+
             /// <summary>
             /// UI used by Observatory Core settings tab.<br/>
             /// Not intended for use by plugins.
             /// </summary>
-            Core = 3
+            Core = 3,
         }
     }
 }

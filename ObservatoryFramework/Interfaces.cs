@@ -1,7 +1,7 @@
-﻿using Observatory.Framework.Files;
+﻿using System.Drawing;
+using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.ParameterTypes;
-using System.Drawing;
 
 namespace Observatory.Framework.Interfaces
 {
@@ -21,13 +21,19 @@ namespace Observatory.Framework.Interfaces
         /// <summary>
         /// Full name of the plugin. Displayed in the Core settings tab's plugin list.
         /// </summary>
-        public string Name { get => AboutInfo?.FullName ?? "(AboutInfo is undefined)"; }
+        public string Name
+        {
+            get => AboutInfo?.FullName ?? "(AboutInfo is undefined)";
+        }
 
         /// <summary>
         /// Short name of the plugin. Used as the tab title for the plugin UI.<br/>
         /// Can be omitted, in which case the full Name will be used.
         /// </summary>
-        public string ShortName { get => AboutInfo?.ShortName ?? Name; }
+        public string ShortName
+        {
+            get => AboutInfo?.ShortName ?? Name;
+        }
 
         /// <summary>
         /// Version string displayed in the Core settings tab's plugin list.<br/>
@@ -38,7 +44,10 @@ namespace Observatory.Framework.Interfaces
         /// <summary>
         /// An object containing metadata about this plugin.
         /// </summary>
-        public AboutInfo AboutInfo { get => null; }
+        public AboutInfo AboutInfo
+        {
+            get => null;
+        }
 
         /// <summary>
         /// Reference to plugin UI to display within its tab.
@@ -60,20 +69,26 @@ namespace Observatory.Framework.Interfaces
         /// <para>If omitted a natural sort order is used.</para>
         /// </summary>
         public IObservatoryComparer ColumnSorter
-        { get => null; }
+        {
+            get => null;
+        }
 
         /// <summary>
         /// Receives data sent by other plugins.
         /// </summary>
-        [Obsolete("Deprecated in favour of HandlePluginMessage(string sourceName, Guid sourceId, string sourceVersion, PluginMessage messageArgs)")]
-        public void HandlePluginMessage(string sourceName, string sourceVersion, object messageArgs)
-        { }
+        [Obsolete(
+            "Deprecated in favour of HandlePluginMessage(string sourceName, Guid sourceId, string sourceVersion, PluginMessage messageArgs)"
+        )]
+        public void HandlePluginMessage(
+            string sourceName,
+            string sourceVersion,
+            object messageArgs
+        ) { }
 
         /// <summary>
         /// Receives data sent by other plugins.
         /// </summary>
-        public void HandlePluginMessage(MessageSender sender, PluginMessage messageArgs)
-        { }
+        public void HandlePluginMessage(MessageSender sender, PluginMessage messageArgs) { }
 
         /// <summary>
         /// <para>Plugin specific data export implementation. Omit or return null to use Observatory's own export process.</para>
@@ -82,7 +97,7 @@ namespace Observatory.Framework.Interfaces
         /// <param name="delimiter">Column delimiter for csv export.</param>
         /// <param name="filetype">File extension to use for file. Change this when returning a file format other than delimited text.</param>
         /// <returns>File content as a byte array.</returns>
-        public byte[] ExportContent(string delimiter, ref string filetype) 
+        public byte[] ExportContent(string delimiter, ref string filetype)
         {
             return null;
         }
@@ -90,8 +105,7 @@ namespace Observatory.Framework.Interfaces
         /// <summary>
         /// Called when Observatory finishes loading and the UI is ready.
         /// </summary>
-        public void ObservatoryReady()
-        { }
+        public void ObservatoryReady() { }
 
         /// <summary>
         /// Method called to check if a control should be themed.
@@ -117,7 +131,7 @@ namespace Observatory.Framework.Interfaces
 
         /// <summary>
         /// Check if an update is available for the plugin and provide a URL for the update if available.
-        /// 
+        ///
         /// Do not implement both this method and <see cref="CheckForPluginUpdate()"/>.
         /// </summary>
         /// <param name="url">Filled with a URL for the update, either direct download or a download site.</param>
@@ -130,9 +144,9 @@ namespace Observatory.Framework.Interfaces
         }
 
         /// <summary>
-        /// Check if an update is available for the plugin (which may trigger downloading said update) and 
+        /// Check if an update is available for the plugin (which may trigger downloading said update) and
         /// provides status information along with an optional URL and text to link to the URL.
-        /// 
+        ///
         /// Do not implement both this method and <see cref="UpdateAvailable(out string)"/>.
         /// </summary>
         /// <returns>A <see cref="PluginUpdateStatus"/> instance describing the status of the plugin update.</returns>
@@ -156,22 +170,21 @@ namespace Observatory.Framework.Interfaces
         /// <param name="journal"><para>Elite Dangerous journal event, deserialized into a .NET object.</para>
         /// <para>Unhandled json values within a journal entry type will be contained in member property:<br/>Dictionary&lt;string, object&gt; AdditionalProperties.</para>
         /// <para>Unhandled journal event types will be type JournalBase with all values contained in AdditionalProperties.</para></param>
-        public void JournalEvent<TJournal>(TJournal journal) where TJournal : JournalBase;
+        public void JournalEvent<TJournal>(TJournal journal)
+            where TJournal : JournalBase;
 
         /// <summary>
         /// Method called when status.json content is updated.<br/>
         /// Can be omitted for plugins which do not use this data.
         /// </summary>
         /// <param name="status">Player status.json content, deserialized into a .NET object.</param>
-        public void StatusChange(Status status)
-        { }
+        public void StatusChange(Status status) { }
 
         /// <summary>
         /// Called when the LogMonitor changes state. Useful for suppressing output in certain situations
         /// such as batch reads (ie. "Read all") or responding to other state transitions.
         /// </summary>
-        public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs eventArgs)
-        { }
+        public void LogMonitorStateChanged(LogMonitorStateChangedEventArgs eventArgs) { }
 
         /// <summary>
         /// Method called when the user begins "Read All" journal processing, before any journal events are sent.<br/>
@@ -179,8 +192,7 @@ namespace Observatory.Framework.Interfaces
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
         [Obsolete("Deprecated in favour of LogMonitorStateChanged")]
-        public void ReadAllStarted()
-        { }
+        public void ReadAllStarted() { }
 
         /// <summary>
         /// Method called when "Read All" journal processing completes.<br/>
@@ -188,8 +200,7 @@ namespace Observatory.Framework.Interfaces
         /// Can be omitted for plugins which do not require the distinction.
         /// </summary>
         [Obsolete("Deprecated in favour of LogMonitorStateChanged")]
-        public void ReadAllFinished()
-        { }
+        public void ReadAllFinished() { }
     }
 
     /// <summary>
@@ -218,18 +229,22 @@ namespace Observatory.Framework.Interfaces
         public void UpdateNotification(NotificationArgs notificationEventArgs) { }
 
         /// <summary>
-        /// Property set by notification plugins to indicate to Core 
+        /// Property set by notification plugins to indicate to Core
         /// that native audio notifications should be disabled/suppressed.
         /// </summary>
         public bool OverrideAudioNotifications
-        { get => false; }
+        {
+            get => false;
+        }
 
         /// <summary>
-        /// Property set by notification plugins to indicate to Core 
+        /// Property set by notification plugins to indicate to Core
         /// that native popup notifications should be disabled/suppressed.
         /// </summary>
         public bool OverridePopupNotifications
-        { get => false; }
+        {
+            get => false;
+        }
 
         /// <summary>
         /// A property set by notification plugins to indicate to Core
@@ -237,7 +252,9 @@ namespace Observatory.Framework.Interfaces
         /// operations (eg. pre-read and read-all).
         /// </summary>
         public bool OverrideAcceptNotificationsDuringBatch
-        { get => false; }
+        {
+            get => false;
+        }
     }
 
     /// <summary>
@@ -271,7 +288,9 @@ namespace Observatory.Framework.Interfaces
         /// </summary>
         /// <param name="notificationId">Guid of notification to be updated.</param>
         /// <param name="notificationEventArgs">NotificationArgs object specifying updated notification content and behaviour.</param>
-        [Obsolete("This method has been deprecated in favour of UpdateNotification(NotificationArgs notificationEventArgs)")]
+        [Obsolete(
+            "This method has been deprecated in favour of UpdateNotification(NotificationArgs notificationEventArgs)"
+        )]
         public void UpdateNotification(Guid notificationId, NotificationArgs notificationEventArgs);
 
         /// <summary>
@@ -303,7 +322,11 @@ namespace Observatory.Framework.Interfaces
         /// <param name="worker">Reference to the calling plugin's worker interface.</param>
         /// <param name="items">Grid items to be added. Object types should match original template item used to create the grid.</param>
         /// <param name="grouped">(optional) Specify that the items being added should be kept together and sorted as a single unit.</param>
-        public void AddGridItems(IObservatoryWorker worker, IEnumerable<object> items, bool grouped = false);
+        public void AddGridItems(
+            IObservatoryWorker worker,
+            IEnumerable<object> items,
+            bool grouped = false
+        );
 
         /// <summary>
         /// Replace the contents of the grid with the provided items.
@@ -379,15 +402,23 @@ namespace Observatory.Framework.Interfaces
         /// <summary>
         /// Sends arbitrary data to all other plugins. The full name and version of the sending plugin will be used to identify the sender to any recipients.
         /// </summary>
-        [Obsolete("Deprecated in favour of SendPluginMessage(IObservatoryPlugin plugin, PluginMessage message)")]
+        [Obsolete(
+            "Deprecated in favour of SendPluginMessage(IObservatoryPlugin plugin, PluginMessage message)"
+        )]
         public void SendPluginMessage(IObservatoryPlugin plugin, object message);
 
         /// <summary>
-        /// Sends arbitrary data to a specific plugin, identified by ShortName. 
+        /// Sends arbitrary data to a specific plugin, identified by ShortName.
         /// The full name and version of the sending plugin will be used to identify the sender to recipient.
         /// </summary>
-        [Obsolete("Deprecated in favour of SendPluginMessage(IObservatoryPlugin plugin, Guid targetId, PluginMessage message)")]
-        public void SendPluginMessage(IObservatoryPlugin plugin, string targetShortName, object message);
+        [Obsolete(
+            "Deprecated in favour of SendPluginMessage(IObservatoryPlugin plugin, Guid targetId, PluginMessage message)"
+        )]
+        public void SendPluginMessage(
+            IObservatoryPlugin plugin,
+            string targetShortName,
+            object message
+        );
 
         /// <summary>
         /// Sends a message to all other plugins. The full name, id, and version of the sending plugin will be used to identify the sender to any recipients.
@@ -395,10 +426,14 @@ namespace Observatory.Framework.Interfaces
         public void SendPluginMessage(IObservatoryPlugin plugin, PluginMessage message);
 
         /// <summary>
-        /// Sends arbitrary data to a specific plugin, identified by id. 
+        /// Sends arbitrary data to a specific plugin, identified by id.
         /// The full name, id, and version of the sending plugin will be used to identify the sender to recipient.
         /// </summary>
-        public void SendPluginMessage(IObservatoryPlugin plugin, Guid targetId, PluginMessage message);
+        public void SendPluginMessage(
+            IObservatoryPlugin plugin,
+            Guid targetId,
+            PluginMessage message
+        );
 
         /// <summary>
         /// Register a UI control for themeing.

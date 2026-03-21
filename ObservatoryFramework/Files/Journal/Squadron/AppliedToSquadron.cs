@@ -1,6 +1,4 @@
 ﻿namespace Observatory.Framework.Files.Journal
 {
-    public class AppliedToSquadron : SquadronCreated
-    {
-    }
+    public class AppliedToSquadron : SquadronCreated { }
 }

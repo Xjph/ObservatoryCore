@@ -9,6 +9,7 @@
         /// Number of bodies in system.
         /// </summary>
         public int NumBodies { get; init; }
+
         /// <summary>
         /// Unique ID of system.
         /// </summary>

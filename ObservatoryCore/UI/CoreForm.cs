@@ -1,10 +1,10 @@
-﻿using Observatory.Framework;
+﻿using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
+using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using System.Text.Json;
 
 namespace Observatory.UI
 {
@@ -14,7 +14,8 @@ namespace Observatory.UI
         {
             FullName = "Elite Observatory Core",
             ShortName = "Core",
-            Description = "A tool for reading/monitoring Elite Dangerous journals for interesting objects."
+            Description =
+                "A tool for reading/monitoring Elite Dangerous journals for interesting objects."
                 + Environment.NewLine
                 + Environment.NewLine
                 + "If you like this tool, consider making a one-time donation via PayPal, or ongoing via Patreon!"
@@ -28,9 +29,12 @@ namespace Observatory.UI
             {
                 new AboutLink("github", "https://github.com/Xjph/ObservatoryCore"),
                 new AboutLink("Documentation", "https://observatory.xjph.net/"),
-                new AboutLink("Donate via Paypal", "https://www.paypal.com/donate/?hosted_button_id=XYQWYQ337TBP4"),
+                new AboutLink(
+                    "Donate via Paypal",
+                    "https://www.paypal.com/donate/?hosted_button_id=XYQWYQ337TBP4"
+                ),
                 new AboutLink("Donate via Patreon", "https://www.patreon.com/vithigar"),
-            }
+            },
         };
 
         private static string[] _patrons =
@@ -60,14 +64,16 @@ namespace Observatory.UI
             "  Star Ottaway",
             "  Steven B",
             "  Valshia",
-            "  William K"
+            "  William K",
         ];
 
         private readonly ThemeManager themeManager;
 
         [DllImport("user32.dll")]
         private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
+
         private const int WM_SETREDRAW = 11;
+
         private static void SuspendDrawing(Control control)
         {
             if (SendMessage(control.Handle, WM_SETREDRAW, false, 0) != 0)
@@ -87,7 +93,9 @@ namespace Observatory.UI
             DoubleBuffered = true;
             InitializeComponent();
 
-            string version = System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3) ?? "0";
+            string version =
+                System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3)
+                ?? "0";
             Text += $" - v{version}";
 #if PROTON
             Text += "-wine";
@@ -131,7 +139,8 @@ namespace Observatory.UI
 
             pluginList.Location = new(0, 0);
             pluginList.Size = CoreTabPanel.Size;
-            pluginList.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            pluginList.Anchor =
+                AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pluginList.AutoScroll = true;
             ThemeManager.GetInstance.RegisterControl(pluginList);
             CoreTabPanel.Controls.Add(pluginList);
@@ -153,7 +162,10 @@ namespace Observatory.UI
 
         private void ToggleMonitorButton_Click(object sender, EventArgs e)
         {
-            if ((LogMonitor.GetInstance.CurrentState & Framework.LogMonitorState.Realtime) == Framework.LogMonitorState.Realtime)
+            if (
+                (LogMonitor.GetInstance.CurrentState & Framework.LogMonitorState.Realtime)
+                == Framework.LogMonitorState.Realtime
+            )
             {
                 LogMonitor.GetInstance.Stop();
                 ToggleMonitorButton.Text = "Start Monitor";
@@ -221,15 +233,22 @@ namespace Observatory.UI
                 var request = new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,
-                    RequestUri = new Uri("https://api.github.com/repos/xjph/ObservatoryCore/releases"),
-                    Headers = { { "User-Agent", "Xjph/ObservatoryCore" } }
+                    RequestUri = new Uri(
+                        "https://api.github.com/repos/xjph/ObservatoryCore/releases"
+                    ),
+                    Headers = { { "User-Agent", "Xjph/ObservatoryCore" } },
                 };
 
-                releasesResponse = Utils.HttpClient.SendRequest(request).Content.ReadAsStringAsync().Result;
+                releasesResponse = Utils
+                    .HttpClient.SendRequest(request)
+                    .Content.ReadAsStringAsync()
+                    .Result;
 
                 if (!string.IsNullOrEmpty(releasesResponse))
                 {
-                    var releases = System.Text.Json.JsonDocument.Parse(releasesResponse).RootElement.EnumerateArray();
+                    var releases = System
+                        .Text.Json.JsonDocument.Parse(releasesResponse)
+                        .RootElement.EnumerateArray();
 
                     Version? latestVersion = null;
                     string latestVersionUrl = string.Empty;
@@ -238,10 +257,21 @@ namespace Observatory.UI
                     {
                         var tag = release.GetProperty("tag_name").ToString();
                         var verstrings = tag[1..].Split('.');
-                        var ver = verstrings.Select(verString => { _ = int.TryParse(verString, out int ver); return ver; }).ToArray();
+                        var ver = verstrings
+                            .Select(verString =>
+                            {
+                                _ = int.TryParse(verString, out int ver);
+                                return ver;
+                            })
+                            .ToArray();
                         if (ver.Length == 3 || ver.Length == 4)
                         {
-                            Version githubVersion = new(ver[0], ver[1], ver[2], ver.Length == 3 ? 0 : ver[3]);
+                            Version githubVersion = new(
+                                ver[0],
+                                ver[1],
+                                ver[2],
+                                ver.Length == 3 ? 0 : ver[3]
+                            );
                             if (latestVersion == null || githubVersion > latestVersion)
                             {
                                 latestVersion = githubVersion;
@@ -250,7 +280,10 @@ namespace Observatory.UI
                         }
                     }
 
-                    if (latestVersion > System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version)
+                    if (
+                        latestVersion
+                        > System.Reflection.Assembly.GetEntryAssembly()?.GetName().Version
+                    )
                     {
                         UpdateLink.Visible = true;
                         UpdateLink.Enabled = true;
@@ -280,7 +313,10 @@ namespace Observatory.UI
         private void ExportButton_Click(object sender, EventArgs e)
         {
             // Find currently selected item for export
-            if (CoreTabControl.SelectedTab != null && pluginList.ContainsKey(CoreTabControl.SelectedTab))
+            if (
+                CoreTabControl.SelectedTab != null
+                && pluginList.ContainsKey(CoreTabControl.SelectedTab)
+            )
             {
                 var selectedItem = pluginList[CoreTabControl.SelectedTab];
                 PluginExport(selectedItem);
@@ -289,7 +325,10 @@ namespace Observatory.UI
 
         private void ClearButton_Click(object sender, EventArgs e)
         {
-            if (CoreTabControl.SelectedTab != null && pluginList.ContainsKey(CoreTabControl.SelectedTab))
+            if (
+                CoreTabControl.SelectedTab != null
+                && pluginList.ContainsKey(CoreTabControl.SelectedTab)
+            )
             {
                 var selectedItem = pluginList[CoreTabControl.SelectedTab];
                 PluginClear(selectedItem);
@@ -305,10 +344,10 @@ namespace Observatory.UI
                 PluginManager.GetInstance.ObservatoryReady();
 
                 if (Properties.Core.Default.StartReadAll)
-                    Invoke(()=>ReadAllButton_Click(ReadAllButton, EventArgs.Empty));
+                    Invoke(() => ReadAllButton_Click(ReadAllButton, EventArgs.Empty));
 
                 if (Properties.Core.Default.StartMonitor)
-                    Invoke(()=>ToggleMonitorButton_Click(ToggleMonitorButton, EventArgs.Empty));
+                    Invoke(() => ToggleMonitorButton_Click(ToggleMonitorButton, EventArgs.Empty));
             });
         }
 
@@ -354,7 +393,8 @@ namespace Observatory.UI
                 savedLocation.Y + 20,
                 // Should never be this small, preventing edge case exception
                 Math.Max(savedSize.Width - 40, 1),
-                Math.Max(savedSize.Height - 40, 1));
+                Math.Max(savedSize.Height - 40, 1)
+            );
             foreach (var screen in Screen.AllScreens)
             {
                 onscreen = onscreen || screen.WorkingArea.Contains(formBounds);
@@ -375,7 +415,9 @@ namespace Observatory.UI
                 if (string.IsNullOrWhiteSpace(Properties.Core.Default.TabOrder))
                     tabOrder = [];
                 else
-                    tabOrder = JsonSerializer.Deserialize<List<string>>(Properties.Core.Default.TabOrder) ?? [];
+                    tabOrder =
+                        JsonSerializer.Deserialize<List<string>>(Properties.Core.Default.TabOrder)
+                        ?? [];
             }
             catch
             {
@@ -394,9 +436,10 @@ namespace Observatory.UI
                 }
             }
 
-            CoreTabControl.SelectedIndex = Properties.Core.Default.LastTabIndex < CoreTabControl.TabPages.Count
-                ? Properties.Core.Default.LastTabIndex
-                : 0;
+            CoreTabControl.SelectedIndex =
+                Properties.Core.Default.LastTabIndex < CoreTabControl.TabPages.Count
+                    ? Properties.Core.Default.LastTabIndex
+                    : 0;
             CoreTabControl_SelectedIndexChanged(CoreTabControl, EventArgs.Empty);
         }
 
@@ -405,7 +448,9 @@ namespace Observatory.UI
             try
             {
                 var openPopouts = Properties.Core.Default.OpenPopouts;
-                List<string>? popoutsToRestore = JsonSerializer.Deserialize<List<string>>(openPopouts);
+                List<string>? popoutsToRestore = JsonSerializer.Deserialize<List<string>>(
+                    openPopouts
+                );
                 List<IObservatoryWorker> plugins = PluginManager.GetInstance.AllUIPlugins;
 
                 foreach (var name in popoutsToRestore ?? [])
@@ -421,7 +466,6 @@ namespace Observatory.UI
             {
                 // do nothing
             }
-
         }
 
         private void CoreTabControl_SelectedIndexChanged(object sender, EventArgs e)
@@ -434,7 +478,8 @@ namespace Observatory.UI
                 // Named bools for clarity
                 bool notCoreTab = selectedTab != CoreTabPage;
                 bool hasExportMethod = notCoreTab && HasCustomExport(plugin);
-                bool isBasicUI = notCoreTab && plugin?.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic;
+                bool isBasicUI =
+                    notCoreTab && plugin?.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic;
 
                 bool canExport = isBasicUI || hasExportMethod;
                 bool canClear = isBasicUI;
@@ -445,7 +490,9 @@ namespace Observatory.UI
             }
         }
 
-        private static bool HasCustomExport(IObservatoryPlugin? plugin) => ((Delegate)plugin.ExportContent).Method != typeof(IObservatoryPlugin).GetMethod("ExportContent");
+        private static bool HasCustomExport(IObservatoryPlugin? plugin) =>
+            ((Delegate)plugin.ExportContent).Method
+            != typeof(IObservatoryPlugin).GetMethod("ExportContent");
 
         private void CoreForm_ResizeBegin(object sender, EventArgs e)
         {
@@ -480,7 +527,12 @@ namespace Observatory.UI
                 }
             }
 
-            PluginHelper.CreatePluginTabs(CoreTabControl, uiPlugins, pluginList, columnSizing ?? []);
+            PluginHelper.CreatePluginTabs(
+                CoreTabControl,
+                uiPlugins,
+                pluginList,
+                columnSizing ?? []
+            );
         }
 
         private static void PluginExport(IObservatoryPlugin plugin)
@@ -525,7 +577,11 @@ namespace Observatory.UI
                         else
                         {
                             // Assume the core tab for the moment.
-                            CoreContextMenu coreContextMenu = new(_aboutCore, OpenCoreSettings, OpenPluginsFolder);
+                            CoreContextMenu coreContextMenu = new(
+                                _aboutCore,
+                                OpenCoreSettings,
+                                OpenPluginsFolder
+                            );
                             coreContextMenu.Show((Control)sender, e.Location);
                         }
                     }
@@ -557,7 +613,11 @@ namespace Observatory.UI
                 Directory.CreateDirectory(pluginDir);
             }
 
-            var fileExplorerInfo = new ProcessStartInfo() { FileName = pluginDir, UseShellExecute = true };
+            var fileExplorerInfo = new ProcessStartInfo()
+            {
+                FileName = pluginDir,
+                UseShellExecute = true,
+            };
             Process.Start(fileExplorerInfo);
         }
 

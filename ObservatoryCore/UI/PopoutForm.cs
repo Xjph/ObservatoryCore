@@ -1,8 +1,8 @@
-﻿using Observatory.Assets;
+﻿using System.Text.Json;
+using Observatory.Assets;
 using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.Utils;
-using System.Text.Json;
 
 namespace Observatory.UI
 {
@@ -12,7 +12,6 @@ namespace Observatory.UI
         private Panel? _panel;
         private Label _label;
         private IObservatoryPlugin _plugin;
-
 
         public PopoutForm(TabPage tab, IObservatoryPlugin plugin)
         {
@@ -30,12 +29,19 @@ namespace Observatory.UI
                 PopoutPanel.Controls.Add(_panel);
                 _label = new Label()
                 {
-                    Text = plugin.Name + " is currently in a different window."
-                    + Environment.NewLine + "You can click this text to switch to it.",
+                    Text =
+                        plugin.Name
+                        + " is currently in a different window."
+                        + Environment.NewLine
+                        + "You can click this text to switch to it.",
                     Size = _tab.ClientSize,
-                    Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right,
+                    Anchor =
+                        AnchorStyles.Top
+                        | AnchorStyles.Bottom
+                        | AnchorStyles.Left
+                        | AnchorStyles.Right,
                     Padding = new(20),
-                    BorderStyle = BorderStyle.FixedSingle
+                    BorderStyle = BorderStyle.FixedSingle,
                 };
                 _label.Click += (o, e) =>
                 {
@@ -50,7 +56,7 @@ namespace Observatory.UI
                 bool isBasicUI = plugin?.PluginUI.PluginUIType == Framework.PluginUI.UIType.Basic;
                 bool canExport = isBasicUI || hasExportMethod;
                 bool canClear = isBasicUI;
-               
+
                 if (!canClear)
                 {
                     ClearButton.Enabled = false;
@@ -78,16 +84,19 @@ namespace Observatory.UI
             SystemMenu.WndProcHandler(this, ref m);
         }
 
-        private static bool HasCustomExport(IObservatoryPlugin? plugin) => ((Delegate)plugin.ExportContent).Method != typeof(IObservatoryPlugin).GetMethod("ExportContent");
-
+        private static bool HasCustomExport(IObservatoryPlugin? plugin) =>
+            ((Delegate)plugin.ExportContent).Method
+            != typeof(IObservatoryPlugin).GetMethod("ExportContent");
 
         private void RestorePosition()
         {
             Dictionary<string, PopoutPosition> savedPositions;
             try
             {
-                savedPositions = JsonSerializer.Deserialize<Dictionary<string, PopoutPosition>>
-                    (Properties.Core.Default.PopoutLocation) ?? [];
+                savedPositions =
+                    JsonSerializer.Deserialize<Dictionary<string, PopoutPosition>>(
+                        Properties.Core.Default.PopoutLocation
+                    ) ?? [];
             }
             catch
             {
@@ -132,8 +141,10 @@ namespace Observatory.UI
             Dictionary<string, PopoutPosition> savedPositions;
             try
             {
-                savedPositions = JsonSerializer.Deserialize<Dictionary<string, PopoutPosition>>
-                    (Properties.Core.Default.PopoutLocation) ?? [];
+                savedPositions =
+                    JsonSerializer.Deserialize<Dictionary<string, PopoutPosition>>(
+                        Properties.Core.Default.PopoutLocation
+                    ) ?? [];
             }
             catch
             {
@@ -182,7 +193,7 @@ namespace Observatory.UI
 
         private class PopoutPosition
         {
-            public PopoutPosition(int x, int y, int width, int height) 
+            public PopoutPosition(int x, int y, int width, int height)
             {
                 X = x;
                 Y = y;
