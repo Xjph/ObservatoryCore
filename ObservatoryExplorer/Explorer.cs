@@ -1,5 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Text;
+﻿using System.Text;
 using Observatory.Framework;
 using Observatory.Framework.Files.Journal;
 using Observatory.Framework.Interfaces;
@@ -9,19 +8,17 @@ namespace Observatory.Explorer
     internal class Explorer
     {
         private IObservatoryCore ObservatoryCore;
-        private ObservableCollection<object> Results;
         private ExplorerWorker ExplorerWorker;
         private Dictionary<ulong, Dictionary<int, Scan>> SystemBodyHistory;
         private Dictionary<ulong, Dictionary<int, FSSBodySignals>> BodySignalHistory;
         private Dictionary<ulong, Dictionary<int, ScanBaryCentre>> BarycentreHistory;
         private CustomCriteriaManager CustomCriteriaManager;
-        private DateTime CriteriaLastModified;
         private string currentSystem = string.Empty;
+        private ulong currentSystemId64 = 0; // for indexing into above dictionaries.
 
         internal Explorer(
             ExplorerWorker explorerWorker,
-            IObservatoryCore core,
-            ObservableCollection<object> results
+            IObservatoryCore core
         )
         {
             SystemBodyHistory = new();
@@ -29,7 +26,6 @@ namespace Observatory.Explorer
             BarycentreHistory = new();
             ExplorerWorker = explorerWorker;
             ObservatoryCore = core;
-            Results = results;
             CustomCriteriaManager = new(
                 ExplorerWorker.settings,
                 core.GetPluginErrorLogger(explorerWorker),
@@ -188,11 +184,12 @@ namespace Observatory.Explorer
             return barycentreScan;
         }
 
-        public void SetSystem(string potentialNewSystem)
+        public void SetSystem(string potentialNewSystem, ulong id64)
         {
             if (string.IsNullOrEmpty(currentSystem) || currentSystem != potentialNewSystem)
             {
                 currentSystem = potentialNewSystem;
+                currentSystemId64 = id64;
                 if (
                     ExplorerWorker.settings.OnlyShowCurrentSystem
                     && !ObservatoryCore.IsLogMonitorBatchReading
@@ -385,51 +382,8 @@ namespace Observatory.Explorer
 
         private void SendNotification(Scan scanEvent, string detail, string extendedDetail)
         {
-            string bodyAffix;
-
-            if (scanEvent.StarSystem != null && scanEvent.BodyName.StartsWith(scanEvent.StarSystem))
-            {
-                bodyAffix = scanEvent.BodyName.Replace(scanEvent.StarSystem, string.Empty);
-            }
-            else
-            {
-                // Use the body name un-modified -- probably an overridden name (ie. Earth in Sol)
-                bodyAffix = " " + scanEvent.BodyName;
-            }
-
-            string bodyLabel = System.Security.SecurityElement.Escape(
-                scanEvent.PlanetClass == "Barycentre" ? "Barycentre" : "Body"
-            );
-
-            string spokenAffix;
-
-            if (bodyAffix.Length > 0)
-            {
-                if (bodyAffix.Contains("Ring"))
-                {
-                    int ringIndex = bodyAffix.Length - 6;
-                    spokenAffix =
-                        "<say-as interpret-as=\"spell-out\">"
-                        + bodyAffix[..ringIndex]
-                        + "</say-as><break strength=\"weak\"/>"
-                        + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
-                        + bodyAffix[(ringIndex + 1)..];
-                }
-                else if (bodyAffix.Contains(scanEvent.BodyName))
-                {
-                    // This contains the entire body name (ie. an override); Speak it out as-is.
-                    spokenAffix = scanEvent.BodyName;
-                }
-                else
-                {
-                    spokenAffix = SplitOrdinalForSsml(bodyAffix);
-                }
-            }
-            else
-            {
-                bodyLabel = "Primary Star";
-                spokenAffix = string.Empty;
-            }
+            string bodyAffix, bodyLabel, spokenAffix;
+            MakeShortBodyTitle(scanEvent.StarSystem, scanEvent.BodyName, scanEvent.PlanetClass == "Barycentre", out bodyAffix, out bodyLabel, out spokenAffix);
 
             NotificationArgs args = new()
             {
@@ -452,6 +406,32 @@ namespace Observatory.Explorer
             int? coalescingId = null
         )
         {
+            // See if the title is a system or body name that we have scans for and if so, handle it like native explorer notifications.
+            if (title.StartsWith(currentSystem) && SystemBodyHistory.ContainsKey(currentSystemId64) && coalescingId.HasValue && coalescingId.Value >= 0)
+            {
+                var systemBodies = SystemBodyHistory[currentSystemId64];
+
+                ScanBaryCentre barycentreFromCoalescingId = null;
+                if (BarycentreHistory.ContainsKey(currentSystemId64))
+                    BarycentreHistory[currentSystemId64].TryGetValue(coalescingId.Value, out barycentreFromCoalescingId);
+
+                string bodyAffix, bodyLabel, spokenAffix;
+                MakeShortBodyTitle(currentSystem, title, barycentreFromCoalescingId is not null, out bodyAffix, out bodyLabel, out spokenAffix);
+
+                NotificationArgs argsWithShortName = new()
+                {
+                    Title = bodyLabel + bodyAffix,
+                    TitleSsml =
+                        $"<speak version=\"1.0\" xmlns=\"http://www.w3.org/2001/10/synthesis\" xml:lang=\"en-US\"><voice name=\"\">{bodyLabel} {spokenAffix}</voice></speak>",
+                    Detail = detail,
+                    Sender = ExplorerWorker.AboutInfo.ShortName,
+                    ExtendedDetails = extendedDetail,
+                    CoalescingId = coalescingId ?? -1,
+                };
+                ObservatoryCore.SendNotification(argsWithShortName);
+                return;
+            }
+
             NotificationArgs args = new()
             {
                 Title = title,
@@ -462,6 +442,49 @@ namespace Observatory.Explorer
             };
 
             ObservatoryCore.SendNotification(args);
+        }
+
+        private static void MakeShortBodyTitle(string systemName, string bodyName, bool bodyIsBarycentre,
+            out string bodyAffix, out string bodyLabel, out string spokenAffix)
+        {
+            if (systemName != null && bodyName.StartsWith(systemName))
+            {
+                bodyAffix = bodyName.Replace(systemName, string.Empty);
+            }
+            else
+            {
+                // Use the body name un-modified -- probably an overridden name (ie. Earth in Sol)
+                bodyAffix = " " + bodyName;
+            }
+
+            bodyLabel = System.Security.SecurityElement.Escape(bodyIsBarycentre ? "Barycentre" : "Body");
+            if (bodyAffix.Length > 0)
+            {
+                if (bodyAffix.Contains("Ring"))
+                {
+                    int ringIndex = bodyAffix.Length - 6;
+                    spokenAffix =
+                        "<say-as interpret-as=\"spell-out\">"
+                        + bodyAffix[..ringIndex]
+                        + "</say-as><break strength=\"weak\"/>"
+                        + SplitOrdinalForSsml(bodyAffix.Substring(ringIndex, 1))
+                        + bodyAffix[(ringIndex + 1)..];
+                }
+                else if (bodyAffix.Contains(bodyName))
+                {
+                    // This contains the entire body name (ie. an override); Speak it out as-is.
+                    spokenAffix = bodyName;
+                }
+                else
+                {
+                    spokenAffix = SplitOrdinalForSsml(bodyAffix);
+                }
+            }
+            else
+            {
+                bodyLabel = "Primary Star";
+                spokenAffix = string.Empty;
+            }
         }
 
         private void AddGridItem(
