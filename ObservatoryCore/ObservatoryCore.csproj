@@ -8,7 +8,6 @@
     <RootNamespace>Observatory</RootNamespace>
     <Configurations>Debug;Release;Portable;Proton</Configurations>
   </PropertyGroup>
-
   <PropertyGroup>
     <ProjectName>Elite Observatory Core</ProjectName>
     <VersionSuffix>1.4.3.$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, "0"))$([System.DateTime]::UtcNow.Hour)</VersionSuffix>
@@ -20,12 +19,10 @@
     <StartupObject>Observatory.ObservatoryCore</StartupObject>
     <SignAssembly>False</SignAssembly>
   </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="NAudio" Version="2.2.1" />
     <PackageReference Include="System.Speech" Version="8.0.0" />
   </ItemGroup>
-
   <ItemGroup>
     <Compile Update="Assets\Resources.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -43,7 +40,6 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Update="Assets\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -54,26 +50,49 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
   <ItemGroup>
     <None Update="Properties\Core.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Core.Designer.cs</LastGenOutput>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <Folder Include="Resources\" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\ObservatoryFramework\ObservatoryFramework.csproj" />
   </ItemGroup>
-
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
     <Exec
       Condition=" '$(OS)' == 'Windows_NT'"
       Command="if not exist &quot;$(ProjectDir)..\ObservatoryFramework\bin\Release\net6.0\ObservatoryFramework.dll&quot; dotnet build &quot;$(ProjectDir)..\ObservatoryFramework\ObservatoryFramework.csproj&quot; -c Release"
     />
+  </Target>
+  <Target
+    Name="Husky"
+    AfterTargets="Restore"
+    Condition="'$(HUSKY)' != 0"
+    Inputs="..\.config\dotnet-tools.json"
+    Outputs="..\.husky\_\install.stamp"
+  >
+    <Exec
+      Command="dotnet tool restore"
+      StandardOutputImportance="Low"
+      StandardErrorImportance="High"
+    />
+    <Exec
+      Command="dotnet husky install"
+      StandardOutputImportance="Low"
+      StandardErrorImportance="High"
+      WorkingDirectory=".."
+    />
+    <Touch
+      Files="..\.husky\_\install.stamp"
+      AlwaysCreate="true"
+      Condition="Exists('..\.husky\_')"
+    />
+    <ItemGroup>
+      <FileWrites Include="..\.husky\_\install.stamp" />
+    </ItemGroup>
   </Target>
 </Project>
