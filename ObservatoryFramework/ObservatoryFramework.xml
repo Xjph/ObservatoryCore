@@ -980,7 +980,7 @@
         </member>
         <member name="P:Observatory.Framework.Files.Journal.Scan.ReserveLevel">
             <summary>
-            Description of the minable material abundance.<br/>Possible values inclue "PristineResources", "MajorResources", "CommonResources", "LowResources", and "DepletedResources". 
+            Description of the minable material abundance.<br/>Possible values inclue "PristineResources", "MajorResources", "CommonResources", "LowResources", and "DepletedResources".
             </summary>
         </member>
         <member name="P:Observatory.Framework.Files.Journal.Scan.StarType">
@@ -1624,22 +1624,22 @@
             </summary>
         </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.UpdateAvailable(System.String@)">
-            <summary>
-            Check if an update is available for the plugin and provide a URL for the update if available.
+             <summary>
+             Check if an update is available for the plugin and provide a URL for the update if available.
             
-            Do not implement both this method and <see cref="M:Observatory.Framework.Interfaces.IObservatoryPlugin.CheckForPluginUpdate"/>.
-            </summary>
-            <param name="url">Filled with a URL for the update, either direct download or a download site.</param>
-            <returns>Whether an update is available.</returns>
+             Do not implement both this method and <see cref="M:Observatory.Framework.Interfaces.IObservatoryPlugin.CheckForPluginUpdate"/>.
+             </summary>
+             <param name="url">Filled with a URL for the update, either direct download or a download site.</param>
+             <returns>Whether an update is available.</returns>
         </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryPlugin.CheckForPluginUpdate">
-            <summary>
-            Check if an update is available for the plugin (which may trigger downloading said update) and 
-            provides status information along with an optional URL and text to link to the URL.
+             <summary>
+             Check if an update is available for the plugin (which may trigger downloading said update) and
+             provides status information along with an optional URL and text to link to the URL.
             
-            Do not implement both this method and <see cref="M:Observatory.Framework.Interfaces.IObservatoryPlugin.UpdateAvailable(System.String@)"/>.
-            </summary>
-            <returns>A <see cref="T:Observatory.Framework.PluginUpdateStatus"/> instance describing the status of the plugin update.</returns>
+             Do not implement both this method and <see cref="M:Observatory.Framework.Interfaces.IObservatoryPlugin.UpdateAvailable(System.String@)"/>.
+             </summary>
+             <returns>A <see cref="T:Observatory.Framework.PluginUpdateStatus"/> instance describing the status of the plugin update.</returns>
         </member>
         <member name="T:Observatory.Framework.Interfaces.IObservatoryWorker">
             <summary>
@@ -1711,13 +1711,13 @@
         </member>
         <member name="P:Observatory.Framework.Interfaces.IObservatoryNotifier.OverrideAudioNotifications">
             <summary>
-            Property set by notification plugins to indicate to Core 
+            Property set by notification plugins to indicate to Core
             that native audio notifications should be disabled/suppressed.
             </summary>
         </member>
         <member name="P:Observatory.Framework.Interfaces.IObservatoryNotifier.OverridePopupNotifications">
             <summary>
-            Property set by notification plugins to indicate to Core 
+            Property set by notification plugins to indicate to Core
             that native popup notifications should be disabled/suppressed.
             </summary>
         </member>
@@ -1867,7 +1867,7 @@
         </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendPluginMessage(Observatory.Framework.Interfaces.IObservatoryPlugin,System.String,System.Object)">
             <summary>
-            Sends arbitrary data to a specific plugin, identified by ShortName. 
+            Sends arbitrary data to a specific plugin, identified by ShortName.
             The full name and version of the sending plugin will be used to identify the sender to recipient.
             </summary>
         </member>
@@ -1878,7 +1878,7 @@
         </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryCore.SendPluginMessage(Observatory.Framework.Interfaces.IObservatoryPlugin,System.Guid,Observatory.Framework.PluginMessage)">
             <summary>
-            Sends arbitrary data to a specific plugin, identified by id. 
+            Sends arbitrary data to a specific plugin, identified by id.
             The full name, id, and version of the sending plugin will be used to identify the sender to recipient.
             </summary>
         </member>
