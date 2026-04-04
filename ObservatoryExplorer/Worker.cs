@@ -31,7 +31,7 @@ namespace Observatory.Explorer
         }
 
         private Explorer explorer;
-        private ObservableCollection<object> resultsGrid;
+        private readonly ObservableCollection<object> resultsGrid;
         private IObservatoryCore Core;
         private AboutInfo _aboutInfo = new()
         {
@@ -62,7 +62,7 @@ namespace Observatory.Explorer
 
         public void Load(IObservatoryCore observatoryCore)
         {
-            explorer = new Explorer(this, observatoryCore, resultsGrid);
+            explorer = new Explorer(this, observatoryCore);
             resultsGrid.Add(new ExplorerUIResults());
             pluginUI = new PluginUI(resultsGrid);
             Core = observatoryCore;
@@ -86,11 +86,11 @@ namespace Observatory.Explorer
                 case FSDJump fsdjump:
                     if (fsdjump is CarrierJump && !((CarrierJump)fsdjump).Docked)
                         break;
-                    explorer.SetSystem(fsdjump.StarSystem);
+                    explorer.SetSystem(fsdjump.StarSystem, fsdjump.SystemAddress);
                     explorer.ProcessJump(fsdjump);
                     break;
                 case Location location:
-                    explorer.SetSystem(location.StarSystem);
+                    explorer.SetSystem(location.StarSystem, location.SystemAddress);
                     break;
                 case FSSDiscoveryScan discoveryScan:
                     explorer.ProcessDiscovery(discoveryScan);
