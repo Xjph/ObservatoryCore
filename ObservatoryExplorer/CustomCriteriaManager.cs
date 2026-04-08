@@ -73,7 +73,7 @@ namespace Observatory.Explorer
             get => _criteriaPath;
             set
             {
-                if (string.IsNullOrWhiteSpace(value) && value != _criteriaPath)
+                if (!string.IsNullOrWhiteSpace(value) && value != _criteriaPath)
                 {
                     _criteriaPath = value;
                     try
