@@ -151,7 +151,6 @@ namespace Observatory.PluginManagement
         )
         {
             BeginBulkUpdate(worker);
-            grouped = true;
             if (grouped)
             {
                 var groupId = Guid.NewGuid();
