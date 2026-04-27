@@ -94,7 +94,7 @@ namespace Observatory.Explorer
         {
             string criteriaFilePath = Settings.CustomCriteriaFile;
 
-            if (string.IsNullOrWhiteSpace(CriteriaPath) && !CriteriaPath.Equals(criteriaFilePath))
+            if (string.IsNullOrWhiteSpace(CriteriaPath) || !CriteriaPath.Equals(criteriaFilePath))
             {
                 // Different file detected.
                 CriteriaLastModified = DateTime.MinValue;
@@ -156,7 +156,7 @@ namespace Observatory.Explorer
                             i = i + 1
                             while i <= count do
                                 local ring = ring_list[i - 1]
-                                if (filter_by == nil or string.find(ring.Name, filter_by)) then
+                                if (filter_by == nil or string.find(ring.Name, '^.*'..filter_by..'$')) then
                                     return { name = ring.Name, ringclass = ring.RingClass, massmt = ring.MassMT, innerrad = ring.InnerRad, outerrad = ring.OuterRad }
                                 else
                                     i = i + 1
@@ -177,7 +177,7 @@ namespace Observatory.Explorer
                         local i = 0
                         local count = ring_list.Count
                         while i < count do
-                            if string.find(ring_list[i].Name, filter_by) then
+                            if string.find(ring_list[i].Name, '^.*'..filter_by..'$') then
                                 return true
                             end
                             i = i + 1
@@ -279,7 +279,7 @@ namespace Observatory.Explorer
             LuaState.DoString(
                 @"
                 function isBelt (body_name)
-                    return body_name ~= nil and string.find(body_name, 'Belt')
+                    return body_name ~= nil and string.find(body_name, '^.*Belt$')
                 end"
             );
 
@@ -295,7 +295,7 @@ namespace Observatory.Explorer
             LuaState.DoString(
                 @"
                 function isRing (body_name)
-                    return body_name ~= nil and string.find(body_name, 'Ring')
+                    return body_name ~= nil and string.find(body_name, '^.*Ring$')
                 end"
             );
 
