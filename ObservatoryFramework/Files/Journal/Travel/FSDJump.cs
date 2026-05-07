@@ -55,5 +55,6 @@ namespace Observatory.Framework.Files.Journal
         public bool Multicrew { get; init; }
         public ThargoidWar ThargoidWar { get; init; }
         public string Power { get; init; }
+        public string ControllingPower { get; init; }
     }
 }
