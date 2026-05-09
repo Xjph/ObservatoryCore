@@ -726,13 +726,23 @@ namespace Observatory.Explorer
                                 scanHistory is not null,
                                 "FSSAllBodiesFound requires scanHistory to be provided"
                             );
-                            var systemScans = scanHistory[allBodies.SystemAddress];
-                            var scanList = systemScans.Values.ToList();
-                            Dictionary<int, List<Parent>> parentsPerBodyId = scanList
-                                .Where(s => s.Parent is not null)
-                                .ToDictionary(s => s.BodyID, s => MakeParentsList(s, systemScans));
+                            if (
+                                scanHistory.TryGetValue(
+                                    allBodies.SystemAddress,
+                                    out var systemScans
+                                )
+                            )
+                            {
+                                var scanList = systemScans.Values.ToList();
+                                Dictionary<int, List<Parent>> parentsPerBodyId = scanList
+                                    .Where(s => s.Parent is not null)
+                                    .ToDictionary(
+                                        s => s.BodyID,
+                                        s => MakeParentsList(s, systemScans)
+                                    );
 
-                            customFunc.Value.Call(journal, scanList, parentsPerBodyId);
+                                customFunc.Value.Call(journal, scanList, parentsPerBodyId);
+                            }
                             break;
                         default:
                             customFunc.Value.Call(journal);
