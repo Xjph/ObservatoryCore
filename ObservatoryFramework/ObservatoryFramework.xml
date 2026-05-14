@@ -2006,6 +2006,66 @@
             for managing audio file cleanup).
             </summary>
         </member>
+        <member name="T:Observatory.Framework.PluginActionUI">
+            <summary>
+            Instantiate PluginUI of UIType.Basic.
+            </summary>
+            <param name="DataGrid">
+            <para>Collection bound to DataGrid used by plugins with UIType.Basic.</para>
+            <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
+            </param>
+        </member>
+        <member name="P:Observatory.Framework.PluginActionUI.Actions">
+            <summary>
+            Actions to be added as controls below the plugin UI grid. Control type is specified by ActionType.<br/>
+            Controls are labeled with the name of the action, or the name specified by the ActionLabel property, and clicking them invokes the corresponding Action delegate.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.PluginActionUI.ActionType">
+            <summary>
+            Indicates the control type of the actions.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginActionUI.ActionType.Button">
+            <summary>
+            Action is a button. Bool parameter unused and can be discarded.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginActionUI.ActionType.Checkbox">
+            <summary>
+            Actions is a checkbox. Bool parameter indicates the checked state.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginActionUI.ActionType.Radiobutton">
+            <summary>
+            Actions are radio buttons. Bool parameter indicates the selected state. Sequential radio buttons are grouped.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.PluginActionUI.ActionDock">
+            <summary>
+            Edge of plugin UI area where action controls are placed.
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginActionUI.ActionDock.Bottom">
+            <summary>
+            Dock to bottom
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginActionUI.ActionDock.Top">
+            <summary>
+            Dock to top
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginActionUI.ActionDock.Left">
+            <summary>
+            Dock to left
+            </summary>
+        </member>
+        <member name="F:Observatory.Framework.PluginActionUI.ActionDock.Right">
+            <summary>
+            Dock to right
+            </summary>
+        </member>
         <member name="T:Observatory.Framework.PluginMessage">
             <summary>
             Represents a message sent between plugins in the Observatory Framework.
