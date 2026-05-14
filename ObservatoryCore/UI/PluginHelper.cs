@@ -1,6 +1,7 @@
 ﻿using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
+using Observatory.Framework;
 using Observatory.Framework.Interfaces;
 using Observatory.PluginManagement;
 using Observatory.Utils;
@@ -89,7 +90,6 @@ namespace Observatory.UI
             PluginUIGrid listView = new(plugin, columnSizings)
             {
                 Location = new Point(0, 0),
-                Size = panel.Size,
                 Dock = DockStyle.Fill,
                 BackColor = Color.FromArgb(64, 64, 64),
                 ForeColor = Color.LightGray
@@ -99,6 +99,106 @@ namespace Observatory.UI
 #endif
             };
             panel.Controls.Add(listView);
+
+            if (plugin.PluginUI is PluginActionUI actionPlugin && actionPlugin.Actions.Any())
+            {
+                DockStyle actionDock;
+                FlowDirection actionFlow;
+
+                switch (actionPlugin.PluginActionLocation)
+                {
+                    case PluginActionUI.ActionDock.Top:
+                        actionDock = DockStyle.Top;
+                        actionFlow = FlowDirection.LeftToRight;
+                        break;
+                    case PluginActionUI.ActionDock.Left:
+                        actionDock = DockStyle.Left;
+                        actionFlow = FlowDirection.TopDown;
+                        break;
+                    case PluginActionUI.ActionDock.Right:
+                        actionDock = DockStyle.Right;
+                        actionFlow = FlowDirection.TopDown;
+                        break;
+                    default:
+                        actionDock = DockStyle.Bottom;
+                        actionFlow = FlowDirection.LeftToRight;
+                        break;
+                }
+
+                FlowLayoutPanel actionPanel = new()
+                {
+                    Dock = actionDock,
+                    FlowDirection = actionFlow,
+                    AutoSize = true,
+                };
+
+                var radioGroup = false;
+                FlowLayoutPanel? radioGroupPanel = null;
+                foreach (var action in actionPlugin.Actions)
+                {
+                    if (
+                        action.ActionType != PluginActionUI.ActionType.Radiobutton
+                        && radioGroupPanel != null
+                    )
+                    {
+                        actionPanel.Controls.Add(radioGroupPanel);
+                        radioGroupPanel = null;
+                        radioGroup = false;
+                    }
+
+                    switch (action.ActionType)
+                    {
+                        case PluginActionUI.ActionType.Button:
+                            Button actionButton = new()
+                            {
+                                Text = action.Label,
+                                AutoSize = true,
+                                FlatAppearance = { BorderSize = 0 },
+                                FlatStyle = FlatStyle.Flat,
+                            };
+                            actionPanel.Controls.Add(actionButton);
+                            break;
+                        case PluginActionUI.ActionType.Checkbox:
+                            CheckBox actionCheckbox = new()
+                            {
+                                Text = action.Label,
+                                AutoSize = true,
+                                Checked = action.InitialState,
+                            };
+                            actionCheckbox.CheckedChanged += (_, _) =>
+                            {
+                                action.Action(actionCheckbox.Checked);
+                            };
+                            actionPanel.Controls.Add(actionCheckbox);
+                            break;
+                        case PluginActionUI.ActionType.Radiobutton:
+                            if (!radioGroup || radioGroupPanel == null)
+                            {
+                                radioGroupPanel = new FlowLayoutPanel()
+                                {
+                                    FlowDirection = actionPanel.FlowDirection,
+                                    AutoSize = true,
+                                };
+                            }
+                            RadioButton actionRadioButton = new()
+                            {
+                                Text = action.Label,
+                                AutoSize = true,
+                                Checked = action.InitialState,
+                            };
+                            actionRadioButton.CheckedChanged += (_, _) =>
+                            {
+                                action.Action(actionRadioButton.Checked);
+                            };
+                            radioGroupPanel.Controls.Add(actionRadioButton);
+                            break;
+                    }
+                }
+                if (radioGroupPanel != null)
+                    actionPanel.Controls.Add(radioGroupPanel);
+
+                panel.Controls.Add(actionPanel);
+            }
 
             return panel;
         }
