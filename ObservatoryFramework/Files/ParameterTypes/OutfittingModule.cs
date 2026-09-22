@@ -5,5 +5,6 @@
         public ulong id { get; init; }
         public string Name { get; init; }
         public int BuyPrice { get; init; }
+        public int BuyMercCoinsPrice { get; init; }
     }
 }

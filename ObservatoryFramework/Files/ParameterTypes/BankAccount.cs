@@ -51,5 +51,20 @@ namespace Observatory.Framework.Files.ParameterTypes
 
         [JsonPropertyName("Weapons_Owned")]
         public int WeaponsOwned { get; init; }
+
+        [JsonPropertyName("MercCoins_Current")]
+        public long MercCoinsCurrent { get; init; }
+
+        [JsonPropertyName("MercCoins_Total_Earned")]
+        public long MercCoinsTotalEarned { get; init; }
+
+        [JsonPropertyName("MercCoins_Total_Spent")]
+        public long MercCoinsTotalSpent { get; init; }
+
+        [JsonPropertyName("MercCoins_Spent_On_MercGear")]
+        public long MercCoinsSpentOnMercGear { get; init; }
+
+        [JsonPropertyName("MercCoins_Spent_On_Engineering")]
+        public long MercCoinsSpentOnEngineering { get; init; }
     }
 }

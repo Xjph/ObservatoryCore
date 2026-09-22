@@ -6,6 +6,8 @@ namespace Observatory.Framework.Files.ParameterTypes
     public class Modifier
     {
         public string Label { get; init; }
+        public string Label_Localised { get; init; }
+
         public float Value { get; init; }
         public float OriginalValue { get; init; }
 
