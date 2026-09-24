@@ -2015,10 +2015,55 @@
             <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
             </param>
         </member>
+        <member name="M:Observatory.Framework.PluginActionUI.#ctor(System.Collections.ObjectModel.ObservableCollection{System.Object},Observatory.Framework.PluginActionUI.ActionDock)">
+            <summary>
+            Instantiate PluginUI of UIType.Basic.
+            </summary>
+            <param name="DataGrid">
+            <para>Collection bound to DataGrid used by plugins with UIType.Basic.</para>
+            <para>Objects in collection should be of a class defined within the plugin consisting of string properties.<br/>Each object is a single row, and the property names are used as column headers.</para>
+            </param>
+        </member>
         <member name="P:Observatory.Framework.PluginActionUI.Actions">
             <summary>
             Actions to be added as controls below the plugin UI grid. Control type is specified by ActionType.<br/>
             Controls are labeled with the name of the action, or the name specified by the ActionLabel property, and clicking them invokes the corresponding Action delegate.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginActionUI.PluginActionLocation">
+            <summary>
+            Dock location of action controls within the plugin panel. If unspecified bottom will be used.
+            </summary>
+        </member>
+        <member name="T:Observatory.Framework.PluginActionUI.PluginAction">
+            <summary>
+            Defines an action control for the plugin UI.
+            </summary>
+        </member>
+        <member name="M:Observatory.Framework.PluginActionUI.PluginAction.#ctor(System.String,System.Action{System.Boolean},Observatory.Framework.PluginActionUI.ActionType,System.Boolean)">
+            <summary>
+            Defines an action control for the plugin UI.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginActionUI.PluginAction.Label">
+            <summary>
+            Text displayed on the action control.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginActionUI.PluginAction.Action">
+            <summary>
+            Action to be invoked by the control when clicked. Checkbox and Radiobutton controls pass their updated checked state.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginActionUI.PluginAction.ActionType">
+            <summary>
+            Type of control to represent the action. Button, Checkbox, or Radiobutton. Default is Button.
+            </summary>
+        </member>
+        <member name="P:Observatory.Framework.PluginActionUI.PluginAction.InitialState">
+            <summary>
+            Initial state of the control for Checkbox and Radiobutton action types.
+            Should be set in plugin constructor or `Load` method.
             </summary>
         </member>
         <member name="T:Observatory.Framework.PluginActionUI.ActionType">

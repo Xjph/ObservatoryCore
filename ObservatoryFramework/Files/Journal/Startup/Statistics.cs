@@ -1,5 +1,4 @@
-﻿using System;
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 using Observatory.Framework.Files.ParameterTypes;
 
 namespace Observatory.Framework.Files.Journal
@@ -32,6 +31,6 @@ namespace Observatory.Framework.Files.Journal
         [JsonPropertyName("FLEETCARRIER")]
         public FleetCarrier FleetCarrier { get; init; }
         public Exobiology Exobiology { get; init; }
-        public Squadron Squadron { get; init; }
+        public ParameterTypes.Squadron Squadron { get; init; }
     }
 }

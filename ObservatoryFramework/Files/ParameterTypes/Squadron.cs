@@ -73,6 +73,9 @@ namespace Observatory.Framework.Files.ParameterTypes
         [JsonPropertyName("Squadron_Leaderboard_trade_illicit_highestcontribution")]
         public long SquadronLeaderboardTradeIllicitHighestContribution { get; init; }
 
+        [JsonPropertyName("Squadron_Leaderboard_operationscore_highestcontribution")]
+        public long SquadronLeaderboardOperationsScoreHighestContribution { get; init; }
+
         [JsonPropertyName("Squadron_Leaderboard_podiums")]
         public int SquadronLeaderboardPodiums { get; init; }
     }

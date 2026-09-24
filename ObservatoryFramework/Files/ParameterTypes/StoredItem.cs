@@ -9,6 +9,8 @@
         public int StorageSlot { get; init; }
         public long TransferCost { get; init; }
         public long TransferTime { get; init; }
+        public uint BuyPrice { get; init; }
+        public uint BuyMercCoinsPrice { get; init; }
         public bool Hot { get; init; }
         public string EngineerModifications { get; init; }
         public int Level { get; init; }

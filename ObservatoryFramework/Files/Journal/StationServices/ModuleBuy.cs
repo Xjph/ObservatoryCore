@@ -7,6 +7,7 @@
         public string BuyItem { get; init; }
         public string BuyItem_Localised { get; init; }
         public uint BuyPrice { get; init; }
+        public uint BuyMercCoinsPrice { get; init; }
         public string SellItem { get; init; }
         public string SellItem_Localised { get; init; }
         public uint SellPrice { get; init; }
