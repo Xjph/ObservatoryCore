@@ -198,32 +198,43 @@ namespace Observatory.UI
 
                         if (updateInfo.Status != PluginUpdateStatus.NoUpdate)
                         {
-                            LinkLabel updateLink = new()
+                            void wrapper()
                             {
-                                Text = updateInfo.UrlText,
-                                Dock = DockStyle.Fill,
-                                Padding = new(8),
-                                AutoSize = true,
-                                Tag = updateInfo.Url ?? "",
-                            };
-
-                            // This task may not be executed on the main UI thread -- as such, the following
-                            // UI touches risk failing with errors. However, we can't use Invoke() here either because the
-                            // UI hasn't been displayed yet (and thus no handle).
-                            ThemeManager.GetInstance.RegisterControl(updateLink);
-                            updateLink.LinkClicked += (_, _) =>
-                            {
-                                var startInfo = new ProcessStartInfo(
-                                    updateInfo.Url ?? "https://observatory.xjph.net"
-                                )
+                                LinkLabel updateLink = new()
                                 {
-                                    UseShellExecute = true,
+                                    Text = updateInfo.UrlText,
+                                    Dock = DockStyle.Fill,
+                                    Padding = new(8),
+                                    AutoSize = true,
+                                    Tag = updateInfo.Url ?? "",
                                 };
-                                Process.Start(startInfo);
-                            };
-                            var row = GetRow(pluginStatus);
-                            Controls.Remove(pluginStatus);
-                            AddWithLocation(updateLink, row, 4);
+
+                                // This task may not be executed on the main UI thread -- as such, the following
+                                // UI touches risk failing with errors. However, we can't use Invoke() here either because the
+                                // UI hasn't been displayed yet (and thus no handle).
+                                ThemeManager.GetInstance.RegisterControl(updateLink);
+                                updateLink.LinkClicked += (_, _) =>
+                                {
+                                    var startInfo = new ProcessStartInfo(
+                                        updateInfo.Url ?? "https://observatory.xjph.net"
+                                    )
+                                    {
+                                        UseShellExecute = true,
+                                    };
+                                    Process.Start(startInfo);
+                                };
+                                var row = GetRow(pluginStatus);
+                                Controls.Remove(pluginStatus);
+                                AddWithLocation(updateLink, row, 4);
+                            }
+                            if (this.InvokeRequired)
+                            {
+                                this.Invoke(wrapper);
+                            }
+                            else
+                            {
+                                wrapper();
+                            }
                         }
                     })
                 );

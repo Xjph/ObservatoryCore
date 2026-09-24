@@ -21,8 +21,7 @@ namespace Observatory.PluginManagement
             get { return _instance.Value; }
         }
 
-        public static string PluginPath =
-            $"{AppDomain.CurrentDomain.BaseDirectory}{Path.DirectorySeparatorChar}plugins";
+        public static string PluginPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
 
         private static readonly Lazy<PluginManager> _instance = new Lazy<PluginManager>(
             NewPluginManager
