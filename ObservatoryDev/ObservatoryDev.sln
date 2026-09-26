@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ObservatoryFramework", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObservatoryCommunicator", "..\ObservatoryCommunicator\ObservatoryCommunicator.csproj", "{36E1CE1C-F64E-4D7F-9AEE-4991CA8F0115}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ObservatorySandbox", "..\PluginSandbox\ObservatorySandbox.csproj", "{E71BD63B-BB73-5472-B92B-7DCE983FFE26}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,14 @@ Global
 		{36E1CE1C-F64E-4D7F-9AEE-4991CA8F0115}.Proton|Any CPU.Build.0 = Release|Any CPU
 		{36E1CE1C-F64E-4D7F-9AEE-4991CA8F0115}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{36E1CE1C-F64E-4D7F-9AEE-4991CA8F0115}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E71BD63B-BB73-5472-B92B-7DCE983FFE26}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E71BD63B-BB73-5472-B92B-7DCE983FFE26}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E71BD63B-BB73-5472-B92B-7DCE983FFE26}.Portable|Any CPU.ActiveCfg = Portable|Any CPU
+		{E71BD63B-BB73-5472-B92B-7DCE983FFE26}.Portable|Any CPU.Build.0 = Portable|Any CPU
+		{E71BD63B-BB73-5472-B92B-7DCE983FFE26}.Proton|Any CPU.ActiveCfg = Proton|Any CPU
+		{E71BD63B-BB73-5472-B92B-7DCE983FFE26}.Proton|Any CPU.Build.0 = Proton|Any CPU
+		{E71BD63B-BB73-5472-B92B-7DCE983FFE26}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E71BD63B-BB73-5472-B92B-7DCE983FFE26}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

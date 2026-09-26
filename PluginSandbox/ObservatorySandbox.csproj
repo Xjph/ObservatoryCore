@@ -1,0 +1,28 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <SignAssembly>false</SignAssembly>
+    <AssemblyOriginatorKeyFile>ObservatoryKey.snk</AssemblyOriginatorKeyFile>
+    <Configurations>Debug;Release;Portable;Proton</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <VersionSuffix>0.0.0.$([System.DateTime]::UtcNow.DayOfYear.ToString().PadLeft(3, "0"))$([System.DateTime]::UtcNow.Hour)</VersionSuffix>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' == '' ">0.0.0.1</AssemblyVersion>
+    <AssemblyVersion Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</AssemblyVersion>
+    <Version Condition=" '$(VersionSuffix)' == '' ">0.0.1.0</Version>
+    <Version Condition=" '$(VersionSuffix)' != '' ">$(VersionSuffix)</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ObservatoryFramework\ObservatoryFramework.csproj" />
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec
+      Condition=" '$(OS)' == 'Windows_NT' "
+      Command="xcopy &quot;$(TargetDir)\*&quot; &quot;$(ProjectDir)..\ObservatoryCore\$(OutDir)..\net8.0-windows7.0\plugins\ObservatorySandbox\&quot; /y /s /exclude:$(ProjectDir)..\xcopyExclude"
+    />
+  </Target>
+</Project>
