@@ -10,7 +10,7 @@ namespace Observatory.UI
     {
         private TabPage _tab;
         private Panel? _panel;
-        private Label _label;
+        private Label? _label;
         private IObservatoryPlugin _plugin;
 
         public PopoutForm(TabPage tab, IObservatoryPlugin plugin)
@@ -18,6 +18,7 @@ namespace Observatory.UI
             _plugin = plugin;
             _tab = tab;
             _panel = tab.Controls.OfType<Panel>().FirstOrDefault();
+
             if (_panel != null)
             {
                 InitializeComponent();

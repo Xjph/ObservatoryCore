@@ -1,4 +1,5 @@
-﻿namespace System.Text.Json.Serialization
+﻿#nullable enable
+namespace System.Text.Json.Serialization
 {
     /// <summary>
     /// When placed on an enum type specifies the options for the <see

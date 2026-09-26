@@ -189,11 +189,13 @@ namespace Observatory.UI
                         {
                             // this is also default; double check the deprecated method and update the info object accordingly if
                             // it returns true.
+#pragma warning disable CS0618
                             if (plugin.UpdateAvailable(out string url))
                             {
                                 updateInfo.Status = PluginUpdateStatus.UpdateAvailable;
                                 updateInfo.Url = url;
                             }
+#pragma warning restore CS0618
                         }
 
                         if (updateInfo.Status != PluginUpdateStatus.NoUpdate)

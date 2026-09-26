@@ -21,7 +21,10 @@ namespace Observatory.PluginManagement
             get { return _instance.Value; }
         }
 
-        public static string PluginPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins");
+        public static string PluginPath = Path.Combine(
+            AppDomain.CurrentDomain.BaseDirectory,
+            "plugins"
+        );
 
         private static readonly Lazy<PluginManager> _instance = new Lazy<PluginManager>(
             NewPluginManager
@@ -32,7 +35,7 @@ namespace Observatory.PluginManagement
             return new PluginManager();
         }
 
-        public readonly List<(string error, string? detail)> errorList;
+        public readonly List<(string error, string detail)> errorList;
         public readonly List<Panel> pluginPanels;
         public readonly List<DataTable> pluginTables;
         private readonly List<IObservatoryWorker>? _workerPlugins;
@@ -126,7 +129,9 @@ namespace Observatory.PluginManagement
                 }
                 catch (Exception ex)
                 {
-                    errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
+                    errorList.Add(
+                        ($"{plugin.ShortName}: {ex.Message}", ex.StackTrace ?? string.Empty)
+                    );
                     _pluginStatus[plugin] = PluginStatus.SettingsReset;
                 }
 
@@ -136,12 +141,14 @@ namespace Observatory.PluginManagement
                 }
                 catch (PluginException ex)
                 {
-                    errorList.Add((FormatErrorMessage(ex), ex.StackTrace));
+                    errorList.Add((FormatErrorMessage(ex), ex.StackTrace ?? string.Empty));
                     _pluginStatus[plugin] = PluginStatus.Errored;
                 }
                 catch (Exception ex)
                 {
-                    errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
+                    errorList.Add(
+                        ($"{plugin.ShortName}: {ex.Message}", ex.StackTrace ?? string.Empty)
+                    );
                     _pluginStatus[plugin] = PluginStatus.Errored;
                 }
             }
@@ -157,7 +164,9 @@ namespace Observatory.PluginManagement
                     }
                     catch (Exception ex)
                     {
-                        errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
+                        errorList.Add(
+                            ($"{plugin.ShortName}: {ex.Message}", ex.StackTrace ?? string.Empty)
+                        );
                         _pluginStatus[plugin] = PluginStatus.SettingsReset;
                     }
 
@@ -167,12 +176,14 @@ namespace Observatory.PluginManagement
                     }
                     catch (PluginException ex)
                     {
-                        errorList.Add((FormatErrorMessage(ex), ex.StackTrace));
+                        errorList.Add((FormatErrorMessage(ex), ex.StackTrace ?? string.Empty));
                         _pluginStatus[plugin] = PluginStatus.Errored;
                     }
                     catch (Exception ex)
                     {
-                        errorList.Add(($"{plugin.ShortName}: {ex.Message}", ex.StackTrace));
+                        errorList.Add(
+                            ($"{plugin.ShortName}: {ex.Message}", ex.StackTrace ?? string.Empty)
+                        );
                         _pluginStatus[plugin] = PluginStatus.Errored;
                     }
                 }
@@ -385,14 +396,14 @@ namespace Observatory.PluginManagement
             pluginHandler.SetPluginEnabled(plugin, enabled);
         }
 
-        private List<(string, string?)> LoadPlugins(
+        private List<(string, string)> LoadPlugins(
             out List<IObservatoryWorker> observatoryWorkers,
             out List<IObservatoryNotifier> observatoryNotifiers
         )
         {
             observatoryWorkers = [];
             observatoryNotifiers = [];
-            var errorList = new List<(string, string?)>();
+            var errorList = new List<(string, string)>();
 
             var pluginPath = PluginPath;
 
@@ -487,7 +498,7 @@ namespace Observatory.PluginManagement
 
                     if (depLibraries.Count != 0)
                     {
-                        Debug.WriteLine($"Loading plugin dependency {name.Name}");
+                        Debug.WriteLine($"Loading plugin dependency {name?.Name}");
                         return context.LoadFromStream(new MemoryStream(depLibraries[0].Value));
                     }
 
@@ -554,7 +565,7 @@ namespace Observatory.PluginManagement
 
         private static List<PluginPackage> CollectPlugins(
             string pluginFolder,
-            List<(string, string?)> errorList
+            List<(string, string)> errorList
         )
         {
             var files = Directory.GetFiles(pluginFolder, "*.eop"); // Elite Observatory Plugin
@@ -600,7 +611,7 @@ namespace Observatory.PluginManagement
 
         private static List<PluginPackage> CollectLegacyPlugins(
             string pluginFolder,
-            List<(string, string?)> errorList
+            List<(string, string)> errorList
         )
         {
             var plugins = new List<PluginPackage>();

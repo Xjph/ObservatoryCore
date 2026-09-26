@@ -67,17 +67,14 @@ namespace Observatory.UI
             }
         }
 
-        public static void OpenPluginPopoutForm(
-            IObservatoryPlugin plugin,
-            TabPage? pluginTab = null
-        )
+        public static void OpenPluginPopoutForm(IObservatoryPlugin plugin, TabPage? pluginTab)
         {
             var form = GetFormByTitle(plugin.Name);
             if (form != null)
             {
                 form.Activate();
             }
-            else
+            else if (pluginTab != null)
             {
                 var popoutForm = new PopoutForm(pluginTab, plugin);
                 ThemeManager.GetInstance.RegisterControl(popoutForm);

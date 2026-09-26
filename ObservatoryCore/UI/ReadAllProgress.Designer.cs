@@ -79,6 +79,6 @@
 
         private ProgressBar ReadAllProgress;
         private Label JournalLabel;
-        private Button CancelButton;
+        private new Button CancelButton;
     }
 }

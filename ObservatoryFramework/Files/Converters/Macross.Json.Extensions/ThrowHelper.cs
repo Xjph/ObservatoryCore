@@ -2,6 +2,7 @@
 using System.Reflection;
 using System.Text.Json;
 
+#nullable enable
 namespace Macross.Json.Extensions
 {
     internal static class ThrowHelper

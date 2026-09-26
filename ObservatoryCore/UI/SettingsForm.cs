@@ -322,7 +322,7 @@ namespace Observatory.UI
 
             comboBox.SelectedValueChanged += (sender, e) =>
             {
-                backingValue.First().SetValue(_plugin.Settings, comboBox.SelectedItem.ToString());
+                backingValue.First().SetValue(_plugin.Settings, comboBox.SelectedItem?.ToString());
                 SaveSettings();
             };
 

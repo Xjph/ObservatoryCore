@@ -8,6 +8,7 @@ using Macross.Json.Extensions;
 using System.Diagnostics.CodeAnalysis;
 #endif
 
+#nullable enable
 namespace System.Text.Json.Serialization
 {
     internal class JsonStringEnumMemberConverter<TEnum> : JsonConverter<TEnum>

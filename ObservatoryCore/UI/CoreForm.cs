@@ -195,7 +195,7 @@ namespace Observatory.UI
             ResumeDrawing(this);
         }
 
-        private Dictionary<PluginUIGrid, object> PluginComparer;
+        private Dictionary<PluginUIGrid, object>? PluginComparer;
 
         private void SuspendSorting()
         {
@@ -207,7 +207,8 @@ namespace Observatory.UI
                     if (control?.GetType() == typeof(PluginUIGrid))
                     {
                         var listView = (PluginUIGrid)control;
-                        PluginComparer.Add(listView, listView.ListViewItemSorter);
+                        if (listView.ListViewItemSorter != null)
+                            PluginComparer.Add(listView, listView.ListViewItemSorter);
                         listView.ListViewItemSorter = null;
                     }
                 }
@@ -216,16 +217,13 @@ namespace Observatory.UI
 
         private void ResumeSorting()
         {
-            if (PluginComparer.Count != 0)
-                foreach (var panel in PluginComparer.Keys)
+            if (PluginComparer?.Count != 0)
+                foreach (var panel in PluginComparer!.Keys)
                 {
                     panel.ListViewItemSorter = (IObservatoryComparer)PluginComparer[panel];
                 }
             PluginComparer?.Clear();
         }
-
-        private NativeNotification.NativePopup? nativePopup;
-        private NativeNotification.NativeVoice? nativeVoice;
 
         private void CheckUpdate()
         {
@@ -508,8 +506,6 @@ namespace Observatory.UI
         }
 
         #region Plugins
-        private Dictionary<ListViewItem, IObservatoryPlugin>? ListedPlugins;
-        private bool loading = true; // Suppress settings updates due to initializing the listview.
 
         private void CreatePluginTabs()
         {

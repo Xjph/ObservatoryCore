@@ -1,4 +1,5 @@
-﻿namespace System.Text.Json.Serialization
+﻿#nullable enable
+namespace System.Text.Json.Serialization
 {
     /// <summary>
     /// Stores options for <see cref="JsonStringEnumMemberConverter"/>.

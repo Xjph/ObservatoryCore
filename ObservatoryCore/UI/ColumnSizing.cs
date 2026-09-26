@@ -2,8 +2,8 @@
 {
     public class ColumnSizing
     {
-        public string PluginName { get; set; }
-        public string PluginVersion { get; set; }
+        public required string PluginName { get; set; }
+        public required string PluginVersion { get; set; }
         public Dictionary<string, int> ColumnWidth
         {
             get

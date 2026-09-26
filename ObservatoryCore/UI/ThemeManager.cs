@@ -103,7 +103,7 @@ namespace Observatory.UI
         )
         {
             Dictionary<string, Color> parsedTheme = [];
-            foreach (var value in themeContainer.Theme)
+            foreach (var value in themeContainer.Theme ?? [])
             {
                 var color = DeserializeColor(value.Value);
                 parsedTheme.Add(value.Key, color);
@@ -323,9 +323,10 @@ namespace Observatory.UI
             }
         }
 
-        public void UnregisterControl(object control)
+        public void UnregisterControl(object? control)
         {
-            controls.Remove(control);
+            if (control != null && controls.ContainsKey(control))
+                controls.Remove(control);
         }
 
         public string AddTheme(string themeJson)

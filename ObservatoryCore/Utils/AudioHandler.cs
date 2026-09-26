@@ -12,11 +12,12 @@ namespace Observatory.Utils
 
         private ConcurrentDictionary<Guid, AudioTaskData> audioTasks = new();
 
-        internal Task EnqueueAndPlay(
-            string filePath,
-            AudioOptions options,
-            NotificationArgs args = null
-        )
+        internal Task EnqueueAndPlay(string filePath, AudioOptions options)
+        {
+            return EnqueueAndPlay(filePath, options, new NotificationArgs());
+        }
+
+        internal Task EnqueueAndPlay(string filePath, AudioOptions options, NotificationArgs args)
         {
             if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
             {
@@ -50,7 +51,7 @@ namespace Observatory.Utils
                             // does, it should implement its own delay.
                             // Thread.Sleep(250); // Allow time for other notifications to arrive for de-duplicating by title.
 
-                            while (TryDequeue(out AudioTaskData audioTask))
+                            while (TryDequeue(out AudioTaskData? audioTask))
                             {
                                 PlayAudioFile(audioTask);
                             }
@@ -218,8 +219,8 @@ namespace Observatory.Utils
     internal class AudioTaskData
     {
         public Guid Id { get; set; }
-        public string FilePath { get; set; }
-        public AudioOptions Options { get; set; }
-        public NotificationArgs Args { get; set; }
+        public string FilePath { get; set; } = string.Empty;
+        public AudioOptions Options { get; set; } = new();
+        public NotificationArgs Args { get; set; } = new();
     }
 }

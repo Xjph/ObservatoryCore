@@ -21,7 +21,6 @@ namespace Observatory.UI
         private IObservatoryComparer _columnSorter;
         private List<ColumnSizing> _columnSizing;
         private ColumnSizing _pluginColumnSizing;
-        private bool _selectionInProgress = false;
 
         public PluginUIGrid(IObservatoryPlugin plugin, List<ColumnSizing> columnSizings)
         {

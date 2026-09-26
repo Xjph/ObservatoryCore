@@ -160,7 +160,7 @@ namespace Observatory.UI
                 if (Screen.AllScreens.Length == 1)
                     screenBounds = Screen.GetBounds(this);
                 else
-                    screenBounds = Screen.PrimaryScreen.Bounds;
+                    screenBounds = Screen.PrimaryScreen?.Bounds ?? Rectangle.Empty;
             else
                 screenBounds = Screen.AllScreens[screen].Bounds;
 

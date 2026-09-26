@@ -34,7 +34,7 @@ namespace Observatory.UI
 
                 // The list of links may have many links, some of which are invalid. Render the first 4 valid links we find.
                 // If not enough links are found, we clear the UI/hide the link.
-                AboutLink link = null;
+                AboutLink? link = null;
                 while (linkIdx < links.Count)
                 {
                     link = links[linkIdx];
@@ -53,8 +53,7 @@ namespace Observatory.UI
             if (string.IsNullOrEmpty(link.Text) || string.IsNullOrEmpty(link.Url))
                 return false;
 
-            Uri uri;
-            if (!Uri.TryCreate(link.Url, new UriCreationOptions(), out uri))
+            if (!Uri.TryCreate(link.Url, new UriCreationOptions(), out Uri? _))
                 return false;
 
             return true;

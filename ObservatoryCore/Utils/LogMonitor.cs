@@ -29,6 +29,8 @@ namespace Observatory.Utils
             currentLine = [];
             currentLines = [];
             journalTypes = JournalReader.PopulateEventClasses();
+            Status = new();
+            Cargo = new();
             InitializeWatchers(string.Empty);
             SetLogMonitorState(LogMonitorState.Idle);
         }
@@ -291,13 +293,13 @@ namespace Observatory.Utils
 
         #region Public Events
 
-        public event EventHandler<LogMonitorStateChangedEventArgs> LogMonitorStateChanged;
+        public event EventHandler<LogMonitorStateChangedEventArgs>? LogMonitorStateChanged;
 
-        public event EventHandler<JournalEventArgs> JournalEntry;
+        public event EventHandler<JournalEventArgs>? JournalEntry;
 
-        public event EventHandler<JournalEventArgs> StatusUpdate;
+        public event EventHandler<JournalEventArgs>? StatusUpdate;
 
-        public event EventHandler<JournalEventArgs> CargoUpdate;
+        public event EventHandler<JournalEventArgs>? CargoUpdate;
 
         #endregion
 
@@ -414,11 +416,11 @@ namespace Observatory.Utils
             try
             {
                 var eventClass = journalTypes[eventType];
-                MethodInfo journalRead = typeof(JournalReader).GetMethod(
+                MethodInfo? journalRead = typeof(JournalReader).GetMethod(
                     nameof(JournalReader.ObservatoryDeserializer)
                 );
-                MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
-                object entry = journalGeneric.Invoke(null, new object[] { line });
+                MethodInfo? journalGeneric = journalRead?.MakeGenericMethod(eventClass);
+                object? entry = journalGeneric?.Invoke(null, new object[] { line });
                 return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
             }
             catch (JsonException ex)
@@ -430,11 +432,11 @@ namespace Observatory.Utils
                 );
 
                 var eventClass = journalTypes["JournalBase"];
-                MethodInfo journalRead = typeof(JournalReader).GetMethod(
+                MethodInfo? journalRead = typeof(JournalReader).GetMethod(
                     nameof(JournalReader.ObservatoryDeserializer)
                 );
-                MethodInfo journalGeneric = journalRead.MakeGenericMethod(eventClass);
-                object entry = journalGeneric.Invoke(null, new object[] { line });
+                MethodInfo? journalGeneric = journalRead?.MakeGenericMethod(eventClass);
+                object? entry = journalGeneric?.Invoke(null, new object[] { line });
                 return new JournalEventArgs() { journalType = eventClass, journalEvent = entry };
             }
         }
@@ -462,7 +464,8 @@ namespace Observatory.Utils
                 try
                 {
                     using var fileStream = File.Open(
-                        journalWatcher.Path + Path.DirectorySeparatorChar + filename,
+                        journalWatcher?.Path
+                            ?? string.Empty + Path.DirectorySeparatorChar + filename,
                         FileMode.Open,
                         FileAccess.Read,
                         FileShare.ReadWrite

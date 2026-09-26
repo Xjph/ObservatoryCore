@@ -254,11 +254,14 @@ namespace Observatory.PluginManagement
             {
                 try
                 {
+                    // Disable obsolete warning, intentional legacy compatibility.
+#pragma warning disable CS0618
                     plugin.HandlePluginMessage(
                         messageArgs.SourceName,
                         messageArgs.SourceVersion,
                         messageArgs.Message
                     );
+#pragma warning restore CS0618
                     PluginMessage wrappedLegacyMessage = new(
                         "LegacyPluginMessage",
                         new Dictionary<string, object> { { "message", messageArgs.Message } }

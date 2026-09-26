@@ -28,7 +28,7 @@ namespace Observatory.Framework.Files.Converters
                 double asDbl = Convert.ToDouble(value);
                 JsonSerializer.Serialize(writer, asDbl, options);
             }
-            catch (Exception ex)
+            catch
             {
                 JsonSerializer.Serialize(writer, value?.ToString(), options);
             }

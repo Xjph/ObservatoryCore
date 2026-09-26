@@ -216,12 +216,12 @@ namespace Observatory.PluginManagement
             get => LogMonitorStateChangedEventArgs.IsBatchRead(LogMonitor.GetInstance.CurrentState);
         }
 
-        public event EventHandler<NotificationArgs> Notification;
-        public event EventHandler<NotificationArgs> UpdateNotificationEvent;
-        public event EventHandler<Guid> CancelNotificationEvent;
+        public event EventHandler<NotificationArgs>? Notification;
+        public event EventHandler<NotificationArgs>? UpdateNotificationEvent;
+        public event EventHandler<Guid>? CancelNotificationEvent;
 
-        internal event EventHandler<LegacyPluginMessageArgs> LegacyPluginMessage;
-        internal event EventHandler<PluginMessageArgs> PluginMessage;
+        internal event EventHandler<LegacyPluginMessageArgs>? LegacyPluginMessage;
+        internal event EventHandler<PluginMessageArgs>? PluginMessage;
 
         public string PluginStorageFolder
         {

@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Runtime.Serialization;
 
+#nullable enable
 namespace System.Text.Json.Serialization
 {
     /// <summary>

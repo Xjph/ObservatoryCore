@@ -10,7 +10,7 @@ namespace Observatory.Utils
         public static TJournal ObservatoryDeserializer<TJournal>(string json)
             where TJournal : JournalBase
         {
-            TJournal deserialized;
+            TJournal? deserialized;
 
             if (typeof(TJournal) == typeof(InvalidJson))
             {
@@ -71,9 +71,15 @@ namespace Observatory.Utils
             {
                 deserialized = JsonSerializer.Deserialize<TJournal>(json);
             }
-            deserialized.Json = json;
 
-            return deserialized;
+            if (deserialized != null)
+            {
+                deserialized.Json = json;
+
+                return deserialized;
+            }
+            else
+                throw new Exception($"Failed to deserialize {typeof(TJournal).Name}");
         }
 
         public static Dictionary<string, Type> PopulateEventClasses()
