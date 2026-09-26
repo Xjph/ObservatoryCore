@@ -43,6 +43,8 @@ namespace Observatory.Utils
 
         public Status Status { get; private set; }
 
+        public CargoFile Cargo { get; private set; }
+
         #endregion
 
         #region Public Methods
@@ -295,12 +297,15 @@ namespace Observatory.Utils
 
         public event EventHandler<JournalEventArgs> StatusUpdate;
 
+        public event EventHandler<JournalEventArgs> CargoUpdate;
+
         #endregion
 
         #region Private Fields
 
         private FileSystemWatcher? journalWatcher;
         private FileSystemWatcher? statusWatcher;
+        private FileSystemWatcher? cargoWatcher;
         private readonly Dictionary<string, Type> journalTypes;
         private readonly Dictionary<string, int> currentLine;
         private readonly List<string> currentLines;
@@ -376,6 +381,12 @@ namespace Observatory.Utils
                 NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
             };
             statusWatcher.Changed += StatusUpdateEvent;
+
+            cargoWatcher = new FileSystemWatcher(logDirectory.FullName, "Cargo.json")
+            {
+                NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.Size,
+            };
+            cargoWatcher.Changed += CargoUpdateEvent;
         }
 
         private List<(Exception ex, string file, string line)> ProcessLines(
@@ -576,6 +587,21 @@ namespace Observatory.Utils
                         "Status file could not be deserialized to Status object."
                     );
                 }
+            }
+        }
+
+        private void CargoUpdateEvent(object source, FileSystemEventArgs eventArgs)
+        {
+            var handler = CargoUpdate;
+            var cargoLines = ReadAllLines(eventArgs.FullPath);
+            if (cargoLines.Count > 0)
+            {
+                CargoFile cargo = JournalReader.ObservatoryDeserializer<CargoFile>(cargoLines[0]);
+                Cargo = cargo;
+                handler?.Invoke(
+                    this,
+                    new JournalEventArgs() { journalType = typeof(CargoFile), journalEvent = cargo }
+                );
             }
         }
 

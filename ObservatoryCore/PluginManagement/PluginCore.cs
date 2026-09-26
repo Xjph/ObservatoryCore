@@ -37,6 +37,8 @@ namespace Observatory.PluginManagement
 
         public Status GetStatus() => LogMonitor.GetInstance.Status;
 
+        public CargoFile GetCargo() => LogMonitor.GetInstance.Cargo;
+
         public Guid SendNotification(string title, string text)
         {
             return SendNotification(new NotificationArgs() { Title = title, Detail = text });

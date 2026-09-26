@@ -502,6 +502,12 @@ namespace Observatory.Framework.Interfaces
         /// <param name="title">The title text to display in the message box.</param>
         /// <param name="message">The message text to display in the message box.</param>
         public void DisplayMessageBox(string title, string message);
+
+        /// <summary>
+        /// Requests current Elite Dangerous cargo.json content.
+        /// </summary>
+        /// <returns>Status object reflecting current Elite Dangerous player cargo.</returns>
+        public CargoFile GetCargo();
     }
 
     /// <summary>
