@@ -23,6 +23,7 @@
     <PackageIcon>EOCIcon128.png</PackageIcon>
     <RepositoryUrl>https://github.com/Xjph/ObservatoryCore</RepositoryUrl>
     <PackageReleaseNotes>Adds support for plugin actions.</PackageReleaseNotes>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -39,6 +40,10 @@
 
   <ItemGroup>
     <None Include="..\ObservatoryCore\Assets\EOCIcon128.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
