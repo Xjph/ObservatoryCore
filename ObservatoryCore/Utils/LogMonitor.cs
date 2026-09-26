@@ -587,10 +587,9 @@ namespace Observatory.Utils
             var statusLines = ReadAllLines(eventArgs.FullPath);
             if (statusLines.Count > 0)
             {
-                Status status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
                 try
                 {
-                    status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
+                    Status status = JournalReader.ObservatoryDeserializer<Status>(statusLines[0]);
                     Status = status;
                     handler?.Invoke(
                         this,
@@ -618,12 +617,27 @@ namespace Observatory.Utils
             var cargoFile = ReadAllText(eventArgs.FullPath);
             if (cargoFile.Trim().Length > 0)
             {
-                CargoFile cargo = JournalReader.ObservatoryDeserializer<CargoFile>(cargoFile);
-                Cargo = cargo;
-                handler?.Invoke(
-                    this,
-                    new JournalEventArgs() { journalType = typeof(CargoFile), journalEvent = cargo }
-                );
+                try
+                {
+                    CargoFile cargo = JournalReader.ObservatoryDeserializer<CargoFile>(cargoFile);
+                    Cargo = cargo;
+                    handler?.Invoke(
+                        this,
+                        new JournalEventArgs()
+                        {
+                            journalType = typeof(CargoFile),
+                            journalEvent = cargo,
+                        }
+                    );
+                }
+                catch (JsonException ex)
+                {
+                    // Proceed without updating cargo and log error.
+                    ObservatoryCore.LogError(
+                        ex,
+                        "Cargo file could not be deserialized to CargoFile object."
+                    );
+                }
             }
         }
 
