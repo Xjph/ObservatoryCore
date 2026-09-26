@@ -42,15 +42,17 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Types]
-Name: "Full"; Description: "Full installation"
+Name: "Full"; Description: "Standard installation"
+Name: "FullPlusC"; Description: "Full installation"
 Name: "Custom"; Description: "Custom installation"; Flags: iscustom
 
 [Components]
-Name: "Core"; Description: "Core Elite Observatory Application"; Flags: fixed; Types: Full Custom
-Name: "Plugins"; Description: "Optional Observatory Plugins"; Types: Full
-Name: "Plugins\Explorer"; Description: "Explorer: Plugin for finding interesting objects while exploring."; Types: Full
-Name: "Plugins\Botanist"; Description: "Botanist: Plugin for tracking surface biological signals scanned while on foot."; Types: Full
-;Name: "Plugins\Herald"; Description: "Herald: Plugin for cloud-based high quality speech notifications via Microsoft Azure Cognitive Services."; Types: Full
+Name: "Core"; Description: "Core Elite Observatory Application"; Flags: fixed; Types: FullPlusC Full Custom
+Name: "Plugins"; Description: "Optional Observatory Plugins"; Types: FullPlusC Full
+Name: "Plugins\Explorer"; Description: "Explorer: Plugin for finding interesting objects while exploring."; Types: FullPlusC Full
+Name: "Plugins\Botanist"; Description: "Botanist: Plugin for tracking surface biological signals scanned while on foot."; Types: FullPlusC Full
+Name: "Plugins\Communicator"; Description: "Communicator: Plugin for monitoring and notifying for chat messages."; Types: FullPlusC
+
 
 [Dirs]
 Name: "{app}\plugins"; Permissions: users-modify
@@ -60,6 +62,7 @@ Source: "..\ObservatoryCore\bin\Proton\publish\{#MyAppExeName}"; DestDir: "{app}
 Source: "..\ObservatoryCore\bin\Proton\publish\*"; Excludes: "\plugins\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryExplorer.eop"; DestDir: "{app}\plugins"; Components: Plugins\Explorer
 Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryBotanist.eop"; DestDir: "{app}\plugins"; Components: Plugins\Botanist
+Source: "..\ObservatoryCore\bin\Release\net8.0-windows7.0\plugins\ObservatoryCommunicator.eop"; DestDir: "{app}\plugins"; Components: Plugins\Communicator
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
