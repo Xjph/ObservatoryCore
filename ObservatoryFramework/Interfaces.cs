@@ -181,6 +181,13 @@ namespace Observatory.Framework.Interfaces
         public void StatusChange(Status status) { }
 
         /// <summary>
+        /// Method called when cargo.json content is updated.<br/>
+        /// Can be omitted for plugins which do not use this data.
+        /// </summary>
+        /// <param name="cargo">Player cargo.json content, deserialized into a .NET object.</param>
+        public void CargoChange(CargoFile cargo) { }
+
+        /// <summary>
         /// Called when the LogMonitor changes state. Useful for suppressing output in certain situations
         /// such as batch reads (ie. "Read all") or responding to other state transitions.
         /// </summary>

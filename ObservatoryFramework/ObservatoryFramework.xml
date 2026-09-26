@@ -1664,6 +1664,13 @@
             </summary>
             <param name="status">Player status.json content, deserialized into a .NET object.</param>
         </member>
+        <member name="M:Observatory.Framework.Interfaces.IObservatoryWorker.CargoChange(Observatory.Framework.Files.CargoFile)">
+            <summary>
+            Method called when cargo.json content is updated.<br/>
+            Can be omitted for plugins which do not use this data.
+            </summary>
+            <param name="cargo">Player cargo.json content, deserialized into a .NET object.</param>
+        </member>
         <member name="M:Observatory.Framework.Interfaces.IObservatoryWorker.LogMonitorStateChanged(Observatory.Framework.LogMonitorStateChangedEventArgs)">
             <summary>
             Called when the LogMonitor changes state. Useful for suppressing output in certain situations

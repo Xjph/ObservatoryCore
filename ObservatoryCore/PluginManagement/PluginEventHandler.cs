@@ -1,4 +1,5 @@
-﻿using System.Timers;
+﻿using System.Speech.Synthesis;
+using System.Timers;
 using Observatory.Framework;
 using Observatory.Framework.Files;
 using Observatory.Framework.Files.Journal;
@@ -78,6 +79,33 @@ namespace Observatory.PluginManagement
                 try
                 {
                     worker.StatusChange((Status)journalEventArgs.journalEvent);
+                }
+                catch (PluginException ex)
+                {
+                    RecordError(ex);
+                }
+                catch (Exception ex)
+                {
+                    RecordError(
+                        ex,
+                        worker.Name,
+                        journalEventArgs.journalType.Name,
+                        ((JournalBase)journalEventArgs.journalEvent).Json
+                    );
+                }
+                ResetTimer();
+            }
+        }
+
+        public void OnCargoUpdate(object? _, JournalEventArgs journalEventArgs)
+        {
+            foreach (var worker in observatoryWorkers)
+            {
+                if (disabledPlugins.Contains(worker))
+                    continue;
+                try
+                {
+                    worker.CargoChange((CargoFile)journalEventArgs.journalEvent);
                 }
                 catch (PluginException ex)
                 {

@@ -61,6 +61,7 @@ namespace Observatory.Utils
             }
             journalWatcher!.EnableRaisingEvents = true;
             statusWatcher!.EnableRaisingEvents = true;
+            cargoWatcher!.EnableRaisingEvents = true;
             SetLogMonitorState(LogMonitorState.Realtime);
             JournalPoke();
         }
@@ -69,6 +70,7 @@ namespace Observatory.Utils
         {
             journalWatcher!.EnableRaisingEvents = false;
             statusWatcher!.EnableRaisingEvents = false;
+            cargoWatcher!.EnableRaisingEvents = false;
             SetLogMonitorState(LogMonitorState.Idle);
         }
 
@@ -76,6 +78,7 @@ namespace Observatory.Utils
         {
             journalWatcher?.Dispose();
             statusWatcher?.Dispose();
+            cargoWatcher?.Dispose();
             InitializeWatchers(path);
         }
 
@@ -458,14 +461,15 @@ namespace Observatory.Utils
             string? fileContent = null;
             int retryCount = 0;
 
-            while (fileContent == null && retryCount < 10)
+            while (fileContent == null && retryCount < 10 && journalWatcher?.Path != null)
             {
                 Thread.Sleep(50);
                 try
                 {
+                    var filePath = Path.Combine(journalWatcher.Path!, filename);
+
                     using var fileStream = File.Open(
-                        journalWatcher?.Path
-                            ?? string.Empty + Path.DirectorySeparatorChar + filename,
+                        filePath,
                         FileMode.Open,
                         FileAccess.Read,
                         FileShare.ReadWrite
@@ -549,11 +553,26 @@ namespace Observatory.Utils
             }
             catch (IOException ioEx)
             {
-                ReportErrors(
-                    new List<(Exception, string, string)>() { (ioEx, path, "<reading all lines>") }
-                );
+                ReportErrors([(ioEx, path, "<reading all lines>")]);
             }
             return lines;
+        }
+
+        private static string ReadAllText(string path)
+        {
+            string content = string.Empty;
+            try
+            {
+                using StreamReader file = new(
+                    File.Open(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
+                );
+                content = file.ReadToEnd();
+            }
+            catch (IOException ioEx)
+            {
+                ReportErrors([(ioEx, path, "<reading file>")]);
+            }
+            return content;
         }
 
         private void LogCreatedEvent(object source, FileSystemEventArgs eventArgs)
@@ -596,10 +615,10 @@ namespace Observatory.Utils
         private void CargoUpdateEvent(object source, FileSystemEventArgs eventArgs)
         {
             var handler = CargoUpdate;
-            var cargoLines = ReadAllLines(eventArgs.FullPath);
-            if (cargoLines.Count > 0)
+            var cargoFile = ReadAllText(eventArgs.FullPath);
+            if (cargoFile.Trim().Length > 0)
             {
-                CargoFile cargo = JournalReader.ObservatoryDeserializer<CargoFile>(cargoLines[0]);
+                CargoFile cargo = JournalReader.ObservatoryDeserializer<CargoFile>(cargoFile);
                 Cargo = cargo;
                 handler?.Invoke(
                     this,

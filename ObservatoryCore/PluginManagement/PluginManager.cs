@@ -117,6 +117,7 @@ namespace Observatory.PluginManagement
 
             logMonitor.JournalEntry += pluginHandler.OnJournalEvent;
             logMonitor.StatusUpdate += pluginHandler.OnStatusUpdate;
+            logMonitor.CargoUpdate += pluginHandler.OnCargoUpdate;
             logMonitor.LogMonitorStateChanged += pluginHandler.OnLogMonitorStateChanged;
 
             var allPluginSettings = LoadAllPluginSettings();
