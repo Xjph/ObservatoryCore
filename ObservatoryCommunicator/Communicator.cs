@@ -15,7 +15,10 @@ namespace Observatory.Communicator
             _ui = new PluginActionUI(_resultsGrid, ActionDock.Bottom);
         }
 
-        public string Version => "0.0.1";
+        public string Version =>
+            typeof(Communicator).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
+
+        public static Guid Guid => new("581B2F03-1C16-4F02-9E20-E3BEF5E9518B");
 
         public PluginUI PluginUI => _ui;
 
