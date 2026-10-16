@@ -483,7 +483,7 @@ namespace Observatory.UI
             {
                 Text = fileInfo?.FullName ?? string.Empty,
                 AutoSize = true,
-                Width = 200,
+                Width = (int)(200 * _scale),
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
@@ -539,7 +539,7 @@ namespace Observatory.UI
             {
                 Text = dirInfo?.FullName ?? string.Empty,
                 AutoSize = true,
-                Width = 200,
+                Width = (int)(200 * _scale),
             };
 
             textBox.TextChanged += (object? sender, EventArgs e) =>
