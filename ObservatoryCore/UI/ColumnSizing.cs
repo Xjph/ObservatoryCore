@@ -4,6 +4,10 @@
     {
         public required string PluginName { get; set; }
         public required string PluginVersion { get; set; }
+
+        // DPI the widths were saved at; null for settings saved before this was tracked.
+        public int? Dpi { get; set; }
+
         public Dictionary<string, int> ColumnWidth
         {
             get

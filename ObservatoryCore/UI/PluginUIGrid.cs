@@ -61,34 +61,56 @@ namespace Observatory.UI
                 _columnSizing.Add(_pluginColumnSizing);
             }
 
+            // Saved widths are device pixels at the DPI they were saved at.
+            int? savedDpi = _pluginColumnSizing.Dpi;
+
             // Some plugins don't provide any columns?
             if (plugin.PluginUI.DataGrid.Any())
+            {
+                int defaultWidth = 0;
+
                 foreach (var property in plugin.PluginUI.DataGrid.First().GetType().GetProperties())
                 {
                     string columnLabel = LowerUpper()
                         .Replace(UpperUpperLower().Replace(property.Name, "$1 $2"), "$1 $2");
 
-                    int width;
+                    var widthAttrib = property.GetCustomAttribute<ColumnSuggestedWidth>();
+
+                    // Suggested widths are in 96 DPI logical pixels.
+                    int suggestedWidth =
+                        widthAttrib == null
+                            // Rough approximation of width by label length if none specified.
+                            ? columnLabel.Length * 10
+                            : widthAttrib.Width;
+
+                    defaultWidth = LogicalToDeviceUnits(suggestedWidth);
+                    int width = defaultWidth;
 
                     if (_pluginColumnSizing.ColumnWidth.TryGetValue(columnLabel, out int value))
                     {
-                        width = value;
-                    }
-                    else
-                    {
-                        var widthAttrib = property.GetCustomAttribute<ColumnSuggestedWidth>();
-
-                        width =
-                            widthAttrib == null
-                                // Rough approximation of width by label length if none specified.
-                                ? columnLabel.Length * 10
-                                : widthAttrib.Width;
-
-                        _pluginColumnSizing.ColumnWidth.Add(columnLabel, width);
+                        if (savedDpi > 0)
+                            width = (int)Math.Round(value * (double)DeviceDpi / savedDpi.Value);
+                        // Saved before DPI was tracked: anything but the unscaled default
+                        // was sized by the user at this DPI.
+                        else if (value != suggestedWidth)
+                            width = value;
                     }
 
+                    _pluginColumnSizing.ColumnWidth[columnLabel] = width;
                     Columns.Add(columnLabel, width);
                 }
+
+                // The saved rightmost width includes its stretch to fill the grid, which
+                // overflows once the other columns are rescaled. Resize will re-fill it.
+                if (DeviceDpi != (savedDpi ?? 96) && Columns.Count > 0)
+                {
+                    var rightmost = Columns[Columns.Count - 1];
+                    rightmost.Width = defaultWidth;
+                    _pluginColumnSizing.ColumnWidth[rightmost.Text] = defaultWidth;
+                }
+
+                _pluginColumnSizing.Dpi = DeviceDpi;
+            }
 
             Properties.Core.Default.ColumnSizing = JsonSerializer.Serialize(_columnSizing);
             SettingsManager.Save();
